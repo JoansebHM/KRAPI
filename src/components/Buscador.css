@@ -1,0 +1,48 @@
+.buscador {
+  position: relative;
+  margin-bottom: var(--space-4);
+}
+
+.buscador-icono {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* Doble clase para ganarle a .field-input sin importar el orden en que carguen los estilos. */
+.buscador .buscador-input {
+  width: 100%;
+  padding-left: 42px;
+  padding-right: 44px;
+  background: var(--color-surface);
+}
+
+/* Oculta la "x" nativa de los campos de búsqueda: se usa la propia, más grande. */
+.buscador-input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.buscador-limpiar {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.buscador-limpiar:hover {
+  background: var(--color-border);
+  color: var(--color-text);
+}

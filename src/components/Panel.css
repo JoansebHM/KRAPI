@@ -1,0 +1,62 @@
+.panel {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+@media (min-width: 900px) {
+  .panel {
+    left: auto;
+    width: 440px;
+    border-left: 1px solid var(--color-border);
+    box-shadow: var(--shadow-overlay);
+  }
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.panel-volver {
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.panel-titulos {
+  min-width: 0;
+}
+
+.panel-titulo {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.panel-subtitulo {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.panel-contenido {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-4);
+  /* Deja espacio para que el botón flotante no tape el último elemento. */
+  padding-bottom: 96px;
+}
+
+.panel-pie {
+  position: absolute;
+  right: var(--space-4);
+  bottom: max(var(--space-4), env(safe-area-inset-bottom));
+}

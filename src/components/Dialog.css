@@ -20,6 +20,8 @@
 .dialog {
   width: 100%;
   max-width: 420px;
+  max-height: calc(100dvh - 2 * var(--space-4));
+  overflow-y: auto;
   padding: var(--space-6);
   border-radius: var(--radius-md);
   background: var(--color-bg);

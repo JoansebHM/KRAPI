@@ -1,9 +1,13 @@
+import { useCallback, useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router'
+import { BotonMenu, MenuNavegacion } from '../components/MenuNavegacion'
 import { Notificaciones } from '../components/Notificaciones'
 import { variablesFaltantes } from '../config/env'
 import { InactivityDialog } from '../features/auth/InactivityDialog'
 import { LoginPage } from '../features/auth/LoginPage'
 import { UserMenu } from '../features/auth/UserMenu'
 import { useAuth } from '../features/auth/useAuth'
+import { CategoriasPage } from '../features/categorias/CategoriasPage'
 import { MapView } from '../features/map/MapView'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
 import { useTheme, type Theme } from '../features/theme/useTheme'
@@ -30,9 +34,17 @@ function Contenido({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () =
 
   if (!session) return <LoginPage theme={theme} onToggleTheme={onToggleTheme} />
 
+  return <AppConSesion theme={theme} onToggleTheme={onToggleTheme} />
+}
+
+function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void }) {
+  const [menuAbierto, setMenuAbierto] = useState(false)
+  const cerrarMenu = useCallback(() => setMenuAbierto(false), [])
+
   return (
     <div className="app">
       <header className="app-header">
+        <BotonMenu onAbrir={() => setMenuAbierto(true)} />
         <span className="app-brand">KRAPI</span>
         <span className="app-area">Barrio Manila</span>
         <div className="app-actions">
@@ -41,8 +53,15 @@ function Contenido({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () =
         </div>
       </header>
       <main className="app-main">
+        {/* El mapa siempre está montado; las secciones se abren encima. */}
         <MapView theme={theme} />
+        <Routes>
+          <Route path="/" element={null} />
+          <Route path="/categorias" element={<CategoriasPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
+      <MenuNavegacion abierto={menuAbierto} onCerrar={cerrarMenu} />
       <InactivityDialog />
     </div>
   )
