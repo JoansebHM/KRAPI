@@ -96,6 +96,13 @@ Cada issue lleva al menos un label de **tipo**, uno de **área** y uno de **prio
 
 Las funcionalidades posteriores se agrupan en nuevos milestones a medida que se definan.
 
+## Cambios en la base de datos
+
+- Todo cambio de esquema es una **migración nueva** en `supabase/migrations/` (`npm run db:new nombre`). Nunca se edita una migración que ya se aplicó.
+- Nada se cambia a mano desde el panel de Supabase; si se hizo, se pasa a una migración.
+- La migración y los tipos regenerados (`npm run db:types`) van en el mismo PR que el código que los usa.
+- Commits con el área `db`, por ejemplo: `feat(db): agregar campo horario a ubicaciones`.
+
 ## Variables de entorno y secretos
 
 - Las claves (Supabase, proveedor del mapa) van en `.env.local`, que **nunca** se sube a git.
