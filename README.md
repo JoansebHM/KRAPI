@@ -24,6 +24,13 @@ Abre http://localhost:5173. Para probar desde el celular en la misma red Wi‑Fi
 npm run dev -- --host
 ```
 
+## Identidad visual
+
+Colores y tipografía siguen el Manual de marca Kratos 2026 (identidad Kratos Innovation Lab). Están en `src/styles/theme.css`.
+
+- **Poppins** (texto) se carga desde Google Fonts.
+- **Good Times** (nombre de la app) se usa si está instalada en el dispositivo; si no, se muestra Poppins Black. Para que todos la vean, agrega el archivo web en `public/fonts/good-times.woff2` (revisa que la licencia permita uso web) y añade `url('/fonts/good-times.woff2') format('woff2')` al `@font-face` de `theme.css`.
+
 ## Scripts
 
 | Comando | Qué hace |
