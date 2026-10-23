@@ -19,7 +19,8 @@
     "@supabase/supabase-js": "^2.118.0",
     "maplibre-gl": "^6.15.0",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "sonner": "^2.0.8"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.16",

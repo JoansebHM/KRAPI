@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { notificar } from '../../lib/notificar'
 import { ThemeToggle } from '../theme/ThemeToggle'
 import type { Theme } from '../theme/useTheme'
 import { useAuth } from './useAuth'
@@ -35,6 +36,7 @@ export function LoginPage({ theme, onToggleTheme }: LoginPageProps) {
     const resultado = await iniciarSesion(email, password)
     setEnviando(false)
     if (resultado.error) setError(resultado.error)
+    else notificar.exito('Sesión iniciada', { descripcion: 'Bienvenido a KRAPI.' })
   }
 
   return (
