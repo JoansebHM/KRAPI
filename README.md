@@ -95,12 +95,18 @@ KRAPI no permite registrarse: hay un solo usuario para todo el equipo, que crea 
 | --- | --- |
 | `categorias` | Tipos de lugar (comercio, café...) con un color y un ícono para el mapa |
 | `responsables` | Personas que pueden figurar en los estudios, con la semilla de su avatar dibujado |
-| `ubicaciones` | Puntos y zonas dentro de Manila, con dirección, contacto y categoría |
-| `estudios` | Lo que se hizo en una ubicación: fecha, hora de inicio y fin, título |
+| `ubicaciones` | Lugares dentro de Manila: puntos (locales) y zonas (lo que se cubrió, por ejemplo una manzana). Con estado (activa/cerrada) |
+| `estudios` | Cada visita a un lugar: fecha, horas, responsables, a quién se entrevistó, título y notas |
 | `estudio_responsables` | Qué responsables participaron en cada estudio |
 | `evidencias` | Archivos, textos o enlaces de video de cada estudio |
 
-Reglas principales: ninguna ubicación puede quedar fuera del barrio; al borrar una categoría sus ubicaciones quedan sin categoría; al borrar una ubicación se borran sus estudios y evidencias.
+**Cómo se usa:** un lugar se crea una sola vez y acumula su histórico. Cada vez que alguien vuelve a ese lugar, se le **agrega un estudio nuevo**. Los estudios de zonas y de puntos tienen la misma estructura. La ficha de una zona muestra los locales que caen dentro (calculado por la geometría con `ubicaciones_en_zona`), y al crear un punto se avisa si hay otro a menos de 15 m (`ubicaciones_cercanas`) para no duplicarlo.
+
+Reglas principales:
+
+- Ninguna ubicación puede quedar fuera del barrio.
+- Lugares y estudios **se archivan, no se borran** (`archivada_en` / `archivado_en`), para no perder el histórico. Solo se borra de verdad un lugar sin estudios creado por error, o una evidencia equivocada.
+- Al borrar una categoría, sus ubicaciones quedan sin categoría.
 
 ## Scripts
 
