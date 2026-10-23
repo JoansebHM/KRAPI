@@ -31,6 +31,12 @@ Colores y tipografía siguen el Manual de marca Kratos 2026 (identidad Kratos In
 - **Poppins** (texto) se carga desde Google Fonts.
 - **Good Times** (nombre de la app) se usa si está instalada en el dispositivo; si no, se muestra Poppins Black. Para que todos la vean, agrega el archivo web en `public/fonts/good-times.woff2` (revisa que la licencia permita uso web) y añade `url('/fonts/good-times.woff2') format('woff2')` al `@font-face` de `theme.css`.
 
+## Navegación
+
+- El mapa siempre está de fondo. Las secciones (Categorías, Responsables…) se abren encima desde el menú ☰: en celular ocupan la pantalla y en computador son un panel lateral.
+- Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera.
+- Al desplegar (#24) el hosting debe redirigir todas las rutas a `index.html`.
+
 ## Base de datos (Supabase)
 
 La base de datos se maneja como código: todo el esquema vive en `supabase/migrations/` y se aplica con la CLI de Supabase, que viene incluida como dependencia del proyecto.
@@ -108,13 +114,14 @@ Reglas principales: ninguna ubicación puede quedar fuera del barrio; al borrar 
 ```
 src/
   app/          # Shell de la aplicación (layout, rutas)
-  components/   # Piezas de interfaz compartidas (diálogos)
+  components/   # Piezas compartidas: diálogos, panel, menú, buscador, notificaciones
   config/       # Variables de entorno y configuración (sesión, mapa)
   features/     # Una carpeta por funcionalidad
     auth/       # Inicio de sesión, política de sesión y menú de la cuenta
+    categorias/ # Administración de categorías
     map/        # Mapa base y límite del barrio
     theme/      # Modo claro y oscuro
-  lib/          # Clientes externos (Supabase)
+  lib/          # Supabase, caché de datos, notificaciones y utilidades
   types/        # Tipos generados del esquema de la base de datos
   styles/       # Tema (colores, tipografía, espaciado)
 supabase/
