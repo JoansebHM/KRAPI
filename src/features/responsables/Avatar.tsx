@@ -1,28 +1,33 @@
+import { useMemo } from 'react'
+import { createAvatar } from '@dicebear/core'
+import * as croodles from '@dicebear/croodles'
 import './Avatar.css'
 
 /**
- * Tonos oscuros derivados de la paleta de Kratos, para que las iniciales en blanco
- * siempre tengan buen contraste (todos superan 5:1).
+ * Avatar dibujado (DiceBear, estilo Croodles de vijay verma, licencia CC0).
+ * Se genera en el dispositivo a partir de una semilla: la misma semilla siempre da el mismo dibujo.
+ * Pelo en negro para que todo quede en blanco y negro.
  */
-const COLORES_AVATAR = ['#0D34E9', '#6100DF', '#0461CC', '#067647', '#0E7090', '#C11574', '#B54708', '#475467']
-
-function colorPara(nombre: string) {
-  let hash = 0
-  for (const caracter of nombre) hash = (hash * 31 + caracter.charCodeAt(0)) >>> 0
-  return COLORES_AVATAR[hash % COLORES_AVATAR.length]
+export function dibujarAvatar(semilla: string) {
+  return createAvatar(croodles, { seed: semilla, topColor: ['000000'], baseColor: ['ffffff'] }).toDataUri()
 }
 
-function iniciales(nombre: string) {
-  const partes = nombre.trim().split(/\s+/).filter(Boolean)
-  const letras = partes.length > 1 ? partes[0][0] + partes[partes.length - 1][0] : (partes[0] ?? '?').slice(0, 2)
-  return letras.toUpperCase()
+/** Semilla nueva al azar, para proponer otro avatar. */
+export function semillaAleatoria() {
+  return Math.random().toString(36).slice(2, 10)
 }
 
-/** Círculo con las iniciales de la persona. El color sale del nombre, así que siempre es el mismo. */
-export function Avatar({ nombre }: { nombre: string }) {
+interface AvatarProps {
+  semilla: string
+  /** Tamaño en píxeles. */
+  tamano?: number
+}
+
+export function Avatar({ semilla, tamano = 44 }: AvatarProps) {
+  const src = useMemo(() => dibujarAvatar(semilla), [semilla])
   return (
-    <span className="avatar" style={{ background: colorPara(nombre) }} aria-hidden="true">
-      {iniciales(nombre)}
+    <span className="avatar" style={{ width: tamano, height: tamano }} aria-hidden="true">
+      <img src={src} alt="" width={tamano} height={tamano} draggable={false} />
     </span>
   )
 }

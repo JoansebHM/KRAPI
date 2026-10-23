@@ -6,10 +6,15 @@ import { Panel } from '../../components/Panel'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { normalizar, plural } from '../../lib/texto'
-import { useEliminarResponsable, useResponsables, useRestaurarResponsable, type Responsable } from './api'
+import {
+  semillaDe,
+  useEliminarResponsable,
+  useResponsables,
+  useRestaurarResponsable,
+  type Responsable,
+} from './api'
 import { Avatar } from './Avatar'
 import { ResponsableFormulario } from './ResponsableFormulario'
-import './ResponsablesPage.css'
 
 type Formulario = { tipo: 'nuevo' } | { tipo: 'editar'; responsable: Responsable }
 
@@ -101,7 +106,7 @@ export function ResponsablesPage() {
                     className="lista-item"
                     onClick={() => setFormulario({ tipo: 'editar', responsable })}
                   >
-                    <Avatar nombre={responsable.nombre} />
+                    <Avatar semilla={semillaDe(responsable)} />
                     <span className="lista-item-textos">
                       <span className="lista-item-titulo">{responsable.nombre}</span>
                       <span className="lista-item-detalle">

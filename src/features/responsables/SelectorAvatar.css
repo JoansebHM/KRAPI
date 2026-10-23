@@ -1,0 +1,45 @@
+.selector-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.selector-avatar-opciones {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+  width: 100%;
+  justify-items: center;
+}
+
+.selector-avatar-opcion {
+  display: flex;
+  padding: 3px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.selector-avatar-opcion:active {
+  transform: scale(0.94);
+}
+
+.selector-avatar-opcion[aria-pressed='true'] {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.selector-avatar-opcion:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.selector-avatar-otros {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  font-size: 0.9375rem;
+}
