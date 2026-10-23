@@ -1,6 +1,9 @@
 import type { Feature, Polygon } from 'geojson'
 
-/** Límite del barrio Manila (El Poblado, Medellín). Fuente: capa de barrios, código 1419. */
+/**
+ * Límite del barrio Manila (El Poblado, Medellín). Fuente: capa de barrios, código 1419.
+ * La base de datos tiene una copia en public.limite_manila() (supabase/migrations): si cambia, actualiza ambas.
+ */
 export const MANILA: Feature<Polygon, { codigo: string; nombre: string }> = {
   type: 'Feature',
   properties: { codigo: '1419', nombre: 'Manila' },
