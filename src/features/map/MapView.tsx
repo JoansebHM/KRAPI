@@ -4,13 +4,14 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { env } from '../../config/env'
 import type { Theme } from '../theme/useTheme'
 import { MANILA, MANILA_BOUNDS, MANILA_MAX_BOUNDS } from './manila'
+import { toNightStyle } from './nightStyle'
 import './MapView.css'
 
 const BOUNDS_PADDING = 48
 
 const BOUNDARY_COLORS: Record<Theme, { line: string; fill: string; fillOpacity: number }> = {
   light: { line: '#054a97', fill: '#0478fb', fillOpacity: 0.08 },
-  dark: { line: '#3d9bff', fill: '#0478fb', fillOpacity: 0.14 },
+  dark: { line: '#5cadff', fill: '#0478fb', fillOpacity: 0.16 },
 }
 
 interface MapViewProps {
@@ -21,7 +22,7 @@ export function MapView({ theme }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
   const themeRef = useRef(theme)
-  const styleUrlRef = useRef(env.mapStyles[theme])
+  const appliedThemeRef = useRef<Theme | null>(null)
 
   // Crear el mapa una sola vez.
   useEffect(() => {
@@ -29,7 +30,6 @@ export function MapView({ theme }: MapViewProps) {
 
     const map = new MapLibreMap({
       container: containerRef.current,
-      style: styleUrlRef.current,
       bounds: MANILA_BOUNDS,
       fitBoundsOptions: { padding: BOUNDS_PADDING },
       // No deja mover ni alejar el mapa más allá de 1 km alrededor del barrio.
@@ -49,6 +49,9 @@ export function MapView({ theme }: MapViewProps) {
     // Cada vez que se carga un estilo (al inicio o al cambiar de tema) se vuelven a agregar las capas propias.
     map.on('style.load', () => addManilaLayers(map, themeRef.current))
 
+    setBaseStyle(map, themeRef.current)
+    appliedThemeRef.current = themeRef.current
+
     mapRef.current = map
     return () => {
       map.remove()
@@ -61,13 +64,22 @@ export function MapView({ theme }: MapViewProps) {
     themeRef.current = theme
     const map = mapRef.current
     if (!map) return
-    const url = env.mapStyles[theme]
-    if (url === styleUrlRef.current) return
-    styleUrlRef.current = url
-    map.setStyle(url, { diff: false })
+    if (appliedThemeRef.current === theme) return
+    appliedThemeRef.current = theme
+    setBaseStyle(map, theme)
   }, [theme])
 
   return <div ref={containerRef} className="map-view" />
+}
+
+/** Carga el mapa base del tema. Sin estilo oscuro configurado, genera uno nocturno a partir del claro. */
+function setBaseStyle(map: MapLibreMap, theme: Theme) {
+  const { light, dark } = env.mapStyles
+  if (theme === 'dark' && !dark) {
+    map.setStyle(light, { diff: false, transformStyle: (_previous, next) => toNightStyle(next) })
+    return
+  }
+  map.setStyle(theme === 'dark' && dark ? dark : light, { diff: false })
 }
 
 function addManilaLayers(map: MapLibreMap, theme: Theme) {
