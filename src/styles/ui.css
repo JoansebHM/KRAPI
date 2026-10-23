@@ -82,6 +82,12 @@
   font-size: 1rem;
 }
 
+.field-input::placeholder {
+  /* Mismo gris del texto secundario: se distingue del texto escrito y cumple contraste AA. */
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
 .field-input:focus {
   outline: 2px solid var(--color-focus);
   outline-offset: 1px;

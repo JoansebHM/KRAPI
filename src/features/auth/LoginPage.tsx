@@ -65,6 +65,7 @@ export function LoginPage({ theme, onToggleTheme }: LoginPageProps) {
               autoComplete="username"
               autoCapitalize="none"
               spellCheck={false}
+              placeholder="nombre@ejemplo.com"
               required
               value={email}
               onChange={(evento) => setEmail(evento.target.value)}
@@ -81,6 +82,7 @@ export function LoginPage({ theme, onToggleTheme }: LoginPageProps) {
                 className="field-input"
                 type={verPassword ? 'text' : 'password'}
                 autoComplete="current-password"
+                placeholder="Tu contraseña"
                 required
                 value={password}
                 onChange={(evento) => setPassword(evento.target.value)}
