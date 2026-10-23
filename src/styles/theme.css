@@ -1,13 +1,5 @@
 /* Tema provisional tomado de la plantilla de Kratos. Se ajusta cuando llegue la paleta oficial. */
 :root {
-  --color-bg: #02162e;
-  --color-surface: #042953;
-  --color-primary: #054a97;
-  --color-accent: #0478fb;
-  --color-text: #ffffff;
-  --color-text-muted: #7390b0;
-  --color-border: rgba(115, 144, 176, 0.25);
-
   --font-sans: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --space-1: 4px;
@@ -18,4 +10,25 @@
 
   --radius-sm: 6px;
   --radius-md: 12px;
+
+  /* Modo claro (por defecto) */
+  color-scheme: light;
+  --color-bg: #ffffff;
+  --color-surface: #f2f6fb;
+  --color-primary: #054a97;
+  --color-accent: #0466d6;
+  --color-text: #02162e;
+  --color-text-muted: #4a6280;
+  --color-border: rgba(5, 74, 151, 0.16);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #02162e;
+  --color-surface: #042953;
+  --color-primary: #054a97;
+  --color-accent: #0478fb;
+  --color-text: #ffffff;
+  --color-text-muted: #7390b0;
+  --color-border: rgba(115, 144, 176, 0.25);
 }

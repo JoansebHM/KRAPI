@@ -6,7 +6,7 @@
 
 .app-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   padding-top: max(var(--space-3), env(safe-area-inset-top));
@@ -23,6 +23,10 @@
 .app-area {
   font-size: 0.875rem;
   color: var(--color-text-muted);
+}
+
+.app-actions {
+  margin-left: auto;
 }
 
 .app-main {
