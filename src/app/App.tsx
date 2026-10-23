@@ -51,7 +51,6 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
           <span className="app-brand">KRAPI</span>
           <PoweredBy />
         </span>
-        <span className="app-area">Barrio Manila</span>
         <div className="app-actions">
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
           <UserMenu />

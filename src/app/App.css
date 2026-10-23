@@ -19,11 +19,12 @@
 .app-marca {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 1px;
   min-width: 0;
 }
 
 .app-brand {
+  line-height: 1;
   font-family: var(--font-display);
   /* Si Good Times no está disponible se usa Poppins Black, la tipografía de títulos de Kratos. */
   font-weight: 900;
@@ -33,17 +34,7 @@
   color: var(--color-primary);
 }
 
-.app-area {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-}
 
-/* En celulares muy angostos se oculta para que no se desborde la barra; el mapa ya muestra el barrio. */
-@media (max-width: 359px) {
-  .app-area {
-    display: none;
-  }
-}
 
 
 .app-actions {
