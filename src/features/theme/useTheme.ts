@@ -25,7 +25,7 @@ export function useTheme() {
     document.documentElement.dataset.theme = theme
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', theme === 'dark' ? '#02162e' : '#ffffff')
+      ?.setAttribute('content', theme === 'dark' ? '#121214' : '#ffffff')
   }, [theme])
 
   // Si el usuario no ha elegido, cambiar con el sistema.

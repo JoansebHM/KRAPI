@@ -10,7 +10,7 @@ import './MapView.css'
 const BOUNDS_PADDING = 48
 
 const BOUNDARY_COLORS: Record<Theme, { line: string; fill: string; fillOpacity: number }> = {
-  light: { line: '#054a97', fill: '#0478fb', fillOpacity: 0.08 },
+  light: { line: '#0d34e9', fill: '#0478fb', fillOpacity: 0.08 },
   dark: { line: '#5cadff', fill: '#0478fb', fillOpacity: 0.16 },
 }
 
