@@ -17,3 +17,21 @@ export const MANILA_BOUNDS = MANILA.geometry.coordinates[0].reduce<[number, numb
   ([w, s, e, n], [lng, lat]) => [Math.min(w, lng), Math.min(s, lat), Math.max(e, lng), Math.max(n, lat)],
   [Infinity, Infinity, -Infinity, -Infinity],
 )
+
+/** Distancia máxima (en metros) que el mapa deja alejarse del barrio. */
+export const MANILA_BUFFER_METERS = 1000
+
+const METERS_PER_DEGREE_LAT = 111_320
+
+function expandBounds(
+  [w, s, e, n]: [number, number, number, number],
+  meters: number,
+): [number, number, number, number] {
+  const midLat = (s + n) / 2
+  const dLat = meters / METERS_PER_DEGREE_LAT
+  const dLng = meters / (METERS_PER_DEGREE_LAT * Math.cos((midLat * Math.PI) / 180))
+  return [w - dLng, s - dLat, e + dLng, n + dLat]
+}
+
+/** Límite de navegación: la caja del barrio más 1 km a cada lado. */
+export const MANILA_MAX_BOUNDS = expandBounds(MANILA_BOUNDS, MANILA_BUFFER_METERS)
