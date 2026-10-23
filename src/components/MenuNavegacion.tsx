@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router'
+import { PoweredBy } from './PoweredBy'
 import './MenuNavegacion.css'
 
 interface MenuNavegacionProps {
@@ -35,7 +36,10 @@ export function MenuNavegacion({ abierto, onCerrar }: MenuNavegacionProps) {
     <>
       <div className={`menu-fondo${abierto ? ' menu-fondo-visible' : ''}`} onClick={onCerrar} aria-hidden="true" />
       <nav className={`menu${abierto ? ' menu-abierto' : ''}`} aria-label="Secciones" aria-hidden={!abierto} inert={!abierto}>
-        <div className="menu-marca">KRAPI</div>
+        <div className="menu-marca">
+          <span className="menu-marca-nombre">KRAPI</span>
+          <PoweredBy />
+        </div>
         <ul className="menu-lista">
           {SECCIONES.map(({ ruta, texto, icono }) => (
             <li key={ruta}>

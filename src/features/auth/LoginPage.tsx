@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { PoweredBy } from '../../components/PoweredBy'
 import { notificar } from '../../lib/notificar'
 import { ThemeToggle } from '../theme/ThemeToggle'
 import type { Theme } from '../theme/useTheme'
@@ -48,7 +49,8 @@ export function LoginPage({ theme, onToggleTheme }: LoginPageProps) {
       <main className="login-card">
         <header className="login-header">
           <h1 className="login-brand">KRAPI</h1>
-          <p className="login-subtitle">Geovisor del barrio Manila · Kratos Innovation Lab</p>
+          <PoweredBy tamano="mediano" />
+          <p className="login-subtitle">Geovisor del barrio Manila</p>
         </header>
 
         {aviso && !error && (

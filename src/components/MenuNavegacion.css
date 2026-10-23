@@ -48,7 +48,13 @@
 }
 
 .menu-marca {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   padding: var(--space-2) var(--space-3) var(--space-6);
+}
+
+.menu-marca-nombre {
   font-family: var(--font-display);
   font-weight: 900;
   font-synthesis: none;
