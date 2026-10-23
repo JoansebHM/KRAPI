@@ -9,6 +9,9 @@ export function mensajeDeError(error: unknown): string {
     if (error.code === 'invalid_credentials') return 'El correo o la contraseña no son correctos.'
     if (error.status === 429) return 'Demasiados intentos. Espera un momento e inténtalo de nuevo.'
     if (error.code === 'email_not_confirmed') return 'Este usuario no está confirmado. Avísale al administrador.'
+    if (error.code === 'email_provider_disabled') {
+      return 'El inicio de sesión con correo está desactivado en Supabase. Avísale al administrador.'
+    }
   }
   return 'No se pudo completar la acción. Inténtalo de nuevo.'
 }
