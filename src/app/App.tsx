@@ -1,3 +1,4 @@
+import { Notificaciones } from '../components/Notificaciones'
 import { variablesFaltantes } from '../config/env'
 import { InactivityDialog } from '../features/auth/InactivityDialog'
 import { LoginPage } from '../features/auth/LoginPage'
@@ -5,11 +6,21 @@ import { UserMenu } from '../features/auth/UserMenu'
 import { useAuth } from '../features/auth/useAuth'
 import { MapView } from '../features/map/MapView'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
-import { useTheme } from '../features/theme/useTheme'
+import { useTheme, type Theme } from '../features/theme/useTheme'
 import './App.css'
 
 export function App() {
   const { theme, toggleTheme } = useTheme()
+
+  return (
+    <>
+      <Contenido theme={theme} onToggleTheme={toggleTheme} />
+      <Notificaciones theme={theme} />
+    </>
+  )
+}
+
+function Contenido({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void }) {
   const { session } = useAuth()
 
   if (variablesFaltantes.length > 0) return <ConfiguracionIncompleta variables={variablesFaltantes} />
@@ -17,7 +28,7 @@ export function App() {
   // Revisando si hay una sesión guardada: no se muestra nada para evitar un destello del login.
   if (session === undefined) return <div className="app-loading" aria-busy="true" />
 
-  if (!session) return <LoginPage theme={theme} onToggleTheme={toggleTheme} />
+  if (!session) return <LoginPage theme={theme} onToggleTheme={onToggleTheme} />
 
   return (
     <div className="app">
@@ -25,7 +36,7 @@ export function App() {
         <span className="app-brand">KRAPI</span>
         <span className="app-area">Barrio Manila</span>
         <div className="app-actions">
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
           <UserMenu />
         </div>
       </header>

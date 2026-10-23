@@ -1,0 +1,97 @@
+/* Notificaciones con la identidad de Kratos Innovation Lab. */
+
+[data-sonner-toaster] {
+  --width: 380px;
+  font-family: var(--font-sans);
+}
+
+/* Color del tipo de notificación (franja e ícono). */
+.noti {
+  --noti-color: var(--color-primary);
+}
+
+[data-sonner-toast][data-styled='true'].noti {
+  --normal-bg: var(--color-bg);
+  --normal-border: var(--color-border);
+  --normal-text: var(--color-text);
+  --border-radius: var(--radius-md);
+
+  gap: var(--space-3);
+  padding: 14px var(--space-4) 14px 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow-overlay);
+  font-family: var(--font-sans);
+}
+
+:root[data-theme='dark'] [data-sonner-toast][data-styled='true'].noti {
+  --normal-bg: var(--color-surface);
+}
+
+/* Franja de color a la izquierda según el tipo. */
+[data-sonner-toast][data-styled='true'].noti::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--noti-color);
+}
+
+.noti.noti-exito {
+  --noti-color: var(--kratos-azul-cielo);
+}
+
+.noti.noti-error {
+  --noti-color: var(--color-danger);
+}
+
+.noti.noti-info {
+  --noti-color: var(--kratos-lila);
+}
+
+.noti.noti-aviso {
+  --noti-color: #d4b800;
+}
+
+:root[data-theme='dark'] .noti.noti-aviso {
+  --noti-color: var(--kratos-amarillo-neon);
+}
+
+.noti.noti-cargando {
+  --noti-color: var(--kratos-azul-electrico);
+}
+
+[data-sonner-toast].noti [data-icon] {
+  color: var(--noti-color);
+  width: 20px;
+  height: 20px;
+}
+
+.noti .noti-titulo {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-text);
+}
+
+.noti .noti-descripcion {
+  margin-top: 2px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+[data-sonner-toast] .noti-accion[data-button] {
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-strong);
+  color: var(--color-on-primary);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+[data-sonner-toast] .noti-accion[data-button]:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
