@@ -2,3 +2,26 @@
   position: absolute;
   inset: 0;
 }
+
+/* Controles del mapa en modo oscuro */
+:root[data-theme='dark'] .maplibregl-ctrl-group {
+  background: var(--color-surface);
+  box-shadow: 0 0 0 1px var(--color-border);
+}
+
+:root[data-theme='dark'] .maplibregl-ctrl-group button + button {
+  border-top-color: var(--color-border);
+}
+
+:root[data-theme='dark'] .maplibregl-ctrl-group .maplibregl-ctrl-icon {
+  filter: invert(1);
+}
+
+:root[data-theme='dark'] .maplibregl-ctrl-attrib {
+  background: rgba(2, 22, 46, 0.8);
+  color: var(--color-text-muted);
+}
+
+:root[data-theme='dark'] .maplibregl-ctrl-attrib a {
+  color: var(--color-text);
+}

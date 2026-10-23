@@ -16,7 +16,7 @@ export function App() {
         </div>
       </header>
       <main className="app-main">
-        <MapView />
+        <MapView theme={theme} />
       </main>
     </div>
   )
