@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           color: string
           created_at: string
+          icono: string | null
           id: string
           nombre: string
           updated_at: string
@@ -25,6 +26,7 @@ export type Database = {
         Insert: {
           color?: string
           created_at?: string
+          icono?: string | null
           id?: string
           nombre: string
           updated_at?: string
@@ -32,6 +34,7 @@ export type Database = {
         Update: {
           color?: string
           created_at?: string
+          icono?: string | null
           id?: string
           nombre?: string
           updated_at?: string
