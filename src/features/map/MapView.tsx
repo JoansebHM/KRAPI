@@ -3,7 +3,7 @@ import { GeolocateControl, Map as MapLibreMap, NavigationControl } from './mapli
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { env } from '../../config/env'
 import type { Theme } from '../theme/useTheme'
-import { MANILA, MANILA_BOUNDS } from './manila'
+import { MANILA, MANILA_BOUNDS, MANILA_MAX_BOUNDS } from './manila'
 import './MapView.css'
 
 const BOUNDS_PADDING = 48
@@ -32,6 +32,8 @@ export function MapView({ theme }: MapViewProps) {
       style: styleUrlRef.current,
       bounds: MANILA_BOUNDS,
       fitBoundsOptions: { padding: BOUNDS_PADDING },
+      // No deja mover ni alejar el mapa más allá de 1 km alrededor del barrio.
+      maxBounds: MANILA_MAX_BOUNDS,
       attributionControl: { compact: true },
     })
 
