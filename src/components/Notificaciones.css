@@ -17,7 +17,8 @@
   --border-radius: var(--radius-md);
 
   gap: var(--space-3);
-  padding: 14px var(--space-4) 14px 18px;
+  /* A la derecha queda espacio para el botón de cerrar. */
+  padding: 14px 52px 14px 18px;
   overflow: hidden;
   box-shadow: var(--shadow-overlay);
   font-family: var(--font-sans);
@@ -94,4 +95,42 @@
 [data-sonner-toast] .noti-accion[data-button]:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+/*
+ * Botón de cerrar: Sonner lo pone como un círculo de 20 px sobre la esquina, difícil de tocar.
+ * Aquí va dentro de la tarjeta, a la derecha y centrado, con un área de toque de 40 px.
+ */
+[data-sonner-toast][data-styled='true'] .noti-cerrar[data-close-button] {
+  top: 50%;
+  right: 6px;
+  left: auto;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  transform: translateY(-50%);
+}
+
+[data-sonner-toaster][data-sonner-theme] [data-sonner-toast] .noti-cerrar[data-close-button] {
+  background: transparent;
+  border: 0;
+}
+
+[data-sonner-toast][data-styled='true']:hover .noti-cerrar[data-close-button]:hover,
+[data-sonner-toast][data-styled='true'] .noti-cerrar[data-close-button]:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+:root[data-theme='dark'] [data-sonner-toast][data-styled='true'] .noti-cerrar[data-close-button]:hover {
+  background: var(--color-bg);
+}
+
+[data-sonner-toast][data-styled='true'] .noti-cerrar[data-close-button]:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+  box-shadow: none;
 }

@@ -13,19 +13,22 @@ export function Notificaciones({ theme }: { theme: Theme }) {
       mobileOffset={{ top: 72, left: 12, right: 12 }}
       visibleToasts={3}
       gap={10}
-      // Sin botón de cerrar: se cierran solas y en celular se pueden deslizar.
+      closeButton
       icons={{
         success: <IconoExito />,
         error: <IconoError />,
         info: <IconoInfo />,
         warning: <IconoAviso />,
+        close: <IconoCerrar />,
       }}
       toastOptions={{
+        closeButtonAriaLabel: 'Cerrar notificación',
         classNames: {
           toast: 'noti',
           title: 'noti-titulo',
           description: 'noti-descripcion',
           actionButton: 'noti-accion',
+          closeButton: 'noti-cerrar',
           success: 'noti-exito',
           error: 'noti-error',
           info: 'noti-info',
@@ -81,6 +84,14 @@ function IconoAviso() {
     <svg {...props}>
       <path d="M10.3 3.9 2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
       <path d="M12 9v4.5M12 17h.01" />
+    </svg>
+  )
+}
+
+function IconoCerrar() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+      <path d="M6 6l12 12M18 6 6 18" />
     </svg>
   )
 }
