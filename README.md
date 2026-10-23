@@ -37,6 +37,10 @@ Colores y tipografía siguen el Manual de marca Kratos 2026 (identidad Kratos In
 - Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera.
 - Al desplegar (#24) el hosting debe redirigir todas las rutas a `index.html`.
 
+## Íconos de categorías
+
+Cada categoría tiene un ícono de [Lucide](https://lucide.dev) (licencia ISC) dentro de un círculo de su color, como se verá en el mapa. En la base de datos se guarda una clave propia (`cafe`, `hotel`…); el catálogo que la traduce a su dibujo está en `src/features/categorias/iconos.tsx`. Para agregar un ícono, añade una entrada con una clave nueva y nunca cambies claves existentes.
+
 ## Avatares
 
 Cada responsable tiene un avatar dibujado en blanco y negro (estilo Croodles de [DiceBear](https://www.dicebear.com/styles/croodles), licencia CC0). El dibujo se genera en el dispositivo a partir de una semilla guardada en `responsables.avatar_semilla`: no se guardan imágenes y funciona sin internet. Se elige desde el formulario del responsable.
@@ -89,7 +93,7 @@ KRAPI no permite registrarse: hay un solo usuario para todo el equipo, que crea 
 
 | Tabla | Qué guarda |
 | --- | --- |
-| `categorias` | Tipos de lugar (comercio, café...) con un color para el mapa |
+| `categorias` | Tipos de lugar (comercio, café...) con un color y un ícono para el mapa |
 | `responsables` | Personas que pueden figurar en los estudios, con la semilla de su avatar dibujado |
 | `ubicaciones` | Puntos y zonas dentro de Manila, con dirección, contacto y categoría |
 | `estudios` | Lo que se hizo en una ubicación: fecha, hora de inicio y fin, título |

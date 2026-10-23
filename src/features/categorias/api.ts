@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { compararTexto } from '../../lib/texto'
 import type { Tables } from '../../types/database'
 
-export type Categoria = Pick<Tables<'categorias'>, 'id' | 'nombre' | 'color'> & {
+export type Categoria = Pick<Tables<'categorias'>, 'id' | 'nombre' | 'color' | 'icono'> & {
   /** Cuántas ubicaciones usan esta categoría. */
   ubicaciones: number
 }
@@ -11,6 +11,7 @@ export type Categoria = Pick<Tables<'categorias'>, 'id' | 'nombre' | 'color'> & 
 export interface DatosCategoria {
   nombre: string
   color: string
+  icono: string
 }
 
 export const CLAVE_CATEGORIAS = ['categorias'] as const
@@ -21,7 +22,7 @@ export function useCategorias() {
     // Al abrir la pantalla se muestran los datos en caché al instante y se actualizan en segundo plano.
     refetchOnMount: 'always',
     queryFn: async (): Promise<Categoria[]> => {
-      const { data, error } = await supabase.from('categorias').select('id, nombre, color, ubicaciones(count)')
+      const { data, error } = await supabase.from('categorias').select('id, nombre, color, icono, ubicaciones(count)')
       if (error) throw error
       return data
         .map(({ ubicaciones, ...categoria }) => ({ ...categoria, ubicaciones: ubicaciones[0]?.count ?? 0 }))
@@ -30,15 +31,15 @@ export function useCategorias() {
   })
 }
 
-function limpiar({ nombre, color }: DatosCategoria): DatosCategoria {
-  return { nombre: nombre.trim().replace(/\s+/g, ' '), color: color.toUpperCase() }
+function limpiar({ nombre, color, icono }: DatosCategoria): DatosCategoria {
+  return { nombre: nombre.trim().replace(/\s+/g, ' '), color: color.toUpperCase(), icono }
 }
 
 export function useCrearCategoria() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (datos: DatosCategoria) => {
-      const { data, error } = await supabase.from('categorias').insert(limpiar(datos)).select('id, nombre, color').single()
+      const { data, error } = await supabase.from('categorias').insert(limpiar(datos)).select('id, nombre, color, icono').single()
       if (error) throw error
       return data
     },
@@ -88,7 +89,7 @@ export function useRestaurarCategoria() {
     mutationFn: async ({ categoria, ubicacionIds }: CategoriaEliminada) => {
       const { error } = await supabase
         .from('categorias')
-        .insert({ id: categoria.id, nombre: categoria.nombre, color: categoria.color })
+        .insert({ id: categoria.id, nombre: categoria.nombre, color: categoria.color, icono: categoria.icono })
       if (error) throw error
       if (ubicacionIds.length > 0) {
         const { error: errorUbicaciones } = await supabase
