@@ -41,10 +41,24 @@ La base de datos se maneja como código: todo el esquema vive en `supabase/migra
 npx supabase login     # abre el navegador para iniciar sesión en Supabase
 npm run db:link        # enlaza con el proyecto; pide la contraseña de la base de datos
 npm run db:push        # aplica las migraciones que falten
+npm run db:config      # aplica supabase/config.toml (por ejemplo, registro público desactivado)
 npm run db:types       # genera src/types/database.ts a partir del esquema
 ```
 
 La contraseña de la base de datos y las claves del proyecto **nunca** se suben al repositorio.
+
+### Usuario compartido
+
+KRAPI no permite registrarse: hay un solo usuario para todo el equipo, que crea un administrador.
+
+1. En `.env.local` completa `VITE_SUPABASE_URL`, `SUPABASE_SECRET_KEY` y `KRAPI_USUARIO_EMAIL` (ver `.env.example`).
+2. Ejecuta `npm run usuario:crear`. Pide la contraseña sin mostrarla en pantalla. Si el usuario ya existe, le cambia la contraseña.
+
+### Seguridad
+
+- Sin sesión no se puede leer ni modificar nada: todas las tablas tienen Row Level Security y solo el rol `authenticated` tiene permisos.
+- Los archivos van en el bucket privado `evidencias` (máximo 50 MB por archivo, solo fotos, audios y documentos) y se leen con URLs firmadas.
+- Cada tabla nueva necesita sus permisos y su política en la misma migración que la crea.
 
 ### Cambiar el esquema
 
@@ -78,6 +92,8 @@ Reglas principales: ninguna ubicación puede quedar fuera del barrio; al borrar 
 | `npm run db:new <nombre>` | Crea una migración nueva |
 | `npm run db:push` | Aplica las migraciones pendientes |
 | `npm run db:types` | Genera los tipos de TypeScript del esquema |
+| `npm run db:config` | Aplica `supabase/config.toml` al proyecto |
+| `npm run usuario:crear` | Crea o actualiza el usuario compartido |
 
 ## Estructura
 
