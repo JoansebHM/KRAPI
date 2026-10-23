@@ -7,6 +7,7 @@ import { InactivityDialog } from '../features/auth/InactivityDialog'
 import { LoginPage } from '../features/auth/LoginPage'
 import { UserMenu } from '../features/auth/UserMenu'
 import { useAuth } from '../features/auth/useAuth'
+import { CategoriasPage } from '../features/categorias/CategoriasPage'
 import { MapView } from '../features/map/MapView'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
 import { useTheme, type Theme } from '../features/theme/useTheme'
@@ -56,6 +57,7 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
         <MapView theme={theme} />
         <Routes>
           <Route path="/" element={null} />
+          <Route path="/categorias" element={<CategoriasPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

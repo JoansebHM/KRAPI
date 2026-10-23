@@ -9,6 +9,7 @@ interface MenuNavegacionProps {
 
 const SECCIONES = [
   { ruta: '/', texto: 'Mapa', icono: <IconoMapa /> },
+  { ruta: '/categorias', texto: 'Categorías', icono: <IconoEtiqueta /> },
 ]
 
 /** Menú lateral con las secciones de la app. */
@@ -77,6 +78,15 @@ function IconoMapa() {
     <svg {...icono}>
       <path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5V4l-6 2.5L9 4Z" />
       <path d="M9 4v13M15 6.5v13" />
+    </svg>
+  )
+}
+
+function IconoEtiqueta() {
+  return (
+    <svg {...icono}>
+      <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />
+      <circle cx="8" cy="8" r="1.5" />
     </svg>
   )
 }
