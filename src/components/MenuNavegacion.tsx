@@ -10,6 +10,7 @@ interface MenuNavegacionProps {
 const SECCIONES = [
   { ruta: '/', texto: 'Mapa', icono: <IconoMapa /> },
   { ruta: '/categorias', texto: 'Categorías', icono: <IconoEtiqueta /> },
+  { ruta: '/responsables', texto: 'Responsables', icono: <IconoPersonas /> },
 ]
 
 /** Menú lateral con las secciones de la app. */
@@ -87,6 +88,16 @@ function IconoEtiqueta() {
     <svg {...icono}>
       <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />
       <circle cx="8" cy="8" r="1.5" />
+    </svg>
+  )
+}
+
+function IconoPersonas() {
+  return (
+    <svg {...icono}>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
+      <path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6" />
     </svg>
   )
 }

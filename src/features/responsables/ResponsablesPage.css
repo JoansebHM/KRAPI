@@ -1,0 +1,10 @@
+.responsable-campo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.responsable-campo .field-input {
+  flex: 1;
+  min-width: 0;
+}
