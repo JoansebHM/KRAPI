@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type FormEvent, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import './Dialog.css'
 
 interface DialogProps {
@@ -12,7 +13,8 @@ interface DialogProps {
 }
 
 /**
- * Diálogo modal accesible. Al abrir, enfoca el primer campo del formulario
+ * Diálogo modal accesible. Se dibuja directamente en <body> (portal), por encima de todo,
+ * incluida la barra superior, sin importar desde qué pantalla o panel se abra. Al abrir, enfoca el primer campo del formulario
  * (o el elemento marcado con data-autofocus) y, si no hay, el primer botón de las acciones.
  */
 export function Dialog({ titulo, children, acciones, onCerrar, onSubmit }: DialogProps) {
@@ -56,7 +58,7 @@ export function Dialog({ titulo, children, acciones, onCerrar, onSubmit }: Dialo
     onClick: (evento: React.MouseEvent) => evento.stopPropagation(),
   } as const
 
-  return (
+  return createPortal(
     <div className="dialog-backdrop" onClick={onCerrar}>
       {onSubmit ? (
         <form
@@ -72,6 +74,7 @@ export function Dialog({ titulo, children, acciones, onCerrar, onSubmit }: Dialo
       ) : (
         <div {...comunes}>{contenido}</div>
       )}
-    </div>
+    </div>,
+    document.body,
   )
 }
