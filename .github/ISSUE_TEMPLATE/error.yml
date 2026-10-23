@@ -1,0 +1,48 @@
+name: Reportar un error
+description: Algo no funciona como debería
+labels: ["tipo: error"]
+body:
+  - type: textarea
+    id: que-paso
+    attributes:
+      label: ¿Qué pasó?
+      description: Describe el problema.
+    validations:
+      required: true
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Pasos para reproducirlo
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: ¿Qué esperabas que pasara?
+    validations:
+      required: true
+  - type: dropdown
+    id: dispositivo
+    attributes:
+      label: Dispositivo
+      multiple: true
+      options:
+        - Celular Android
+        - iPhone
+        - Computador
+    validations:
+      required: true
+  - type: input
+    id: navegador
+    attributes:
+      label: Navegador
+      placeholder: Chrome, Safari, Firefox…
+  - type: textarea
+    id: capturas
+    attributes:
+      label: Capturas
+      description: Arrastra aquí capturas de pantalla o videos (opcional).
