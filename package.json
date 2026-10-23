@@ -11,7 +11,9 @@
     "db:link": "supabase link --project-ref ggrwybqiqffoxuoojopp",
     "db:new": "supabase migration new",
     "db:push": "supabase db push",
-    "db:types": "mkdir -p src/types && supabase gen types typescript --linked --schema public > src/types/database.ts"
+    "db:types": "mkdir -p src/types && supabase gen types typescript --linked --schema public > src/types/database.ts",
+    "db:config": "supabase config push",
+    "usuario:crear": "node --env-file=.env.local scripts/crear-usuario-compartido.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^6.15.0",
