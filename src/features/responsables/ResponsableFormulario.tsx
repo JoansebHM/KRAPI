@@ -3,8 +3,9 @@ import { Dialog } from '../../components/Dialog'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { normalizar } from '../../lib/texto'
-import { useActualizarResponsable, useCrearResponsable, type Responsable } from './api'
-import { Avatar } from './Avatar'
+import { semillaDe, useActualizarResponsable, useCrearResponsable, type Responsable } from './api'
+import { semillaAleatoria } from './Avatar'
+import { SelectorAvatar } from './SelectorAvatar'
 
 const MAX_NOMBRE = 80
 const DUPLICADO = 'Ya hay un responsable con ese nombre.'
@@ -19,6 +20,8 @@ interface ResponsableFormularioProps {
 
 export function ResponsableFormulario({ responsable, existentes, onCerrar, onEliminar }: ResponsableFormularioProps) {
   const [nombre, setNombre] = useState(responsable?.nombre ?? '')
+  // Las personas nuevas arrancan con un avatar al azar, que se puede cambiar.
+  const [avatarSemilla, setAvatarSemilla] = useState(() => (responsable ? semillaDe(responsable) : semillaAleatoria()))
   const [intentoGuardar, setIntentoGuardar] = useState(false)
   const crear = useCrearResponsable()
   const actualizar = useActualizarResponsable()
@@ -36,10 +39,10 @@ export function ResponsableFormulario({ responsable, existentes, onCerrar, onEli
     if (error) return
     try {
       if (responsable) {
-        await actualizar.mutateAsync({ id: responsable.id, nombre })
-        notificar.exito('Cambios guardados', { descripcion: `El nombre quedó como «${nombreLimpio}».` })
+        await actualizar.mutateAsync({ id: responsable.id, nombre, avatarSemilla })
+        notificar.exito('Cambios guardados', { descripcion: `Se actualizó a ${nombreLimpio}.` })
       } else {
-        await crear.mutateAsync(nombre)
+        await crear.mutateAsync({ nombre, avatarSemilla })
         notificar.exito('Responsable agregado', { descripcion: `${nombreLimpio} ya se puede elegir en los estudios.` })
       }
       onCerrar()
@@ -76,24 +79,26 @@ export function ResponsableFormulario({ responsable, existentes, onCerrar, onEli
       }
     >
       <div className="formulario">
+        <div className="field">
+          <span className="field-label">Avatar</span>
+          <SelectorAvatar valor={avatarSemilla} onCambiar={setAvatarSemilla} />
+        </div>
+
         <label className="field">
           <span className="field-label">Nombre completo</span>
-          <div className="responsable-campo">
-            <Avatar nombre={nombreLimpio || '?'} />
-            <input
-              className="field-input"
-              type="text"
-              placeholder="Ej.: María Gómez"
-              maxLength={MAX_NOMBRE}
-              autoCapitalize="words"
-              autoComplete="off"
-              enterKeyHint="done"
-              value={nombre}
-              aria-invalid={Boolean(mostrarError)}
-              aria-describedby={mostrarError ? 'responsable-nombre-error' : undefined}
-              onChange={(evento) => setNombre(evento.target.value)}
-            />
-          </div>
+          <input
+            className="field-input"
+            type="text"
+            placeholder="Ej.: María Gómez"
+            maxLength={MAX_NOMBRE}
+            autoCapitalize="words"
+            autoComplete="off"
+            enterKeyHint="done"
+            value={nombre}
+            aria-invalid={Boolean(mostrarError)}
+            aria-describedby={mostrarError ? 'responsable-nombre-error' : undefined}
+            onChange={(evento) => setNombre(evento.target.value)}
+          />
           {mostrarError && (
             <p id="responsable-nombre-error" className="field-error">
               {error}

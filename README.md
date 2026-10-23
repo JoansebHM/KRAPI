@@ -37,6 +37,10 @@ Colores y tipografía siguen el Manual de marca Kratos 2026 (identidad Kratos In
 - Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera.
 - Al desplegar (#24) el hosting debe redirigir todas las rutas a `index.html`.
 
+## Avatares
+
+Cada responsable tiene un avatar dibujado en blanco y negro (estilo Croodles de [DiceBear](https://www.dicebear.com/styles/croodles), licencia CC0). El dibujo se genera en el dispositivo a partir de una semilla guardada en `responsables.avatar_semilla`: no se guardan imágenes y funciona sin internet. Se elige desde el formulario del responsable.
+
 ## Base de datos (Supabase)
 
 La base de datos se maneja como código: todo el esquema vive en `supabase/migrations/` y se aplica con la CLI de Supabase, que viene incluida como dependencia del proyecto.
@@ -86,7 +90,7 @@ KRAPI no permite registrarse: hay un solo usuario para todo el equipo, que crea 
 | Tabla | Qué guarda |
 | --- | --- |
 | `categorias` | Tipos de lugar (comercio, café...) con un color para el mapa |
-| `responsables` | Personas que pueden figurar en los estudios |
+| `responsables` | Personas que pueden figurar en los estudios, con la semilla de su avatar dibujado |
 | `ubicaciones` | Puntos y zonas dentro de Manila, con dirección, contacto y categoría |
 | `estudios` | Lo que se hizo en una ubicación: fecha, hora de inicio y fin, título |
 | `estudio_responsables` | Qué responsables participaron en cada estudio |

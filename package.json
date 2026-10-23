@@ -16,6 +16,8 @@
     "usuario:crear": "node --env-file=.env.local scripts/crear-usuario-compartido.mjs"
   },
   "dependencies": {
+    "@dicebear/core": "^9.4.3",
+    "@dicebear/croodles": "^9.4.2",
     "@supabase/supabase-js": "^2.118.0",
     "@tanstack/react-query": "^5.104.5",
     "maplibre-gl": "^6.15.0",

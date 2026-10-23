@@ -176,18 +176,21 @@ export type Database = {
       }
       responsables: {
         Row: {
+          avatar_semilla: string | null
           created_at: string
           id: string
           nombre: string
           updated_at: string
         }
         Insert: {
+          avatar_semilla?: string | null
           created_at?: string
           id?: string
           nombre: string
           updated_at?: string
         }
         Update: {
+          avatar_semilla?: string | null
           created_at?: string
           id?: string
           nombre?: string

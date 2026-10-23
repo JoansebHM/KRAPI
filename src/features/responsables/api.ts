@@ -3,12 +3,22 @@ import { supabase } from '../../lib/supabase'
 import { compararTexto } from '../../lib/texto'
 import type { Tables } from '../../types/database'
 
-export type Responsable = Pick<Tables<'responsables'>, 'id' | 'nombre'> & {
+export type Responsable = Pick<Tables<'responsables'>, 'id' | 'nombre' | 'avatar_semilla'> & {
   /** En cuántos estudios aparece. */
   estudios: number
 }
 
 export const CLAVE_RESPONSABLES = ['responsables'] as const
+
+/** Semilla con la que se dibuja el avatar: la elegida, o el id si nunca se eligió una. */
+export function semillaDe(responsable: Pick<Responsable, 'id' | 'avatar_semilla'>) {
+  return responsable.avatar_semilla ?? responsable.id
+}
+
+export interface DatosResponsable {
+  nombre: string
+  avatarSemilla: string
+}
 
 export function useResponsables() {
   return useQuery({
@@ -16,7 +26,7 @@ export function useResponsables() {
     // Al abrir la pantalla se muestran los datos en caché al instante y se actualizan en segundo plano.
     refetchOnMount: 'always',
     queryFn: async (): Promise<Responsable[]> => {
-      const { data, error } = await supabase.from('responsables').select('id, nombre, estudio_responsables(count)')
+      const { data, error } = await supabase.from('responsables').select('id, nombre, avatar_semilla, estudio_responsables(count)')
       if (error) throw error
       return data
         .map(({ estudio_responsables, ...responsable }) => ({
@@ -33,8 +43,10 @@ const limpiarNombre = (nombre: string) => nombre.trim().replace(/\s+/g, ' ')
 export function useCrearResponsable() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (nombre: string) => {
-      const { error } = await supabase.from('responsables').insert({ nombre: limpiarNombre(nombre) })
+    mutationFn: async ({ nombre, avatarSemilla }: DatosResponsable) => {
+      const { error } = await supabase
+        .from('responsables')
+        .insert({ nombre: limpiarNombre(nombre), avatar_semilla: avatarSemilla })
       if (error) throw error
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CLAVE_RESPONSABLES }),
@@ -44,8 +56,11 @@ export function useCrearResponsable() {
 export function useActualizarResponsable() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, nombre }: { id: string; nombre: string }) => {
-      const { error } = await supabase.from('responsables').update({ nombre: limpiarNombre(nombre) }).eq('id', id)
+    mutationFn: async ({ id, nombre, avatarSemilla }: DatosResponsable & { id: string }) => {
+      const { error } = await supabase
+        .from('responsables')
+        .update({ nombre: limpiarNombre(nombre), avatar_semilla: avatarSemilla })
+        .eq('id', id)
       if (error) throw error
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CLAVE_RESPONSABLES }),
@@ -81,7 +96,9 @@ export function useRestaurarResponsable() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ responsable, estudioIds }: ResponsableEliminado) => {
-      const { error } = await supabase.from('responsables').insert({ id: responsable.id, nombre: responsable.nombre })
+      const { error } = await supabase
+        .from('responsables')
+        .insert({ id: responsable.id, nombre: responsable.nombre, avatar_semilla: responsable.avatar_semilla })
       if (error) throw error
       if (estudioIds.length > 0) {
         const { error: errorRelaciones } = await supabase
