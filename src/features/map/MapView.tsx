@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { GeolocateControl, Map as MapLibreMap, NavigationControl } from 'maplibre-gl'
+import { GeolocateControl, Map as MapLibreMap, NavigationControl } from './maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { env } from '../../config/env'
 import { MANILA, MANILA_BOUNDS } from './manila'
