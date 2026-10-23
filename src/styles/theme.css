@@ -1,5 +1,26 @@
-/* Tema provisional tomado de la plantilla de Kratos. Se ajusta cuando llegue la paleta oficial. */
+/*
+ * Tema de KRAPI según el Manual de marca Kratos 2026 (identidad Kratos Innovation Lab).
+ * Color principal: azul cielo #0478FB. Tipografía: Good Times (marca) y Poppins (texto).
+ */
+
+@font-face {
+  font-family: 'Good Times';
+  /* Se usa si está instalada en el dispositivo. Ver README para agregar el archivo web. */
+  src: local('Good Times'), local('GoodTimes-Regular'), local('Good Times Regular');
+  font-display: swap;
+}
+
 :root {
+  /* Paleta oficial */
+  --kratos-azul-cielo: #0478fb;
+  --kratos-azul-electrico: #0d34e9;
+  --kratos-morado-oscuro: #6100df;
+  --kratos-lila: #9e7ae1;
+  --kratos-amarillo-neon: #deff5d;
+  --kratos-blanco: #ffffff;
+  --kratos-negro: #000000;
+
+  --font-display: 'Good Times', 'Poppins', system-ui, sans-serif;
   --font-sans: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --space-1: 4px;
@@ -11,24 +32,35 @@
   --radius-sm: 6px;
   --radius-md: 12px;
 
+  /* Colores de marca con el mismo uso en ambos temas */
+  --color-primary: var(--kratos-azul-cielo); /* superficies, íconos, textos grandes */
+  --color-primary-strong: var(--kratos-azul-electrico); /* botones con texto pequeño, estados presionados */
+  --color-on-primary: var(--kratos-blanco);
+  --color-highlight: var(--kratos-amarillo-neon); /* resaltados puntuales, siempre con texto negro */
+  --color-on-highlight: var(--kratos-negro);
+  --color-secondary: var(--kratos-lila);
+  --color-secondary-strong: var(--kratos-morado-oscuro);
+
   /* Modo claro (por defecto) */
   color-scheme: light;
   --color-bg: #ffffff;
-  --color-surface: #f2f6fb;
-  --color-primary: #054a97;
-  --color-accent: #0466d6;
-  --color-text: #02162e;
-  --color-text-muted: #4a6280;
-  --color-border: rgba(5, 74, 151, 0.16);
+  --color-surface: #f3f4f7;
+  --color-text: #0a0a0c;
+  --color-text-muted: #5a5d68;
+  --color-border: rgba(10, 10, 12, 0.12);
+  /* Texto azul pequeño: el azul cielo no alcanza contraste AA sobre blanco, el eléctrico sí (7.8:1). */
+  --color-accent: var(--kratos-azul-electrico);
+  --color-focus: var(--kratos-azul-electrico);
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --color-bg: #02162e;
-  --color-surface: #042953;
-  --color-primary: #054a97;
-  --color-accent: #0478fb;
+  --color-bg: #121214;
+  --color-surface: #1c1c21;
   --color-text: #ffffff;
-  --color-text-muted: #7390b0;
-  --color-border: rgba(115, 144, 176, 0.25);
+  --color-text-muted: #a3a6b1;
+  --color-border: rgba(255, 255, 255, 0.12);
+  /* Tinte de azul cielo con contraste AA sobre el fondo oscuro (5.7:1). */
+  --color-accent: #3d8dfc;
+  --color-focus: var(--kratos-amarillo-neon);
 }

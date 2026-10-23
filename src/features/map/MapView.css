@@ -18,7 +18,7 @@
 }
 
 :root[data-theme='dark'] .maplibregl-ctrl-attrib {
-  background: rgba(2, 22, 46, 0.8);
+  background: rgba(18, 18, 20, 0.85);
   color: var(--color-text-muted);
 }
 
