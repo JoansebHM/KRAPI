@@ -1,0 +1,49 @@
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--space-4);
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* En celular el diálogo sale desde abajo, al alcance del pulgar; en pantallas grandes, centrado. */
+@media (min-width: 600px) {
+  .dialog-backdrop {
+    align-items: center;
+  }
+}
+
+.dialog {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: var(--shadow-overlay);
+}
+
+.dialog-title {
+  margin: 0 0 var(--space-3);
+  font-size: 1.125rem;
+}
+
+.dialog-body {
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.dialog-body p {
+  margin: 0 0 var(--space-3);
+}
+
+.dialog-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}

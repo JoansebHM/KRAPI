@@ -16,6 +16,7 @@
     "usuario:crear": "node --env-file=.env.local scripts/crear-usuario-compartido.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "maplibre-gl": "^6.15.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

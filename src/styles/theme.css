@@ -51,6 +51,10 @@
   /* Texto azul pequeño: el azul cielo no alcanza contraste AA sobre blanco, el eléctrico sí (7.8:1). */
   --color-accent: var(--kratos-azul-electrico);
   --color-focus: var(--kratos-azul-electrico);
+  --color-danger: #c4161c;
+  --color-danger-bg: #fdecec;
+  --color-info-bg: #eaf2ff;
+  --shadow-overlay: 0 12px 32px rgba(10, 10, 12, 0.18);
 }
 
 :root[data-theme='dark'] {
@@ -63,4 +67,8 @@
   /* Tinte de azul cielo con contraste AA sobre el fondo oscuro (5.7:1). */
   --color-accent: #3d8dfc;
   --color-focus: var(--kratos-amarillo-neon);
+  --color-danger: #ff7a7a;
+  --color-danger-bg: #3a1618;
+  --color-info-bg: #0f2747;
+  --shadow-overlay: 0 12px 32px rgba(0, 0, 0, 0.5);
 }

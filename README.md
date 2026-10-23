@@ -54,6 +54,14 @@ KRAPI no permite registrarse: hay un solo usuario para todo el equipo, que crea 
 1. En `.env.local` completa `VITE_SUPABASE_URL`, `SUPABASE_SECRET_KEY` y `KRAPI_USUARIO_EMAIL` (ver `.env.example`).
 2. Ejecuta `npm run usuario:crear`. Pide la contraseña sin mostrarla en pantalla. Si el usuario ya existe, le cambia la contraseña.
 
+### Sesión en la app
+
+- Para entrar se usa el usuario compartido (correo y contraseña). En `.env.local` deben estar `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`.
+- El token de Supabase se renueva solo mientras la app esté abierta.
+- La sesión se cierra tras **2 horas sin usar la app** (con un aviso un minuto antes) y, en todo caso, a los **7 días**. Los tiempos están en `src/config/session.ts`.
+- Desde el menú de la cuenta se puede cerrar la sesión en **todos los dispositivos**: úsalo si cambia la contraseña o alguien deja el grupo. En los demás dispositivos tarda hasta una hora en aplicarse.
+- El plan gratuito de Supabase no permite limitar sesiones desde el servidor, así que estos límites los aplica la app.
+
 ### Seguridad
 
 - Sin sesión no se puede leer ni modificar nada: todas las tablas tienen Row Level Security y solo el rol `authenticated` tiene permisos.
@@ -100,9 +108,14 @@ Reglas principales: ninguna ubicación puede quedar fuera del barrio; al borrar 
 ```
 src/
   app/          # Shell de la aplicación (layout, rutas)
-  config/       # Variables de entorno y configuración
+  components/   # Piezas de interfaz compartidas (diálogos)
+  config/       # Variables de entorno y configuración (sesión, mapa)
   features/     # Una carpeta por funcionalidad
+    auth/       # Inicio de sesión, política de sesión y menú de la cuenta
     map/        # Mapa base y límite del barrio
+    theme/      # Modo claro y oscuro
+  lib/          # Clientes externos (Supabase)
+  types/        # Tipos generados del esquema de la base de datos
   styles/       # Tema (colores, tipografía, espaciado)
 supabase/
   config.toml   # Configuración del proyecto de Supabase
