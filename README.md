@@ -119,6 +119,7 @@ src/
   features/     # Una carpeta por funcionalidad
     auth/       # Inicio de sesión, política de sesión y menú de la cuenta
     categorias/ # Administración de categorías
+    responsables/ # Administración de responsables
     map/        # Mapa base y límite del barrio
     theme/      # Modo claro y oscuro
   lib/          # Supabase, caché de datos, notificaciones y utilidades
