@@ -38,25 +38,13 @@
   color: var(--color-text-muted);
 }
 
-/* En celulares angostos se oculta para que la firma quepa; el mapa ya muestra el barrio. */
-@media (max-width: 479px) {
+/* En celulares muy angostos se oculta para que no se desborde la barra; el mapa ya muestra el barrio. */
+@media (max-width: 359px) {
   .app-area {
     display: none;
   }
 }
 
-/* Celulares muy pequeños (320 px): menos espacio entre elementos y solo el nombre del equipo. */
-@media (max-width: 359px) {
-  .app-header {
-    gap: var(--space-2);
-    padding-left: var(--space-3);
-    padding-right: var(--space-3);
-  }
-
-  .app-header .powered-por {
-    display: none;
-  }
-}
 
 .app-actions {
   display: flex;
