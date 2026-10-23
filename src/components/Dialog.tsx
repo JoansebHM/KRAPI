@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { useEffect, useId, useRef, type FormEvent, type ReactNode } from 'react'
 import './Dialog.css'
 
 interface DialogProps {
@@ -7,15 +7,25 @@ interface DialogProps {
   acciones: ReactNode
   /** Si se pasa, Escape y tocar fuera cierran el diálogo. */
   onCerrar?: () => void
+  /** Si se pasa, el diálogo es un formulario y Enter lo envía. */
+  onSubmit?: (evento: FormEvent<HTMLFormElement>) => void
 }
 
-/** Diálogo modal accesible. El primer botón de las acciones recibe el foco al abrir. */
-export function Dialog({ titulo, children, acciones, onCerrar }: DialogProps) {
+/**
+ * Diálogo modal accesible. Al abrir, enfoca el primer campo del formulario
+ * (o el elemento marcado con data-autofocus) y, si no hay, el primer botón de las acciones.
+ */
+export function Dialog({ titulo, children, acciones, onCerrar, onSubmit }: DialogProps) {
   const tituloId = useId()
-  const accionesRef = useRef<HTMLDivElement>(null)
+  const contenedorRef = useRef<HTMLFormElement & HTMLDivElement>(null)
 
   useEffect(() => {
-    accionesRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
+    const contenedor = contenedorRef.current
+    const destino =
+      contenedor?.querySelector<HTMLElement>('[data-autofocus]') ??
+      contenedor?.querySelector<HTMLElement>('.dialog-body input, .dialog-body textarea') ??
+      contenedor?.querySelector<HTMLElement>('.dialog-actions button')
+    destino?.focus()
   }, [])
 
   useEffect(() => {
@@ -27,23 +37,41 @@ export function Dialog({ titulo, children, acciones, onCerrar }: DialogProps) {
     return () => window.removeEventListener('keydown', alPresionar)
   }, [onCerrar])
 
+  const contenido = (
+    <>
+      <h2 id={tituloId} className="dialog-title">
+        {titulo}
+      </h2>
+      <div className="dialog-body">{children}</div>
+      <div className="dialog-actions">{acciones}</div>
+    </>
+  )
+
+  const comunes = {
+    ref: contenedorRef,
+    className: 'dialog',
+    role: 'dialog',
+    'aria-modal': true,
+    'aria-labelledby': tituloId,
+    onClick: (evento: React.MouseEvent) => evento.stopPropagation(),
+  } as const
+
   return (
     <div className="dialog-backdrop" onClick={onCerrar}>
-      <div
-        className="dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={tituloId}
-        onClick={(evento) => evento.stopPropagation()}
-      >
-        <h2 id={tituloId} className="dialog-title">
-          {titulo}
-        </h2>
-        <div className="dialog-body">{children}</div>
-        <div ref={accionesRef} className="dialog-actions">
-          {acciones}
-        </div>
-      </div>
+      {onSubmit ? (
+        <form
+          {...comunes}
+          noValidate
+          onSubmit={(evento) => {
+            evento.preventDefault()
+            onSubmit(evento)
+          }}
+        >
+          {contenido}
+        </form>
+      ) : (
+        <div {...comunes}>{contenido}</div>
+      )}
     </div>
   )
 }

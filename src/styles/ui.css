@@ -133,3 +133,121 @@
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
+
+/* Botón de texto (acciones secundarias como "Eliminar"). */
+.btn-texto {
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-texto:focus-visible {
+  outline: 2px solid var(--color-focus);
+}
+
+.btn-texto-peligro {
+  color: var(--color-danger);
+}
+
+/* Botón flotante, al alcance del pulgar. */
+.fab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 56px;
+  padding: 0 var(--space-6) 0 var(--space-4);
+  border: 0;
+  border-radius: 28px;
+  background: var(--color-primary-strong);
+  color: var(--color-on-primary);
+  font: inherit;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(13, 52, 233, 0.35);
+  cursor: pointer;
+  transition: transform 0.15s, background-color 0.15s;
+}
+
+.fab:hover {
+  background: var(--color-primary);
+}
+
+.fab:active {
+  transform: scale(0.97);
+}
+
+.fab:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* Listas tocables (categorías, responsables...). */
+.lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lista-item:hover {
+  background: var(--color-surface);
+}
+
+.lista-item:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+.lista-item-textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.lista-item-titulo {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lista-item-detalle {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.lista-item-flecha {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.field-error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-danger);
+}
+
+.field-input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}

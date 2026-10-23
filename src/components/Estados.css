@@ -1,0 +1,87 @@
+.estado-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.estado-vacio-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-2);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-primary);
+}
+
+.estado-vacio-titulo {
+  margin: 0;
+  font-weight: 600;
+}
+
+.estado-vacio-descripcion {
+  max-width: 300px;
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.lista-cargando {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-cargando-fila {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+.lista-cargando-textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.esqueleto {
+  display: block;
+  background: var(--color-surface);
+  animation: esqueleto-pulso 1.2s ease-in-out infinite;
+}
+
+.esqueleto-circulo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.esqueleto-linea {
+  height: 12px;
+  width: 60%;
+  border-radius: 6px;
+}
+
+.esqueleto-corta {
+  width: 35%;
+}
+
+@keyframes esqueleto-pulso {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto {
+    animation: none;
+  }
+}
