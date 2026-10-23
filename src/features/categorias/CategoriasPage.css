@@ -1,16 +1,3 @@
-.categoria-punto {
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
-}
-
-.categoria-punto-grande {
-  width: 20px;
-  height: 20px;
-}
-
 .formulario {
   display: flex;
   flex-direction: column;
@@ -24,7 +11,7 @@
   align-self: flex-start;
   gap: var(--space-2);
   max-width: 100%;
-  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
+  padding: var(--space-1) var(--space-4) var(--space-1) var(--space-1);
   border: 1px solid var(--color-border);
   border-radius: 999px;
   background: var(--color-surface);

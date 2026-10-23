@@ -8,6 +8,7 @@ import { notificar } from '../../lib/notificar'
 import { normalizar, plural } from '../../lib/texto'
 import { useCategorias, useEliminarCategoria, useRestaurarCategoria, type Categoria } from './api'
 import { CategoriaFormulario } from './CategoriaFormulario'
+import { IconoCategoria } from './IconoCategoria'
 import './CategoriasPage.css'
 
 type Formulario = { tipo: 'nueva' } | { tipo: 'editar'; categoria: Categoria }
@@ -100,7 +101,7 @@ export function CategoriasPage() {
                     className="lista-item"
                     onClick={() => setFormulario({ tipo: 'editar', categoria })}
                   >
-                    <span className="categoria-punto" style={{ background: categoria.color }} aria-hidden="true" />
+                    <IconoCategoria icono={categoria.icono} color={categoria.color} />
                     <span className="lista-item-textos">
                       <span className="lista-item-titulo">{categoria.nombre}</span>
                       <span className="lista-item-detalle">

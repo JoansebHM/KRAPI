@@ -1,0 +1,56 @@
+.selector-icono {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.selector-icono-buscar {
+  min-height: 44px;
+  background: var(--color-surface);
+}
+
+/* Muestra unas tres filas y el resto se desplaza, para no alargar demasiado el formulario. */
+.selector-icono-grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: var(--space-1);
+  max-height: 156px;
+  padding: 2px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.selector-icono-opcion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.selector-icono-opcion:hover {
+  background: var(--color-surface);
+}
+
+.selector-icono-opcion[aria-pressed='true'] {
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  color: var(--color-primary);
+}
+
+.selector-icono-opcion:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+.selector-icono-vacio,
+.selector-icono-elegido {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}

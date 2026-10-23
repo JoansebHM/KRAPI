@@ -5,7 +5,10 @@ import { notificar } from '../../lib/notificar'
 import { normalizar } from '../../lib/texto'
 import { useActualizarCategoria, useCrearCategoria, type Categoria } from './api'
 import { COLOR_POR_DEFECTO } from './colores'
+import { IconoCategoria } from './IconoCategoria'
+import { iconoDe, sugerirIcono } from './iconos'
 import { SelectorColor } from './SelectorColor'
+import { SelectorIcono } from './SelectorIcono'
 
 const MAX_NOMBRE = 50
 
@@ -21,6 +24,7 @@ interface CategoriaFormularioProps {
 export function CategoriaFormulario({ categoria, existentes, onCerrar, onEliminar }: CategoriaFormularioProps) {
   const [nombre, setNombre] = useState(categoria?.nombre ?? '')
   const [color, setColor] = useState(categoria?.color ?? COLOR_POR_DEFECTO)
+  const [iconoElegido, setIconoElegido] = useState<string | null>(categoria ? iconoDe(categoria.icono).clave : null)
   const [intentoGuardar, setIntentoGuardar] = useState(false)
   const crear = useCrearCategoria()
   const actualizar = useActualizarCategoria()
@@ -32,16 +36,18 @@ export function CategoriaFormulario({ categoria, existentes, onCerrar, onElimina
   )
   const error = !nombreLimpio ? 'Escribe un nombre.' : repetida ? 'Ya existe una categoría con ese nombre.' : null
   const mostrarError = error && (intentoGuardar || repetida)
+  // Mientras no se elija uno a mano, el ícono se sugiere a partir del nombre.
+  const icono = iconoElegido ?? sugerirIcono(nombre, normalizar) ?? 'lugar'
 
   async function guardar() {
     setIntentoGuardar(true)
     if (error) return
     try {
       if (categoria) {
-        await actualizar.mutateAsync({ id: categoria.id, nombre, color })
+        await actualizar.mutateAsync({ id: categoria.id, nombre, color, icono })
         notificar.exito('Cambios guardados', { descripcion: `La categoría «${nombreLimpio}» quedó actualizada.` })
       } else {
-        await crear.mutateAsync({ nombre, color })
+        await crear.mutateAsync({ nombre, color, icono })
         notificar.exito('Categoría creada', { descripcion: `«${nombreLimpio}» ya se puede usar en las ubicaciones.` })
       }
       onCerrar()
@@ -102,12 +108,17 @@ export function CategoriaFormulario({ categoria, existentes, onCerrar, onElimina
         </label>
 
         <div className="field">
+          <span className="field-label">Ícono</span>
+          <SelectorIcono valor={icono} onCambiar={setIconoElegido} />
+        </div>
+
+        <div className="field">
           <span className="field-label">Color en el mapa</span>
           <SelectorColor valor={color} onCambiar={setColor} />
         </div>
 
         <div className="categoria-vista-previa" aria-hidden="true">
-          <span className="categoria-punto categoria-punto-grande" style={{ background: color }} />
+          <IconoCategoria icono={icono} color={color} tamano={32} />
           <span>{nombreLimpio || 'Vista previa'}</span>
         </div>
       </div>
