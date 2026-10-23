@@ -176,6 +176,7 @@ enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
 # Allow/disallow new user signups to your project.
 # KRAPI usa un solo usuario compartido creado por un administrador: nadie puede registrarse.
+# Este es el valor que bloquea los registros (no el de [auth.email]).
 enable_signup = false
 # Allow/disallow anonymous sign-ins to your project.
 enable_anonymous_sign_ins = false
@@ -221,8 +222,9 @@ web3 = 30
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
-# KRAPI usa un solo usuario compartido creado por un administrador: nadie puede registrarse.
-enable_signup = false
+# OJO: este valor activa o desactiva TODO el proveedor de correo, incluido el inicio de sesión.
+# Debe quedar en true. Los registros nuevos se bloquean con enable_signup = false en [auth].
+enable_signup = true
 # If enabled, a user will be required to confirm any email change on both the old, and new email
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
