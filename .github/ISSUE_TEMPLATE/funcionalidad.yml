@@ -1,0 +1,30 @@
+name: Funcionalidad o mejora
+description: Proponer algo nuevo o mejorar algo que ya existe
+labels: ["tipo: funcionalidad"]
+body:
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripción
+      description: ¿Qué se necesita y para qué sirve? Piensa en quien usa la app en campo.
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      description: ¿Cómo sabemos que está terminado? Una condición por línea.
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: notas
+    attributes:
+      label: Notas técnicas
+      description: Decisiones, enlaces, ideas de implementación (opcional).
+  - type: input
+    id: depende
+    attributes:
+      label: Depende de
+      description: Issues que deben terminarse antes, por ejemplo "#8, #10" (opcional).
