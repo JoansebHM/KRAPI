@@ -1,3 +1,4 @@
+import { MapView } from '../features/map/MapView'
 import './App.css'
 
 export function App() {
@@ -7,7 +8,9 @@ export function App() {
         <span className="app-brand">KRAPI</span>
         <span className="app-area">Barrio Manila</span>
       </header>
-      <main className="app-main" />
+      <main className="app-main">
+        <MapView />
+      </main>
     </div>
   )
 }
