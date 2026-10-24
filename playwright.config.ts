@@ -21,8 +21,12 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     locale: 'es-CO',
     timezoneId: 'America/Bogota',
-    // Permite usar un Chromium ya instalado (por ejemplo en CI) en lugar del de Playwright.
-    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {},
+    launchOptions: {
+      // Micrófono y cámara simulados, para probar la grabación de audio sin hardware.
+      args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'],
+      // Permite usar un Chromium ya instalado (por ejemplo en CI) en lugar del de Playwright.
+      ...(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {}),
+    },
   },
   projects: [
     {
