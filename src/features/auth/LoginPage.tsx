@@ -8,7 +8,7 @@ import type { MotivoCierre } from './politicaSesion'
 import './LoginPage.css'
 
 const MENSAJES_CIERRE: Record<MotivoCierre, string | null> = {
-  inactividad: 'Se cerró la sesión porque la app estuvo 2 horas sin usarse.',
+  inactividad: 'Se cerró la sesión porque se detectó inactividad.',
   duracion_maxima: 'Por seguridad, la sesión se cierra cada 7 días. Vuelve a ingresar.',
   todos_los_dispositivos: 'Se cerró la sesión en todos los dispositivos.',
   remoto: 'La sesión se cerró. Vuelve a ingresar.',
