@@ -21,27 +21,28 @@ test.describe('Crear un punto', () => {
     await expect(page.getByRole('link', { name: 'Nuevo lugar' })).toBeVisible()
   })
 
-  test('guarda el lugar con sus datos, valida los campos y lo muestra en el mapa', async ({ page, entrar, supabase }) => {
+  test('"Solo guardar el lugar" guarda sus datos sin estudio, valida los campos y lo muestra en el mapa', async ({ page, entrar, supabase }) => {
     await entrar()
     await page.getByRole('link', { name: 'Nuevo lugar' }).click()
     await page.getByRole('button', { name: 'Continuar' }).click()
 
     const formulario = page.getByRole('dialog', { name: 'Nuevo lugar' })
-    await formulario.getByRole('button', { name: 'Guardar lugar' }).click()
+    await formulario.getByRole('button', { name: 'Solo guardar el lugar' }).click()
     await expect(formulario.getByText('Escribe el nombre del lugar.')).toBeVisible()
 
     await formulario.getByPlaceholder('Ej.: Tienda Don Pepe').fill('  Tienda   Don Pepe ')
     await formulario.getByRole('button', { name: 'Café' }).click()
     await formulario.getByLabel(/^Dirección/).fill('Calle 10 # 43E-20')
     await formulario.getByPlaceholder('Ej.: 300 123 4567').fill('llámame')
-    await formulario.getByRole('button', { name: 'Guardar lugar' }).click()
+    await formulario.getByRole('button', { name: 'Solo guardar el lugar' }).click()
     await expect(formulario.getByText(/Escribe solo números/)).toBeVisible()
 
     await formulario.getByPlaceholder('Ej.: 300 123 4567').fill('300 123 4567')
-    await formulario.getByRole('button', { name: 'Guardar lugar' }).click()
+    await formulario.getByRole('button', { name: 'Solo guardar el lugar' }).click()
 
     await expect(toast(page, 'Lugar guardado')).toBeVisible()
     await expect(page).toHaveURL(/\/$/)
+    expect(supabase.db.estudios).toEqual([])
     expect(supabase.db.ubicaciones).toEqual([
       expect.objectContaining({
         tipo: 'punto',
@@ -106,17 +107,17 @@ test.describe('Crear un punto', () => {
     await page.getByRole('button', { name: 'Continuar' }).click()
 
     const aviso = page.getByRole('dialog', { name: '¿Es alguno de estos lugares?' })
-    await expect(aviso.getByRole('link', { name: /Tienda vieja.*cerrado/ })).toBeVisible()
+    await expect(aviso.getByRole('button', { name: /Tienda vieja.*cerrado/ })).toBeVisible()
 
     // "No, es un lugar nuevo" sigue con el formulario.
     await aviso.getByRole('button', { name: 'No, es un lugar nuevo' }).click()
     await expect(page.getByRole('dialog', { name: 'Nuevo lugar' })).toBeVisible()
 
-    // Desde el formulario se puede volver a ubicar y elegir el lugar existente.
+    // Desde el formulario se puede volver a ubicar y elegir el lugar existente, que abre su estudio.
     await page.getByRole('button', { name: 'Volver a ubicar' }).click()
     await page.getByRole('button', { name: 'Continuar' }).click()
-    await page.getByRole('link', { name: /Tienda vieja/ }).click()
-    await expect(page).toHaveURL(/\/lugares\/p1$/)
+    await page.getByRole('dialog', { name: '¿Es alguno de estos lugares?' }).getByRole('button', { name: /Tienda vieja/ }).click()
+    await expect(page.getByRole('dialog', { name: 'Nuevo estudio' })).toContainText('En Tienda vieja')
     expect(supabase.db.ubicaciones).toHaveLength(1)
   })
 })
