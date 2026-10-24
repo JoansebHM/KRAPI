@@ -24,3 +24,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0016 | [Documentación navegable en /docs generada desde el Markdown](0016-documentacion-navegable.md) | Aceptada |
 | 0017 | [Diagramas en SVG con la skill diagram-design](0017-diagramas-diagram-design.md) | Aceptada |
 | 0018 | [Lugares en el mapa: marcadores HTML, zonas en capas y `lugares_mapa()`](0018-lugares-en-el-mapa.md) | Aceptada |
+| 0019 | [Subida de evidencias: página del estudio, cola con avance y servicio de almacenamiento](0019-subida-de-evidencias.md) | Aceptada |

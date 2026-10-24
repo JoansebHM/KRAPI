@@ -150,11 +150,12 @@ src/
     auth/       # Inicio de sesión, política de sesión y menú de la cuenta
     categorias/ # Administración de categorías
     responsables/ # Administración de responsables
-    estudios/   # Estudios de cada lugar (visitas) y su histórico
+    estudios/   # Estudios de cada lugar (visitas), su histórico y la página de cada estudio
+    evidencias/ # Subir fotos, audios y documentos de un estudio
     lugares/    # Lugares en el mapa, su ficha y crear puntos
     map/        # Mapa base y límite del barrio
     theme/      # Modo claro y oscuro
-  lib/          # Supabase, caché de datos, notificaciones y utilidades
+  lib/          # Supabase, archivos (almacenamiento.ts), caché de datos, notificaciones y utilidades
   types/        # Tipos generados del esquema de la base de datos
   styles/       # Tema (colores, tipografía, espaciado)
 e2e/            # Pruebas de punta a punta (Playwright)

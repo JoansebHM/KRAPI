@@ -13,6 +13,8 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - el teléfono de contacto debe tener formato de teléfono → 23514
  * - la hora de fin de un estudio debe ser posterior a la de inicio → 23514
  * - los estudios traen embebidos sus responsables: estudio_responsables(responsable_id)
+ * - una evidencia de foto, audio o documento lleva su archivo completo → 23514
+ * - Storage: el bucket `evidencias` acepta solo sus tipos de archivo y hasta 50 MB, y firma enlaces
  *
  * En `ubicaciones`, `geom` se guarda directamente como GeoJSON (en la base real es PostGIS).
  * Si la app la envía como texto ('SRID=4326;POINT(lng lat)'), se convierte.
@@ -21,7 +23,22 @@ import type { BrowserContext, Route } from '@playwright/test'
 export const USUARIO = { email: 'compartido@kratos.test', password: 'clave-correcta-123' }
 
 type Fila = Record<string, unknown> & { id?: string }
-type Tabla = 'categorias' | 'responsables' | 'ubicaciones' | 'estudios' | 'estudio_responsables'
+type Tabla = 'categorias' | 'responsables' | 'ubicaciones' | 'estudios' | 'estudio_responsables' | 'evidencias'
+
+/** Copia de la configuración del bucket (migración bucket_evidencias). */
+const BUCKET_TIPOS = [
+  'image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif',
+  'audio/mpeg', 'audio/mp4', 'audio/x-m4a', 'audio/aac', 'audio/wav', 'audio/x-wav', 'audio/webm', 'audio/ogg',
+  'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain',
+]
+const BUCKET_MAX_BYTES = 50 * 1024 * 1024
+
+export interface ArchivoFalso {
+  tipo: string
+  bytes: number
+  contenido?: Buffer
+}
 
 const MAPA_VACIO = {
   version: 8,
@@ -64,7 +81,11 @@ const USUARIO_AUTH = {
 }
 
 export class SupabaseFalso {
-  db: Record<Tabla, Fila[]> = { categorias: [], responsables: [], ubicaciones: [], estudios: [], estudio_responsables: [] }
+  db: Record<Tabla, Fila[]> = { categorias: [], responsables: [], ubicaciones: [], estudios: [], estudio_responsables: [], evidencias: [] }
+  /** Archivos del bucket `evidencias`, por ruta. */
+  archivos = new Map<string, ArchivoFalso>()
+  /** Si es verdadero, las subidas de archivos fallan con un error del servidor. */
+  fallarSubidas = false
   /** Peticiones recibidas, por ejemplo "POST /auth/v1/logout?scope=global". */
   peticiones: string[] = []
 
@@ -80,6 +101,7 @@ export class SupabaseFalso {
 
     if (url.pathname.startsWith('/auth/v1/')) return this.auth(ruta, url)
     if (url.pathname.startsWith('/rest/v1/')) return this.rest(ruta, url)
+    if (url.pathname.startsWith('/storage/v1/')) return this.storage(ruta, url)
     return ruta.fulfill({ status: 404, json: {} })
   }
 
@@ -107,6 +129,51 @@ export class SupabaseFalso {
     if (url.pathname === '/auth/v1/logout') return ruta.fulfill({ status: 204, body: '' })
     if (url.pathname === '/auth/v1/user') return ruta.fulfill({ json: USUARIO_AUTH })
     return ruta.fulfill({ status: 404, json: {} })
+  }
+
+  /** Storage: subir, borrar y firmar enlaces de archivos del bucket `evidencias`. */
+  private storage(ruta: Route, url: URL) {
+    const peticion = ruta.request()
+    const camino = decodeURIComponent(url.pathname.replace('/storage/v1/', ''))
+    const json = () => JSON.parse(peticion.postData() ?? '{}')
+
+    if (peticion.method() === 'POST' && camino === 'object/sign/evidencias') {
+      const { paths } = json() as { paths: string[] }
+      return ruta.fulfill({
+        json: paths.map((path) =>
+          this.archivos.has(path)
+            ? { path, signedURL: `/object/sign/evidencias/${path}?token=falso`, error: null }
+            : { path, signedURL: null, error: 'Object not found' },
+        ),
+      })
+    }
+    if (peticion.method() === 'GET' && camino.startsWith('object/sign/evidencias/')) {
+      const archivo = this.archivos.get(camino.replace('object/sign/evidencias/', ''))
+      if (!archivo) return ruta.fulfill({ status: 404, body: '' })
+      return ruta.fulfill({ status: 200, contentType: archivo.tipo, body: archivo.contenido ?? 'contenido simulado' })
+    }
+    if (peticion.method() === 'DELETE' && camino === 'object/evidencias') {
+      const { prefixes } = json() as { prefixes: string[] }
+      const borrados = prefixes.filter((path) => this.archivos.delete(path))
+      return ruta.fulfill({ json: borrados.map((name) => ({ name, bucket_id: 'evidencias' })) })
+    }
+    if (peticion.method() === 'POST' && camino.startsWith('object/evidencias/')) {
+      const path = camino.replace('object/evidencias/', '')
+      const tipo = peticion.headers()['content-type'] ?? ''
+      const contenido = peticion.postDataBuffer() ?? Buffer.alloc(0)
+      const bytes = contenido.length
+      if (this.fallarSubidas) return ruta.fulfill({ status: 500, json: { statusCode: '500', error: 'internal', message: 'Internal Server Error' } })
+      if (!BUCKET_TIPOS.includes(tipo)) {
+        return ruta.fulfill({ status: 400, json: { statusCode: '415', error: 'invalid_mime_type', message: `mime type ${tipo} is not supported` } })
+      }
+      if (bytes > BUCKET_MAX_BYTES) {
+        return ruta.fulfill({ status: 413, json: { statusCode: '413', error: 'Payload too large', message: 'The object exceeded the maximum allowed size' } })
+      }
+      if (this.archivos.has(path)) return ruta.fulfill({ status: 400, json: { statusCode: '409', error: 'Duplicate', message: 'The resource already exists' } })
+      this.archivos.set(path, { tipo, bytes, contenido })
+      return ruta.fulfill({ json: { Key: `evidencias/${path}`, Id: crypto.randomUUID() } })
+    }
+    return ruta.fulfill({ status: 404, json: { statusCode: '404', error: 'not_found', message: 'Not found' } })
   }
 
   /** Funciones SQL que la app llama con supabase.rpc(). */
@@ -152,7 +219,11 @@ export class SupabaseFalso {
 
     switch (peticion.method()) {
       case 'GET': {
-        const resultado = filas.filter(coincide).map((fila) => this.proyectar(tabla, fila, select))
+        const [columnaOrden, sentido] = (url.searchParams.get('order') ?? '').split('.')
+        const ordenadas = columnaOrden
+          ? [...filas].sort((a, b) => String(a[columnaOrden]).localeCompare(String(b[columnaOrden])) * (sentido === 'desc' ? -1 : 1))
+          : filas
+        const resultado = ordenadas.filter(coincide).map((fila) => this.proyectar(tabla, fila, select))
         return ruta.fulfill({ json: unaFila ? resultado[0] : resultado })
       }
       case 'POST': {
@@ -161,8 +232,9 @@ export class SupabaseFalso {
         for (const datos of Array.isArray(cuerpo) ? cuerpo : [cuerpo]) {
           if (typeof datos.nombre === 'string' && this.nombreRepetido(tabla, datos.nombre)) return this.duplicado(ruta)
           if (tabla === 'estudios' && !(String(datos.hora_fin) > String(datos.hora_inicio))) return this.invalido(ruta)
+          if (tabla === 'evidencias' && !this.evidenciaValida(datos)) return this.invalido(ruta)
           if (tabla === 'ubicaciones' && datos.contacto_telefono && !/^\+?[0-9 ()-]{7,20}$/.test(datos.contacto_telefono)) return this.invalido(ruta)
-          const fila = { id: datos.id ?? crypto.randomUUID(), ...datos, ...(tabla === 'ubicaciones' ? { geom: geometria(datos.geom) } : {}) }
+          const fila = { id: datos.id ?? crypto.randomUUID(), created_at: new Date().toISOString(), ...datos, ...(tabla === 'ubicaciones' ? { geom: geometria(datos.geom) } : {}) }
           filas.push(fila)
           creadas.push(this.proyectar(tabla, fila, select))
         }
@@ -216,6 +288,12 @@ export class SupabaseFalso {
     if (tabla === 'categorias') return this.db.ubicaciones.filter((u) => u.categoria_id === fila.id).length
     if (tabla === 'responsables') return this.db.estudio_responsables.filter((r) => r.responsable_id === fila.id).length
     return 0
+  }
+
+  /** Reglas de `evidencias` para las de archivo: lo que la app sube hoy. */
+  private evidenciaValida(datos: Fila) {
+    if (!['foto', 'audio', 'documento'].includes(String(datos.tipo))) return true
+    return Boolean(datos.archivo_path && datos.archivo_nombre && datos.archivo_mime && Number(datos.archivo_bytes) > 0 && datos.proveedor)
   }
 
   private nombreRepetido(tabla: Tabla, nombre: string, excepto?: string) {

@@ -29,12 +29,13 @@ test.describe('Estudios', () => {
     await page.goto('/lugares/p1')
     const historico = page.getByRole('region', { name: /Estudios/ })
 
-    await expect(historico.getByRole('button')).toHaveCount(2)
-    await expect(historico.getByRole('button').nth(0)).toContainText('Segunda visita')
-    await expect(historico.getByRole('button').nth(1)).toContainText('Primera visita')
-    await expect(historico.getByRole('button').nth(1)).toContainText('20 oct 2026')
-    await expect(historico.getByRole('button').nth(1)).toContainText('Entrevista: Tendero')
-    await expect(historico.getByRole('button').nth(1)).toContainText('Responsables: Ana')
+    const estudios = historico.getByRole('link')
+    await expect(estudios).toHaveCount(2)
+    await expect(estudios.nth(0)).toContainText('Segunda visita')
+    await expect(estudios.nth(1)).toContainText('Primera visita')
+    await expect(estudios.nth(1)).toContainText('20 oct 2026')
+    await expect(estudios.nth(1)).toContainText('Entrevista: Tendero')
+    await expect(estudios.nth(1)).toContainText('Responsables: Ana')
     await expect(historico.getByText('Visita archivada')).toHaveCount(0)
   })
 
@@ -71,16 +72,38 @@ test.describe('Estudios', () => {
       expect.objectContaining({ ubicacion_id: 'p1', fecha: '2026-10-30', hora_inicio: '14:05', hora_fin: '15:30', entrevistado: 'Administradora', descripcion: null }),
     )
     expect(supabase.db.estudio_responsables.filter((r) => r.estudio_id === nuevo!.id).map((r) => r.responsable_id)).toEqual(['r2', 'r1'])
-    await expect(page.getByRole('region', { name: /Estudios/ }).getByRole('button').first()).toContainText('Tercera visita')
+    // Se abre la página del nuevo estudio, para agregarle evidencias.
+    await expect(page).toHaveURL(`/lugares/p1/estudios/${nuevo!.id}`)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Tercera visita')
     expect(await page.evaluate(() => localStorage.getItem('krapi-ultimos-responsables'))).toBe('["r2","r1"]')
+  })
+
+  test('la página del estudio muestra sus datos', async ({ page, entrar, supabase }) => {
+    supabase.db.estudios[0].descripcion = 'Vende desde 1990.\nAbre los domingos.'
+    await entrar()
+    await page.goto('/lugares/p1')
+    await page.getByRole('region', { name: /Estudios/ }).getByRole('link', { name: /Primera visita/ }).click()
+
+    await expect(page).toHaveURL('/lugares/p1/estudios/e1')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Primera visita')
+    await expect(page.locator('.panel-subtitulo')).toHaveText('Café Central')
+    const datos = page.locator('.ficha-datos')
+    await expect(datos).toContainText('20 oct 2026')
+    await expect(datos).toContainText('Ana')
+    await expect(datos).toContainText('Tendero')
+    await expect(datos).toContainText('Abre los domingos.')
+    await expect(page.getByRole('region', { name: 'Evidencias' })).toContainText('Aún no hay evidencias')
+
+    await page.getByRole('link', { name: 'Volver al lugar' }).click()
+    await expect(page).toHaveURL('/lugares/p1')
   })
 
   test('editar un estudio y archivarlo, con "Deshacer"', async ({ page, entrar, supabase }) => {
     await entrar()
-    await page.goto('/lugares/p1')
+    await page.goto('/lugares/p1/estudios/e1')
     const historico = page.getByRole('region', { name: /Estudios/ })
 
-    await historico.getByRole('button', { name: /Primera visita/ }).click()
+    await page.getByRole('button', { name: 'Editar estudio' }).click()
     const formulario = page.getByRole('dialog', { name: 'Editar estudio' })
     await expect(formulario.getByRole('button', { name: 'Ana' })).toHaveAttribute('aria-pressed', 'true')
     await formulario.getByPlaceholder('Ej.: Entrevista al tendero').fill('Primera visita (mañana)')
@@ -92,9 +115,12 @@ test.describe('Estudios', () => {
     expect(supabase.db.estudios.find((e) => e.id === 'e1')).toEqual(expect.objectContaining({ titulo: 'Primera visita (mañana)', hora_inicio: '09:00' }))
     expect(supabase.db.estudio_responsables.filter((r) => r.estudio_id === 'e1').map((r) => r.responsable_id)).toEqual(['r2'])
 
-    await historico.getByRole('button', { name: /Primera visita \(mañana\)/ }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Primera visita (mañana)')
+    await page.getByRole('button', { name: 'Editar estudio' }).click()
     await page.getByRole('dialog', { name: 'Editar estudio' }).getByRole('button', { name: 'Archivar estudio' }).click()
     await expect(toast(page, 'Estudio archivado')).toBeVisible()
+    // Vuelve a la ficha del lugar.
+    await expect(page).toHaveURL('/lugares/p1')
     await expect(historico.getByText('Primera visita (mañana)')).toHaveCount(0)
     expect(supabase.db.estudios.find((e) => e.id === 'e1')?.archivado_en).toBeTruthy()
 
@@ -123,9 +149,10 @@ test.describe('Estudios', () => {
     await expect(toast(page, 'Lugar y estudio guardados')).toBeVisible()
     const lugar = supabase.db.ubicaciones.find((u) => u.nombre === 'Tienda Don Pepe')
     expect(lugar).toBeTruthy()
-    expect(supabase.db.estudios.filter((e) => e.ubicacion_id === lugar!.id)).toEqual([
-      expect.objectContaining({ titulo: 'Primera visita', fecha: '2026-10-30', hora_inicio: '14:05', hora_fin: '15:05' }),
-    ])
+    const estudios = supabase.db.estudios.filter((e) => e.ubicacion_id === lugar!.id)
+    expect(estudios).toEqual([expect.objectContaining({ titulo: 'Primera visita', fecha: '2026-10-30', hora_inicio: '14:05', hora_fin: '15:05' })])
+    await expect(page).toHaveURL(`/lugares/${lugar!.id}/estudios/${estudios[0].id}`)
+    await expect(page.getByRole('button', { name: 'Agregar evidencia' })).toBeVisible()
   })
 
   test('si el lugar ya existe a menos de 15 m, se le agrega el estudio sin crear otro', async ({ page, entrar, supabase }) => {
@@ -142,6 +169,8 @@ test.describe('Estudios', () => {
 
     await expect(toast(page, 'Estudio guardado')).toBeVisible()
     expect(supabase.db.ubicaciones).toHaveLength(2)
-    expect(supabase.db.estudios.filter((e) => e.ubicacion_id === 'p2')).toEqual([expect.objectContaining({ titulo: 'Segunda visita' })])
+    const estudios = supabase.db.estudios.filter((e) => e.ubicacion_id === 'p2')
+    expect(estudios).toEqual([expect.objectContaining({ titulo: 'Segunda visita' })])
+    await expect(page).toHaveURL(`/lugares/p2/estudios/${estudios[0].id}`)
   })
 })

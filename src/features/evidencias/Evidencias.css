@@ -1,0 +1,163 @@
+.evidencias {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.evidencias-titulo {
+  margin: 0 0 var(--space-2);
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.evidencias-cantidad {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.icono-evidencia {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-info-bg);
+  color: var(--color-accent);
+}
+
+/* Fila de evidencia: el enlace ocupa todo y a la derecha van sus acciones. */
+.evidencia {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.evidencia > .lista-item {
+  flex: 1;
+  min-width: 0;
+}
+
+.evidencia > a.lista-item .lista-item-detalle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* En pantallas muy angostas se quita el ícono de "abrir" para darle espacio al nombre. */
+@media (max-width: 359px) {
+  .evidencia > a.lista-item .lista-item-flecha {
+    display: none;
+  }
+}
+
+.evidencia > a.lista-item[aria-disabled='true'] {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.evidencia-accion {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.evidencia-accion:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.evidencia-accion:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+.evidencia-subida > .lista-item {
+  cursor: default;
+}
+
+.evidencia-subida > .lista-item:hover {
+  background: transparent;
+}
+
+.evidencia-subida-error .lista-item-detalle {
+  color: var(--color-danger);
+}
+
+.evidencia-progreso {
+  display: block;
+  height: 6px;
+  margin-top: var(--space-2);
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--color-surface);
+}
+
+.evidencia-progreso > span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--color-accent);
+  transition: width 0.2s;
+}
+
+/* Opciones de "Agregar evidencia": el campo de archivo está oculto, así que el foco del teclado se marca en la fila. */
+.agregar-evidencia .lista-item:has(input:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+.grabador-texto {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-muted);
+}
+
+.grabador-en-curso {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-weight: 600;
+}
+
+.grabador-punto {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  animation: grabador-latido 1.2s ease-in-out infinite;
+}
+
+.grabador-tiempo {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.25rem;
+}
+
+.grabador-audio {
+  width: 100%;
+}
+
+@keyframes grabador-latido {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grabador-punto {
+    animation: none;
+  }
+}

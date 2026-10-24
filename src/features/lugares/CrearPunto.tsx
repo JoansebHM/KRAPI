@@ -117,26 +117,28 @@ export function CrearPunto() {
     }
   }
 
+  /** Después de guardar el estudio se abre su página, para agregarle las evidencias. */
   async function guardarConEstudio(existente: LugarCercano | null) {
     if (existente) {
-      await guardarEstudio.mutateAsync({ ...estudio!, ubicacionId: existente.id })
-      notificar.exito('Estudio guardado', { descripcion: `Se agregó al histórico de «${existente.nombre}».`, accion: verFicha(existente.id) })
-      navigate('/')
+      const estudioId = await guardarEstudio.mutateAsync({ ...estudio!, ubicacionId: existente.id })
+      notificar.exito('Estudio guardado', { descripcion: `Se agregó al histórico de «${existente.nombre}». Ahora agrégale las evidencias.` })
+      navigate(`/lugares/${existente.id}/estudios/${estudioId}`)
       return
     }
     // Si falla el lugar, el formulario del estudio muestra el error y queda abierto.
     const id = await guardarLugar()
     try {
-      await guardarEstudio.mutateAsync({ ...estudio!, ubicacionId: id })
-      notificar.exito('Lugar y estudio guardados', { descripcion: `«${campos.nombre.trim()}» ya está en el mapa.`, accion: verFicha(id) })
+      const estudioId = await guardarEstudio.mutateAsync({ ...estudio!, ubicacionId: id })
+      notificar.exito('Lugar y estudio guardados', { descripcion: `«${campos.nombre.trim()}» ya está en el mapa. Ahora agrégale las evidencias.` })
+      navigate(`/lugares/${id}/estudios/${estudioId}`)
     } catch (error) {
       // El lugar ya quedó guardado: no se debe volver a crear. El estudio se agrega desde su ficha.
       notificar.error('El lugar se guardó, pero el estudio no', {
         descripcion: `${mensajeErrorDatos(error)} Agrégalo desde la ficha del lugar.`,
         accion: verFicha(id),
       })
+      navigate('/')
     }
-    navigate('/')
   }
 
   return (

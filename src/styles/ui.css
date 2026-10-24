@@ -329,3 +329,21 @@ a.lista-item {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* Datos de una ficha (lugar, estudio): etiqueta pequeña arriba y valor debajo. */
+.ficha-datos {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.ficha-datos dt {
+  margin-bottom: var(--space-1);
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.ficha-datos dd {
+  margin: 0;
+  font-weight: 500;
+}

@@ -67,15 +67,17 @@ Hecho:
 - Categorías (color e ícono) y responsables (avatares).
 - Lugares en el mapa (puntos con su categoría y zonas) y ficha básica al tocarlos (`/lugares/:id`).
 - Crear puntos con la mira central (`/lugares/nuevo`), con su primer estudio.
-- Estudios: crear, editar y archivar, con responsables; histórico en la ficha.
+- Estudios: crear, editar y archivar, con responsables; histórico en la ficha y página de cada estudio (`/lugares/:id/estudios/:estudioId`).
+- Evidencias de archivo: fotos (comprimidas), audios grabados en la app y documentos, con avance de subida y borrado.
 - Esquema completo en Supabase.
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`, con diagramas hechos con diagram-design.
 
 Siguiente (en orden):
-1. **#16** ficha del lugar (completar la ficha básica: datos, editar, cerrar y archivar el lugar)
-2. **#15** zonas (incluye elegir punto o zona en el "+")
-3. **#18–#20** evidencias
-4. **#21** filtros
+1. **#20** visor de evidencias (fotos, audios y documentos)
+2. **#19** evidencias de texto y videos por enlace (los videos esperan la prueba de SharePoint, #22)
+3. **#16** ficha del lugar (completar la ficha básica: datos, editar, cerrar y archivar el lugar)
+4. **#15** zonas (incluye elegir punto o zona en el "+")
+5. **#21** filtros
 
 Ver el milestone MVP en GitHub.

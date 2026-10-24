@@ -1,0 +1,30 @@
+.estudio-personas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.estudio-personas li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.estudio-sin-dato {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.estudio-notas-texto {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.estudio-editar {
+  margin-top: var(--space-4);
+}

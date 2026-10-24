@@ -100,7 +100,10 @@ Se llaman desde la app con `supabase.rpc('nombre', { ... })`. Corren con los per
   - fotos: JPEG, PNG, WebP, HEIC/HEIF
   - audios: MP3, M4A/MP4, AAC, WAV, WebM, OGG
   - documentos: PDF, Word, Excel, texto plano
-- **Ruta sugerida:** `<estudio_id>/<uuid>-<nombre_original>`.
+- **Ruta:** `<estudio_id>/<uuid>-<nombre>`, con el nombre sin tildes, espacios ni símbolos (`Fachada día 1.jpg` → `Fachada-dia-1.jpg`). El nombre original queda en `archivo_nombre`.
+- **Orden al guardar:** primero se sube el archivo y después se crea la fila en `evidencias` (con `proveedor = 'supabase'`). Si la fila falla, la app borra el archivo.
+- **Orden al borrar:** primero la fila y después el archivo. Si falla el archivo, queda un archivo sin uso, pero nunca una evidencia sin su archivo.
+- Las fotos llegan ya reducidas a 2048 px y en JPEG. Los audios grabados en la app son WebM (Chrome, Android) o MP4 (iPhone).
 
 ## Seguridad
 
