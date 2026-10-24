@@ -1,0 +1,52 @@
+.estudio-lugar {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.estudio-lugar strong {
+  color: var(--color-text);
+}
+
+.estudio-horas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.estudio-horas legend {
+  grid-column: 1 / -1;
+  margin-bottom: var(--space-2);
+  padding: 0;
+}
+
+.estudio-horas .field {
+  min-width: 0;
+}
+
+.estudio-horas-etiqueta {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.estudio-horas-error {
+  grid-column: 1 / -1;
+}
+
+/* En pantallas muy angostas las dos horas no caben lado a lado. */
+@media (max-width: 359px) {
+  .estudio-horas {
+    grid-template-columns: 1fr;
+  }
+}
+
+.estudio-notas {
+  min-height: 96px;
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+  line-height: 1.4;
+  resize: vertical;
+}

@@ -1,0 +1,53 @@
+.estudios {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.estudios-titulo {
+  margin: 0 0 var(--space-2);
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.estudios-cantidad {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+/* Última línea de cada estudio: responsables (avatares encimados) y a quién se entrevistó. */
+.estudio-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  margin-top: var(--space-1);
+  min-width: 0;
+}
+
+.estudio-meta .lista-item-detalle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.estudio-avatares {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.estudio-avatares .avatar + .avatar {
+  margin-left: -8px;
+}
+
+.estudio-avatares .avatar {
+  box-shadow: 0 0 0 2px var(--color-bg);
+}
+
+.estudio-avatares-mas {
+  margin-left: var(--space-1);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
