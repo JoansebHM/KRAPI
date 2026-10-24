@@ -73,8 +73,10 @@ export type Database = {
       }
       estudios: {
         Row: {
+          archivado_en: string | null
           created_at: string
           descripcion: string | null
+          entrevistado: string | null
           fecha: string
           hora_fin: string
           hora_inicio: string
@@ -84,8 +86,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archivado_en?: string | null
           created_at?: string
           descripcion?: string | null
+          entrevistado?: string | null
           fecha: string
           hora_fin: string
           hora_inicio: string
@@ -95,8 +99,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archivado_en?: string | null
           created_at?: string
           descripcion?: string | null
+          entrevistado?: string | null
           fecha?: string
           hora_fin?: string
           hora_inicio?: string
@@ -203,6 +209,7 @@ export type Database = {
       }
       ubicaciones: {
         Row: {
+          archivada_en: string | null
           categoria_id: string | null
           complemento: string | null
           contacto_nombre: string | null
@@ -210,6 +217,7 @@ export type Database = {
           created_at: string
           descripcion: string | null
           direccion: string | null
+          estado: Database["public"]["Enums"]["estado_ubicacion"]
           geom: unknown
           id: string
           nombre: string
@@ -217,6 +225,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archivada_en?: string | null
           categoria_id?: string | null
           complemento?: string | null
           contacto_nombre?: string | null
@@ -224,6 +233,7 @@ export type Database = {
           created_at?: string
           descripcion?: string | null
           direccion?: string | null
+          estado?: Database["public"]["Enums"]["estado_ubicacion"]
           geom: unknown
           id?: string
           nombre: string
@@ -231,6 +241,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archivada_en?: string | null
           categoria_id?: string | null
           complemento?: string | null
           contacto_nombre?: string | null
@@ -238,6 +249,7 @@ export type Database = {
           created_at?: string
           descripcion?: string | null
           direccion?: string | null
+          estado?: Database["public"]["Enums"]["estado_ubicacion"]
           geom?: unknown
           id?: string
           nombre?: string
@@ -260,8 +272,43 @@ export type Database = {
     }
     Functions: {
       limite_manila: { Args: never; Returns: unknown }
+      ubicaciones_cercanas: {
+        Args: { lat: number; lng: number; metros?: number }
+        Returns: {
+          distancia_m: number
+          estado: Database["public"]["Enums"]["estado_ubicacion"]
+          id: string
+          nombre: string
+        }[]
+      }
+      ubicaciones_en_zona: {
+        Args: { zona_id: string }
+        Returns: {
+          archivada_en: string | null
+          categoria_id: string | null
+          complemento: string | null
+          contacto_nombre: string | null
+          contacto_telefono: string | null
+          created_at: string
+          descripcion: string | null
+          direccion: string | null
+          estado: Database["public"]["Enums"]["estado_ubicacion"]
+          geom: unknown
+          id: string
+          nombre: string
+          tipo: Database["public"]["Enums"]["tipo_ubicacion"]
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "ubicaciones"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
+      estado_ubicacion: "activa" | "cerrada"
       proveedor_almacenamiento: "supabase" | "sharepoint" | "otro"
       tipo_evidencia: "foto" | "audio" | "documento" | "texto" | "video"
       tipo_ubicacion: "punto" | "zona"
@@ -392,6 +439,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      estado_ubicacion: ["activa", "cerrada"],
       proveedor_almacenamiento: ["supabase", "sharepoint", "otro"],
       tipo_evidencia: ["foto", "audio", "documento", "texto", "video"],
       tipo_ubicacion: ["punto", "zona"],
