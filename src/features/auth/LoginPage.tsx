@@ -37,7 +37,7 @@ export function LoginPage({ theme, onToggleTheme }: LoginPageProps) {
     const resultado = await iniciarSesion(email, password)
     setEnviando(false)
     if (resultado.error) setError(resultado.error)
-    else notificar.exito('Sesión iniciada', { descripcion: 'Bienvenido a KRAPI.' })
+    else notificar.exito('Sesión iniciada', { descripcion: 'Bienvenido a KIRA.' })
   }
 
   return (
@@ -48,7 +48,7 @@ export function LoginPage({ theme, onToggleTheme }: LoginPageProps) {
 
       <main className="login-card">
         <header className="login-header">
-          <h1 className="login-brand">KRAPI</h1>
+          <h1 className="login-brand">KIRA</h1>
           <PoweredBy tamano="mediano" />
           <p className="login-subtitle">Geovisor del barrio Manila</p>
         </header>

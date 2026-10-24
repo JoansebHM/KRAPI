@@ -25,11 +25,12 @@ Las **categorías** usan una paleta propia (`src/features/categorias/colores.ts`
 
 - **Good Times**: marca y títulos (`--font-display`). Solo se usa si está instalada en el dispositivo; si no, se ve **Poppins Black**. Para incluir el archivo web, ver el README.
 - **Poppins**: todo el texto (`--font-sans`), cargada desde Google Fonts.
-- La barra superior muestra **KRAPI** y, justo debajo, "powered by **KIT**". `KIT` es una abreviatura con `title` y `aria-label` "Kratos Innovation Team".
+- La barra superior muestra **KIRA** y, justo debajo, "powered by **KIT**". `KIT` es una abreviatura con `title` y `aria-label` "Kratos Innovation Team".
 
 ## Modo claro y oscuro
 
 - El tema empieza según el sistema y se guarda en `localStorage` (`krapi-theme`). Se aplica con `data-theme` en `<html>` y también cambia `theme-color`.
+- Las claves locales con prefijo `krapi-` se conservan para no cerrar sesiones ni perder preferencias al actualizar instalaciones existentes.
 - Para el mapa oscuro se genera un **estilo nocturno de alto contraste** a partir de Liberty (`nightStyle.ts`): conserva los nombres de los locales, que en el estilo "dark" de OpenFreeMap desaparecían.
 - **Toda pantalla nueva se revisa en ambos temas.**
 

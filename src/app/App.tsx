@@ -53,7 +53,7 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
       <header className="app-header">
         <BotonMenu onAbrir={() => setMenuAbierto(true)} />
         <span className="app-marca">
-          <span className="app-brand">KRAPI</span>
+          <span className="app-brand">KIRA</span>
           <PoweredBy />
         </span>
         <div className="app-actions">

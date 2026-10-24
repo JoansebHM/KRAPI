@@ -1,4 +1,4 @@
-# Documentación de KRAPI
+# Documentación de KIRA
 
 Esta carpeta es la **fuente de verdad** del proyecto. Si algo no está aquí ni en el código, no está decidido.
 

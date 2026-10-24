@@ -46,7 +46,7 @@ scripts/          crear-usuario-compartido.mjs
 
 `scripts/docs/generar.ts` convierte los `.md` del repositorio (README, CONTRIBUTING, CLAUDE.md y `docs/`) en **un solo HTML** sin dependencias externas: `markdown.ts` traduce el Markdown y colorea el código con Monokai, y `plantilla.html` tiene los estilos, el menú, el índice y el buscador.
 
-- En desarrollo, el plugin `krapi-docs` de `vite.config.ts` la sirve en `/docs` y la regenera en cada visita.
+- En desarrollo, el plugin `kira-docs` de `vite.config.ts` la sirve en `/docs` y la regenera en cada visita.
 - Al compilar queda en `dist/docs/index.html`. `npm run docs` la genera sin compilar la app.
 - Para agregar un documento nuevo a la navegación, súmalo a `SECCIONES` en `generar.ts`. Las decisiones se agregan solas.
 - **Diagramas:** son archivos `.svg` en `docs/diagramas/`, enlazados desde el Markdown como imagen en su propia línea (`![…](diagramas/x.svg)`). GitHub los muestra como imagen y `/docs` los incrusta. Traen sus colores de claro y oscuro y siguen el tema elegido. Se hacen con la skill [diagram-design](https://github.com/cathrynlavery/diagram-design) y el perfil `kratos` (ver `.diagram-design` y la [decisión 0017](decisiones/0017-diagramas-diagram-design.md)).
@@ -124,9 +124,9 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | `.env.local` | Clave pública (segura en el navegador) |
 | `VITE_MAP_STYLE_URL_LIGHT` / `_DARK` | `.env.local` (opcional) | Estilos del mapa; por defecto OpenFreeMap |
 | `SUPABASE_SECRET_KEY` | `.env.local` | **Solo scripts**, nunca con prefijo `VITE_` |
-| `KRAPI_USUARIO_EMAIL` | `.env.local` | Correo del usuario compartido para `usuario:crear` |
+| `KIRA_USUARIO_EMAIL` | `.env.local` | Correo del usuario compartido para `usuario:crear`; admite `KRAPI_USUARIO_EMAIL` como alias temporal |
 
-`.env.e2e` (versionado y sin secretos) configura las pruebas con servicios simulados. Si falta una variable obligatoria, la app muestra cuál en lugar de fallar.
+`.env.e2e` (versionado y sin secretos) configura las pruebas con servicios simulados. Si falta una variable obligatoria, la app muestra cuál en lugar de fallar. El identificador del proyecto Supabase y las claves `krapi-*` de `localStorage` se mantienen por compatibilidad; no son nombres visibles de la app.
 
 ## Pruebas
 

@@ -104,7 +104,7 @@ export function UserMenu() {
           }
         >
           <p>
-            Todas las personas que estén usando KRAPI con esta cuenta tendrán que volver a ingresar. En los demás
+            Todas las personas que estén usando KIRA con esta cuenta tendrán que volver a ingresar. En los demás
             dispositivos puede tardar hasta una hora en aplicarse.
           </p>
           <p>Úsalo si cambiaste la contraseña o si alguien dejó el grupo.</p>

@@ -1,6 +1,6 @@
-# KRAPI · Geovisor Kratos
+# KIRA · Geovisor Kratos
 
-Geovisor del barrio Manila (El Poblado, Medellín) para registrar ubicaciones, estudios y evidencias de campo.
+KIRA es el geovisor del barrio Manila (El Poblado, Medellín) para registrar ubicaciones, estudios y evidencias de campo.
 
 > **Documentación completa:** [`docs/`](docs/README.md) (producto, modelo de datos, arquitectura, diseño y decisiones). Para asistentes de código: [`CLAUDE.md`](CLAUDE.md). Con la app corriendo, toda la documentación se puede leer en **`/docs`** (por ejemplo http://localhost:5173/docs).
 
@@ -76,9 +76,9 @@ La contraseña de la base de datos y las claves del proyecto **nunca** se suben 
 
 ### Usuario compartido
 
-KRAPI no permite registrarse: hay un solo usuario para todo el equipo, que crea un administrador.
+KIRA no permite registrarse: hay un solo usuario para todo el equipo, que crea un administrador.
 
-1. En `.env.local` completa `VITE_SUPABASE_URL`, `SUPABASE_SECRET_KEY` y `KRAPI_USUARIO_EMAIL` (ver `.env.example`).
+1. En `.env.local` completa `VITE_SUPABASE_URL`, `SUPABASE_SECRET_KEY` y `KIRA_USUARIO_EMAIL` (ver `.env.example`). Se acepta `KRAPI_USUARIO_EMAIL` como alias temporal para instalaciones existentes.
 2. Ejecuta `npm run usuario:crear`. Pide la contraseña sin mostrarla en pantalla. Si el usuario ya existe, le cambia la contraseña.
 
 ### Sesión en la app

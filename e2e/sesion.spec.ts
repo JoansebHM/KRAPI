@@ -7,6 +7,8 @@ test.describe('Inicio de sesión', () => {
   test('sin sesión solo se ve el login', async ({ page, supabase }) => {
     void supabase
     await page.goto('/categorias')
+    await expect(page.getByRole('heading', { level: 1, name: 'KIRA' })).toBeVisible()
+    await expect(page).toHaveTitle('KIRA · Geovisor Kratos')
     await expect(page.getByRole('button', { name: 'Ingresar' })).toBeVisible()
     await expect(page.locator('.app-header')).toHaveCount(0)
   })
@@ -21,6 +23,7 @@ test.describe('Inicio de sesión', () => {
   test('con la contraseña correcta entra y la sesión se mantiene al recargar', async ({ page, entrar }) => {
     await entrar()
     await expect(toast(page, 'Sesión iniciada')).toBeVisible()
+    await expect(page.locator('.app-brand')).toHaveText('KIRA')
     await page.reload()
     await expect(page.locator('.app-header')).toBeVisible()
   })

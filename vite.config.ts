@@ -9,7 +9,7 @@ import { generarDocs } from './scripts/docs/generar.ts'
 function documentacion(): Plugin {
   let raiz = process.cwd()
   return {
-    name: 'krapi-docs',
+    name: 'kira-docs',
     configResolved(config) {
       raiz = config.root
     },

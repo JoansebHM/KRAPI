@@ -10,7 +10,7 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0002 | [MapLibre GL y mapa base provisional OpenFreeMap](0002-maplibre-y-mapa-base.md) | Aceptada |
 | 0003 | [Todo dentro de Manila; navegación hasta 1 km alrededor](0003-limite-manila.md) | Aceptada |
 | 0004 | [Modo oscuro con estilo nocturno derivado de Liberty](0004-modo-oscuro-nocturno.md) | Aceptada |
-| 0005 | [Identidad Kratos Innovation Lab](0005-identidad-kratos.md) | Aceptada |
+| 0005 | [Identidad Kratos Innovation Lab](0005-identidad-kratos.md) | Reemplazada |
 | 0006 | [Supabase con la CLI como infraestructura como código](0006-supabase-iac.md) | Aceptada |
 | 0007 | [Usuario compartido y política de sesión](0007-usuario-compartido-y-sesion.md) | Aceptada |
 | 0008 | [Lugares (puntos y zonas) con histórico de estudios, sin salidas](0008-modelo-lugares-y-estudios.md) | Aceptada |
@@ -25,3 +25,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0017 | [Diagramas en SVG con la skill diagram-design](0017-diagramas-diagram-design.md) | Aceptada |
 | 0018 | [Lugares en el mapa: marcadores HTML, zonas en capas y `lugares_mapa()`](0018-lugares-en-el-mapa.md) | Aceptada |
 | 0019 | [Subida de evidencias: página del estudio, cola con avance y servicio de almacenamiento](0019-subida-de-evidencias.md) | Aceptada |
+| 0020 | [Nombre oficial KIRA](0020-nombre-oficial-kira.md) | Aceptada |
