@@ -1,0 +1,35 @@
+.powered {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.powered-por {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}
+
+/* Como el "INNOVATION TEAM" de la plantilla: tipografía de títulos, mayúsculas y letras espaciadas.
+   Usa el azul de acento (no el azul cielo) porque en tamaño tan pequeño necesita contraste AA. */
+.powered-equipo {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-synthesis: none;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-accent);
+  text-decoration: none;
+  cursor: help;
+}
+
+.powered-pequeno {
+  font-size: 0.625rem;
+}
+
+.powered-mediano {
+  font-size: 0.8125rem;
+}

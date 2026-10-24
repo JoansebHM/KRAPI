@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import { BotonMenu, MenuNavegacion } from '../components/MenuNavegacion'
 import { Notificaciones } from '../components/Notificaciones'
+import { PoweredBy } from '../components/PoweredBy'
 import { variablesFaltantes } from '../config/env'
 import { InactivityDialog } from '../features/auth/InactivityDialog'
 import { LoginPage } from '../features/auth/LoginPage'
@@ -46,8 +47,10 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
     <div className="app">
       <header className="app-header">
         <BotonMenu onAbrir={() => setMenuAbierto(true)} />
-        <span className="app-brand">KRAPI</span>
-        <span className="app-area">Barrio Manila</span>
+        <span className="app-marca">
+          <span className="app-brand">KRAPI</span>
+          <PoweredBy />
+        </span>
         <div className="app-actions">
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
           <UserMenu />

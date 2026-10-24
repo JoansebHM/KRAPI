@@ -16,7 +16,15 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.app-marca {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
 .app-brand {
+  line-height: 1;
   font-family: var(--font-display);
   /* Si Good Times no está disponible se usa Poppins Black, la tipografía de títulos de Kratos. */
   font-weight: 900;
@@ -26,10 +34,8 @@
   color: var(--color-primary);
 }
 
-.app-area {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-}
+
+
 
 .app-actions {
   display: flex;
