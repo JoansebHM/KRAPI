@@ -30,7 +30,10 @@ export function LugaresEnMapa({ mapa, theme }: LugaresEnMapaProps) {
   const { data: lugares } = useLugares()
   const { data: categorias } = useCategorias()
   const navigate = useNavigate()
-  const seleccionado = useMatch('/lugares/:id')?.params.id
+  // Mientras se ubica un lugar nuevo, tocar el mapa no abre fichas.
+  const creando = useMatch('/lugares/nuevo') !== null
+  const idEnRuta = useMatch('/lugares/:id')?.params.id
+  const seleccionado = creando ? undefined : idEnRuta
 
   const puntos = useMemo(() => (lugares ?? []).filter((lugar): lugar is Punto => lugar.tipo === 'punto'), [lugares])
   const zonas = useMemo(() => (lugares ?? []).filter((lugar): lugar is Zona => lugar.tipo === 'zona'), [lugares])
@@ -38,7 +41,7 @@ export function LugaresEnMapa({ mapa, theme }: LugaresEnMapaProps) {
 
   const abrir = useCallback((id: string) => navigate(`/lugares/${id}`), [navigate])
 
-  useZonas(mapa, zonas, theme, seleccionado, abrir)
+  useZonas(mapa, zonas, theme, seleccionado, creando ? undefined : abrir)
 
   return puntos.map((punto) => (
     <MarcadorPunto
@@ -101,7 +104,7 @@ function MarcadorPunto({ mapa, punto, categoria, seleccionado, onAbrir }: Marcad
 }
 
 /** Mantiene la fuente y las capas de las zonas, también después de cambiar el mapa base (tema). */
-function useZonas(mapa: MapLibreMap, zonas: Zona[], theme: Theme, seleccionado: string | undefined, onAbrir: (id: string) => void) {
+function useZonas(mapa: MapLibreMap, zonas: Zona[], theme: Theme, seleccionado: string | undefined, onAbrir?: (id: string) => void) {
   const datos = useMemo<FeatureCollection<Polygon>>(
     () => ({
       type: 'FeatureCollection',
@@ -156,7 +159,7 @@ function useZonas(mapa: MapLibreMap, zonas: Zona[], theme: Theme, seleccionado: 
       if (evento.originalEvent.target instanceof Element && evento.originalEvent.target.closest('.marcador-lugar')) return
       // Si hay zonas superpuestas, se abre la más pequeña, que es la más difícil de tocar.
       const zona = [...(evento.features ?? [])].sort((a, b) => area(a.geometry as Polygon) - area(b.geometry as Polygon))[0]
-      if (zona) actual.current.onAbrir(String(zona.properties.id))
+      if (zona) actual.current.onAbrir?.(String(zona.properties.id))
     }
     const conPuntero = () => (mapa.getCanvas().style.cursor = 'pointer')
     const sinPuntero = () => (mapa.getCanvas().style.cursor = '')

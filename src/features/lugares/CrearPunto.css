@@ -1,0 +1,144 @@
+/* Botón flotante "Nuevo lugar" sobre el mapa, al alcance del pulgar. */
+.fab-mapa {
+  position: absolute;
+  right: var(--space-4);
+  /* Por encima de los créditos del mapa, que van abajo a la izquierda y pueden ocupar todo el ancho. */
+  bottom: calc(48px + env(safe-area-inset-bottom));
+  z-index: 5;
+  text-decoration: none;
+}
+
+/* Mientras se ubica un punto, los lugares existentes no se pueden tocar. */
+.app-main:has(.crear-punto) .marcador-lugar {
+  pointer-events: none;
+}
+
+/* Mira fija en el centro del mapa: se mueve el mapa por debajo. */
+.crear-mira {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 5;
+  translate: -50% -50%;
+  pointer-events: none;
+  color: var(--kratos-azul-electrico);
+  filter: drop-shadow(0 0 2px #ffffff) drop-shadow(0 0 1px #ffffff);
+}
+
+.crear-mira svg {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.crear-mira .crear-mira-centro {
+  fill: currentColor;
+  stroke: none;
+}
+
+.crear-mira-fuera {
+  color: var(--color-danger);
+}
+
+/* El rojo claro del modo oscuro se pierde sobre el mapa claro: la mira usa siempre el rojo fuerte. */
+:root[data-theme='dark'] .crear-mira-fuera {
+  color: #c4161c;
+}
+
+.crear-aviso {
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  z-index: 5;
+  width: max-content;
+  max-width: calc(100% - 2 * var(--space-4));
+  margin: 0;
+  translate: -50% 0;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 999px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-overlay);
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.crear-aviso-fuera {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.crear-barra {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-overlay);
+}
+
+.crear-barra .btn {
+  min-width: 0;
+  padding: 0 var(--space-3);
+  text-decoration: none;
+}
+
+/* "Mi ubicación": botón redondo sobre la barra, al alcance del pulgar. */
+.crear-mi-ubicacion {
+  position: absolute;
+  right: var(--space-4);
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-overlay);
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.crear-mi-ubicacion:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.crear-mi-ubicacion:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@media (min-width: 900px) {
+  .crear-mi-ubicacion {
+    bottom: var(--space-6);
+  }
+
+  .crear-barra {
+    right: auto;
+    bottom: var(--space-6);
+    left: 50%;
+    translate: -50% 0;
+    width: 400px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+}
+
+.crear-duplicados-texto {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-muted);
+}

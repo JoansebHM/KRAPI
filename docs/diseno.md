@@ -55,7 +55,9 @@ Se usa en la calle, con una mano y con sol:
 | `.field`, `.field-label`, `.field-input`, `.field-error` | Campos de formulario; el error va debajo del campo y con `aria-invalid` |
 | `.alert-error`, `.alert-info` | Mensajes fijos en una pantalla (por ejemplo, en el login) |
 | `.lista`, `.lista-item…` | Listas tocables de los catálogos |
-| `.fab` | Botón flotante de crear |
+| `.fab` | Botón flotante de crear. Sobre el mapa, `.fab-mapa` ("+ Nuevo lugar") queda por encima de los créditos |
+| `.formulario`, `.field-opcional` | Campos de un formulario, uno debajo del otro; "(opcional)" en gris junto a la etiqueta |
+| `FlechaLista` | Flecha (›) al final de una fila que se puede abrir |
 | `Dialog`, `Panel`, `MenuNavegacion`, `Buscador`, `Estados` | Ver [`arquitectura.md`](arquitectura.md) |
 | `notificar.*` | Toasts de Sonner arriba al centro, con botón de cerrar de 40 px y colores de marca |
 | `Avatar` | Avatar dibujado (DiceBear Croodles, a lápiz) de un responsable |
@@ -66,6 +68,7 @@ Se usa en la calle, con una mano y con sol:
 
 - **Límite de Manila:** línea azul punteada con relleno muy suave.
 - **Zonas:** en **lila** (relleno semitransparente y borde morado; lila claro en oscuro), para no confundirlas con el límite azul. Las cerradas van más tenues y la seleccionada lleva un borde más grueso.
+- **Crear un punto:** mira fija en el centro, en azul eléctrico, que se pone roja fuera de Manila. Arriba, un aviso dice qué hacer. Abajo, una barra con "Cancelar" y "Continuar", y encima de ella un botón redondo "Mi ubicación", todo al alcance del pulgar. En computador, la barra flota centrada.
 - **Puntos:** el color y el ícono de su categoría. **Sin categoría:** círculo blanco con borde gris, distinto de todos los colores de la paleta (incluido el gris). **Cerrados:** atenuados. **Archivados:** no se muestran.
 
 ## Accesibilidad

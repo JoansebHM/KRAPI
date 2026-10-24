@@ -9,8 +9,11 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - borrar una categoría deja sus ubicaciones sin categoría (ON DELETE SET NULL)
  * - borrar un responsable lo quita de sus estudios (ON DELETE CASCADE)
  * - lugares_mapa() devuelve los lugares no archivados, zonas primero
+ * - ubicaciones_cercanas() devuelve hasta 5 puntos no archivados a menos de N metros
+ * - el teléfono de contacto debe tener formato de teléfono → 23514
  *
  * En `ubicaciones`, `geom` se guarda directamente como GeoJSON (en la base real es PostGIS).
+ * Si la app la envía como texto ('SRID=4326;POINT(lng lat)'), se convierte.
  */
 
 export const USUARIO = { email: 'compartido@kratos.test', password: 'clave-correcta-123' }
@@ -25,6 +28,19 @@ const MAPA_VACIO = {
 }
 
 const normalizar = (texto: string) => texto.trim().replace(/\s+/g, ' ').toLowerCase()
+
+/** 'SRID=4326;POINT(lng lat)' → GeoJSON. Otros valores quedan igual. */
+function geometria(valor: unknown) {
+  const punto = typeof valor === 'string' && valor.match(/POINT\(([-\d.]+) ([-\d.]+)\)/)
+  return punto ? { type: 'Point', coordinates: [Number(punto[1]), Number(punto[2])] } : valor
+}
+
+/** Distancia en metros entre dos coordenadas (fórmula del haversine). */
+function metrosEntre([lng1, lat1]: number[], [lng2, lat2]: number[]) {
+  const rad = Math.PI / 180
+  const a = Math.sin(((lat2 - lat1) * rad) / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(((lng2 - lng1) * rad) / 2) ** 2
+  return 6_371_000 * 2 * Math.asin(Math.sqrt(a))
+}
 
 function jwt() {
   const codificar = (datos: object) => Buffer.from(JSON.stringify(datos)).toString('base64url')
@@ -90,6 +106,17 @@ export class SupabaseFalso {
 
   /** Funciones SQL que la app llama con supabase.rpc(). */
   private rpc(ruta: Route, funcion: string) {
+    const argumentos = JSON.parse(ruta.request().postData() || '{}')
+    if (funcion === 'ubicaciones_cercanas') {
+      const { lng, lat, metros = 15 } = argumentos
+      const cercanos = this.db.ubicaciones
+        .filter((u) => u.tipo === 'punto' && u.archivada_en == null)
+        .map((u) => ({ id: u.id, nombre: u.nombre, estado: u.estado ?? 'activa', distancia_m: metrosEntre((u.geom as { coordinates: number[] }).coordinates, [lng, lat]) }))
+        .filter((u) => u.distancia_m <= metros)
+        .sort((a, b) => a.distancia_m - b.distancia_m)
+        .slice(0, 5)
+      return ruta.fulfill({ json: cercanos })
+    }
     if (funcion === 'lugares_mapa') {
       const lugares = this.db.ubicaciones
         .filter((u) => u.archivada_en == null)
@@ -128,7 +155,8 @@ export class SupabaseFalso {
         const creadas: Fila[] = []
         for (const datos of Array.isArray(cuerpo) ? cuerpo : [cuerpo]) {
           if (typeof datos.nombre === 'string' && this.nombreRepetido(tabla, datos.nombre)) return this.duplicado(ruta)
-          const fila = { id: datos.id ?? crypto.randomUUID(), ...datos }
+          if (tabla === 'ubicaciones' && datos.contacto_telefono && !/^\+?[0-9 ()-]{7,20}$/.test(datos.contacto_telefono)) return this.invalido(ruta)
+          const fila = { id: datos.id ?? crypto.randomUUID(), ...datos, ...(tabla === 'ubicaciones' ? { geom: geometria(datos.geom) } : {}) }
           filas.push(fila)
           creadas.push(this.proyectar(tabla, fila, select))
         }
@@ -180,6 +208,10 @@ export class SupabaseFalso {
   private nombreRepetido(tabla: Tabla, nombre: string, excepto?: string) {
     if (tabla !== 'categorias' && tabla !== 'responsables') return false
     return this.db[tabla].some((fila) => fila.id !== excepto && normalizar(String(fila.nombre)) === normalizar(nombre))
+  }
+
+  private invalido(ruta: Route) {
+    return ruta.fulfill({ status: 400, json: { code: '23514', message: 'new row violates check constraint' } })
   }
 
   private duplicado(ruta: Route) {
