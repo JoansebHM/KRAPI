@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 776 648" width="776" height="648" role="img" aria-labelledby="modelo-de-datos-title modelo-de-datos-desc">
+  <title id="modelo-de-datos-title">Modelo de datos de KRAPI</title>
+  <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional y acumula estudios; cada estudio tiene responsables y evidencias, y los archivos de las evidencias se guardan en el bucket privado.</desc>
+  <defs>
+    <style>
+      /* Perfil "kratos" de diagram-design: tokens de src/styles/theme.css. Sigue el sistema y, dentro de /docs, el tema elegido. */
+      .dg { --dg-paper: #ffffff; --dg-nodo: #ffffff; --dg-ink: #0a0a0c; --dg-muted: #4b4e59; --dg-soft: #5a5d68; --dg-rule: rgba(10, 10, 12, 0.12); --dg-tenue: rgba(10, 10, 12, 0.04); --dg-acento: #0d34e9; --dg-acento-tinte: rgba(13, 52, 233, 0.08); --dg-link: #6100df; }
+      @media (prefers-color-scheme: dark) {
+        .dg { --dg-paper: #121214; --dg-nodo: #1c1c21; --dg-ink: #ffffff; --dg-muted: #c2c5ce; --dg-soft: #a3a6b1; --dg-rule: rgba(255, 255, 255, 0.12); --dg-tenue: rgba(255, 255, 255, 0.05); --dg-acento: #3d8dfc; --dg-acento-tinte: rgba(61, 141, 252, 0.14); --dg-link: #b59cf0; }
+      }
+      :root[data-theme='light'] .dg { --dg-paper: #ffffff; --dg-nodo: #ffffff; --dg-ink: #0a0a0c; --dg-muted: #4b4e59; --dg-soft: #5a5d68; --dg-rule: rgba(10, 10, 12, 0.12); --dg-tenue: rgba(10, 10, 12, 0.04); --dg-acento: #0d34e9; --dg-acento-tinte: rgba(13, 52, 233, 0.08); --dg-link: #6100df; }
+      :root[data-theme='dark'] .dg { --dg-paper: #121214; --dg-nodo: #1c1c21; --dg-ink: #ffffff; --dg-muted: #c2c5ce; --dg-soft: #a3a6b1; --dg-rule: rgba(255, 255, 255, 0.12); --dg-tenue: rgba(255, 255, 255, 0.05); --dg-acento: #3d8dfc; --dg-acento-tinte: rgba(61, 141, 252, 0.14); --dg-link: #b59cf0; }
+      .dg { fill: none; stroke: none; }
+      .dg text { stroke: none; font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif; fill: var(--dg-ink); }
+      .dg .mono { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+      .dg .fondo, .dg .mascara { fill: var(--dg-paper); }
+      .dg .nodo { fill: var(--dg-nodo); stroke: var(--dg-ink); stroke-width: 1; }
+      .dg .hoja { fill: var(--dg-nodo); stroke: var(--dg-muted); stroke-width: 0.8; }
+      .dg .foco { fill: var(--dg-acento-tinte); stroke: var(--dg-acento); stroke-width: 1.2; }
+      .dg .union { fill: var(--dg-tenue); stroke: var(--dg-muted); stroke-width: 1; stroke-dasharray: 4 3; }
+      .dg .almacen { fill: var(--dg-tenue); stroke: var(--dg-muted); stroke-width: 1; }
+      .dg .cabecera { fill: var(--dg-tenue); }
+      .dg .cabecera-foco { fill: var(--dg-acento-tinte); }
+      .dg .separador { stroke: var(--dg-rule); stroke-width: 1; }
+      .dg .etiqueta { fill: none; stroke: var(--dg-muted); stroke-width: 0.8; }
+      .dg .etiqueta-foco { fill: none; stroke: var(--dg-acento); stroke-width: 0.8; }
+      .dg .linea { fill: none; stroke: var(--dg-muted); stroke-width: 1; }
+      .dg .linea-acento { fill: none; stroke: var(--dg-acento); stroke-width: 1.2; }
+      .dg .linea-retorno { fill: none; stroke: var(--dg-muted); stroke-width: 1; stroke-dasharray: 5 4; }
+      .dg .punta { fill: var(--dg-muted); }
+      .dg .punta-acento { fill: var(--dg-acento); }
+      .dg .muted { fill: var(--dg-muted); }
+      .dg .soft { fill: var(--dg-soft); }
+      .dg .acento { fill: var(--dg-acento); }
+      .dg .regla { stroke: var(--dg-rule); stroke-width: 0.8; }
+    </style>
+    <marker id="modelo-de-datos-flecha" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon class="punta" points="0 0, 8 3, 0 6" />
+    </marker>
+  </defs>
+
+  <rect class="fondo" width="100%" height="100%" />
+
+  <!-- Relaciones: se dibujan antes que las tablas -->
+  <line class="linea" x1="260" y1="108" x2="308" y2="108" />
+  <line class="linea" x1="408" y1="236" x2="408" y2="284" />
+  <line class="linea" x1="308" y1="332" x2="260" y2="332" />
+  <line class="linea" x1="150" y1="380" x2="150" y2="428" />
+  <line class="linea" x1="508" y1="372" x2="556" y2="372" />
+  <line class="linea" x1="646" y1="460" x2="646" y2="507" marker-end="url(#modelo-de-datos-flecha)" />
+
+  <!-- Cardinalidad: 1 junto a la tabla referida y N junto a la que guarda la clave foránea -->
+  <rect class="mascara" x="266" y="88" width="12" height="12" rx="2" />
+  <text class="mono muted" x="272" y="98" font-size="10" font-weight="600" text-anchor="middle">1</text>
+  <rect class="mascara" x="290" y="88" width="12" height="12" rx="2" />
+  <text class="mono muted" x="296" y="98" font-size="10" font-weight="600" text-anchor="middle">N</text>
+  <rect class="mascara" x="416" y="240" width="12" height="12" rx="2" />
+  <text class="mono muted" x="422" y="250" font-size="10" font-weight="600" text-anchor="middle">1</text>
+  <rect class="mascara" x="416" y="268" width="12" height="12" rx="2" />
+  <text class="mono muted" x="422" y="278" font-size="10" font-weight="600" text-anchor="middle">N</text>
+  <rect class="mascara" x="290" y="312" width="12" height="12" rx="2" />
+  <text class="mono muted" x="296" y="322" font-size="10" font-weight="600" text-anchor="middle">1</text>
+  <rect class="mascara" x="266" y="312" width="12" height="12" rx="2" />
+  <text class="mono muted" x="272" y="322" font-size="10" font-weight="600" text-anchor="middle">N</text>
+  <rect class="mascara" x="158" y="384" width="12" height="12" rx="2" />
+  <text class="mono muted" x="164" y="394" font-size="10" font-weight="600" text-anchor="middle">N</text>
+  <rect class="mascara" x="158" y="412" width="12" height="12" rx="2" />
+  <text class="mono muted" x="164" y="422" font-size="10" font-weight="600" text-anchor="middle">1</text>
+  <rect class="mascara" x="514" y="352" width="12" height="12" rx="2" />
+  <text class="mono muted" x="520" y="362" font-size="10" font-weight="600" text-anchor="middle">1</text>
+  <rect class="mascara" x="538" y="352" width="12" height="12" rx="2" />
+  <text class="mono muted" x="544" y="362" font-size="10" font-weight="600" text-anchor="middle">N</text>
+  <rect class="mascara" x="654" y="476" width="52" height="12" rx="2" />
+  <text class="mono soft" x="680" y="485" font-size="8" text-anchor="middle" letter-spacing="0.06em">ARCHIVOS</text>
+
+  <!-- categorias -->
+  <rect class="mascara" x="40" y="40" width="220" height="136" rx="6" />
+  <rect class="nodo" x="40" y="40" width="220" height="136" rx="6" />
+  <path class="cabecera" d="M46 40.6 H254 A5.4 5.4 0 0 1 259.4 46 V80 H40.6 V46 A5.4 5.4 0 0 1 46 40.6 Z" />
+  <line class="separador" x1="40" y1="80" x2="260" y2="80" />
+  <text class="mono muted" x="56" y="56" font-size="8" letter-spacing="0.14em">TABLA</text>
+  <text x="56" y="72" font-size="14" font-weight="600">categorias</text>
+  <g class="mono" font-size="10">
+    <text x="56" y="100"># id</text><text class="muted" x="244" y="100" text-anchor="end">uuid</text>
+    <text x="56" y="120">nombre</text><text class="muted" x="244" y="120" text-anchor="end">text · único</text>
+    <text x="56" y="140">color</text><text class="muted" x="244" y="140" text-anchor="end">#RRGGBB</text>
+    <text x="56" y="160">icono</text><text class="muted" x="244" y="160" text-anchor="end">text</text>
+  </g>
+  <!-- ubicaciones -->
+  <rect class="mascara" x="308" y="40" width="200" height="196" rx="6" />
+  <rect class="foco" x="308" y="40" width="200" height="196" rx="6" />
+  <path class="cabecera-foco" d="M314 40.6 H502 A5.4 5.4 0 0 1 507.4 46 V80 H308.6 V46 A5.4 5.4 0 0 1 314 40.6 Z" />
+  <line class="separador" x1="308" y1="80" x2="508" y2="80" />
+  <text class="mono acento" x="324" y="56" font-size="8" letter-spacing="0.14em">TABLA · LUGARES</text>
+  <text x="324" y="72" font-size="14" font-weight="600">ubicaciones</text>
+  <g class="mono" font-size="10">
+    <text x="324" y="100"># id</text><text class="muted" x="492" y="100" text-anchor="end">uuid</text>
+    <text x="324" y="120">tipo</text><text class="muted" x="492" y="120" text-anchor="end">punto | zona</text>
+    <text x="324" y="140">geom</text><text class="muted" x="492" y="140" text-anchor="end">geometry 4326</text>
+    <text x="324" y="160">nombre</text><text class="muted" x="492" y="160" text-anchor="end">text</text>
+    <text x="324" y="180">→ categoria_id</text><text class="muted" x="492" y="180" text-anchor="end">uuid · null</text>
+    <text x="324" y="200">estado</text><text class="muted" x="492" y="200" text-anchor="end">activa | cerrada</text>
+    <text x="324" y="220">archivada_en</text><text class="muted" x="492" y="220" text-anchor="end">timestamptz</text>
+  </g>
+  <!-- estudio_responsables -->
+  <rect class="mascara" x="40" y="284" width="220" height="96" rx="6" />
+  <rect class="union" x="40" y="284" width="220" height="96" rx="6" />
+  <line class="separador" x1="40" y1="324" x2="260" y2="324" />
+  <text class="mono muted" x="56" y="300" font-size="8" letter-spacing="0.14em">UNIÓN</text>
+  <text x="56" y="316" font-size="14" font-weight="600">estudio_responsables</text>
+  <g class="mono" font-size="10">
+    <text x="56" y="344">→ estudio_id</text><text class="muted" x="244" y="344" text-anchor="end">uuid</text>
+    <text x="56" y="364">→ responsable_id</text><text class="muted" x="244" y="364" text-anchor="end">uuid</text>
+  </g>
+  <!-- estudios -->
+  <rect class="mascara" x="308" y="284" width="200" height="196" rx="6" />
+  <rect class="nodo" x="308" y="284" width="200" height="196" rx="6" />
+  <path class="cabecera" d="M314 284.6 H502 A5.4 5.4 0 0 1 507.4 290 V324 H308.6 V290 A5.4 5.4 0 0 1 314 284.6 Z" />
+  <line class="separador" x1="308" y1="324" x2="508" y2="324" />
+  <text class="mono muted" x="324" y="300" font-size="8" letter-spacing="0.14em">TABLA · VISITAS</text>
+  <text x="324" y="316" font-size="14" font-weight="600">estudios</text>
+  <g class="mono" font-size="10">
+    <text x="324" y="344"># id</text><text class="muted" x="492" y="344" text-anchor="end">uuid</text>
+    <text x="324" y="364">→ ubicacion_id</text><text class="muted" x="492" y="364" text-anchor="end">uuid</text>
+    <text x="324" y="384">fecha</text><text class="muted" x="492" y="384" text-anchor="end">date</text>
+    <text x="324" y="404">hora_inicio, _fin</text><text class="muted" x="492" y="404" text-anchor="end">time</text>
+    <text x="324" y="424">titulo</text><text class="muted" x="492" y="424" text-anchor="end">text</text>
+    <text x="324" y="444">entrevistado</text><text class="muted" x="492" y="444" text-anchor="end">text · null</text>
+    <text x="324" y="464">archivado_en</text><text class="muted" x="492" y="464" text-anchor="end">timestamptz</text>
+  </g>
+  <!-- evidencias -->
+  <rect class="mascara" x="556" y="284" width="180" height="176" rx="6" />
+  <rect class="nodo" x="556" y="284" width="180" height="176" rx="6" />
+  <path class="cabecera" d="M562 284.6 H730 A5.4 5.4 0 0 1 735.4 290 V324 H556.6 V290 A5.4 5.4 0 0 1 562 284.6 Z" />
+  <line class="separador" x1="556" y1="324" x2="736" y2="324" />
+  <text class="mono muted" x="572" y="300" font-size="8" letter-spacing="0.14em">TABLA</text>
+  <text x="572" y="316" font-size="14" font-weight="600">evidencias</text>
+  <g class="mono" font-size="10">
+    <text x="572" y="344"># id</text><text class="muted" x="720" y="344" text-anchor="end">uuid</text>
+    <text x="572" y="364">→ estudio_id</text><text class="muted" x="720" y="364" text-anchor="end">uuid</text>
+    <text x="572" y="384">tipo</text><text class="muted" x="720" y="384" text-anchor="end">foto | audio | …</text>
+    <text x="572" y="404">archivo_path</text><text class="muted" x="720" y="404" text-anchor="end">text</text>
+    <text x="572" y="424">texto</text><text class="muted" x="720" y="424" text-anchor="end">text</text>
+    <text x="572" y="444">url_externa</text><text class="muted" x="720" y="444" text-anchor="end">text</text>
+  </g>
+  <!-- responsables -->
+  <rect class="mascara" x="40" y="428" width="220" height="116" rx="6" />
+  <rect class="nodo" x="40" y="428" width="220" height="116" rx="6" />
+  <path class="cabecera" d="M46 428.6 H254 A5.4 5.4 0 0 1 259.4 434 V468 H40.6 V434 A5.4 5.4 0 0 1 46 428.6 Z" />
+  <line class="separador" x1="40" y1="468" x2="260" y2="468" />
+  <text class="mono muted" x="56" y="444" font-size="8" letter-spacing="0.14em">TABLA</text>
+  <text x="56" y="460" font-size="14" font-weight="600">responsables</text>
+  <g class="mono" font-size="10">
+    <text x="56" y="488"># id</text><text class="muted" x="244" y="488" text-anchor="end">uuid</text>
+    <text x="56" y="508">nombre</text><text class="muted" x="244" y="508" text-anchor="end">text · único</text>
+    <text x="56" y="528">avatar_semilla</text><text class="muted" x="244" y="528" text-anchor="end">text</text>
+  </g>
+
+  <!-- Bucket de Storage -->
+  <rect class="mascara" x="556" y="508" width="180" height="64" rx="6" />
+  <rect class="almacen" x="556" y="508" width="180" height="64" rx="6" />
+  <rect class="etiqueta" x="572" y="518" width="44" height="12" rx="2" />
+  <text class="mono muted" x="594" y="527" font-size="7" text-anchor="middle" letter-spacing="0.08em">BUCKET</text>
+  <text x="624" y="528" font-size="12" font-weight="600">evidencias</text>
+  <text class="mono muted" x="572" y="556" font-size="9">privado · 50 MB</text>
+
+  <!-- Leyenda -->
+  <line class="regla" x1="40" y1="600" x2="736" y2="600" />
+  <text class="mono muted" x="40" y="624" font-size="8" letter-spacing="0.18em">LEYENDA</text>
+  <rect class="foco" x="112" y="614" width="16" height="12" rx="2" />
+  <text class="muted" x="136" y="624" font-size="9">Lugar: se crea una vez y acumula estudios</text>
+  <rect class="union" x="356" y="614" width="16" height="12" rx="2" />
+  <text class="muted" x="380" y="624" font-size="9">Tabla de unión</text>
+  <text class="mono muted" x="736" y="624" font-size="9" text-anchor="end"># clave primaria · → clave foránea</text>
+</svg>

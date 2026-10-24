@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 640 680" width="640" height="680" role="img" aria-labelledby="flujo-de-trabajo-title flujo-de-trabajo-desc">
+  <title id="flujo-de-trabajo-title">Flujo de trabajo en GitHub</title>
+  <desc id="flujo-de-trabajo-desc">Todo cambio va de una issue a una rama, commits y un pull request; si la revisión pide cambios se agregan commits en la misma rama, y al aprobarse se une a main con merge commit.</desc>
+  <defs>
+    <style>
+      /* Perfil "kratos" de diagram-design: tokens de src/styles/theme.css. Sigue el sistema y, dentro de /docs, el tema elegido. */
+      .dg { --dg-paper: #ffffff; --dg-nodo: #ffffff; --dg-ink: #0a0a0c; --dg-muted: #4b4e59; --dg-soft: #5a5d68; --dg-rule: rgba(10, 10, 12, 0.12); --dg-tenue: rgba(10, 10, 12, 0.04); --dg-acento: #0d34e9; --dg-acento-tinte: rgba(13, 52, 233, 0.08); --dg-link: #6100df; }
+      @media (prefers-color-scheme: dark) {
+        .dg { --dg-paper: #121214; --dg-nodo: #1c1c21; --dg-ink: #ffffff; --dg-muted: #c2c5ce; --dg-soft: #a3a6b1; --dg-rule: rgba(255, 255, 255, 0.12); --dg-tenue: rgba(255, 255, 255, 0.05); --dg-acento: #3d8dfc; --dg-acento-tinte: rgba(61, 141, 252, 0.14); --dg-link: #b59cf0; }
+      }
+      :root[data-theme='light'] .dg { --dg-paper: #ffffff; --dg-nodo: #ffffff; --dg-ink: #0a0a0c; --dg-muted: #4b4e59; --dg-soft: #5a5d68; --dg-rule: rgba(10, 10, 12, 0.12); --dg-tenue: rgba(10, 10, 12, 0.04); --dg-acento: #0d34e9; --dg-acento-tinte: rgba(13, 52, 233, 0.08); --dg-link: #6100df; }
+      :root[data-theme='dark'] .dg { --dg-paper: #121214; --dg-nodo: #1c1c21; --dg-ink: #ffffff; --dg-muted: #c2c5ce; --dg-soft: #a3a6b1; --dg-rule: rgba(255, 255, 255, 0.12); --dg-tenue: rgba(255, 255, 255, 0.05); --dg-acento: #3d8dfc; --dg-acento-tinte: rgba(61, 141, 252, 0.14); --dg-link: #b59cf0; }
+      .dg { fill: none; stroke: none; }
+      .dg text { stroke: none; font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif; fill: var(--dg-ink); }
+      .dg .mono { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+      .dg .fondo, .dg .mascara { fill: var(--dg-paper); }
+      .dg .nodo { fill: var(--dg-nodo); stroke: var(--dg-ink); stroke-width: 1; }
+      .dg .hoja { fill: var(--dg-nodo); stroke: var(--dg-muted); stroke-width: 0.8; }
+      .dg .foco { fill: var(--dg-acento-tinte); stroke: var(--dg-acento); stroke-width: 1.2; }
+      .dg .union { fill: var(--dg-tenue); stroke: var(--dg-muted); stroke-width: 1; stroke-dasharray: 4 3; }
+      .dg .almacen { fill: var(--dg-tenue); stroke: var(--dg-muted); stroke-width: 1; }
+      .dg .cabecera { fill: var(--dg-tenue); }
+      .dg .cabecera-foco { fill: var(--dg-acento-tinte); }
+      .dg .separador { stroke: var(--dg-rule); stroke-width: 1; }
+      .dg .etiqueta { fill: none; stroke: var(--dg-muted); stroke-width: 0.8; }
+      .dg .etiqueta-foco { fill: none; stroke: var(--dg-acento); stroke-width: 0.8; }
+      .dg .linea { fill: none; stroke: var(--dg-muted); stroke-width: 1; }
+      .dg .linea-acento { fill: none; stroke: var(--dg-acento); stroke-width: 1.2; }
+      .dg .linea-retorno { fill: none; stroke: var(--dg-muted); stroke-width: 1; stroke-dasharray: 5 4; }
+      .dg .punta { fill: var(--dg-muted); }
+      .dg .punta-acento { fill: var(--dg-acento); }
+      .dg .muted { fill: var(--dg-muted); }
+      .dg .soft { fill: var(--dg-soft); }
+      .dg .acento { fill: var(--dg-acento); }
+      .dg .regla { stroke: var(--dg-rule); stroke-width: 0.8; }
+    </style>
+    <marker id="flujo-de-trabajo-flecha" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon class="punta" points="0 0, 8 3, 0 6" />
+    </marker>
+    <marker id="flujo-de-trabajo-flecha-acento" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon class="punta-acento" points="0 0, 8 3, 0 6" />
+    </marker>
+  </defs>
+
+  <rect class="fondo" width="100%" height="100%" />
+
+  <!-- Conectores: se dibujan antes que los nodos -->
+  <line class="linea" x1="320" y1="88" x2="320" y2="119" marker-end="url(#flujo-de-trabajo-flecha)" />
+  <line class="linea" x1="320" y1="168" x2="320" y2="199" marker-end="url(#flujo-de-trabajo-flecha)" />
+  <line class="linea" x1="320" y1="248" x2="320" y2="279" marker-end="url(#flujo-de-trabajo-flecha)" />
+  <line class="linea" x1="320" y1="328" x2="320" y2="359" marker-end="url(#flujo-de-trabajo-flecha)" />
+  <line class="linea" x1="320" y1="408" x2="320" y2="439" marker-end="url(#flujo-de-trabajo-flecha)" />
+  <line class="linea-acento" x1="320" y1="520" x2="320" y2="551" marker-end="url(#flujo-de-trabajo-flecha-acento)" />
+  <path class="linea-retorno" d="M400 480 H504 Q512 480 512 472 V232 Q512 224 504 224 H441" marker-end="url(#flujo-de-trabajo-flecha)" />
+  <rect class="mascara" x="328" y="530" width="20" height="12" rx="2" />
+  <text class="mono acento" x="338" y="539" font-size="8" text-anchor="middle" letter-spacing="0.06em">SÍ</text>
+  <rect class="mascara" x="520" y="346" width="76" height="12" rx="2" />
+  <text class="mono soft" x="558" y="355" font-size="8" text-anchor="middle" letter-spacing="0.06em">NO · CAMBIOS</text>
+
+  <rect class="mascara" x="200" y="40" width="240" height="48" rx="24" />
+  <rect class="nodo" x="200" y="40" width="240" height="48" rx="24" />
+  <text x="320" y="61" font-size="12" font-weight="600" text-anchor="middle">Issue</text>
+  <text class="mono muted" x="320" y="77" font-size="9" text-anchor="middle">qué hacer y criterios de aceptación</text>
+  <rect class="mascara" x="200" y="120" width="240" height="48" rx="6" />
+  <rect class="nodo" x="200" y="120" width="240" height="48" rx="6" />
+  <text x="320" y="141" font-size="12" font-weight="600" text-anchor="middle">Rama</text>
+  <text class="mono muted" x="320" y="157" font-size="9" text-anchor="middle">tipo/N-descripcion desde main</text>
+  <rect class="mascara" x="200" y="200" width="240" height="48" rx="6" />
+  <rect class="nodo" x="200" y="200" width="240" height="48" rx="6" />
+  <text x="320" y="221" font-size="12" font-weight="600" text-anchor="middle">Commits</text>
+  <text class="mono muted" x="320" y="237" font-size="9" text-anchor="middle">Conventional Commits · Refs #N</text>
+  <rect class="mascara" x="200" y="280" width="240" height="48" rx="6" />
+  <rect class="nodo" x="200" y="280" width="240" height="48" rx="6" />
+  <text x="320" y="301" font-size="12" font-weight="600" text-anchor="middle">Pull request</text>
+  <text class="mono muted" x="320" y="317" font-size="9" text-anchor="middle">lint · build · test:e2e</text>
+  <rect class="mascara" x="200" y="360" width="240" height="48" rx="6" />
+  <rect class="nodo" x="200" y="360" width="240" height="48" rx="6" />
+  <text x="320" y="381" font-size="12" font-weight="600" text-anchor="middle">Revisión</text>
+  <text class="mono muted" x="320" y="397" font-size="9" text-anchor="middle">otra persona del equipo</text>
+
+  <!-- Decisión (foco) -->
+  <polygon class="mascara" points="320,440 400,480 320,520 240,480" />
+  <polygon class="foco" points="320,440 400,480 320,520 240,480" />
+  <text x="320" y="484" font-size="12" font-weight="600" text-anchor="middle">¿Aprobado?</text>
+
+  <rect class="mascara" x="200" y="552" width="240" height="48" rx="24" />
+  <rect class="nodo" x="200" y="552" width="240" height="48" rx="24" />
+  <text x="320" y="573" font-size="12" font-weight="600" text-anchor="middle">Merge a main</text>
+  <text class="mono muted" x="320" y="589" font-size="9" text-anchor="middle">merge commit · se borra la rama</text>
+
+  <!-- Leyenda -->
+  <line class="regla" x1="40" y1="632" x2="600" y2="632" />
+  <text class="mono muted" x="40" y="656" font-size="8" letter-spacing="0.18em">LEYENDA</text>
+  <rect class="nodo" x="112" y="646" width="24" height="12" rx="6" />
+  <text class="muted" x="144" y="656" font-size="9">Inicio y fin</text>
+  <rect class="nodo" x="236" y="646" width="16" height="12" rx="2" />
+  <text class="muted" x="260" y="656" font-size="9">Paso</text>
+  <polygon class="foco" points="332,646 340,652 332,658 324,652" />
+  <text class="muted" x="348" y="656" font-size="9">Decisión</text>
+  <line class="linea-retorno" x1="424" y1="652" x2="448" y2="652" />
+  <text class="muted" x="456" y="656" font-size="9">Vuelta atrás</text>
+</svg>

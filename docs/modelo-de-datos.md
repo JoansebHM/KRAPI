@@ -6,14 +6,7 @@ Para el *porqué* de cada decisión, ver [`decisiones/`](decisiones/).
 
 ## Diagrama
 
-```
-categorias 1──N ubicaciones 1──N estudios 1──N evidencias ──▶ bucket "evidencias"
-  (color, icono)   (punto | zona)      │
-                                       N
-                              estudio_responsables
-                                       N
-responsables (avatar) ─────────────────┘
-```
+![Modelo de datos: categorías, ubicaciones, estudios, responsables, evidencias y el bucket](diagramas/modelo-de-datos.svg)
 
 ## Tablas
 

@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 736 504" width="736" height="504" role="img" aria-labelledby="como-se-arma-la-app-title como-se-arma-la-app-desc">
+  <title id="como-se-arma-la-app-title">Cómo se arma la app</title>
+  <desc id="como-se-arma-la-app-desc">App, dentro de los proveedores de rutas, datos y sesión, muestra siempre las notificaciones y, según haya sesión, el login o AppConSesion, que contiene la barra, el mapa, los paneles, el menú y el aviso de inactividad.</desc>
+  <defs>
+    <style>
+      /* Perfil "kratos" de diagram-design: tokens de src/styles/theme.css. Sigue el sistema y, dentro de /docs, el tema elegido. */
+      .dg { --dg-paper: #ffffff; --dg-nodo: #ffffff; --dg-ink: #0a0a0c; --dg-muted: #4b4e59; --dg-soft: #5a5d68; --dg-rule: rgba(10, 10, 12, 0.12); --dg-tenue: rgba(10, 10, 12, 0.04); --dg-acento: #0d34e9; --dg-acento-tinte: rgba(13, 52, 233, 0.08); --dg-link: #6100df; }
+      @media (prefers-color-scheme: dark) {
+        .dg { --dg-paper: #121214; --dg-nodo: #1c1c21; --dg-ink: #ffffff; --dg-muted: #c2c5ce; --dg-soft: #a3a6b1; --dg-rule: rgba(255, 255, 255, 0.12); --dg-tenue: rgba(255, 255, 255, 0.05); --dg-acento: #3d8dfc; --dg-acento-tinte: rgba(61, 141, 252, 0.14); --dg-link: #b59cf0; }
+      }
+      :root[data-theme='light'] .dg { --dg-paper: #ffffff; --dg-nodo: #ffffff; --dg-ink: #0a0a0c; --dg-muted: #4b4e59; --dg-soft: #5a5d68; --dg-rule: rgba(10, 10, 12, 0.12); --dg-tenue: rgba(10, 10, 12, 0.04); --dg-acento: #0d34e9; --dg-acento-tinte: rgba(13, 52, 233, 0.08); --dg-link: #6100df; }
+      :root[data-theme='dark'] .dg { --dg-paper: #121214; --dg-nodo: #1c1c21; --dg-ink: #ffffff; --dg-muted: #c2c5ce; --dg-soft: #a3a6b1; --dg-rule: rgba(255, 255, 255, 0.12); --dg-tenue: rgba(255, 255, 255, 0.05); --dg-acento: #3d8dfc; --dg-acento-tinte: rgba(61, 141, 252, 0.14); --dg-link: #b59cf0; }
+      .dg { fill: none; stroke: none; }
+      .dg text { stroke: none; font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif; fill: var(--dg-ink); }
+      .dg .mono { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+      .dg .fondo, .dg .mascara { fill: var(--dg-paper); }
+      .dg .nodo { fill: var(--dg-nodo); stroke: var(--dg-ink); stroke-width: 1; }
+      .dg .hoja { fill: var(--dg-nodo); stroke: var(--dg-muted); stroke-width: 0.8; }
+      .dg .foco { fill: var(--dg-acento-tinte); stroke: var(--dg-acento); stroke-width: 1.2; }
+      .dg .union { fill: var(--dg-tenue); stroke: var(--dg-muted); stroke-width: 1; stroke-dasharray: 4 3; }
+      .dg .almacen { fill: var(--dg-tenue); stroke: var(--dg-muted); stroke-width: 1; }
+      .dg .cabecera { fill: var(--dg-tenue); }
+      .dg .cabecera-foco { fill: var(--dg-acento-tinte); }
+      .dg .separador { stroke: var(--dg-rule); stroke-width: 1; }
+      .dg .etiqueta { fill: none; stroke: var(--dg-muted); stroke-width: 0.8; }
+      .dg .etiqueta-foco { fill: none; stroke: var(--dg-acento); stroke-width: 0.8; }
+      .dg .linea { fill: none; stroke: var(--dg-muted); stroke-width: 1; }
+      .dg .linea-acento { fill: none; stroke: var(--dg-acento); stroke-width: 1.2; }
+      .dg .linea-retorno { fill: none; stroke: var(--dg-muted); stroke-width: 1; stroke-dasharray: 5 4; }
+      .dg .punta { fill: var(--dg-muted); }
+      .dg .punta-acento { fill: var(--dg-acento); }
+      .dg .muted { fill: var(--dg-muted); }
+      .dg .soft { fill: var(--dg-soft); }
+      .dg .acento { fill: var(--dg-acento); }
+      .dg .regla { stroke: var(--dg-rule); stroke-width: 0.8; }
+    </style>
+
+  </defs>
+
+  <rect class="fondo" width="100%" height="100%" />
+
+  <!-- Conectores: se dibujan antes que los nodos -->
+  <line class="linea" x1="240" y1="272" x2="288" y2="272" />
+  <path class="linea" d="M264 272 V144 Q264 136 272 136 H288" />
+  <path class="linea" d="M264 272 V400 Q264 408 272 408 H288" />
+  <line class="linea" x1="448" y1="272" x2="496" y2="272" />
+  <path class="linea" d="M472 272 V144 Q472 136 480 136 H496" />
+  <path class="linea" d="M472 272 V400 Q472 408 480 408 H496" />
+  <line class="linea" x1="472" y1="204" x2="496" y2="204" />
+  <line class="linea" x1="472" y1="340" x2="496" y2="340" />
+
+  <rect class="mascara" x="40" y="248" width="200" height="48" rx="6" />
+  <rect class="nodo" x="40" y="248" width="200" height="48" rx="6" />
+  <rect class="etiqueta" x="200" y="256" width="28" height="12" rx="2" />
+  <text class="mono muted" x="214" y="265" font-size="7" text-anchor="middle" letter-spacing="0.08em">RAÍZ</text>
+  <text x="52" y="269" font-size="12" font-weight="600">App</text>
+  <text class="mono muted" x="52" y="285" font-size="9">main.tsx · Router · Query · Auth</text>
+  <rect class="mascara" x="288" y="112" width="160" height="48" rx="6" />
+  <rect class="hoja" x="288" y="112" width="160" height="48" rx="6" />
+  <text x="300" y="133" font-size="12" font-weight="600">Notificaciones</text>
+  <text class="mono muted" x="300" y="149" font-size="9">siempre montado</text>
+  <rect class="mascara" x="288" y="248" width="160" height="48" rx="6" />
+  <rect class="nodo" x="288" y="248" width="160" height="48" rx="6" />
+  <text x="300" y="269" font-size="12" font-weight="600">AppConSesion</text>
+  <text class="mono muted" x="300" y="285" font-size="9">con sesión</text>
+  <rect class="mascara" x="288" y="384" width="160" height="48" rx="6" />
+  <rect class="hoja" x="288" y="384" width="160" height="48" rx="6" />
+  <text x="300" y="405" font-size="12" font-weight="600">Login</text>
+  <text class="mono muted" x="300" y="421" font-size="9">sin sesión</text>
+  <rect class="mascara" x="496" y="112" width="200" height="48" rx="6" />
+  <rect class="hoja" x="496" y="112" width="200" height="48" rx="6" />
+  <text x="508" y="133" font-size="12" font-weight="600">barra</text>
+  <text class="mono muted" x="508" y="149" font-size="9">menú · tema · cuenta</text>
+  <rect class="mascara" x="496" y="180" width="200" height="48" rx="6" />
+  <rect class="foco" x="496" y="180" width="200" height="48" rx="6" />
+  <rect class="etiqueta-foco" x="656" y="188" width="28" height="12" rx="2" />
+  <text class="mono acento" x="670" y="197" font-size="7" text-anchor="middle" letter-spacing="0.08em">FOCO</text>
+  <text x="508" y="201" font-size="12" font-weight="600">MapView</text>
+  <text class="mono muted" x="508" y="217" font-size="9">nunca se desmonta</text>
+  <rect class="mascara" x="496" y="248" width="200" height="48" rx="6" />
+  <rect class="hoja" x="496" y="248" width="200" height="48" rx="6" />
+  <text x="508" y="269" font-size="12" font-weight="600">Routes</text>
+  <text class="mono muted" x="508" y="285" font-size="9">paneles: /categorias…</text>
+  <rect class="mascara" x="496" y="316" width="200" height="48" rx="6" />
+  <rect class="hoja" x="496" y="316" width="200" height="48" rx="6" />
+  <text x="508" y="337" font-size="12" font-weight="600">MenuNavegacion</text>
+  <text class="mono muted" x="508" y="353" font-size="9">menú lateral ☰</text>
+  <rect class="mascara" x="496" y="384" width="200" height="48" rx="6" />
+  <rect class="hoja" x="496" y="384" width="200" height="48" rx="6" />
+  <text x="508" y="405" font-size="12" font-weight="600">InactivityDialog</text>
+  <text class="mono muted" x="508" y="421" font-size="9">aviso antes de 2 h</text>
+
+  <!-- Leyenda -->
+  <line class="regla" x1="40" y1="464" x2="696" y2="464" />
+  <text class="mono muted" x="40" y="488" font-size="8" letter-spacing="0.18em">LEYENDA</text>
+  <rect class="nodo" x="112" y="478" width="16" height="12" rx="2" />
+  <text class="muted" x="136" y="488" font-size="9">Contiene otros componentes</text>
+  <rect class="hoja" x="288" y="478" width="16" height="12" rx="2" />
+  <text class="muted" x="312" y="488" font-size="9">Componente final</text>
+  <rect class="foco" x="432" y="478" width="16" height="12" rx="2" />
+  <text class="muted" x="456" y="488" font-size="9">El mapa: siempre de fondo, no pierde su posición</text>
+</svg>
