@@ -1,0 +1,37 @@
+.ficha-datos {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.ficha-datos dt {
+  margin-bottom: var(--space-1);
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.ficha-datos dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.ficha-categoria {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ficha-estado {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--color-info-bg);
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.ficha-estado-cerrado {
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
