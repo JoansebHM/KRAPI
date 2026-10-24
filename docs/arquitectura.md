@@ -35,7 +35,17 @@ src/
 e2e/              Pruebas Playwright y Supabase simulado (e2e/soporte/)
 supabase/         config.toml y migraciones
 scripts/          crear-usuario-compartido.mjs
+  docs/           Generador de la documentación navegable (/docs)
 ```
+
+## Documentación navegable (`/docs`)
+
+`scripts/docs/generar.ts` convierte los `.md` del repositorio (README, CONTRIBUTING, CLAUDE.md y `docs/`) en **un solo HTML** sin dependencias externas: `markdown.ts` traduce el Markdown y colorea el código con Monokai, y `plantilla.html` tiene los estilos, el menú, el índice y el buscador.
+
+- En desarrollo, el plugin `krapi-docs` de `vite.config.ts` la sirve en `/docs` y la regenera en cada visita.
+- Al compilar queda en `dist/docs/index.html`. `npm run docs` la genera sin compilar la app.
+- Para agregar un documento nuevo a la navegación, súmalo a `SECCIONES` en `generar.ts`. Las decisiones se agregan solas.
+- **Diagramas:** son archivos `.svg` en `docs/diagramas/`, enlazados desde el Markdown como imagen en su propia línea (`![…](diagramas/x.svg)`). GitHub los muestra como imagen y `/docs` los incrusta. Traen sus colores de claro y oscuro y siguen el tema elegido. Se hacen con la skill [diagram-design](https://github.com/cathrynlavery/diagram-design) y el perfil `kratos` (ver `.diagram-design` y la [decisión 0017](decisiones/0017-diagramas-diagram-design.md)).
 
 Una funcionalidad nueva va en su propia carpeta `src/features/<nombre>/`, con:
 - `api.ts`: hooks de datos;
@@ -44,21 +54,9 @@ Una funcionalidad nueva va en su propia carpeta `src/features/<nombre>/`, con:
 
 ## Cómo se arma la app
 
-```
-main.tsx
- └ BrowserRouter
-    └ QueryClientProvider
-       └ AuthProvider          (sesión + política de 2 h / 7 días)
-          └ App
-             ├ Notificaciones  (siempre montado)
-             ├ Login           (si no hay sesión)
-             └ AppConSesion
-                ├ barra (menú ☰, KRAPI + "powered by KIT", tema, cuenta)
-                ├ MapView      (siempre montado: no pierde su posición)
-                ├ Routes       → Panel sobre el mapa (/categorias, /responsables…)
-                ├ MenuNavegacion
-                └ InactivityDialog
-```
+`main.tsx` envuelve la app en `BrowserRouter` → `QueryClientProvider` → `AuthProvider` (sesión y política de 2 h / 7 días). Dentro, `App` decide qué mostrar:
+
+![Árbol de componentes: App, Notificaciones, Login, AppConSesion y sus hijos](diagramas/como-se-arma-la-app.svg)
 
 ## Patrones a reutilizar
 

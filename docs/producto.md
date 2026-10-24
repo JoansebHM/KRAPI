@@ -58,6 +58,7 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Administración de categorías (color e ícono) y responsables (avatar).
 - Esquema completo en Supabase con seguridad (RLS) y bucket privado de evidencias.
 - Pruebas de punta a punta.
+- Documentación navegable en `/docs`.
 
 **Pendiente del MVP:**
 

@@ -21,3 +21,5 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0013 | [Pruebas de punta a punta con Supabase simulado](0013-pruebas-e2e.md) | Aceptada |
 | 0014 | [Flujo en GitHub: issues, ramas, PRs y sin coautoría de IA](0014-flujo-github.md) | Aceptada |
 | 0015 | [El repositorio como única fuente de verdad](0015-fuente-de-verdad.md) | Aceptada |
+| 0016 | [Documentación navegable en /docs generada desde el Markdown](0016-documentacion-navegable.md) | Aceptada |
+| 0017 | [Diagramas en SVG con la skill diagram-design](0017-diagramas-diagram-design.md) | Aceptada |

@@ -16,6 +16,8 @@ Este archivo es el punto de entrada. **La fuente de verdad está en el repositor
 
 Si una decisión cambia, **actualiza el documento correspondiente en el mismo PR** y, si es importante, agrega un registro en `docs/decisiones/`.
 
+La documentación navegable (`/docs`) se genera sola a partir de estos `.md`, así que basta con mantener el Markdown al día (ver la regla "Documentación siempre al día").
+
 ## Comandos
 
 ```bash
@@ -23,6 +25,7 @@ npm run dev            # servidor de desarrollo (http://localhost:5173)
 npm run build          # revisa tipos (incluidas las pruebas) y compila
 npm run lint           # oxlint; falla también con advertencias
 npm run test:e2e       # pruebas de punta a punta (Playwright, Supabase simulado)
+npm run docs           # genera la documentación navegable (también en /docs con npm run dev)
 
 npm run db:new nombre  # nueva migración en supabase/migrations/
 npm run db:push        # aplica migraciones al proyecto de Supabase (requiere `npx supabase login` y `npm run db:link`)
@@ -39,6 +42,7 @@ Los comandos `db:*` y `usuario:crear` se conectan al proyecto real de Supabase (
 - **Una issue por cambio.** Rama `tipo/numero-descripcion` (por ejemplo `feat/13-lugares-en-mapa`), commits pequeños con [Conventional Commits](https://www.conventionalcommits.org/es/v1.0.0/) en español terminados en `Refs #N` o `Closes #N`, y un PR que explique **cada commit**. Detalles en `CONTRIBUTING.md`.
 - **Sin coautoría de asistentes.** No agregues `Co-Authored-By`, firmas ni menciones a herramientas de IA en commits, PRs ni issues.
 - **Se une con merge commit** (no squash ni rebase) para conservar el historial.
+- **Documentación siempre al día.** Todo cambio que haga desactualizar algo de `README.md`, `CONTRIBUTING.md`, este archivo o `docs/` los corrige **en el mismo PR**. Eso incluye los diagramas de `docs/diagramas/`, las secciones de "Estado" y las tablas de comandos, variables o migraciones. Antes de abrir el PR, busca en los `.md` lo que tocaste (`grep`) y revisa la página en `/docs`. Si un documento nuevo debe aparecer en el menú de `/docs`, agrégalo a `SECCIONES` en `scripts/docs/generar.ts`.
 - **Antes de pedir revisión:** `npm run lint`, `npm run build` y `npm run test:e2e` sin errores. Toda funcionalidad nueva trae sus pruebas en `e2e/`.
 - **Base de datos solo con migraciones nuevas.** Nunca edites una migración ya aplicada ni cambies cosas a mano en el panel de Supabase. Cada tabla nueva lleva sus `grant` a `authenticated`, RLS y política en la misma migración (el proyecto tiene desactivado "Automatically expose new tables"). Actualiza `src/types/database.ts`.
 - **Pensado para celular.** Revisa cada pantalla a 390 px (y que no se desborde a 320 px), en modo claro y oscuro. Áreas de toque de 44 px o más.
@@ -63,6 +67,7 @@ Hecho:
 - Categorías (color e ícono) y responsables (avatares).
 - Esquema completo en Supabase.
 - Pruebas de punta a punta.
+- Documentación navegable en `/docs`, con diagramas hechos con diagram-design.
 
 Siguiente (en orden):
 1. **#13** lugares en el mapa

@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint --deny-warnings",
     "preview": "vite preview",
+    "docs": "node scripts/docs/generar.ts",
     "db:link": "supabase link --project-ref ggrwybqiqffoxuoojopp",
     "db:new": "supabase migration new",
     "db:push": "supabase db push",
