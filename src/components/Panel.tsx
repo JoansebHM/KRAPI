@@ -8,17 +8,19 @@ interface PanelProps {
   children: ReactNode
   /** Contenido fijo al final del panel, por ejemplo el botón "Nueva". */
   pie?: ReactNode
+  /** A dónde lleva el botón de volver. Por defecto, al mapa. */
+  volver?: { a: string; etiqueta: string }
 }
 
 /**
  * Pantalla que se abre sobre el mapa. En celular ocupa todo el espacio bajo la barra;
  * en pantallas grandes es un panel lateral y el mapa sigue visible.
  */
-export function Panel({ titulo, subtitulo, children, pie }: PanelProps) {
+export function Panel({ titulo, subtitulo, children, pie, volver = { a: '/', etiqueta: 'Volver al mapa' } }: PanelProps) {
   return (
     <section className="panel" aria-labelledby="panel-titulo">
       <header className="panel-header">
-        <Link to="/" className="icon-btn panel-volver" aria-label="Volver al mapa">
+        <Link to={volver.a} className="icon-btn panel-volver" aria-label={volver.etiqueta}>
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M15 18 9 12l6-6" />
           </svg>
