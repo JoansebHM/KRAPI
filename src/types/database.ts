@@ -272,6 +272,17 @@ export type Database = {
     }
     Functions: {
       limite_manila: { Args: never; Returns: unknown }
+      lugares_mapa: {
+        Args: never
+        Returns: {
+          categoria_id: string
+          estado: Database["public"]["Enums"]["estado_ubicacion"]
+          geojson: Json
+          id: string
+          nombre: string
+          tipo: Database["public"]["Enums"]["tipo_ubicacion"]
+        }[]
+      }
       ubicaciones_cercanas: {
         Args: { lat: number; lng: number; metros?: number }
         Returns: {
