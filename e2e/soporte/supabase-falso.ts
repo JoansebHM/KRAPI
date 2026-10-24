@@ -8,6 +8,9 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - nombres únicos (sin importar mayúsculas ni espacios) en categorías y responsables → 23505
  * - borrar una categoría deja sus ubicaciones sin categoría (ON DELETE SET NULL)
  * - borrar un responsable lo quita de sus estudios (ON DELETE CASCADE)
+ * - lugares_mapa() devuelve los lugares no archivados, zonas primero
+ *
+ * En `ubicaciones`, `geom` se guarda directamente como GeoJSON (en la base real es PostGIS).
  */
 
 export const USUARIO = { email: 'compartido@kratos.test', password: 'clave-correcta-123' }
@@ -85,7 +88,20 @@ export class SupabaseFalso {
     return ruta.fulfill({ status: 404, json: {} })
   }
 
+  /** Funciones SQL que la app llama con supabase.rpc(). */
+  private rpc(ruta: Route, funcion: string) {
+    if (funcion === 'lugares_mapa') {
+      const lugares = this.db.ubicaciones
+        .filter((u) => u.archivada_en == null)
+        .sort((a, b) => String(b.tipo).localeCompare(String(a.tipo)) || String(a.nombre).localeCompare(String(b.nombre)))
+        .map((u) => ({ id: u.id, tipo: u.tipo, nombre: u.nombre, estado: u.estado ?? 'activa', categoria_id: u.categoria_id ?? null, geojson: u.geom }))
+      return ruta.fulfill({ json: lugares })
+    }
+    return ruta.fulfill({ status: 404, json: { code: 'PGRST202', message: `Función ${funcion} no simulada` } })
+  }
+
   private async rest(ruta: Route, url: URL) {
+    if (url.pathname.startsWith('/rest/v1/rpc/')) return this.rpc(ruta, url.pathname.replace('/rest/v1/rpc/', ''))
     const peticion = ruta.request()
     const tabla = url.pathname.replace('/rest/v1/', '') as Tabla
     const filas = (this.db[tabla] ??= [])
