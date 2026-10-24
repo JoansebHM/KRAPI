@@ -4,7 +4,7 @@ import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { normalizar } from '../../lib/texto'
 import { semillaDe, useActualizarResponsable, useCrearResponsable, type Responsable } from './api'
-import { semillaAleatoria } from './Avatar'
+import { semillaAleatoria } from './dibujoAvatar'
 import { SelectorAvatar } from './SelectorAvatar'
 
 const MAX_NOMBRE = 80
