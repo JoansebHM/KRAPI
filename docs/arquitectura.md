@@ -81,13 +81,13 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 
 **Pantallas y formularios**
 - `Panel`: cada sección se abre sobre el mapa, con un botón para volver. En celular ocupa todo y desde 900 px es un panel lateral de 440 px. Admite un `pie`, por ejemplo el botón flotante `.fab`.
-- `Dialog`: modal accesible dibujado en `<body>` con portal. Con `onSubmit` se vuelve formulario. Al abrir enfoca el primer campo, el elemento con `data-autofocus` o el primer botón. **Al editar se enfoca el botón**, para que no salte el teclado. En celular sale desde abajo.
+- `Dialog`: modal accesible dibujado en `<body>` con portal. El encabezado siempre tiene título y botón X arriba a la derecha; el botón cierra mediante `onCerrar` y queda deshabilitado cuando el flujo no admite cierre. Con `onSubmit` se vuelve formulario. Al abrir enfoca el primer campo, el elemento con `data-autofocus` o el primer botón. **Al editar se enfoca el botón**, para que no salte el teclado. En celular sale desde abajo.
 - Si desde un formulario se abre una confirmación, **se cierra el formulario** para que no queden dos diálogos encimados.
 - Dentro del diálogo, los campos van en `.formulario` (`ui.css`). Los opcionales llevan `.field-opcional` en la etiqueta.
 - Si un flujo tiene varios pasos (por ejemplo, ubicar → duplicados → lugar → estudio), los datos viven en la pantalla del flujo y no en cada diálogo, para no perderlos al volver atrás. Por eso `FormularioPunto` y `FormularioEstudio` son controlados (`campos` y `onCambiar`).
 - Para elegir uno o varios elementos con ícono o avatar (categoría, responsables) se usan botones `.chip` con `aria-pressed` dentro de `.chips`.
 - `Panel` acepta `volver` para que el botón de atrás lleve a otra pantalla, por ejemplo de un estudio a la ficha de su lugar.
-- **Estudios:** cada uno tiene su página (`EstudioPagina`, `/lugares/:id/estudios/:estudioId`) con sus datos, "Editar estudio" y las evidencias. Al guardar un estudio nuevo se navega a ella. `useCamposEstudioNuevo()` prepara uno nuevo al abrir el formulario: hoy, de ahora a una hora después, y los responsables del último estudio de ese dispositivo (`krapi-ultimos-responsables` en `localStorage`, filtrados a los que todavía existen). Los estudios se archivan (`archivado_en`) con "Deshacer", nunca se borran.
+- **Estudios:** tocar uno del histórico abre `EstudioPresentacion`, un diálogo con sus datos, carrusel de fotos y otras evidencias (audio, documentos, texto y enlaces externos). Desde allí se edita con el mismo `FormularioEstudio`; "Agregar evidencia" abre la página `EstudioPagina` (`/lugares/:id/estudios/:estudioId`). Al guardar un estudio nuevo se navega a esa página. `useCamposEstudioNuevo()` prepara uno nuevo al abrir el formulario: hoy, de ahora a una hora después, y los responsables del último estudio de ese dispositivo (`krapi-ultimos-responsables` en `localStorage`, filtrados a los que todavía existen). Los estudios se archivan (`archivado_en`) con "Deshacer", nunca se borran.
 - `Buscador`, `EstadoVacio`, `ListaCargando` y `ErrorCarga` para las listas.
 - `normalizar`, `compararTexto` y `plural` (`lib/texto.ts`) para buscar y ordenar en español.
 
@@ -111,7 +111,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - `features/evidencias/archivos.ts` decide el tipo de evidencia por el tipo MIME o, si falta, por la extensión, valida los 50 MB y arma la ruta `<estudio_id>/<uuid>-<nombre-seguro>`.
 - `subidas.ts` es una cola fuera de React (`useSyncExternalStore`): sube de a uno, permite cancelar, reintentar y descartar, y sigue aunque se cierre la página. Al terminar, recarga `claveEvidencias(estudioId)`.
 - Las fotos pasan por `comprimirFoto()` antes de subir. Los audios se graban con `GrabadorAudio` (`MediaRecorder`).
-- Para abrir un archivo se usa el enlace temporal que trae `useEvidencias()` (una hora, se renueva solo).
+- `EstudioPresentacion` agrupa las evidencias por tipo y pone el ícono en el encabezado, no en cada tarjeta. El menú de acciones de cada evidencia permite descargar archivos, copiar enlaces (los firmados duran una hora) o copiar notas. Las fotos conservan el carrusel y ofrecen acciones para la foto seleccionada. El audio usa controles propios (play/pausa, barra de avance táctil de 44 px, tiempos y velocidades 1×, 2× y 3×). Para medios que deban manipularse en móvil, evita `controls` nativos: su distribución varía entre navegadores y dispositivos. Las URLs firmadas se renuevan desde `useEvidencias()` cada 50 minutos.
 
 **Sesión**
 - `AuthProvider` aplica `evaluarSesion()` (`politicaSesion.ts`, una función pura) cada segundo y al volver a la pestaña. Los tiempos están en `config/session.ts`.

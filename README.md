@@ -48,6 +48,7 @@ Si una prueba falla, `npx playwright show-report` muestra el paso exacto con cap
 
 - El mapa siempre está de fondo. Las secciones (Categorías, Responsables…) se abren encima desde el menú ☰: en celular ocupan la pantalla y en computador son un panel lateral.
 - Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera. Al tocar un lugar del mapa se abre su ficha en `/lugares/<id>`, y "+ Nuevo lugar" abre la mira para registrar uno en `/lugares/nuevo`.
+- En el histórico de un lugar, tocar un estudio abre su presentación con el carrusel de fotos y el resto de evidencias. Desde el modal se puede editar o abrir la página del estudio para agregar evidencia.
 - Al desplegar (#24) el hosting debe redirigir todas las rutas a `index.html`, excepto `/docs`, que es un archivo propio (`dist/docs/index.html`).
 
 ## Íconos de categorías
