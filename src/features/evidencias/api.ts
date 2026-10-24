@@ -8,6 +8,8 @@ export interface Evidencia {
   estudioId: string
   tipo: TipoEvidencia
   titulo: string | null
+  texto: string | null
+  urlExterna: string | null
   archivo: { ruta: string; nombre: string; mime: string; bytes: number } | null
   /** Enlace temporal para abrir el archivo (expira en una hora). */
   enlace: string | null
@@ -29,7 +31,7 @@ export function useEvidencias(estudioId: string | undefined) {
     queryFn: async (): Promise<Evidencia[]> => {
       const { data, error } = await supabase
         .from('evidencias')
-        .select('id, estudio_id, tipo, titulo, archivo_path, archivo_nombre, archivo_mime, archivo_bytes, created_at')
+        .select('id, estudio_id, tipo, titulo, texto, url_externa, archivo_path, archivo_nombre, archivo_mime, archivo_bytes, created_at')
         .eq('estudio_id', estudioId!)
         .order('created_at', { ascending: false })
       if (error) throw error
@@ -40,6 +42,8 @@ export function useEvidencias(estudioId: string | undefined) {
         estudioId: fila.estudio_id,
         tipo: fila.tipo,
         titulo: fila.titulo,
+        texto: fila.texto,
+        urlExterna: fila.url_externa,
         archivo: fila.archivo_path
           ? { ruta: fila.archivo_path, nombre: fila.archivo_nombre ?? '', mime: fila.archivo_mime ?? '', bytes: fila.archivo_bytes ?? 0 }
           : null,

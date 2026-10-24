@@ -88,3 +88,8 @@ export async function enlacesTemporales(rutas: string[], segundos = 3600): Promi
   for (const { path, signedUrl } of data) if (path && signedUrl) enlaces.set(path, signedUrl)
   return enlaces
 }
+
+/** A partir de un enlace temporal, uno que descarga el archivo con su nombre original en vez de abrirlo. */
+export function enlaceDescarga(enlace: string, nombre: string) {
+  return `${enlace}${enlace.includes('?') ? '&' : '?'}download=${encodeURIComponent(nombre)}`
+}

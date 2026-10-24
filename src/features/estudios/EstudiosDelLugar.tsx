@@ -1,12 +1,15 @@
-import { Link, useNavigate } from 'react-router'
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { ErrorCarga, EstadoVacio, ListaCargando } from '../../components/Estados'
 import { FlechaLista } from '../../components/FlechaLista'
+import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { Avatar } from '../responsables/Avatar'
 import { semillaDe, useResponsables } from '../responsables/api'
-import { useEstudios, useGuardarEstudio, type CamposEstudio } from './api'
-import { mostrarFecha, mostrarHora } from './campos'
+import { useArchivarEstudio, useEstudios, useGuardarEstudio, type CamposEstudio, type Estudio } from './api'
+import { camposDe, mostrarFecha, mostrarHora } from './campos'
 import { FormularioEstudio } from './FormularioEstudio'
+import { EstudioPresentacion } from './EstudioPresentacion'
 import './EstudiosDelLugar.css'
 
 interface EstudiosDelLugarProps {
@@ -25,8 +28,47 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
   const { data: estudios, isPending, isError, refetch } = useEstudios(ubicacionId)
   const { data: responsables } = useResponsables()
   const guardar = useGuardarEstudio()
+  const archivar = useArchivarEstudio()
   const navigate = useNavigate()
+  const [estudioAbierto, setEstudioAbierto] = useState<string | null>(null)
+  const [editando, setEditando] = useState(false)
+  const [edicion, setEdicion] = useState<CamposEstudio | null>(null)
   const responsablePorId = new Map((responsables ?? []).map((r) => [r.id, r]))
+  const estudioSeleccionado = estudios?.find((estudio) => estudio.id === estudioAbierto)
+
+  function editar(estudio: Estudio) {
+    setEdicion(camposDe(estudio))
+    setEditando(true)
+  }
+
+  async function guardarCambios() {
+    if (!estudioSeleccionado || !edicion) return
+    await guardar.mutateAsync({ ...edicion, ubicacionId, id: estudioSeleccionado.id })
+    notificar.exito('Cambios guardados', { descripcion: `«${edicion.titulo.trim()}» quedó actualizado.` })
+    setEditando(false)
+  }
+
+  async function archivarEstudio(estudio: Estudio) {
+    try {
+      await archivar.mutateAsync({ id: estudio.id, ubicacionId, archivar: true })
+      setEstudioAbierto(null)
+      setEditando(false)
+      setEdicion(null)
+      notificar.exito('Estudio archivado', {
+        descripcion: `«${estudio.titulo}» ya no aparece en el histórico.`,
+        accion: {
+          texto: 'Deshacer',
+          alHacer: () =>
+            archivar.mutate(
+              { id: estudio.id, ubicacionId, archivar: false },
+              { onError: (error) => notificar.error('No se pudo recuperar', { descripcion: mensajeErrorDatos(error) }) },
+            ),
+        },
+      })
+    } catch (error) {
+      notificar.error('No se pudo archivar', { descripcion: mensajeErrorDatos(error) })
+    }
+  }
 
   async function guardarNuevo() {
     if (!nuevo) return
@@ -59,7 +101,7 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
             const personas = estudio.responsableIds.map((id) => responsablePorId.get(id)).filter((r) => r !== undefined)
             return (
               <li key={estudio.id}>
-                <Link to={`/lugares/${ubicacionId}/estudios/${estudio.id}`} className="lista-item">
+                <button type="button" className="lista-item" onClick={() => setEstudioAbierto(estudio.id)}>
                   <span className="lista-item-textos">
                     <span className="lista-item-titulo">{estudio.titulo}</span>
                     <span className="lista-item-detalle">
@@ -81,7 +123,7 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
                     )}
                   </span>
                   <FlechaLista />
-                </Link>
+                </button>
               </li>
             )
           })}
@@ -104,6 +146,40 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
           )}
         />
       )}
+
+      {estudioSeleccionado &&
+        (editando && edicion ? (
+          <FormularioEstudio
+            titulo="Editar estudio"
+            lugar={nombreLugar}
+            campos={edicion}
+            onCambiar={setEdicion}
+            onGuardar={guardarCambios}
+            textoGuardar="Guardar cambios"
+            editando
+            onCerrar={() => setEditando(false)}
+            otrasAcciones={(guardando) => (
+              <button
+                type="button"
+                className="btn-texto btn-texto-peligro"
+                onClick={() => void archivarEstudio(estudioSeleccionado)}
+                disabled={guardando || archivar.isPending}
+              >
+                Archivar estudio
+              </button>
+            )}
+          />
+        ) : (
+          <EstudioPresentacion
+            key={estudioSeleccionado.id}
+            estudio={estudioSeleccionado}
+            nombreLugar={nombreLugar}
+            responsables={estudioSeleccionado.responsableIds.map((id) => responsablePorId.get(id)).filter((r) => r !== undefined)}
+            onEditar={() => editar(estudioSeleccionado)}
+            onAgregarEvidencia={() => navigate(`/lugares/${ubicacionId}/estudios/${estudioSeleccionado.id}`)}
+            onCerrar={() => setEstudioAbierto(null)}
+          />
+        ))}
     </section>
   )
 }
