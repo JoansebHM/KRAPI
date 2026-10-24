@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Buscador } from '../../components/Buscador'
 import { Dialog } from '../../components/Dialog'
 import { ErrorCarga, EstadoVacio, ListaCargando } from '../../components/Estados'
+import { FlechaLista } from '../../components/FlechaLista'
 import { Panel } from '../../components/Panel'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
@@ -113,7 +114,7 @@ export function ResponsablesPage() {
                         {responsable.estudios > 0 ? `En ${plural(responsable.estudios, 'estudio')}` : 'Sin estudios aún'}
                       </span>
                     </span>
-                    <Flecha />
+                    <FlechaLista />
                   </button>
                 </li>
               ))}
@@ -172,13 +173,6 @@ export function ResponsablesPage() {
   )
 }
 
-function Flecha() {
-  return (
-    <svg className="lista-item-flecha" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="m9 6 6 6-6 6" />
-    </svg>
-  )
-}
 
 function IconoPersonas() {
   return (
