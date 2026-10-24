@@ -49,6 +49,12 @@ export function MenuNavegacion({ abierto, onCerrar }: MenuNavegacionProps) {
               </NavLink>
             </li>
           ))}
+          <li>
+            <a href="/docs" className="menu-item">
+              <IconoDocumentacion />
+              <span>Documentación</span>
+            </a>
+          </li>
         </ul>
       </nav>
     </>
@@ -102,6 +108,15 @@ function IconoPersonas() {
       <circle cx="9" cy="8" r="3.5" />
       <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
       <path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6" />
+    </svg>
+  )
+}
+
+function IconoDocumentacion() {
+  return (
+    <svg {...icono}>
+      <path d="M4 3.5h10l5 5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3.5Z" />
+      <path d="M14 3.5V9h5M8 13h7M8 17h7" />
     </svg>
   )
 }
