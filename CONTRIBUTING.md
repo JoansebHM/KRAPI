@@ -6,9 +6,7 @@ Esta guía explica cómo se organiza el trabajo en el repositorio. La idea es qu
 
 Todo cambio sigue el mismo camino:
 
-```
-Issue  →  Rama  →  Commits  →  Pull request  →  Revisión  →  Merge a main
-```
+![Flujo de trabajo: issue, rama, commits, pull request, revisión y merge a main](docs/diagramas/flujo-de-trabajo.svg)
 
 1. **Issue.** Todo empieza con una issue que describe qué hay que hacer y cuándo se considera terminado (criterios de aceptación). Si no existe, créala con una de las plantillas.
 2. **Rama.** Crea una rama desde `main` con el número de la issue (ver [Ramas](#ramas)).
@@ -78,6 +76,8 @@ npm run test:e2e
 ```
 
 Los tres deben terminar sin errores. Si el cambio agrega o modifica una funcionalidad, agrega o actualiza sus pruebas en `e2e/`.
+
+**La documentación va en el mismo PR.** Si el cambio hace que algo de `README.md`, este archivo, `CLAUDE.md` o `docs/` quede desactualizado (un comando, una tabla, un diagrama, el estado del proyecto…), corrígelo ahí mismo. La documentación navegable (`/docs`) se genera desde esos `.md`, así que no hay que editar nada más; revisa cómo quedó con `npm run dev` en http://localhost:5173/docs.
 
 ## Labels
 
