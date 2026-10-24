@@ -1,0 +1,85 @@
+# Producto
+
+## Para qué existe KRAPI
+
+El equipo de **Kratos Innovation Lab** (EAFIT) está haciendo un **estudio de proximidad** para analizar cómo mejorar la distribución de productos de bebidas en el **barrio Manila** (El Poblado, Medellín). Hoy está en la etapa de **levantamiento de información**: salir a campo, hablar con las personas de los locales y registrar lo que se encuentra.
+
+KRAPI es el geovisor donde queda ese registro: **qué lugares se visitaron, qué se hizo en cada visita y con qué evidencias**, de forma que cualquiera del equipo pueda consultarlo después sobre el mapa.
+
+El foco está en los **locales fijos** (tiendas, cafés, restaurantes…): no en turistas ni en personas de paso.
+
+## Quién la usa
+
+- **Integrantes de Kratos.** Es un grupo pequeño que entra con **un solo usuario compartido**. Cualquiera que haya iniciado sesión puede ver y editar todo.
+- **Se usa sobre todo en el celular, en la calle.** A veces con una mano, con sol y con datos móviles. Por eso cada pantalla se diseña primero para celular (ver [`diseno.md`](diseno.md)).
+
+## Conceptos
+
+| Concepto | Qué es | Ejemplo |
+| --- | --- | --- |
+| **Lugar** (ubicación) | Algo en el mapa que se visita. Se crea **una sola vez** y existe siempre. Puede ser un **punto** o una **zona**. | "Tienda Don Pepe" |
+| **Punto** | Un local. Tiene nombre, categoría, dirección, complemento, contacto (nombre y teléfono del administrador) y estado. | Un café en una esquina |
+| **Zona** | Un polígono **opcional** que marca lo que se cubrió, por ejemplo la manzana donde un equipo revisó varios locales. No tiene tipo ni categoría: solo nombre, descripción y su forma. Las zonas pueden superponerse. | "Manzana del parque" |
+| **Estudio** | **Una visita** a un lugar: una entrevista o un levantamiento. Tiene fecha, hora de inicio y de fin, responsables, **a quién se entrevistó** (texto corto), título, notas y evidencias. Los estudios de puntos y de zonas tienen **la misma estructura**. | "Entrevista al tendero, 30 oct, 2–4 p. m." |
+| **Evidencia** | Material de un estudio: fotos, audios, documentos (Word, PDF, Excel), notas de texto o videos (por enlace de SharePoint). Un estudio puede tener todas las evidencias que haga falta. | Foto de la fachada |
+| **Histórico** | La lista de estudios de un lugar, del más reciente al más antiguo. **Volver a un lugar es agregarle un estudio nuevo**, nunca reemplazar el anterior. | Tres visitas a la misma tienda en noviembre |
+| **Categoría** | Tipo de local (comercio, café, hotelería…), con un **color** y un **ícono** que se usan en el mapa. Administrable. | Café · lila · taza |
+| **Responsable** | Persona del equipo que participa en estudios, con su **avatar dibujado**. Administrable. | Ana |
+
+Reglas de negocio:
+
+- **Nada puede quedar fuera de Manila.** La app avisa y no deja continuar; la base de datos también lo impide.
+- **Estado del lugar:** activo o cerrado. Si un local cierra, se marca como cerrado y conserva su histórico. Si en el mismo sitio abre otro negocio, se crea un lugar nuevo.
+- **Archivar en vez de borrar.** Lugares y estudios se archivan: desaparecen del mapa pero se pueden recuperar. Solo se borra de verdad un lugar creado por error y sin estudios, o una evidencia equivocada.
+- **Una zona muestra los locales que tiene adentro**, calculado por la geometría, junto con sus propios estudios ("en la manzana no hay canecas", "la zona es muy oscura").
+- **Sin salidas.** No existe el concepto de "salida" o jornada: no todos van el mismo día. Cada estudio lleva su propia fecha y responsables (ver [decisión 0008](decisiones/0008-modelo-lugares-y-estudios.md)).
+- **Sin tipos de estudio ni equipos por ahora**, y sin datos medibles (conteos, cifras). La estructura de los locales se registra con fotos. Más adelante se puede agregar una tabla de mediciones sin romper el modelo.
+
+## Cómo se usa en campo
+
+1. La persona entra con el usuario compartido. La sesión dura hasta 7 días y se cierra tras 2 horas sin uso.
+2. En el mapa toca **"+"** y elige **lugar** o **zona**.
+3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, o con "Mi ubicación".
+   - Si el punto queda fuera de Manila, no deja continuar.
+   - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo, para **agregarle el estudio** en vez de duplicarlo.
+4. Llena el lugar, si es nuevo, y el **estudio** en un solo flujo. La fecha y la hora de inicio vienen prellenadas, y los responsables vienen con los del último estudio hecho desde ese celular.
+5. Agrega las evidencias desde la ficha del lugar.
+
+Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo el área en m².
+
+> Los pasos 2 a 5 están **definidos en las issues #14 a #18** y todavía no están construidos. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
+
+## Estado
+
+**Hecho:**
+- Mapa con el límite de Manila, navegación limitada a 1 km alrededor y modo claro/oscuro.
+- Login con usuario compartido y política de sesión.
+- Notificaciones.
+- Administración de categorías (color e ícono) y responsables (avatar).
+- Esquema completo en Supabase con seguridad (RLS) y bucket privado de evidencias.
+- Pruebas de punta a punta.
+
+**Pendiente del MVP:**
+
+| Issue | Qué |
+| --- | --- |
+| #13 | Lugares en el mapa |
+| #14 | Crear puntos |
+| #15 | Crear zonas |
+| #16 | Ficha del lugar |
+| #17 | Estudios |
+| #18–#20 | Evidencias |
+| #21 | Filtros |
+| #22 | Prueba de SharePoint |
+| #23 | Revisión móvil |
+| #24 | Despliegue |
+| #5 | Revisión automática de PRs |
+| #6 | Proveedor de mapa |
+
+## Fuera del alcance por ahora
+
+- Salidas o jornadas de campo.
+- Tipos de estudio, equipos (estrategia, desarrollo técnico…).
+- Datos medibles y reportes numéricos.
+- Usuarios individuales y permisos por persona.
+- Subida de videos al bucket (se usan enlaces de SharePoint).
