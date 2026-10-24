@@ -26,12 +26,14 @@ src/
   features/       Una carpeta por funcionalidad
     auth/         Login, AuthProvider, política de sesión, menú de la cuenta
     categorias/   CRUD de categorías, colores e íconos
-    estudios/     Estudios de un lugar: formulario, selector de responsables e histórico
+    estudios/     Estudios de un lugar: formulario, selector de responsables, histórico y página del estudio
+    evidencias/   Subir, grabar, listar y borrar evidencias; cola de subidas y compresión de fotos
     lugares/      Lugares en el mapa (marcadores y zonas), su ficha y crear puntos
     map/          Mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
     responsables/ CRUD de responsables y avatares
     theme/        Modo claro/oscuro
-  lib/            supabase.ts, queryClient.ts, notificar.ts, errores.ts, texto.ts, color.ts
+  lib/            supabase.ts, almacenamiento.ts (archivos), queryClient.ts, notificar.ts,
+                  errores.ts, texto.ts, color.ts
   styles/         theme.css (tokens), ui.css (botones, campos, listas)
   types/          database.ts (tipos generados del esquema)
 e2e/              Pruebas Playwright y Supabase simulado (e2e/soporte/)
@@ -84,7 +86,8 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Dentro del diálogo, los campos van en `.formulario` (`ui.css`). Los opcionales llevan `.field-opcional` en la etiqueta.
 - Si un flujo tiene varios pasos (por ejemplo, ubicar → duplicados → lugar → estudio), los datos viven en la pantalla del flujo y no en cada diálogo, para no perderlos al volver atrás. Por eso `FormularioPunto` y `FormularioEstudio` son controlados (`campos` y `onCambiar`).
 - Para elegir uno o varios elementos con ícono o avatar (categoría, responsables) se usan botones `.chip` con `aria-pressed` dentro de `.chips`.
-- **Estudios:** `useCamposEstudioNuevo()` prepara uno nuevo al abrir el formulario: hoy, de ahora a una hora después, y los responsables del último estudio de ese dispositivo (`krapi-ultimos-responsables` en `localStorage`, filtrados a los que todavía existen). Los estudios se archivan (`archivado_en`) con "Deshacer", nunca se borran.
+- `Panel` acepta `volver` para que el botón de atrás lleve a otra pantalla, por ejemplo de un estudio a la ficha de su lugar.
+- **Estudios:** cada uno tiene su página (`EstudioPagina`, `/lugares/:id/estudios/:estudioId`) con sus datos, "Editar estudio" y las evidencias. Al guardar un estudio nuevo se navega a ella. `useCamposEstudioNuevo()` prepara uno nuevo al abrir el formulario: hoy, de ahora a una hora después, y los responsables del último estudio de ese dispositivo (`krapi-ultimos-responsables` en `localStorage`, filtrados a los que todavía existen). Los estudios se archivan (`archivado_en`) con "Deshacer", nunca se borran.
 - `Buscador`, `EstadoVacio`, `ListaCargando` y `ErrorCarga` para las listas.
 - `normalizar`, `compararTexto` y `plural` (`lib/texto.ts`) para buscar y ordenar en español.
 
@@ -102,6 +105,13 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - **Crear un punto** (`CrearPunto`): una mira fija sobre el centro del mapa (se actualiza con el evento `move`), "Mi ubicación" con `navigator.geolocation`, `buscarCercanos()` (`ubicaciones_cercanas`, 15 m) y `FormularioPunto`. La geometría se envía como texto EWKT (`SRID=4326;POINT(lng lat)`) y PostGIS la convierte. Ver [decisión 0018](decisiones/0018-lugares-en-el-mapa.md).
 - Sin `VITE_MAP_STYLE_URL_DARK`, el modo oscuro se genera con `toNightStyle` (`nightStyle.ts`) a partir de Liberty, para conservar los nombres de los locales.
 - La navegación está limitada a 1 km alrededor de Manila (`MANILA_MAX_BOUNDS`).
+
+**Evidencias y archivos** (ver [decisión 0019](decisiones/0019-subida-de-evidencias.md))
+- Todo acceso a archivos pasa por `lib/almacenamiento.ts`: `subirArchivo` (con avance, por `XMLHttpRequest`), `borrarArchivos` y `enlacesTemporales`. Para cambiar de proveedor solo se toca ese archivo.
+- `features/evidencias/archivos.ts` decide el tipo de evidencia por el tipo MIME o, si falta, por la extensión, valida los 50 MB y arma la ruta `<estudio_id>/<uuid>-<nombre-seguro>`.
+- `subidas.ts` es una cola fuera de React (`useSyncExternalStore`): sube de a uno, permite cancelar, reintentar y descartar, y sigue aunque se cierre la página. Al terminar, recarga `claveEvidencias(estudioId)`.
+- Las fotos pasan por `comprimirFoto()` antes de subir. Los audios se graban con `GrabadorAudio` (`MediaRecorder`).
+- Para abrir un archivo se usa el enlace temporal que trae `useEvidencias()` (una hora, se renueva solo).
 
 **Sesión**
 - `AuthProvider` aplica `evaluarSesion()` (`politicaSesion.ts`, una función pura) cada segundo y al volver a la pestaña. Los tiempos están en `config/session.ts`.
@@ -123,3 +133,5 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - `npm run test:e2e` corre Playwright en tamaño de celular contra un **Supabase simulado** (`e2e/soporte/supabase-falso.ts`): inicio de sesión y PostgREST en memoria, con las reglas del esquema real.
 - Cada prueba arranca con la base vacía y prepara sus datos con el fixture `supabase.db`. Para iniciar sesión se usa `entrar()`.
 - Si agregas tablas o funciones que la app consulta, **amplía el Supabase simulado** para que responda igual que el real.
+- El Supabase simulado también imita Storage (`supabase.archivos`): subir con las reglas del bucket, borrar y firmar enlaces. Con `supabase.fallarSubidas = true` las subidas fallan.
+- Chromium corre con micrófono y cámara simulados (`playwright.config.ts`), así se prueba la grabación de audio.

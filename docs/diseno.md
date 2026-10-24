@@ -59,11 +59,14 @@ Se usa en la calle, con una mano y con sol:
 | `.formulario`, `.field-opcional` | Campos de un formulario, uno debajo del otro; "(opcional)" en gris junto a la etiqueta |
 | `FlechaLista` | Flecha (›) al final de una fila que se puede abrir |
 | `.chips`, `.chip` | Opciones que se marcan tocándolas, con ícono o avatar (categoría del lugar, responsables del estudio). La marcada lleva borde azul y fondo suave |
+| `.ficha-datos` | Datos de una ficha (lugar, estudio): etiqueta pequeña arriba y valor debajo |
 | `.solo-lector` | Texto que solo leen los lectores de pantalla (por ejemplo, los nombres detrás de los avatares de un estudio) |
 | `Dialog`, `Panel`, `MenuNavegacion`, `Buscador`, `Estados` | Ver [`arquitectura.md`](arquitectura.md) |
 | `notificar.*` | Toasts de Sonner arriba al centro, con botón de cerrar de 40 px y colores de marca |
 | `Avatar` | Avatar dibujado (DiceBear Croodles, a lápiz) de un responsable |
 | `IconoCategoria` | Ícono de Lucide sobre el color de la categoría |
+| `IconoTipoEvidencia` | Círculo de 44 px con el ícono del tipo de evidencia (cámara, micrófono, documento, hoja de cálculo) sobre fondo azul suave |
+| `.evidencia`, `.evidencia-accion`, `.evidencia-progreso` | Fila de evidencia: abre el archivo en otra pestaña y a la derecha lleva botones de 44 px (borrar; o cancelar, reintentar y descartar mientras sube). La subida muestra "Subiendo… N %" y una barra de avance; el error va en rojo, debajo del nombre |
 | `.marcador-lugar` | Punto en el mapa: `IconoCategoria` de 32 px con borde blanco y sombra (se ve sobre el mapa claro y el oscuro) dentro de un botón de 44 px. `.marcador-sin-categoria` (círculo blanco con borde gris), `.marcador-cerrado` (atenuado) y `.marcador-seleccionado` (más grande, con anillo azul eléctrico) |
 
 ## Mapa

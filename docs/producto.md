@@ -43,11 +43,17 @@ Reglas de negocio:
    - Si el punto queda fuera de Manila, no deja continuar.
    - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo. Si lo es, se toca y se le **agrega el estudio** ahí mismo, sin duplicar el lugar.
 4. Llena el lugar (nombre, categoría, dirección, complemento y contacto) y, en el siguiente paso, el **estudio**. La fecha (hoy) y la hora de inicio (ahora) vienen prellenadas, la de fin una hora después, y los responsables vienen con los del último estudio hecho desde ese celular. También puede elegir "Solo guardar el lugar".
-5. Agrega las evidencias desde la ficha del lugar (#18). En la ficha también está el histórico: los estudios del más reciente al más antiguo, con "Agregar estudio" para una visita nueva. Cada estudio se puede editar o archivar (con "Deshacer").
+5. Al guardar el estudio se abre **su página**, con el botón **"Agregar evidencia"**:
+   - **Tomar foto** con la cámara. Las fotos se reducen (2048 px de lado mayor) y se comprimen antes de subirlas, para ahorrar datos.
+   - **Grabar audio** dentro de la app. Se escucha antes de subirlo.
+   - **Elegir archivos**: fotos, audios, PDF, Word o Excel, varios a la vez, hasta 50 MB cada uno.
+
+   Cada archivo muestra su avance. Si falla, se explica por qué y se puede reintentar. Las subidas siguen aunque se vuelva al mapa. Una evidencia equivocada se borra de verdad, con confirmación.
+6. En la ficha del lugar está el histórico: los estudios del más reciente al más antiguo, con "Agregar estudio" para una visita nueva. Cada estudio abre su página, donde se edita, se archiva (con "Deshacer") y se le agregan evidencias.
 
 Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo el área en m².
 
-> **Ya funcionan** los pasos 2 a 4 para puntos, con su estudio, y el histórico en la ficha. Faltan las zonas (#15) y las evidencias (#18). La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
+> **Ya funcionan** los pasos 2 a 6 para puntos. Faltan las zonas (#15), las notas de texto y los videos por enlace (#19) y ver las evidencias dentro de la app (#20): por ahora cada archivo se abre en otra pestaña. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
 
 ## Estado
 
@@ -58,7 +64,8 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Administración de categorías (color e ícono) y responsables (avatar).
 - Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas en lila, cerrados atenuados y archivados ocultos. Al tocar uno se abre una ficha básica (nombre, tipo, categoría y estado).
 - Crear puntos desde el mapa: botón "+ Nuevo lugar", mira fija en el centro, "Mi ubicación", bloqueo fuera de Manila, aviso de lugares a menos de 15 m y formulario del lugar.
-- Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con responsables (vienen los del último estudio del celular). La ficha muestra el histórico, y cada estudio se puede editar o archivar.
+- Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con responsables (vienen los del último estudio del celular). La ficha muestra el histórico, y cada estudio tiene su página, donde se edita o se archiva.
+- Evidencias de archivo: tomar fotos (comprimidas antes de subir), grabar audios en la app y subir documentos, con avance, reintento y borrado con confirmación.
 - Esquema completo en Supabase con seguridad (RLS) y bucket privado de evidencias.
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`.
@@ -69,7 +76,8 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 | --- | --- |
 | #15 | Crear zonas (y elegir punto o zona en el "+") |
 | #16 | Ficha del lugar completa (datos, histórico, editar y archivar) |
-| #18–#20 | Evidencias |
+| #19 | Evidencias de texto y videos por enlace |
+| #20 | Visor de evidencias según su tipo |
 | #21 | Filtros |
 | #22 | Prueba de SharePoint |
 | #23 | Revisión móvil |
