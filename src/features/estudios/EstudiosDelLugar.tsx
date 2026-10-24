@@ -1,16 +1,13 @@
-import { useState } from 'react'
+import { Link, useNavigate } from 'react-router'
 import { ErrorCarga, EstadoVacio, ListaCargando } from '../../components/Estados'
 import { FlechaLista } from '../../components/FlechaLista'
-import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { Avatar } from '../responsables/Avatar'
 import { semillaDe, useResponsables } from '../responsables/api'
-import { useArchivarEstudio, useEstudios, useGuardarEstudio, type CamposEstudio, type Estudio } from './api'
-import { camposDe, mostrarFecha, mostrarHora } from './campos'
+import { useEstudios, useGuardarEstudio, type CamposEstudio } from './api'
+import { mostrarFecha, mostrarHora } from './campos'
 import { FormularioEstudio } from './FormularioEstudio'
 import './EstudiosDelLugar.css'
-
-type Formulario = { tipo: 'nuevo'; campos: CamposEstudio } | { tipo: 'editar'; estudio: Estudio; campos: CamposEstudio }
 
 interface EstudiosDelLugarProps {
   ubicacionId: string
@@ -20,53 +17,23 @@ interface EstudiosDelLugarProps {
   onCambiarNuevo: (campos: CamposEstudio | null) => void
 }
 
-/** Histórico de estudios de un lugar (del más reciente al más antiguo), para agregar, editar y archivar. */
+/**
+ * Histórico de estudios de un lugar (del más reciente al más antiguo). Cada estudio abre su página,
+ * donde se edita, se archiva y se le agregan evidencias.
+ */
 export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNuevo }: EstudiosDelLugarProps) {
   const { data: estudios, isPending, isError, refetch } = useEstudios(ubicacionId)
   const { data: responsables } = useResponsables()
   const guardar = useGuardarEstudio()
-  const archivar = useArchivarEstudio()
-  const [editando, setEditando] = useState<Formulario | null>(null)
-
-  const formulario: Formulario | null = nuevo ? { tipo: 'nuevo', campos: nuevo } : editando
+  const navigate = useNavigate()
   const responsablePorId = new Map((responsables ?? []).map((r) => [r.id, r]))
 
-  function cerrar() {
-    setEditando(null)
+  async function guardarNuevo() {
+    if (!nuevo) return
+    const id = await guardar.mutateAsync({ ...nuevo, ubicacionId })
+    notificar.exito('Estudio guardado', { descripcion: `«${nuevo.titulo.trim()}» quedó en el histórico. Ahora agrégale las evidencias.` })
     onCambiarNuevo(null)
-  }
-
-  async function guardarFormulario() {
-    if (!formulario) return
-    await guardar.mutateAsync({
-      ...formulario.campos,
-      ubicacionId,
-      id: formulario.tipo === 'editar' ? formulario.estudio.id : undefined,
-    })
-    notificar.exito(formulario.tipo === 'editar' ? 'Cambios guardados' : 'Estudio guardado', {
-      descripcion: `«${formulario.campos.titulo.trim()}» quedó en el histórico de ${nombreLugar}.`,
-    })
-    cerrar()
-  }
-
-  async function archivarEstudio(estudio: Estudio) {
-    try {
-      await archivar.mutateAsync({ id: estudio.id, ubicacionId, archivar: true })
-      cerrar()
-      notificar.exito('Estudio archivado', {
-        descripcion: `«${estudio.titulo}» ya no aparece en el histórico.`,
-        accion: {
-          texto: 'Deshacer',
-          alHacer: () =>
-            archivar.mutate(
-              { id: estudio.id, ubicacionId, archivar: false },
-              { onError: (error) => notificar.error('No se pudo recuperar', { descripcion: mensajeErrorDatos(error) }) },
-            ),
-        },
-      })
-    } catch (error) {
-      notificar.error('No se pudo archivar', { descripcion: mensajeErrorDatos(error) })
-    }
+    navigate(`/lugares/${ubicacionId}/estudios/${id}`)
   }
 
   return (
@@ -92,11 +59,7 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
             const personas = estudio.responsableIds.map((id) => responsablePorId.get(id)).filter((r) => r !== undefined)
             return (
               <li key={estudio.id}>
-                <button
-                  type="button"
-                  className="lista-item"
-                  onClick={() => setEditando({ tipo: 'editar', estudio, campos: camposDe(estudio) })}
-                >
+                <Link to={`/lugares/${ubicacionId}/estudios/${estudio.id}`} className="lista-item">
                   <span className="lista-item-textos">
                     <span className="lista-item-titulo">{estudio.titulo}</span>
                     <span className="lista-item-detalle">
@@ -118,39 +81,26 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
                     )}
                   </span>
                   <FlechaLista />
-                </button>
+                </Link>
               </li>
             )
           })}
         </ul>
       )}
 
-      {formulario && (
+      {nuevo && (
         <FormularioEstudio
-          titulo={formulario.tipo === 'editar' ? 'Editar estudio' : 'Nuevo estudio'}
+          titulo="Nuevo estudio"
           lugar={nombreLugar}
-          campos={formulario.campos}
-          onCambiar={(campos) => (formulario.tipo === 'nuevo' ? onCambiarNuevo(campos) : setEditando({ ...formulario, campos }))}
-          onGuardar={guardarFormulario}
-          textoGuardar={formulario.tipo === 'editar' ? 'Guardar cambios' : 'Guardar estudio'}
-          editando={formulario.tipo === 'editar'}
-          onCerrar={cerrar}
+          campos={nuevo}
+          onCambiar={onCambiarNuevo}
+          onGuardar={guardarNuevo}
+          textoGuardar="Guardar estudio"
+          onCerrar={() => onCambiarNuevo(null)}
           otrasAcciones={(guardando) => (
-            <>
-              <button type="button" className="btn btn-secondary btn-block" onClick={cerrar} disabled={guardando}>
-                Cancelar
-              </button>
-              {formulario.tipo === 'editar' && (
-                <button
-                  type="button"
-                  className="btn-texto btn-texto-peligro"
-                  onClick={() => void archivarEstudio(formulario.estudio)}
-                  disabled={guardando || archivar.isPending}
-                >
-                  Archivar estudio
-                </button>
-              )}
-            </>
+            <button type="button" className="btn btn-secondary btn-block" onClick={() => onCambiarNuevo(null)} disabled={guardando}>
+              Cancelar
+            </button>
           )}
         />
       )}

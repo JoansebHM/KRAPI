@@ -1,0 +1,187 @@
+import { useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router'
+import { ErrorCarga, EstadoVacio, ListaCargando } from '../../components/Estados'
+import { Panel } from '../../components/Panel'
+import { mensajeErrorDatos } from '../../lib/errores'
+import { notificar } from '../../lib/notificar'
+import { AgregarEvidencia } from '../evidencias/AgregarEvidencia'
+import { EvidenciasDelEstudio } from '../evidencias/EvidenciasDelEstudio'
+import { GrabadorAudio } from '../evidencias/GrabadorAudio'
+import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
+import { agregarArchivos } from '../evidencias/subidas'
+import { useLugares } from '../lugares/api'
+import { Avatar } from '../responsables/Avatar'
+import { semillaDe, useResponsables } from '../responsables/api'
+import { useArchivarEstudio, useEstudios, useGuardarEstudio, type CamposEstudio, type Estudio } from './api'
+import { camposDe, mostrarFecha, mostrarHora } from './campos'
+import { FormularioEstudio } from './FormularioEstudio'
+import './EstudioPagina.css'
+
+/** Página de un estudio (`/lugares/:id/estudios/:estudioId`): sus datos y sus evidencias. */
+export function EstudioPagina() {
+  const { id: lugarId = '', estudioId = '' } = useParams()
+  const navigate = useNavigate()
+  const { data: lugares } = useLugares()
+  const { data: estudios, isPending, isError, refetch } = useEstudios(lugarId)
+  const { data: responsables } = useResponsables()
+  const guardar = useGuardarEstudio()
+  const archivar = useArchivarEstudio()
+  const [edicion, setEdicion] = useState<CamposEstudio | null>(null)
+  const [agregando, setAgregando] = useState<'opciones' | 'audio' | null>(null)
+
+  const volver = { a: `/lugares/${lugarId}`, etiqueta: 'Volver al lugar' }
+  const nombreLugar = lugares?.find((l) => l.id === lugarId)?.nombre ?? 'Lugar'
+
+  if (isPending || isError) {
+    return (
+      <Panel titulo="Estudio" volver={volver}>
+        {isPending ? <ListaCargando filas={3} /> : <ErrorCarga mensaje="No se pudo cargar el estudio." onReintentar={() => refetch()} />}
+      </Panel>
+    )
+  }
+
+  const estudio = estudios.find((e) => e.id === estudioId)
+  if (!estudio) {
+    return (
+      <Panel titulo="Estudio no encontrado" subtitulo={nombreLugar} volver={volver}>
+        <EstadoVacio
+          icono={<IconoTipoEvidencia tipo="documento" />}
+          titulo="Este estudio no está en el histórico"
+          descripcion="Puede que lo hayan archivado o que el enlace esté mal."
+          accion={
+            <Link to={volver.a} className="btn btn-secondary">
+              Volver al lugar
+            </Link>
+          }
+        />
+      </Panel>
+    )
+  }
+
+  const personas = estudio.responsableIds.map((id) => responsables?.find((r) => r.id === id)).filter((r) => r !== undefined)
+
+  async function guardarCambios(actual: Estudio) {
+    await guardar.mutateAsync({ ...edicion!, ubicacionId: lugarId, id: actual.id })
+    notificar.exito('Cambios guardados', { descripcion: `«${edicion!.titulo.trim()}» quedó actualizado.` })
+    setEdicion(null)
+  }
+
+  async function archivarEstudio(actual: Estudio) {
+    try {
+      await archivar.mutateAsync({ id: actual.id, ubicacionId: lugarId, archivar: true })
+      setEdicion(null)
+      navigate(volver.a)
+      notificar.exito('Estudio archivado', {
+        descripcion: `«${actual.titulo}» ya no aparece en el histórico.`,
+        accion: {
+          texto: 'Deshacer',
+          alHacer: () =>
+            archivar.mutate(
+              { id: actual.id, ubicacionId: lugarId, archivar: false },
+              { onError: (error) => notificar.error('No se pudo recuperar', { descripcion: mensajeErrorDatos(error) }) },
+            ),
+        },
+      })
+    } catch (error) {
+      notificar.error('No se pudo archivar', { descripcion: mensajeErrorDatos(error) })
+    }
+  }
+
+  function subir(archivos: File[]) {
+    setAgregando(null)
+    agregarArchivos(estudio!.id, archivos)
+  }
+
+  return (
+    <Panel
+      titulo={estudio.titulo}
+      subtitulo={nombreLugar}
+      volver={volver}
+      pie={
+        <button type="button" className="fab" onClick={() => setAgregando('opciones')}>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Agregar evidencia
+        </button>
+      }
+    >
+      <dl className="ficha-datos">
+        <div>
+          <dt>Fecha y hora</dt>
+          <dd>
+            {mostrarFecha(estudio.fecha)} · {mostrarHora(estudio.horaInicio)} – {mostrarHora(estudio.horaFin)}
+          </dd>
+        </div>
+        <div>
+          <dt>Responsables</dt>
+          <dd>
+            {personas.length === 0 ? (
+              <span className="estudio-sin-dato">Sin responsables</span>
+            ) : (
+              <ul className="estudio-personas">
+                {personas.map((r) => (
+                  <li key={r.id}>
+                    <Avatar semilla={semillaDe(r)} tamano={28} />
+                    {r.nombre}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </dd>
+        </div>
+        {estudio.entrevistado && (
+          <div>
+            <dt>A quién se entrevistó</dt>
+            <dd>{estudio.entrevistado}</dd>
+          </div>
+        )}
+        {estudio.descripcion && (
+          <div>
+            <dt>Notas</dt>
+            <dd className="estudio-notas-texto">{estudio.descripcion}</dd>
+          </div>
+        )}
+      </dl>
+
+      <button type="button" className="btn btn-secondary estudio-editar" onClick={() => setEdicion(camposDe(estudio))}>
+        Editar estudio
+      </button>
+
+      <EvidenciasDelEstudio estudioId={estudio.id} />
+
+      {agregando === 'opciones' && (
+        <AgregarEvidencia onArchivos={subir} onGrabarAudio={() => setAgregando('audio')} onCerrar={() => setAgregando(null)} />
+      )}
+      {agregando === 'audio' && <GrabadorAudio onUsar={(audio) => subir([audio])} onCerrar={() => setAgregando(null)} />}
+
+      {edicion && (
+        <FormularioEstudio
+          titulo="Editar estudio"
+          lugar={nombreLugar}
+          campos={edicion}
+          onCambiar={setEdicion}
+          onGuardar={() => guardarCambios(estudio)}
+          textoGuardar="Guardar cambios"
+          editando
+          onCerrar={() => setEdicion(null)}
+          otrasAcciones={(guardando) => (
+            <>
+              <button type="button" className="btn btn-secondary btn-block" onClick={() => setEdicion(null)} disabled={guardando}>
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn-texto btn-texto-peligro"
+                onClick={() => void archivarEstudio(estudio)}
+                disabled={guardando || archivar.isPending}
+              >
+                Archivar estudio
+              </button>
+            </>
+          )}
+        />
+      )}
+    </Panel>
+  )
+}
