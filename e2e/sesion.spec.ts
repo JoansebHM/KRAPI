@@ -23,7 +23,20 @@ test.describe('Inicio de sesión', () => {
   test('con la contraseña correcta entra y la sesión se mantiene al recargar', async ({ page, entrar }) => {
     await entrar()
     await expect(toast(page, 'Sesión iniciada')).toBeVisible()
+    const encabezado = page.locator('.app-header')
     await expect(page.locator('.app-brand')).toHaveText('KIRA')
+    const gradienteClaro = await encabezado.evaluate((elemento) => getComputedStyle(elemento, '::after').backgroundImage)
+    await expect(encabezado).toHaveCSS('position', 'relative')
+    await expect.poll(() => encabezado.evaluate((elemento) => getComputedStyle(elemento, '::after').backdropFilter)).toBe('blur(8px)')
+
+    const cambiarTema = page.locator('.app-header .theme-toggle')
+    await cambiarTema.click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', /light|dark/)
+    const gradienteAlterno = await encabezado.evaluate((elemento) => getComputedStyle(elemento, '::after').backgroundImage)
+    expect(gradienteAlterno).not.toBe(gradienteClaro)
+
+    await cambiarTema.click()
+    await expect.poll(() => encabezado.evaluate((elemento) => getComputedStyle(elemento, '::after').backgroundImage)).toBe(gradienteClaro)
     await page.reload()
     await expect(page.locator('.app-header')).toBeVisible()
   })

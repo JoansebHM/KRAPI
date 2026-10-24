@@ -26,6 +26,7 @@ Las **categorías** usan una paleta propia (`src/features/categorias/colores.ts`
 - **Good Times**: marca y títulos (`--font-display`). Solo se usa si está instalada en el dispositivo; si no, se ve **Poppins Black**. Para incluir el archivo web, ver el README.
 - **Poppins**: todo el texto (`--font-sans`), cargada desde Google Fonts.
 - La barra superior muestra **KIRA** y, justo debajo, "powered by **KIT**". `KIT` es una abreviatura con `title` y `aria-label` "Kratos Innovation Team".
+- El encabezado principal se desvanece hacia el mapa con un gradiente y desenfoque que usan `--color-bg`, por lo que acompañan automáticamente los temas claro y oscuro.
 
 ## Modo claro y oscuro
 
