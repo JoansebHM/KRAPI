@@ -48,6 +48,7 @@ scripts/          crear-usuario-compartido.mjs
 
 - En desarrollo, el plugin `kira-docs` de `vite.config.ts` la sirve en `/docs` y la regenera en cada visita.
 - Al compilar queda en `dist/docs/index.html`. `npm run docs` la genera sin compilar la app.
+- Con la sesión iniciada, el menú lateral de KIRA incluye un acceso directo a `/docs`.
 - Para agregar un documento nuevo a la navegación, súmalo a `SECCIONES` en `generar.ts`. Las decisiones se agregan solas.
 - **Diagramas:** son archivos `.svg` en `docs/diagramas/`, enlazados desde el Markdown como imagen en su propia línea (`![…](diagramas/x.svg)`). GitHub los muestra como imagen y `/docs` los incrusta. Traen sus colores de claro y oscuro y siguen el tema elegido. Se hacen con la skill [diagram-design](https://github.com/cathrynlavery/diagram-design) y el perfil `kratos` (ver `.diagram-design` y la [decisión 0017](decisiones/0017-diagramas-diagram-design.md)).
 
