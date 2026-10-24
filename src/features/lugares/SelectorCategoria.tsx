@@ -1,7 +1,6 @@
 import { useCategorias } from '../categorias/api'
 import { COLOR_SIN_CATEGORIA } from '../categorias/colores'
 import { IconoCategoria } from '../categorias/IconoCategoria'
-import './SelectorCategoria.css'
 
 interface SelectorCategoriaProps {
   valor: string | null
@@ -12,18 +11,18 @@ interface SelectorCategoriaProps {
 export function SelectorCategoria({ valor, onCambiar }: SelectorCategoriaProps) {
   const { data: categorias, isPending } = useCategorias()
 
-  if (isPending) return <p className="selector-categoria-nota">Cargando categorías…</p>
+  if (isPending) return <p className="chips-nota">Cargando categorías…</p>
 
   const opciones = [{ id: null, nombre: 'Sin categoría', color: COLOR_SIN_CATEGORIA, icono: null }, ...(categorias ?? [])]
 
   return (
     <>
-      <div className="selector-categoria">
+      <div className="chips">
         {opciones.map((categoria) => (
           <button
             key={categoria.id ?? 'ninguna'}
             type="button"
-            className="selector-categoria-opcion"
+            className="chip"
             aria-pressed={valor === categoria.id}
             onClick={() => onCambiar(categoria.id)}
           >
@@ -33,7 +32,7 @@ export function SelectorCategoria({ valor, onCambiar }: SelectorCategoriaProps) 
         ))}
       </div>
       {categorias?.length === 0 && (
-        <p className="selector-categoria-nota">Aún no hay categorías. Puedes crearlas desde el menú, en Categorías.</p>
+        <p className="chips-nota">Aún no hay categorías. Puedes crearlas desde el menú, en Categorías.</p>
       )}
     </>
   )
