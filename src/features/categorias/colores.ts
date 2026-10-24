@@ -19,6 +19,9 @@ export const COLORES_CATEGORIA = [
 
 export const COLOR_POR_DEFECTO = COLORES_CATEGORIA[0].valor
 
+/** Lugares sin categoría: círculo blanco (con borde gris en el mapa), distinto de cualquier color de la paleta. */
+export const COLOR_SIN_CATEGORIA = '#FFFFFF'
+
 export function nombreDelColor(valor: string) {
   return COLORES_CATEGORIA.find((color) => color.valor.toLowerCase() === valor.toLowerCase())?.nombre ?? 'Personalizado'
 }
