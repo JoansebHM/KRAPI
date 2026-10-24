@@ -2,6 +2,8 @@
 
 Geovisor del barrio Manila (El Poblado, Medellín) para registrar ubicaciones, estudios y evidencias de campo.
 
+> **Documentación completa:** [`docs/`](docs/README.md) (producto, modelo de datos, arquitectura, diseño y decisiones). Para asistentes de código: [`CLAUDE.md`](CLAUDE.md).
+
 ## Stack
 
 - React + TypeScript + Vite
