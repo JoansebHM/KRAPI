@@ -74,9 +74,10 @@ Antes de pedir revisión:
 ```bash
 npm run lint
 npm run build
+npm run test:e2e
 ```
 
-Ambos deben terminar sin errores.
+Los tres deben terminar sin errores. Si el cambio agrega o modifica una funcionalidad, agrega o actualiza sus pruebas en `e2e/`.
 
 ## Labels
 

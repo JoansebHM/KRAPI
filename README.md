@@ -31,6 +31,17 @@ Colores y tipografía siguen el Manual de marca Kratos 2026 (identidad Kratos In
 - **Poppins** (texto) se carga desde Google Fonts.
 - **Good Times** (nombre de la app) se usa si está instalada en el dispositivo; si no, se muestra Poppins Black. Para que todos la vean, agrega el archivo web en `public/fonts/good-times.woff2` (revisa que la licencia permita uso web) y añade `url('/fonts/good-times.woff2') format('woff2')` al `@font-face` de `theme.css`.
 
+## Pruebas
+
+Las pruebas de punta a punta (`e2e/`) usan [Playwright](https://playwright.dev) y corren en tamaño de celular contra un **Supabase simulado** en memoria (`e2e/soporte/supabase-falso.ts`) y un mapa base vacío. No tocan datos reales ni necesitan internet.
+
+```bash
+npx playwright install chromium   # solo la primera vez
+npm run test:e2e
+```
+
+Si una prueba falla, `npx playwright show-report` muestra el paso exacto con captura y traza. Cada funcionalidad nueva debe venir con sus pruebas.
+
 ## Navegación
 
 - El mapa siempre está de fondo. Las secciones (Categorías, Responsables…) se abren encima desde el menú ☰: en celular ocupan la pantalla y en computador son un panel lateral.
@@ -115,7 +126,9 @@ Reglas principales:
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` | Revisa tipos y genera la versión de producción en `dist/` |
 | `npm run preview` | Sirve la versión de producción localmente |
-| `npm run lint` | Revisa el código con oxlint |
+| `npm run lint` | Revisa el código con oxlint (falla también con advertencias) |
+| `npm run test:e2e` | Corre las pruebas de punta a punta en un navegador |
+| `npm run test:e2e:ui` | Abre las pruebas en la interfaz de Playwright para verlas paso a paso |
 | `npm run db:link` | Enlaza la CLI con el proyecto de Supabase |
 | `npm run db:new <nombre>` | Crea una migración nueva |
 | `npm run db:push` | Aplica las migraciones pendientes |
@@ -139,6 +152,8 @@ src/
   lib/          # Supabase, caché de datos, notificaciones y utilidades
   types/        # Tipos generados del esquema de la base de datos
   styles/       # Tema (colores, tipografía, espaciado)
+e2e/            # Pruebas de punta a punta (Playwright)
+  soporte/      # Supabase simulado y utilidades de las pruebas
 supabase/
   config.toml   # Configuración del proyecto de Supabase
   migrations/   # Esquema de la base de datos, en orden
