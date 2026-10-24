@@ -13,7 +13,9 @@
     "db:push": "supabase db push",
     "db:types": "mkdir -p src/types && supabase gen types typescript --linked --schema public > src/types/database.ts",
     "db:config": "supabase config push",
-    "usuario:crear": "node --env-file=.env.local scripts/crear-usuario-compartido.mjs"
+    "usuario:crear": "node --env-file=.env.local scripts/crear-usuario-compartido.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@dicebear/core": "^9.4.3",
@@ -28,6 +30,7 @@
     "sonner": "^2.0.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
