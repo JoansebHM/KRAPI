@@ -1,5 +1,5 @@
 /*
- * Genera la documentación navegable de KRAPI (/docs) a partir de los .md del repositorio.
+ * Genera la documentación navegable de KIRA (/docs) a partir de los .md del repositorio.
  * El resultado es un solo HTML sin dependencias externas, que funciona sin internet.
  *
  *   npm run docs     escribe dist/docs/index.html
@@ -42,7 +42,7 @@ const SECCIONES: Seccion[] = [
     id: 'producto',
     titulo: 'Producto',
     grupo: 'El proyecto',
-    resumen: 'Para qué existe KRAPI, quién la usa, conceptos y cómo se usa en campo.',
+    resumen: 'Para qué existe KIRA, quién la usa, conceptos y cómo se usa en campo.',
   },
   {
     archivo: 'docs/modelo-de-datos.md',
@@ -171,7 +171,7 @@ function articulo(pagina: Pagina, paginas: Pagina[], indice: number): string {
   if (pagina.id === 'inicio') {
     // El inicio se presenta con una portada y tarjetas en lugar del título del .md.
     cuerpo = cuerpo.replace(/<h1>.*?<\/h1>/, '')
-    cuerpo = `<header class="portada"><p class="antetitulo">Kratos Innovation Lab · EAFIT</p><h1>Documentación de KRAPI</h1><p>Geovisor del barrio Manila (El Poblado, Medellín) para registrar los lugares visitados en el estudio de proximidad y el histórico de visitas de cada uno.</p></header>${tarjetasInicio(paginas)}${cuerpo}`
+    cuerpo = `<header class="portada"><p class="antetitulo">Kratos Innovation Lab · EAFIT</p><h1>Documentación de KIRA</h1><p>Geovisor del barrio Manila (El Poblado, Medellín) para registrar los lugares visitados en el estudio de proximidad y el histórico de visitas de cada uno.</p></header>${tarjetasInicio(paginas)}${cuerpo}`
   } else {
     cuerpo = cuerpo.replace(/<h1>/, `<p class="antetitulo">${escapar(pagina.grupo)}</p><h1>`)
   }

@@ -145,7 +145,7 @@ max_catalogs = 2
 # [storage.analytics.buckets.my-warehouse]
 
 # Store vector embeddings in S3 for large and durable datasets
-# Desactivado: los vector buckets solo existen en el plan de pago y KRAPI no los usa.
+# Desactivado: los vector buckets solo existen en el plan de pago y KIRA no los usa.
 [storage.vector]
 enabled = false
 max_buckets = 10
@@ -175,7 +175,7 @@ enable_refresh_token_rotation = true
 # Requires enable_refresh_token_rotation = true.
 refresh_token_reuse_interval = 10
 # Allow/disallow new user signups to your project.
-# KRAPI usa un solo usuario compartido creado por un administrador: nadie puede registrarse.
+# KIRA usa un solo usuario compartido creado por un administrador: nadie puede registrarse.
 # Este es el valor que bloquea los registros (no el de [auth.email]).
 enable_signup = false
 # Allow/disallow anonymous sign-ins to your project.

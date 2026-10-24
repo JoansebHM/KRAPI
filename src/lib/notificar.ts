@@ -1,7 +1,7 @@
 import { toast } from 'sonner'
 
 /**
- * Única forma de mostrar notificaciones en KRAPI. Así todas se ven y se comportan igual.
+ * Única forma de mostrar notificaciones en KIRA. Así todas se ven y se comportan igual.
  *
  *   notificar.exito('Categoría creada')
  *   notificar.error('No se pudo guardar', { descripcion: 'Revisa tu conexión.' })

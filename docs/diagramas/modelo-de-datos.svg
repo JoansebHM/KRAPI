@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 776 648" width="776" height="648" role="img" aria-labelledby="modelo-de-datos-title modelo-de-datos-desc">
-  <title id="modelo-de-datos-title">Modelo de datos de KRAPI</title>
+  <title id="modelo-de-datos-title">Modelo de datos de KIRA</title>
   <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional y acumula estudios; cada estudio tiene responsables y evidencias, y los archivos de las evidencias se guardan en el bucket privado.</desc>
   <defs>
     <style>

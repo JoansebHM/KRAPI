@@ -1,4 +1,4 @@
-# Cómo trabajar en KRAPI
+# Cómo trabajar en KIRA
 
 Esta guía explica cómo se organiza el trabajo en el repositorio. La idea es que cualquier persona de Kratos pueda entender qué se hizo, cuándo y por qué, y que pueda aportar sin romper nada.
 

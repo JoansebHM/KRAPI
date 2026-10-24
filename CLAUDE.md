@@ -1,6 +1,6 @@
-# KRAPI · Guía para asistentes de código
+# KIRA · Guía para asistentes de código
 
-Geovisor del barrio **Manila** (El Poblado, Medellín) para el equipo de **Kratos Innovation Lab** (EAFIT). Registra en un mapa los lugares visitados durante el estudio de proximidad y el histórico de visitas (entrevistas, fotos, audios, informes) de cada uno.
+Geovisor **KIRA** del barrio **Manila** (El Poblado, Medellín) para el equipo de **Kratos Innovation Lab** (EAFIT). Registra en un mapa los lugares visitados durante el estudio de proximidad y el histórico de visitas (entrevistas, fotos, audios, informes) de cada uno.
 
 Este archivo es el punto de entrada. **La fuente de verdad está en el repositorio:**
 

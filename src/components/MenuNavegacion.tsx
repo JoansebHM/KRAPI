@@ -37,7 +37,7 @@ export function MenuNavegacion({ abierto, onCerrar }: MenuNavegacionProps) {
       <div className={`menu-fondo${abierto ? ' menu-fondo-visible' : ''}`} onClick={onCerrar} aria-hidden="true" />
       <nav className={`menu${abierto ? ' menu-abierto' : ''}`} aria-label="Secciones" aria-hidden={!abierto} inert={!abierto}>
         <div className="menu-marca">
-          <span className="menu-marca-nombre">KRAPI</span>
+          <span className="menu-marca-nombre">KIRA</span>
           <PoweredBy />
         </div>
         <ul className="menu-lista">

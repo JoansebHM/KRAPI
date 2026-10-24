@@ -1,12 +1,12 @@
 /**
- * Crea (o actualiza) el usuario compartido con el que el equipo de Kratos inicia sesión en KRAPI.
+ * Crea (o actualiza) el usuario compartido con el que el equipo de Kratos inicia sesión en KIRA.
  *
  * Uso:  npm run usuario:crear
  *
  * Lee de .env.local:
  *   VITE_SUPABASE_URL      URL del proyecto (https://<id>.supabase.co)
  *   SUPABASE_SECRET_KEY    Clave secreta (Project Settings → API Keys). NUNCA con prefijo VITE_.
- *   KRAPI_USUARIO_EMAIL    Correo del usuario compartido
+ *   KIRA_USUARIO_EMAIL     Correo del usuario compartido
  *
  * La contraseña se pide al correr el script y no se guarda en ningún archivo.
  */
@@ -17,12 +17,12 @@ const MIN_PASSWORD = 10
 
 const url = env.VITE_SUPABASE_URL?.replace(/\/$/, '')
 const secretKey = env.SUPABASE_SECRET_KEY
-const email = env.KRAPI_USUARIO_EMAIL
+const email = env.KIRA_USUARIO_EMAIL ?? env.KRAPI_USUARIO_EMAIL
 
 const faltantes = [
   ['VITE_SUPABASE_URL', url],
   ['SUPABASE_SECRET_KEY', secretKey],
-  ['KRAPI_USUARIO_EMAIL', email],
+  ['KIRA_USUARIO_EMAIL', email],
 ].filter(([, valor]) => !valor)
 
 if (faltantes.length > 0) {
@@ -97,7 +97,7 @@ async function admin(path, method, body) {
 
 const creado = await admin('/users', 'POST', { email, password, email_confirm: true })
 if (creado.ok) {
-  console.log(`Usuario ${email} creado. Ya puede iniciar sesión en KRAPI.`)
+  console.log(`Usuario ${email} creado. Ya puede iniciar sesión en KIRA.`)
   exit(0)
 }
 

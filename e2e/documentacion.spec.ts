@@ -3,7 +3,7 @@ import { expect, test } from './soporte/fixtures'
 test.describe('Documentación (/docs)', () => {
   test('se abre sin iniciar sesión y muestra el inicio con sus secciones', async ({ page }) => {
     await page.goto('/docs')
-    await expect(page.getByRole('heading', { level: 1, name: 'Documentación de KRAPI' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'Documentación de KIRA' })).toBeVisible()
     await expect(page.getByRole('link', { name: /Modelo de datos Tablas, reglas/ })).toBeVisible()
   })
 
@@ -16,7 +16,7 @@ test.describe('Documentación (/docs)', () => {
     await expect(page).toHaveURL(/\/docs#\/producto$/)
     await expect(page.getByRole('heading', { level: 1, name: 'Producto' })).toBeVisible()
     await expect(menu.getByRole('link', { name: 'Producto' })).toHaveAttribute('aria-current', 'page')
-    await expect(page).toHaveTitle('Producto · KRAPI')
+    await expect(page).toHaveTitle('Producto · KIRA')
   })
 
   test('el índice de la página lleva a cada sección', async ({ page }) => {
@@ -44,7 +44,7 @@ test.describe('Documentación (/docs)', () => {
 
   test('los diagramas se incrustan como figuras accesibles y se desplazan sin desbordar la página', async ({ page }) => {
     await page.goto('/docs#/modelo-de-datos')
-    await expect(page.locator('#pagina-modelo-de-datos').getByRole('img', { name: 'Modelo de datos de KRAPI' })).toBeVisible()
+    await expect(page.locator('#pagina-modelo-de-datos').getByRole('img', { name: 'Modelo de datos de KIRA' })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 
     await page.goto('/docs#/arquitectura')

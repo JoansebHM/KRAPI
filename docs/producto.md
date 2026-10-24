@@ -1,10 +1,10 @@
 # Producto
 
-## Para qué existe KRAPI
+## Para qué existe KIRA
 
 El equipo de **Kratos Innovation Lab** (EAFIT) está haciendo un **estudio de proximidad** para analizar cómo mejorar la distribución de productos de bebidas en el **barrio Manila** (El Poblado, Medellín). Hoy está en la etapa de **levantamiento de información**: salir a campo, hablar con las personas de los locales y registrar lo que se encuentra.
 
-KRAPI es el geovisor donde queda ese registro: **qué lugares se visitaron, qué se hizo en cada visita y con qué evidencias**, de forma que cualquiera del equipo pueda consultarlo después sobre el mapa.
+KIRA es el geovisor donde queda ese registro: **qué lugares se visitaron, qué se hizo en cada visita y con qué evidencias**, de forma que cualquiera del equipo pueda consultarlo después sobre el mapa.
 
 El foco está en los **locales fijos** (tiendas, cafés, restaurantes…): no en turistas ni en personas de paso.
 
