@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Avatar, semillaAleatoria } from './Avatar'
+import { Avatar } from './Avatar'
+import { semillaAleatoria } from './dibujoAvatar'
 import './SelectorAvatar.css'
 
 const PROPUESTAS = 8
