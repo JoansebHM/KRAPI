@@ -36,10 +36,10 @@ test.describe('Categorías', () => {
   test('si el servidor rechaza un nombre repetido, lo explica y deja corregir', async ({ page, supabase }) => {
     supabase.db.categorias.push({ id: 'c1', nombre: 'Café', color: '#0478FB', icono: null })
     await page.reload()
+    // Otro dispositivo crea "Hotel" después de que esta pantalla cargó la lista.
+    supabase.db.categorias.push({ id: 'c2', nombre: 'Hotel', color: '#0478FB', icono: null })
     await page.getByRole('button', { name: 'Nueva categoría' }).click()
     await page.getByPlaceholder('Ej.: Café, Hotelería, Comercio').fill('Hotel')
-    // Otro dispositivo crea "Hotel" después de abrir el formulario y validar la lista local.
-    supabase.db.categorias.push({ id: 'c2', nombre: 'Hotel', color: '#0478FB', icono: null })
     await page.getByRole('button', { name: 'Crear categoría' }).click()
     await expect(toast(page, 'No se pudo guardar')).toContainText('Ya existe una categoría con ese nombre')
     await expect(page.getByRole('dialog', { name: 'Nueva categoría' })).toBeVisible()
