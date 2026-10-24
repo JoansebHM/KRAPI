@@ -25,8 +25,7 @@ export function InactivityDialog() {
       }
     >
       <p aria-live="polite">
-        La sesión se cerrará en <strong>{avisoInactividadSegundos} s</strong> porque la app no se ha usado en
-        casi 2 horas.
+        La sesión se cerrará en <strong>{avisoInactividadSegundos} s</strong> porque se detectó inactividad.
       </p>
     </Dialog>
   )
