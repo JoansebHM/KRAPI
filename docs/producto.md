@@ -49,11 +49,11 @@ Reglas de negocio:
    - **Elegir archivos**: fotos, audios, PDF, Word o Excel, varios a la vez, hasta 50 MB cada uno.
 
    Cada archivo muestra su avance. Si falla, se explica por qué y se puede reintentar. Las subidas siguen aunque se vuelva al mapa. Una evidencia equivocada se borra de verdad, con confirmación.
-6. En la ficha del lugar está el histórico: los estudios del más reciente al más antiguo, con "Agregar estudio" para una visita nueva. Cada estudio abre su página, donde se edita, se archiva (con "Deshacer") y se le agregan evidencias.
+6. En la ficha del lugar está el histórico: los estudios del más reciente al más antiguo, con "Agregar estudio" para una visita nueva. Al tocar un estudio se abre una presentación con sus datos, un carrusel de fotos y las demás evidencias agrupadas por tipo. Cada grupo muestra su ícono en el título y cada tarjeta tiene un menú para descargar archivos, copiar enlaces o copiar notas. Los enlaces de archivos son temporales y duran una hora. Los audios usan controles compactos propios (reproducir/pausar, avance y tiempos) y se pueden escuchar a velocidad normal, doble o triple; desde el modal también se puede editar con el formulario existente o ir a la página del estudio para agregar evidencias. Todos los modales incluyen una X arriba a la derecha para cerrar cuando el flujo lo permite. El formulario permite archivarlo (con "Deshacer").
 
 Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo el área en m².
 
-> **Ya funcionan** los pasos 2 a 6 para puntos. Faltan las zonas (#15), las notas de texto y los videos por enlace (#19) y ver las evidencias dentro de la app (#20): por ahora cada archivo se abre en otra pestaña. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
+> **Ya funcionan** los pasos 2 a 6 para puntos. Faltan las zonas (#15) y las notas de texto y videos por enlace (#19). Los estudios ya tienen una presentación con carrusel de fotos, reproducción de audio y descarga de documentos; falta completar el visor según el tipo de evidencia (#20). La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
 
 ## Estado
 
@@ -64,7 +64,7 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Administración de categorías (color e ícono) y responsables (avatar).
 - Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas en lila, cerrados atenuados y archivados ocultos. Al tocar uno se abre una ficha básica (nombre, tipo, categoría y estado).
 - Crear puntos desde el mapa: botón "+ Nuevo lugar", mira fija en el centro, "Mi ubicación", bloqueo fuera de Manila, aviso de lugares a menos de 15 m y formulario del lugar.
-- Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con responsables (vienen los del último estudio del celular). La ficha muestra el histórico, y cada estudio tiene su página, donde se edita o se archiva.
+- Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con responsables (vienen del último estudio del celular). La ficha muestra el histórico; al tocar un estudio se abre su presentación con fotos y otras evidencias, y desde ahí se puede editar o agregar evidencias.
 - Evidencias de archivo: tomar fotos (comprimidas antes de subir), grabar audios en la app y subir documentos, con avance, reintento y borrado con confirmación.
 - Esquema completo en Supabase con seguridad (RLS) y bucket privado de evidencias.
 - Pruebas de punta a punta.

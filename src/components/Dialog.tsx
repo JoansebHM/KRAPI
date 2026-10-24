@@ -1,11 +1,13 @@
 import { useEffect, useId, useRef, type FormEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { X } from 'lucide-react'
 import './Dialog.css'
 
 interface DialogProps {
   titulo: string
   children: ReactNode
   acciones: ReactNode
+  clase?: string
   /** Si se pasa, Escape y tocar fuera cierran el diálogo. */
   onCerrar?: () => void
   /** Si se pasa, el diálogo es un formulario y Enter lo envía. */
@@ -17,7 +19,7 @@ interface DialogProps {
  * incluida la barra superior, sin importar desde qué pantalla o panel se abra. Al abrir, enfoca el primer campo del formulario
  * (o el elemento marcado con data-autofocus) y, si no hay, el primer botón de las acciones.
  */
-export function Dialog({ titulo, children, acciones, onCerrar, onSubmit }: DialogProps) {
+export function Dialog({ titulo, children, acciones, clase, onCerrar, onSubmit }: DialogProps) {
   const tituloId = useId()
   const contenedorRef = useRef<HTMLFormElement & HTMLDivElement>(null)
 
@@ -41,9 +43,21 @@ export function Dialog({ titulo, children, acciones, onCerrar, onSubmit }: Dialo
 
   const contenido = (
     <>
-      <h2 id={tituloId} className="dialog-title">
-        {titulo}
-      </h2>
+      <div className="dialog-header">
+        <h2 id={tituloId} className="dialog-title">
+          {titulo}
+        </h2>
+        <button
+          type="button"
+          className="icon-btn dialog-cerrar"
+          aria-label="Cerrar diálogo"
+          title="Cerrar"
+          onClick={onCerrar}
+          disabled={!onCerrar}
+        >
+          <X size={20} aria-hidden="true" />
+        </button>
+      </div>
       <div className="dialog-body">{children}</div>
       <div className="dialog-actions">{acciones}</div>
     </>
@@ -51,7 +65,7 @@ export function Dialog({ titulo, children, acciones, onCerrar, onSubmit }: Dialo
 
   const comunes = {
     ref: contenedorRef,
-    className: 'dialog',
+    className: `dialog${clase ? ` ${clase}` : ''}`,
     role: 'dialog',
     'aria-modal': true,
     'aria-labelledby': tituloId,

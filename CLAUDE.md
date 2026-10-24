@@ -67,7 +67,7 @@ Hecho:
 - Categorías (color e ícono) y responsables (avatares).
 - Lugares en el mapa (puntos con su categoría y zonas) y ficha básica al tocarlos (`/lugares/:id`).
 - Crear puntos con la mira central (`/lugares/nuevo`), con su primer estudio.
-- Estudios: crear, editar y archivar, con responsables; histórico en la ficha y página de cada estudio (`/lugares/:id/estudios/:estudioId`).
+- Estudios: crear, editar y archivar, con responsables; histórico en la ficha. Al tocar un estudio se abre un modal de presentación con carrusel de fotos y otras evidencias; desde allí se edita o se abre su página (`/lugares/:id/estudios/:estudioId`) para agregar evidencia.
 - Evidencias de archivo: fotos (comprimidas), audios grabados en la app y documentos, con avance de subida y borrado.
 - Esquema completo en Supabase.
 - Pruebas de punta a punta.
