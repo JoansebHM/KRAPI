@@ -38,16 +38,16 @@ Reglas de negocio:
 ## Cómo se usa en campo
 
 1. La persona entra con el usuario compartido. La sesión dura hasta 7 días y se cierra tras 2 horas sin uso.
-2. En el mapa toca **"+"** y elige **lugar** o **zona**.
+2. En el mapa toca **"+ Nuevo lugar"**. Cuando existan las zonas (#15), elegirá entre **lugar** o **zona**.
 3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, o con "Mi ubicación".
    - Si el punto queda fuera de Manila, no deja continuar.
-   - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo, para **agregarle el estudio** en vez de duplicarlo.
-4. Llena el lugar, si es nuevo, y el **estudio** en un solo flujo. La fecha y la hora de inicio vienen prellenadas, y los responsables vienen con los del último estudio hecho desde ese celular.
+   - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo. Por ahora se puede abrir su ficha en vez de duplicarlo; con #17 se le podrá **agregar el estudio** ahí mismo.
+4. Llena el lugar (nombre, categoría, dirección, complemento y contacto) y lo guarda. Con #17, en el mismo flujo llenará el **estudio**. La fecha y la hora de inicio vienen prellenadas, y los responsables vienen con los del último estudio hecho desde ese celular.
 5. Agrega las evidencias desde la ficha del lugar.
 
 Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo el área en m².
 
-> Los pasos 2 a 5 están **definidos en las issues #14 a #18** y todavía no están construidos. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
+> **Ya funcionan** los pasos 2 a 4 para puntos, sin el estudio. Falta el estudio (#17), las zonas (#15) y las evidencias (#18). La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
 
 ## Estado
 
@@ -57,6 +57,7 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Notificaciones.
 - Administración de categorías (color e ícono) y responsables (avatar).
 - Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas en lila, cerrados atenuados y archivados ocultos. Al tocar uno se abre una ficha básica (nombre, tipo, categoría y estado).
+- Crear puntos desde el mapa: botón "+ Nuevo lugar", mira fija en el centro, "Mi ubicación", bloqueo fuera de Manila, aviso de lugares a menos de 15 m y formulario del lugar.
 - Esquema completo en Supabase con seguridad (RLS) y bucket privado de evidencias.
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`.
@@ -65,10 +66,9 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 
 | Issue | Qué |
 | --- | --- |
-| #14 | Crear puntos |
-| #15 | Crear zonas |
+| #15 | Crear zonas (y elegir punto o zona en el "+") |
 | #16 | Ficha del lugar completa (datos, histórico, editar y archivar) |
-| #17 | Estudios |
+| #17 | Estudios, también al crear un lugar y al encontrar un duplicado |
 | #18–#20 | Evidencias |
 | #21 | Filtros |
 | #22 | Prueba de SharePoint |

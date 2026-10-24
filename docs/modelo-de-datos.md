@@ -40,7 +40,7 @@ Todas tienen `id uuid` (generado), `created_at` y `updated_at`; el trigger `set_
 | `estado` | `estado_ubicacion` | `activa` (por defecto) o `cerrada` |
 | `archivada_en` | timestamptz | NULL = visible. Con fecha = archivada |
 
-Las zonas no usan categoría, dirección ni contacto. Índices: GiST sobre `geom`, sobre `categoria_id` y uno parcial para lo no archivado.
+Las zonas no usan categoría, dirección ni contacto. Desde la app, la geometría se envía como texto EWKT (`SRID=4326;POINT(-75.574 6.213)`) y se lee en GeoJSON con `lugares_mapa()`. Índices: GiST sobre `geom`, sobre `categoria_id` y uno parcial para lo no archivado.
 
 ### `estudios`: visitas
 

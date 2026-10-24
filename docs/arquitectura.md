@@ -21,13 +21,13 @@
 src/
   app/            Shell: barra superior, rutas, pantalla de configuración incompleta
   components/     Piezas compartidas: Dialog, Panel, MenuNavegacion, Buscador, Estados,
-                  Notificaciones, PoweredBy
+                  FlechaLista, Notificaciones, PoweredBy
   config/         env.ts (variables), session.ts (tiempos de sesión)
   features/       Una carpeta por funcionalidad
     auth/         Login, AuthProvider, política de sesión, menú de la cuenta
     categorias/   CRUD de categorías, colores e íconos
-    lugares/      Lugares en el mapa (marcadores y zonas) y su ficha
-    map/          Mapa, polígono de Manila, estilo nocturno, worker de MapLibre
+    lugares/      Lugares en el mapa (marcadores y zonas), su ficha y crear puntos
+    map/          Mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
     responsables/ CRUD de responsables y avatares
     theme/        Modo claro/oscuro
   lib/            supabase.ts, queryClient.ts, notificar.ts, errores.ts, texto.ts, color.ts
@@ -59,6 +59,8 @@ Una funcionalidad nueva va en su propia carpeta `src/features/<nombre>/`, con:
 
 ![Árbol de componentes: App, Notificaciones, Login, AppConSesion y sus hijos](diagramas/como-se-arma-la-app.svg)
 
+Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para que las pantallas que se abren encima puedan usar el mapa.
+
 ## Patrones a reutilizar
 
 **Datos (`features/<x>/api.ts`)**
@@ -77,17 +79,23 @@ Una funcionalidad nueva va en su propia carpeta `src/features/<nombre>/`, con:
 - `Panel`: cada sección se abre sobre el mapa, con un botón para volver. En celular ocupa todo y desde 900 px es un panel lateral de 440 px. Admite un `pie`, por ejemplo el botón flotante `.fab`.
 - `Dialog`: modal accesible dibujado en `<body>` con portal. Con `onSubmit` se vuelve formulario. Al abrir enfoca el primer campo, el elemento con `data-autofocus` o el primer botón. **Al editar se enfoca el botón**, para que no salte el teclado. En celular sale desde abajo.
 - Si desde un formulario se abre una confirmación, **se cierra el formulario** para que no queden dos diálogos encimados.
+- Dentro del diálogo, los campos van en `.formulario` (`ui.css`). Los opcionales llevan `.field-opcional` en la etiqueta.
+- Si un flujo tiene varios pasos (por ejemplo, ubicar → duplicados → formulario), los datos viven en la pantalla del flujo y no en cada diálogo, para no perderlos al volver atrás.
 - `Buscador`, `EstadoVacio`, `ListaCargando` y `ErrorCarga` para las listas.
 - `normalizar`, `compararTexto` y `plural` (`lib/texto.ts`) para buscar y ordenar en español.
 
 **Mapa**
 - Importa MapLibre desde `features/map/maplibre.ts`: ahí se configura el worker (`setWorkerUrl`), que de otro modo se rompe con Vite.
 - Al cambiar de tema se llama `setStyle` y las capas propias se vuelven a agregar en `style.load`.
+- `MapaProvider` envuelve el mapa y las rutas. Las pantallas que necesitan el mapa (por ejemplo, crear un punto) lo leen con `useMapa()`, y `MapView` lo registra al crearlo.
+- Para saber si una coordenada está en el barrio, usa `dentroDeManila(lng, lat)` (`manila.ts`). La base de datos lo vuelve a validar.
+- Los créditos del mapa van abajo a la izquierda, porque abajo a la derecha está el botón flotante.
 - `MapView` pasa la instancia del mapa a `LugaresEnMapa` (`features/lugares/`), que dibuja:
   - **puntos** como `Marker` de MapLibre con un elemento HTML propio, donde React dibuja `IconoCategoria` con un portal. Así se ven igual que en las listas, tienen área de toque de 44 px y no hay que volver a crearlos al cambiar de tema;
   - **zonas** como capas `fill` y `line` de una fuente GeoJSON, que se vuelven a agregar en `style.load`. Si hay zonas superpuestas, al tocar se abre la más pequeña.
 - Los datos salen de `useLugares()` (función `lugares_mapa()`), y el color y el ícono, de `useCategorias()`. Por eso, al editar una categoría, el mapa se actualiza solo.
-- Tocar un lugar navega a `/lugares/:id` (`FichaLugar`). Ver [decisión 0018](decisiones/0018-lugares-en-el-mapa.md).
+- Tocar un lugar navega a `/lugares/:id` (`FichaLugar`). En `/lugares/nuevo` (`CrearPunto`), los lugares existentes no se pueden tocar.
+- **Crear un punto** (`CrearPunto`): una mira fija sobre el centro del mapa (se actualiza con el evento `move`), "Mi ubicación" con `navigator.geolocation`, `buscarCercanos()` (`ubicaciones_cercanas`, 15 m) y `FormularioPunto`. La geometría se envía como texto EWKT (`SRID=4326;POINT(lng lat)`) y PostGIS la convierte. Ver [decisión 0018](decisiones/0018-lugares-en-el-mapa.md).
 - Sin `VITE_MAP_STYLE_URL_DARK`, el modo oscuro se genera con `toNightStyle` (`nightStyle.ts`) a partir de Liberty, para conservar los nombres de los locales.
 - La navegación está limitada a 1 km alrededor de Manila (`MANILA_MAX_BOUNDS`).
 

@@ -66,16 +66,16 @@ Hecho:
 - Notificaciones, menú lateral y paneles.
 - Categorías (color e ícono) y responsables (avatares).
 - Lugares en el mapa (puntos con su categoría y zonas) y ficha básica al tocarlos (`/lugares/:id`).
+- Crear puntos con la mira central (`/lugares/nuevo`), sin el estudio.
 - Esquema completo en Supabase.
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`, con diagramas hechos con diagram-design.
 
 Siguiente (en orden):
-1. **#14** crear puntos (va primero: sin ella no hay forma de cargar lugares)
-2. **#17** estudios
-3. **#16** ficha del lugar (completar la ficha básica)
-4. **#15** zonas
-5. **#18–#20** evidencias
-6. **#21** filtros
+1. **#17** estudios (incluye el paso del estudio al crear un punto y "agregar estudio" al duplicado)
+2. **#16** ficha del lugar (completar la ficha básica)
+3. **#15** zonas (incluye elegir punto o zona en el "+")
+4. **#18–#20** evidencias
+5. **#21** filtros
 
 Ver el milestone MVP en GitHub.
