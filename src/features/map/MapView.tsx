@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { GeolocateControl, Map as MapLibreMap, NavigationControl } from './maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { env } from '../../config/env'
+import { LugaresEnMapa } from '../lugares/LugaresEnMapa'
 import type { Theme } from '../theme/useTheme'
 import { MANILA, MANILA_BOUNDS, MANILA_MAX_BOUNDS } from './manila'
 import { toNightStyle } from './nightStyle'
@@ -21,6 +22,8 @@ interface MapViewProps {
 export function MapView({ theme }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
+  // También como estado, para dibujar los lugares cuando el mapa ya existe.
+  const [mapa, setMapa] = useState<MapLibreMap | null>(null)
   const themeRef = useRef(theme)
   const appliedThemeRef = useRef<Theme | null>(null)
 
@@ -53,9 +56,11 @@ export function MapView({ theme }: MapViewProps) {
     appliedThemeRef.current = themeRef.current
 
     mapRef.current = map
+    setMapa(map)
     return () => {
       map.remove()
       mapRef.current = null
+      setMapa(null)
     }
   }, [])
 
@@ -69,7 +74,12 @@ export function MapView({ theme }: MapViewProps) {
     setBaseStyle(map, theme)
   }, [theme])
 
-  return <div ref={containerRef} className="map-view" />
+  return (
+    <>
+      <div ref={containerRef} className="map-view" />
+      {mapa && <LugaresEnMapa mapa={mapa} theme={theme} />}
+    </>
+  )
 }
 
 /** Carga el mapa base del tema. Sin estilo oscuro configurado, genera uno nocturno a partir del claro. */

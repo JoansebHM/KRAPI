@@ -56,6 +56,7 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Login con usuario compartido y política de sesión.
 - Notificaciones.
 - Administración de categorías (color e ícono) y responsables (avatar).
+- Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas en lila, cerrados atenuados y archivados ocultos. Al tocar uno se abre una ficha básica (nombre, tipo, categoría y estado).
 - Esquema completo en Supabase con seguridad (RLS) y bucket privado de evidencias.
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`.
@@ -64,10 +65,9 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 
 | Issue | Qué |
 | --- | --- |
-| #13 | Lugares en el mapa |
 | #14 | Crear puntos |
 | #15 | Crear zonas |
-| #16 | Ficha del lugar |
+| #16 | Ficha del lugar completa (datos, histórico, editar y archivar) |
 | #17 | Estudios |
 | #18–#20 | Evidencias |
 | #21 | Filtros |

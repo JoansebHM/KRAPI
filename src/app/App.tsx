@@ -9,6 +9,7 @@ import { LoginPage } from '../features/auth/LoginPage'
 import { UserMenu } from '../features/auth/UserMenu'
 import { useAuth } from '../features/auth/useAuth'
 import { CategoriasPage } from '../features/categorias/CategoriasPage'
+import { FichaLugar } from '../features/lugares/FichaLugar'
 import { MapView } from '../features/map/MapView'
 import { ResponsablesPage } from '../features/responsables/ResponsablesPage'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
@@ -63,6 +64,7 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
           <Route path="/" element={null} />
           <Route path="/categorias" element={<CategoriasPage />} />
           <Route path="/responsables" element={<ResponsablesPage />} />
+          <Route path="/lugares/:id" element={<FichaLugar />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
