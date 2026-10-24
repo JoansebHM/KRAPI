@@ -2,7 +2,7 @@
 
 Geovisor del barrio Manila (El Poblado, Medellín) para registrar ubicaciones, estudios y evidencias de campo.
 
-> **Documentación completa:** [`docs/`](docs/README.md) (producto, modelo de datos, arquitectura, diseño y decisiones). Para asistentes de código: [`CLAUDE.md`](CLAUDE.md).
+> **Documentación completa:** [`docs/`](docs/README.md) (producto, modelo de datos, arquitectura, diseño y decisiones). Para asistentes de código: [`CLAUDE.md`](CLAUDE.md). Con la app corriendo, toda la documentación se puede leer en **`/docs`** (por ejemplo http://localhost:5173/docs).
 
 ## Stack
 
@@ -48,7 +48,7 @@ Si una prueba falla, `npx playwright show-report` muestra el paso exacto con cap
 
 - El mapa siempre está de fondo. Las secciones (Categorías, Responsables…) se abren encima desde el menú ☰: en celular ocupan la pantalla y en computador son un panel lateral.
 - Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera.
-- Al desplegar (#24) el hosting debe redirigir todas las rutas a `index.html`.
+- Al desplegar (#24) el hosting debe redirigir todas las rutas a `index.html`, excepto `/docs`, que es un archivo propio (`dist/docs/index.html`).
 
 ## Íconos de categorías
 
@@ -128,6 +128,7 @@ Reglas principales:
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` | Revisa tipos y genera la versión de producción en `dist/` |
 | `npm run preview` | Sirve la versión de producción localmente |
+| `npm run docs` | Genera la documentación navegable en `dist/docs/index.html` (un solo archivo que funciona sin internet) |
 | `npm run lint` | Revisa el código con oxlint (falla también con advertencias) |
 | `npm run test:e2e` | Corre las pruebas de punta a punta en un navegador |
 | `npm run test:e2e:ui` | Abre las pruebas en la interfaz de Playwright para verlas paso a paso |
@@ -156,6 +157,8 @@ src/
   styles/       # Tema (colores, tipografía, espaciado)
 e2e/            # Pruebas de punta a punta (Playwright)
   soporte/      # Supabase simulado y utilidades de las pruebas
+scripts/
+  docs/         # Generador de la documentación navegable (/docs)
 supabase/
   config.toml   # Configuración del proyecto de Supabase
   migrations/   # Esquema de la base de datos, en orden
