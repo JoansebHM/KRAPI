@@ -38,3 +38,18 @@ function expandBounds(
 
 /** Límite de navegación: la caja del barrio más 1 km a cada lado. */
 export const MANILA_MAX_BOUNDS = expandBounds(MANILA_BOUNDS, MANILA_BUFFER_METERS)
+
+/**
+ * true si la coordenada está dentro del barrio. Es el aviso de la app; la regla
+ * ubicaciones_dentro_de_manila de la base de datos es el respaldo (justo sobre el borde pueden diferir).
+ */
+export function dentroDeManila(lng: number, lat: number) {
+  const anillo = MANILA.geometry.coordinates[0]
+  let dentro = false
+  for (let i = 0, j = anillo.length - 1; i < anillo.length; j = i++) {
+    const [xi, yi] = anillo[i]
+    const [xj, yj] = anillo[j]
+    if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) dentro = !dentro
+  }
+  return dentro
+}

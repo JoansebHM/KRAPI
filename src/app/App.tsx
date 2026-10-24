@@ -9,7 +9,10 @@ import { LoginPage } from '../features/auth/LoginPage'
 import { UserMenu } from '../features/auth/UserMenu'
 import { useAuth } from '../features/auth/useAuth'
 import { CategoriasPage } from '../features/categorias/CategoriasPage'
+import { BotonNuevoLugar } from '../features/lugares/BotonNuevoLugar'
+import { CrearPunto } from '../features/lugares/CrearPunto'
 import { FichaLugar } from '../features/lugares/FichaLugar'
+import { MapaProvider } from '../features/map/MapaProvider'
 import { MapView } from '../features/map/MapView'
 import { ResponsablesPage } from '../features/responsables/ResponsablesPage'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
@@ -58,15 +61,18 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
         </div>
       </header>
       <main className="app-main">
-        {/* El mapa siempre está montado; las secciones se abren encima. */}
-        <MapView theme={theme} />
-        <Routes>
-          <Route path="/" element={null} />
-          <Route path="/categorias" element={<CategoriasPage />} />
-          <Route path="/responsables" element={<ResponsablesPage />} />
-          <Route path="/lugares/:id" element={<FichaLugar />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <MapaProvider>
+          {/* El mapa siempre está montado; las secciones se abren encima. */}
+          <MapView theme={theme} />
+          <Routes>
+            <Route path="/" element={<BotonNuevoLugar />} />
+            <Route path="/categorias" element={<CategoriasPage />} />
+            <Route path="/responsables" element={<ResponsablesPage />} />
+            <Route path="/lugares/nuevo" element={<CrearPunto />} />
+            <Route path="/lugares/:id" element={<FichaLugar />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </MapaProvider>
       </main>
       <MenuNavegacion abierto={menuAbierto} onCerrar={cerrarMenu} />
       <InactivityDialog />

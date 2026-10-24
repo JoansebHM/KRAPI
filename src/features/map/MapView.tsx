@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
-import { GeolocateControl, Map as MapLibreMap, NavigationControl } from './maplibre'
+import { useContext, useEffect, useRef } from 'react'
+import { AttributionControl, GeolocateControl, Map as MapLibreMap, NavigationControl } from './maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { env } from '../../config/env'
 import { LugaresEnMapa } from '../lugares/LugaresEnMapa'
 import type { Theme } from '../theme/useTheme'
 import { MANILA, MANILA_BOUNDS, MANILA_MAX_BOUNDS } from './manila'
+import { MapaContexto } from './mapaContexto'
 import { toNightStyle } from './nightStyle'
 import './MapView.css'
 
@@ -22,8 +23,8 @@ interface MapViewProps {
 export function MapView({ theme }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
-  // También como estado, para dibujar los lugares cuando el mapa ya existe.
-  const [mapa, setMapa] = useState<MapLibreMap | null>(null)
+  // Se comparte con las pantallas que se abren encima (MapaProvider) y se usa para dibujar los lugares.
+  const { mapa, registrar } = useContext(MapaContexto)
   const themeRef = useRef(theme)
   const appliedThemeRef = useRef<Theme | null>(null)
 
@@ -37,9 +38,11 @@ export function MapView({ theme }: MapViewProps) {
       fitBoundsOptions: { padding: BOUNDS_PADDING },
       // No deja mover ni alejar el mapa más allá de 1 km alrededor del barrio.
       maxBounds: MANILA_MAX_BOUNDS,
-      attributionControl: { compact: true },
+      attributionControl: false,
     })
 
+    // Créditos abajo a la izquierda: abajo a la derecha va el botón flotante de crear.
+    map.addControl(new AttributionControl({ compact: true }), 'bottom-left')
     map.addControl(new NavigationControl({ visualizePitch: false }), 'top-right')
     map.addControl(
       new GeolocateControl({
@@ -56,13 +59,13 @@ export function MapView({ theme }: MapViewProps) {
     appliedThemeRef.current = themeRef.current
 
     mapRef.current = map
-    setMapa(map)
+    registrar(map)
     return () => {
       map.remove()
       mapRef.current = null
-      setMapa(null)
+      registrar(null)
     }
-  }, [])
+  }, [registrar])
 
   // Cambiar el mapa base cuando cambia el tema.
   useEffect(() => {
