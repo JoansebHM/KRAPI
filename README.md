@@ -47,7 +47,7 @@ Si una prueba falla, `npx playwright show-report` muestra el paso exacto con cap
 ## Navegación
 
 - El mapa siempre está de fondo. Las secciones (Categorías, Responsables…) se abren encima desde el menú ☰: en celular ocupan la pantalla y en computador son un panel lateral.
-- Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera.
+- Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera. Al tocar un lugar del mapa se abre su ficha en `/lugares/<id>`.
 - Al desplegar (#24) el hosting debe redirigir todas las rutas a `index.html`, excepto `/docs`, que es un archivo propio (`dist/docs/index.html`).
 
 ## Íconos de categorías
@@ -150,6 +150,7 @@ src/
     auth/       # Inicio de sesión, política de sesión y menú de la cuenta
     categorias/ # Administración de categorías
     responsables/ # Administración de responsables
+    lugares/    # Lugares en el mapa y su ficha
     map/        # Mapa base y límite del barrio
     theme/      # Modo claro y oscuro
   lib/          # Supabase, caché de datos, notificaciones y utilidades

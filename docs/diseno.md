@@ -60,6 +60,13 @@ Se usa en la calle, con una mano y con sol:
 | `notificar.*` | Toasts de Sonner arriba al centro, con botón de cerrar de 40 px y colores de marca |
 | `Avatar` | Avatar dibujado (DiceBear Croodles, a lápiz) de un responsable |
 | `IconoCategoria` | Ícono de Lucide sobre el color de la categoría |
+| `.marcador-lugar` | Punto en el mapa: `IconoCategoria` de 32 px con borde blanco y sombra (se ve sobre el mapa claro y el oscuro) dentro de un botón de 44 px. `.marcador-sin-categoria` (círculo blanco con borde gris), `.marcador-cerrado` (atenuado) y `.marcador-seleccionado` (más grande, con anillo azul eléctrico) |
+
+## Mapa
+
+- **Límite de Manila:** línea azul punteada con relleno muy suave.
+- **Zonas:** en **lila** (relleno semitransparente y borde morado; lila claro en oscuro), para no confundirlas con el límite azul. Las cerradas van más tenues y la seleccionada lleva un borde más grueso.
+- **Puntos:** el color y el ícono de su categoría. **Sin categoría:** círculo blanco con borde gris, distinto de todos los colores de la paleta (incluido el gris). **Cerrados:** atenuados. **Archivados:** no se muestran.
 
 ## Accesibilidad
 

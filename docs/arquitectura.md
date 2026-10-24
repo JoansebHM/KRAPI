@@ -8,7 +8,7 @@
 | **MapLibre GL 6** | El mapa. Mapa base provisional: OpenFreeMap (gratis, sin clave) |
 | **Supabase** (`@supabase/supabase-js`) | Base de datos PostgreSQL + PostGIS, autenticación y archivos |
 | **TanStack Query** | Caché de datos: consultas, recargas y actualización después de guardar |
-| **React Router** | Una dirección por sección (`/categorias`), así el "atrás" del celular funciona |
+| **React Router** | Una dirección por sección (`/categorias`, `/lugares/:id`), así el "atrás" del celular funciona |
 | **Sonner** | Notificaciones (toasts) |
 | **Lucide** | Íconos de categorías e interfaz |
 | **DiceBear (Croodles)** | Avatares dibujados de los responsables |
@@ -26,6 +26,7 @@ src/
   features/       Una carpeta por funcionalidad
     auth/         Login, AuthProvider, política de sesión, menú de la cuenta
     categorias/   CRUD de categorías, colores e íconos
+    lugares/      Lugares en el mapa (marcadores y zonas) y su ficha
     map/          Mapa, polígono de Manila, estilo nocturno, worker de MapLibre
     responsables/ CRUD de responsables y avatares
     theme/        Modo claro/oscuro
@@ -82,6 +83,11 @@ Una funcionalidad nueva va en su propia carpeta `src/features/<nombre>/`, con:
 **Mapa**
 - Importa MapLibre desde `features/map/maplibre.ts`: ahí se configura el worker (`setWorkerUrl`), que de otro modo se rompe con Vite.
 - Al cambiar de tema se llama `setStyle` y las capas propias se vuelven a agregar en `style.load`.
+- `MapView` pasa la instancia del mapa a `LugaresEnMapa` (`features/lugares/`), que dibuja:
+  - **puntos** como `Marker` de MapLibre con un elemento HTML propio, donde React dibuja `IconoCategoria` con un portal. Así se ven igual que en las listas, tienen área de toque de 44 px y no hay que volver a crearlos al cambiar de tema;
+  - **zonas** como capas `fill` y `line` de una fuente GeoJSON, que se vuelven a agregar en `style.load`. Si hay zonas superpuestas, al tocar se abre la más pequeña.
+- Los datos salen de `useLugares()` (función `lugares_mapa()`), y el color y el ícono, de `useCategorias()`. Por eso, al editar una categoría, el mapa se actualiza solo.
+- Tocar un lugar navega a `/lugares/:id` (`FichaLugar`). Ver [decisión 0018](decisiones/0018-lugares-en-el-mapa.md).
 - Sin `VITE_MAP_STYLE_URL_DARK`, el modo oscuro se genera con `toNightStyle` (`nightStyle.ts`) a partir de Liberty, para conservar los nombres de los locales.
 - La navegación está limitada a 1 km alrededor de Manila (`MANILA_MAX_BOUNDS`).
 

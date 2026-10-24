@@ -65,17 +65,17 @@ Hecho:
 - Login con usuario compartido, sesión de 2 h de inactividad y 7 días máximo, y cierre en todos los dispositivos.
 - Notificaciones, menú lateral y paneles.
 - Categorías (color e ícono) y responsables (avatares).
+- Lugares en el mapa (puntos con su categoría y zonas) y ficha básica al tocarlos (`/lugares/:id`).
 - Esquema completo en Supabase.
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`, con diagramas hechos con diagram-design.
 
 Siguiente (en orden):
-1. **#13** lugares en el mapa
+1. **#14** crear puntos (va primero: sin ella no hay forma de cargar lugares)
 2. **#17** estudios
-3. **#14** crear puntos
-4. **#16** ficha del lugar
-5. **#15** zonas
-6. **#18–#20** evidencias
-7. **#21** filtros
+3. **#16** ficha del lugar (completar la ficha básica)
+4. **#15** zonas
+5. **#18–#20** evidencias
+6. **#21** filtros
 
 Ver el milestone MVP en GitHub.

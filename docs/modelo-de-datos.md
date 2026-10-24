@@ -77,6 +77,7 @@ Reglas: cada evidencia es **exactamente una** de archivo, texto o enlace. Si es 
 | Función | Qué devuelve | Uso |
 | --- | --- | --- |
 | `limite_manila()` | El polígono del barrio (SRID 4326). **Copia** de `src/features/map/manila.ts` | Regla `ubicaciones_dentro_de_manila` |
+| `lugares_mapa()` | Lugares no archivados (`id`, `tipo`, `nombre`, `estado`, `categoria_id`) con su forma en GeoJSON (`geojson`); zonas primero | Dibujar los lugares en el mapa. PostgREST devuelve `geom` en binario (WKB), que el mapa no entiende |
 | `ubicaciones_en_zona(zona_id)` | Puntos no archivados dentro de la zona | Ficha de la zona |
 | `ubicaciones_cercanas(lng, lat, metros = 15)` | Hasta 5 puntos no archivados a menos de N metros, con su distancia | Aviso de posible duplicado al crear un punto |
 
@@ -127,3 +128,4 @@ Se llaman desde la app con `supabase.rpc('nombre', { ... })`. Corren con los per
 | `20261023210000_avatar_responsables` | `responsables.avatar_semilla` |
 | `20261023220000_icono_categorias` | `categorias.icono` |
 | `20261024000000_estado_archivado_entrevistado` | Estado, archivado, entrevistado, `ubicaciones_en_zona`, `ubicaciones_cercanas` |
+| `20261024120000_lugares_mapa` | `lugares_mapa()` |
