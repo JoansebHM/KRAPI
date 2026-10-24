@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { Dialog } from '../../components/Dialog'
-import { mensajeErrorDatos } from '../../lib/errores'
-import { notificar } from '../../lib/notificar'
-import { useCrearPunto, type CamposPunto } from './api'
+import type { CamposPunto } from './api'
 import { SelectorCategoria } from './SelectorCategoria'
 
 const MAX_NOMBRE = 80
@@ -10,17 +8,19 @@ const MAX_NOMBRE = 80
 const TELEFONO_VALIDO = /^\+?[0-9 ()-]{7,20}$/
 
 interface FormularioPuntoProps {
-  posicion: [number, number]
   /** Los datos viven en la pantalla de crear, para no perderlos si se vuelve a ubicar. */
   campos: CamposPunto
   onCambiar: (campos: CamposPunto) => void
   onVolver: () => void
-  onGuardado: (id: string, nombre: string) => void
+  /** Pasa al estudio (el lugar se guarda junto con él). */
+  onSiguiente: () => void
+  /** Guarda solo el lugar, sin estudio. */
+  onSoloGuardar: () => Promise<void>
 }
 
-export function FormularioPunto({ posicion, campos, onCambiar, onVolver, onGuardado }: FormularioPuntoProps) {
-  const crear = useCrearPunto()
+export function FormularioPunto({ campos, onCambiar, onVolver, onSiguiente, onSoloGuardar }: FormularioPuntoProps) {
   const [intentoGuardar, setIntentoGuardar] = useState(false)
+  const [guardando, setGuardando] = useState(false)
 
   const cambiar = (campo: keyof CamposPunto) => (valor: string | null) => onCambiar({ ...campos, [campo]: valor })
 
@@ -31,29 +31,35 @@ export function FormularioPunto({ posicion, campos, onCambiar, onVolver, onGuard
   }
   const hayErrores = Object.values(errores).some(Boolean)
 
-  async function guardar() {
+  /** Revisa los campos y, si están bien, ejecuta la acción elegida. */
+  function siEsValido(accion: () => void) {
     setIntentoGuardar(true)
-    if (hayErrores) return
+    if (!hayErrores) accion()
+  }
+
+  async function soloGuardar() {
+    setGuardando(true)
     try {
-      const [lng, lat] = posicion
-      const id = await crear.mutateAsync({ ...campos, contactoTelefono: telefono, lng, lat })
-      onGuardado(id, campos.nombre.trim())
-    } catch (error) {
-      notificar.error('No se pudo guardar', { descripcion: mensajeErrorDatos(error) })
+      await onSoloGuardar()
+    } finally {
+      setGuardando(false)
     }
   }
 
   return (
     <Dialog
       titulo="Nuevo lugar"
-      onCerrar={crear.isPending ? undefined : onVolver}
-      onSubmit={() => void guardar()}
+      onCerrar={guardando ? undefined : onVolver}
+      onSubmit={() => siEsValido(onSiguiente)}
       acciones={
         <>
-          <button type="submit" className="btn btn-primary btn-block" disabled={crear.isPending}>
-            {crear.isPending ? 'Guardando…' : 'Guardar lugar'}
+          <button type="submit" className="btn btn-primary btn-block" disabled={guardando}>
+            Siguiente: el estudio
           </button>
-          <button type="button" className="btn btn-secondary btn-block" onClick={onVolver} disabled={crear.isPending}>
+          <button type="button" className="btn btn-secondary btn-block" onClick={() => siEsValido(() => void soloGuardar())} disabled={guardando}>
+            {guardando ? 'Guardando…' : 'Solo guardar el lugar'}
+          </button>
+          <button type="button" className="btn-texto" onClick={onVolver} disabled={guardando}>
             Volver a ubicar
           </button>
         </>

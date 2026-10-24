@@ -150,7 +150,8 @@ src/
     auth/       # Inicio de sesión, política de sesión y menú de la cuenta
     categorias/ # Administración de categorías
     responsables/ # Administración de responsables
-    lugares/    # Lugares en el mapa y su ficha
+    estudios/   # Estudios de cada lugar (visitas) y su histórico
+    lugares/    # Lugares en el mapa, su ficha y crear puntos
     map/        # Mapa base y límite del barrio
     theme/      # Modo claro y oscuro
   lib/          # Supabase, caché de datos, notificaciones y utilidades

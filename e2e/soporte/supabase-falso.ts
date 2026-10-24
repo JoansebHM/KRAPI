@@ -11,6 +11,8 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - lugares_mapa() devuelve los lugares no archivados, zonas primero
  * - ubicaciones_cercanas() devuelve hasta 5 puntos no archivados a menos de N metros
  * - el teléfono de contacto debe tener formato de teléfono → 23514
+ * - la hora de fin de un estudio debe ser posterior a la de inicio → 23514
+ * - los estudios traen embebidos sus responsables: estudio_responsables(responsable_id)
  *
  * En `ubicaciones`, `geom` se guarda directamente como GeoJSON (en la base real es PostGIS).
  * Si la app la envía como texto ('SRID=4326;POINT(lng lat)'), se convierte.
@@ -19,13 +21,16 @@ import type { BrowserContext, Route } from '@playwright/test'
 export const USUARIO = { email: 'compartido@kratos.test', password: 'clave-correcta-123' }
 
 type Fila = Record<string, unknown> & { id?: string }
-type Tabla = 'categorias' | 'responsables' | 'ubicaciones' | 'estudio_responsables'
+type Tabla = 'categorias' | 'responsables' | 'ubicaciones' | 'estudios' | 'estudio_responsables'
 
 const MAPA_VACIO = {
   version: 8,
   sources: {},
   layers: [{ id: 'fondo', type: 'background', paint: { 'background-color': '#eef0f3' } }],
 }
+
+/** El token simulado dura un año: así las pruebas pueden fijar el reloj del navegador en otra fecha. */
+const DURACION_TOKEN_S = 365 * 24 * 3600
 
 const normalizar = (texto: string) => texto.trim().replace(/\s+/g, ' ').toLowerCase()
 
@@ -45,7 +50,7 @@ function metrosEntre([lng1, lat1]: number[], [lng2, lat2]: number[]) {
 function jwt() {
   const codificar = (datos: object) => Buffer.from(JSON.stringify(datos)).toString('base64url')
   const ahora = Math.floor(Date.now() / 1000)
-  return `${codificar({ alg: 'HS256', typ: 'JWT' })}.${codificar({ sub: 'u1', exp: ahora + 3600, iat: ahora, role: 'authenticated', session_id: 's1', email: USUARIO.email })}.firma`
+  return `${codificar({ alg: 'HS256', typ: 'JWT' })}.${codificar({ sub: 'u1', exp: ahora + DURACION_TOKEN_S, iat: ahora, role: 'authenticated', session_id: 's1', email: USUARIO.email })}.firma`
 }
 
 const USUARIO_AUTH = {
@@ -59,7 +64,7 @@ const USUARIO_AUTH = {
 }
 
 export class SupabaseFalso {
-  db: Record<Tabla, Fila[]> = { categorias: [], responsables: [], ubicaciones: [], estudio_responsables: [] }
+  db: Record<Tabla, Fila[]> = { categorias: [], responsables: [], ubicaciones: [], estudios: [], estudio_responsables: [] }
   /** Peticiones recibidas, por ejemplo "POST /auth/v1/logout?scope=global". */
   peticiones: string[] = []
 
@@ -92,8 +97,8 @@ export class SupabaseFalso {
         json: {
           access_token: jwt(),
           token_type: 'bearer',
-          expires_in: 3600,
-          expires_at: Math.floor(Date.now() / 1000) + 3600,
+          expires_in: DURACION_TOKEN_S,
+          expires_at: Math.floor(Date.now() / 1000) + DURACION_TOKEN_S,
           refresh_token: 'r1',
           user: USUARIO_AUTH,
         },
@@ -155,6 +160,7 @@ export class SupabaseFalso {
         const creadas: Fila[] = []
         for (const datos of Array.isArray(cuerpo) ? cuerpo : [cuerpo]) {
           if (typeof datos.nombre === 'string' && this.nombreRepetido(tabla, datos.nombre)) return this.duplicado(ruta)
+          if (tabla === 'estudios' && !(String(datos.hora_fin) > String(datos.hora_inicio))) return this.invalido(ruta)
           if (tabla === 'ubicaciones' && datos.contacto_telefono && !/^\+?[0-9 ()-]{7,20}$/.test(datos.contacto_telefono)) return this.invalido(ruta)
           const fila = { id: datos.id ?? crypto.randomUUID(), ...datos, ...(tabla === 'ubicaciones' ? { geom: geometria(datos.geom) } : {}) }
           filas.push(fila)
@@ -165,6 +171,7 @@ export class SupabaseFalso {
       }
       case 'PATCH': {
         const cambios = JSON.parse(peticion.postData() ?? '{}')
+        if (tabla === 'estudios' && cambios.hora_inicio && !(String(cambios.hora_fin) > String(cambios.hora_inicio))) return this.invalido(ruta)
         for (const fila of filas.filter(coincide)) {
           if (typeof cambios.nombre === 'string' && this.nombreRepetido(tabla, cambios.nombre, fila.id)) return this.duplicado(ruta)
           Object.assign(fila, cambios)
@@ -193,7 +200,13 @@ export class SupabaseFalso {
     const resultado: Fila = {}
     for (const campo of select.split(',')) {
       const conteo = campo.match(/^(\w+)\(count\)$/)
+      const embebida = campo.match(/^(\w+)\((\w+)\)$/)
       if (conteo) resultado[conteo[1]] = [{ count: this.contar(tabla, fila) }]
+      else if (tabla === 'estudios' && embebida?.[1] === 'estudio_responsables') {
+        resultado.estudio_responsables = this.db.estudio_responsables
+          .filter((r) => r.estudio_id === fila.id)
+          .map((r) => ({ [embebida[2]]: r[embebida[2]] }))
+      }
       else resultado[campo] = fila[campo] ?? null
     }
     return resultado

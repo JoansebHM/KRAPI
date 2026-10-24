@@ -58,6 +58,8 @@ Se usa en la calle, con una mano y con sol:
 | `.fab` | Botón flotante de crear. Sobre el mapa, `.fab-mapa` ("+ Nuevo lugar") queda por encima de los créditos |
 | `.formulario`, `.field-opcional` | Campos de un formulario, uno debajo del otro; "(opcional)" en gris junto a la etiqueta |
 | `FlechaLista` | Flecha (›) al final de una fila que se puede abrir |
+| `.chips`, `.chip` | Opciones que se marcan tocándolas, con ícono o avatar (categoría del lugar, responsables del estudio). La marcada lleva borde azul y fondo suave |
+| `.solo-lector` | Texto que solo leen los lectores de pantalla (por ejemplo, los nombres detrás de los avatares de un estudio) |
 | `Dialog`, `Panel`, `MenuNavegacion`, `Buscador`, `Estados` | Ver [`arquitectura.md`](arquitectura.md) |
 | `notificar.*` | Toasts de Sonner arriba al centro, con botón de cerrar de 40 px y colores de marca |
 | `Avatar` | Avatar dibujado (DiceBear Croodles, a lápiz) de un responsable |

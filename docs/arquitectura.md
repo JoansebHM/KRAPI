@@ -26,6 +26,7 @@ src/
   features/       Una carpeta por funcionalidad
     auth/         Login, AuthProvider, política de sesión, menú de la cuenta
     categorias/   CRUD de categorías, colores e íconos
+    estudios/     Estudios de un lugar: formulario, selector de responsables e histórico
     lugares/      Lugares en el mapa (marcadores y zonas), su ficha y crear puntos
     map/          Mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
     responsables/ CRUD de responsables y avatares
@@ -68,6 +69,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Clave de caché constante (`CLAVE_CATEGORIAS`). Las mutaciones la invalidan en `onSuccess`.
 - Las listas de catálogos usan `refetchOnMount: 'always'`: muestran la caché al instante y se actualizan en segundo plano.
 - Los conteos se traen embebidos: `select('id, nombre, ubicaciones(count)')`.
+- **Escrituras en varias tablas:** Supabase no ofrece transacciones desde el navegador. Si la segunda escritura falla, se deshace la primera cuando todavía no tiene histórico. Por ejemplo, `useGuardarEstudio` borra el estudio recién creado si no pudo guardar sus responsables. Si la primera ya quedó y es un registro con valor (un lugar), se avisa en vez de borrarlo.
 - **Eliminar con "Deshacer":** antes de borrar se guarda lo necesario para restaurar (el registro y sus relaciones), y la restauración reinserta con el **mismo id**.
 
 **Errores y avisos**
@@ -80,7 +82,9 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - `Dialog`: modal accesible dibujado en `<body>` con portal. Con `onSubmit` se vuelve formulario. Al abrir enfoca el primer campo, el elemento con `data-autofocus` o el primer botón. **Al editar se enfoca el botón**, para que no salte el teclado. En celular sale desde abajo.
 - Si desde un formulario se abre una confirmación, **se cierra el formulario** para que no queden dos diálogos encimados.
 - Dentro del diálogo, los campos van en `.formulario` (`ui.css`). Los opcionales llevan `.field-opcional` en la etiqueta.
-- Si un flujo tiene varios pasos (por ejemplo, ubicar → duplicados → formulario), los datos viven en la pantalla del flujo y no en cada diálogo, para no perderlos al volver atrás.
+- Si un flujo tiene varios pasos (por ejemplo, ubicar → duplicados → lugar → estudio), los datos viven en la pantalla del flujo y no en cada diálogo, para no perderlos al volver atrás. Por eso `FormularioPunto` y `FormularioEstudio` son controlados (`campos` y `onCambiar`).
+- Para elegir uno o varios elementos con ícono o avatar (categoría, responsables) se usan botones `.chip` con `aria-pressed` dentro de `.chips`.
+- **Estudios:** `useCamposEstudioNuevo()` prepara uno nuevo al abrir el formulario: hoy, de ahora a una hora después, y los responsables del último estudio de ese dispositivo (`krapi-ultimos-responsables` en `localStorage`, filtrados a los que todavía existen). Los estudios se archivan (`archivado_en`) con "Deshacer", nunca se borran.
 - `Buscador`, `EstadoVacio`, `ListaCargando` y `ErrorCarga` para las listas.
 - `normalizar`, `compararTexto` y `plural` (`lib/texto.ts`) para buscar y ordenar en español.
 

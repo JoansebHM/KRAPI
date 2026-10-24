@@ -1,17 +1,22 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { ErrorCarga, EstadoVacio, ListaCargando } from '../../components/Estados'
 import { Panel } from '../../components/Panel'
 import { useCategorias } from '../categorias/api'
 import { COLOR_SIN_CATEGORIA } from '../categorias/colores'
 import { IconoCategoria } from '../categorias/IconoCategoria'
+import { useCamposEstudioNuevo, type CamposEstudio } from '../estudios/api'
+import { EstudiosDelLugar } from '../estudios/EstudiosDelLugar'
 import { useLugares } from './api'
 import './FichaLugar.css'
 
-/** Ficha de un lugar, que se abre al tocarlo en el mapa. */
+/** Ficha de un lugar, que se abre al tocarlo en el mapa: sus datos y su histórico de estudios. */
 export function FichaLugar() {
   const { id } = useParams()
   const { data: lugares, isPending, isError, refetch } = useLugares()
   const { data: categorias } = useCategorias()
+  const camposEstudioNuevo = useCamposEstudioNuevo()
+  const [nuevoEstudio, setNuevoEstudio] = useState<CamposEstudio | null>(null)
 
   if (isPending) {
     return (
@@ -52,7 +57,18 @@ export function FichaLugar() {
   const cerrado = lugar.estado === 'cerrada'
 
   return (
-    <Panel titulo={lugar.nombre} subtitulo={esZona ? 'Zona' : (categoria?.nombre ?? 'Sin categoría')}>
+    <Panel
+      titulo={lugar.nombre}
+      subtitulo={esZona ? 'Zona' : (categoria?.nombre ?? 'Sin categoría')}
+      pie={
+        <button type="button" className="fab" onClick={() => setNuevoEstudio(camposEstudioNuevo())}>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Agregar estudio
+        </button>
+      }
+    >
       <dl className="ficha-datos">
         <div>
           <dt>Tipo</dt>
@@ -74,6 +90,8 @@ export function FichaLugar() {
           </dd>
         </div>
       </dl>
+
+      <EstudiosDelLugar ubicacionId={lugar.id} nombreLugar={lugar.nombre} nuevo={nuevoEstudio} onCambiarNuevo={setNuevoEstudio} />
     </Panel>
   )
 }

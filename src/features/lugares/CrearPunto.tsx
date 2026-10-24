@@ -4,17 +4,24 @@ import { Dialog } from '../../components/Dialog'
 import { FlechaLista } from '../../components/FlechaLista'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
+import { useCamposEstudioNuevo, useGuardarEstudio, type CamposEstudio } from '../estudios/api'
+import { FormularioEstudio } from '../estudios/FormularioEstudio'
 import { dentroDeManila } from '../map/manila'
 import { useMapa } from '../map/mapaContexto'
-import { buscarCercanos, PUNTO_VACIO, type CamposPunto, type LugarCercano } from './api'
+import { buscarCercanos, PUNTO_VACIO, useCrearPunto, type CamposPunto, type LugarCercano } from './api'
 import { FormularioPunto } from './FormularioPunto'
 import './CrearPunto.css'
 
-type Paso = { tipo: 'ubicar' } | { tipo: 'duplicados'; cercanos: LugarCercano[] } | { tipo: 'formulario' }
+type Paso =
+  | { tipo: 'ubicar' }
+  | { tipo: 'duplicados' }
+  | { tipo: 'formulario' }
+  /** El estudio va para el lugar nuevo (existente = null) o para un lugar que ya estaba a menos de 15 m. */
+  | { tipo: 'estudio'; existente: LugarCercano | null }
 
 /**
  * Crear un punto: se mueve el mapa bajo una mira fija en el centro, se revisa que no exista
- * otro lugar a menos de 15 m y se llenan sus datos.
+ * otro lugar a menos de 15 m, se llenan sus datos y su primer estudio.
  */
 export function CrearPunto() {
   const mapa = useMapa()
@@ -24,6 +31,11 @@ export function CrearPunto() {
   // La posición queda fija al pasar a los datos, aunque luego se mueva el mapa.
   const [posicion, setPosicion] = useState<[number, number] | null>(null)
   const [campos, setCampos] = useState<CamposPunto>(PUNTO_VACIO)
+  const [cercanos, setCercanos] = useState<LugarCercano[]>([])
+  const [estudio, setEstudio] = useState<CamposEstudio | null>(null)
+  const camposEstudioNuevo = useCamposEstudioNuevo()
+  const crearPunto = useCrearPunto()
+  const guardarEstudio = useGuardarEstudio()
   const [revisando, setRevisando] = useState(false)
   const [localizando, setLocalizando] = useState(false)
 
@@ -67,9 +79,10 @@ export function CrearPunto() {
     const [lng, lat] = centro
     setRevisando(true)
     try {
-      const cercanos = await buscarCercanos(lng, lat)
+      const encontrados = await buscarCercanos(lng, lat)
       setPosicion([lng, lat])
-      setPaso(cercanos.length > 0 ? { tipo: 'duplicados', cercanos } : { tipo: 'formulario' })
+      setCercanos(encontrados)
+      setPaso(encontrados.length > 0 ? { tipo: 'duplicados' } : { tipo: 'formulario' })
     } catch (error) {
       notificar.error('No se pudo revisar la ubicación', { descripcion: mensajeErrorDatos(error) })
     } finally {
@@ -81,11 +94,48 @@ export function CrearPunto() {
     setPaso({ tipo: 'ubicar' })
   }
 
-  function alGuardar(id: string, nombre: string) {
-    notificar.exito('Lugar guardado', {
-      descripcion: `«${nombre}» ya está en el mapa.`,
-      accion: { texto: 'Ver ficha', alHacer: () => navigate(`/lugares/${id}`) },
-    })
+  const verFicha = (id: string) => ({ texto: 'Ver ficha', alHacer: () => navigate(`/lugares/${id}`) })
+
+  /** Abre el estudio con los datos que ya tenía (si se volvió atrás) o con unos nuevos. */
+  function irAlEstudio(existente: LugarCercano | null) {
+    setEstudio((anterior) => anterior ?? camposEstudioNuevo())
+    setPaso({ tipo: 'estudio', existente })
+  }
+
+  async function guardarLugar() {
+    const [lng, lat] = posicion!
+    return crearPunto.mutateAsync({ ...campos, lng, lat })
+  }
+
+  async function soloGuardarLugar() {
+    try {
+      const id = await guardarLugar()
+      notificar.exito('Lugar guardado', { descripcion: `«${campos.nombre.trim()}» ya está en el mapa.`, accion: verFicha(id) })
+      navigate('/')
+    } catch (error) {
+      notificar.error('No se pudo guardar el lugar', { descripcion: mensajeErrorDatos(error) })
+    }
+  }
+
+  async function guardarConEstudio(existente: LugarCercano | null) {
+    if (existente) {
+      await guardarEstudio.mutateAsync({ ...estudio!, ubicacionId: existente.id })
+      notificar.exito('Estudio guardado', { descripcion: `Se agregó al histórico de «${existente.nombre}».`, accion: verFicha(existente.id) })
+      navigate('/')
+      return
+    }
+    // Si falla el lugar, el formulario del estudio muestra el error y queda abierto.
+    const id = await guardarLugar()
+    try {
+      await guardarEstudio.mutateAsync({ ...estudio!, ubicacionId: id })
+      notificar.exito('Lugar y estudio guardados', { descripcion: `«${campos.nombre.trim()}» ya está en el mapa.`, accion: verFicha(id) })
+    } catch (error) {
+      // El lugar ya quedó guardado: no se debe volver a crear. El estudio se agrega desde su ficha.
+      notificar.error('El lugar se guardó, pero el estudio no', {
+        descripcion: `${mensajeErrorDatos(error)} Agrégalo desde la ficha del lugar.`,
+        accion: verFicha(id),
+      })
+    }
     navigate('/')
   }
 
@@ -143,11 +193,11 @@ export function CrearPunto() {
             </>
           }
         >
-          <p className="crear-duplicados-texto">Ya hay lugares registrados a menos de 15 m. Si es el mismo, ábrelo en vez de crearlo otra vez.</p>
+          <p className="crear-duplicados-texto">Ya hay lugares registrados a menos de 15 m. Si es el mismo, tócalo para agregarle el estudio en vez de crearlo otra vez.</p>
           <ul className="lista crear-duplicados">
-            {paso.cercanos.map((cercano) => (
+            {cercanos.map((cercano) => (
               <li key={cercano.id}>
-                <Link to={`/lugares/${cercano.id}`} className="lista-item">
+                <button type="button" className="lista-item" onClick={() => irAlEstudio(cercano)}>
                   <span className="lista-item-textos">
                     <span className="lista-item-titulo">{cercano.nombre}</span>
                     <span className="lista-item-detalle">
@@ -155,7 +205,7 @@ export function CrearPunto() {
                     </span>
                   </span>
                   <FlechaLista />
-                </Link>
+                </button>
               </li>
             ))}
           </ul>
@@ -163,7 +213,35 @@ export function CrearPunto() {
       )}
 
       {paso.tipo === 'formulario' && posicion && (
-        <FormularioPunto posicion={posicion} campos={campos} onCambiar={setCampos} onVolver={volverAUbicar} onGuardado={alGuardar} />
+        <FormularioPunto
+          campos={campos}
+          onCambiar={setCampos}
+          onVolver={volverAUbicar}
+          onSiguiente={() => irAlEstudio(null)}
+          onSoloGuardar={soloGuardarLugar}
+        />
+      )}
+
+      {paso.tipo === 'estudio' && estudio && (
+        <FormularioEstudio
+          titulo="Nuevo estudio"
+          lugar={paso.existente?.nombre ?? campos.nombre.trim()}
+          campos={estudio}
+          onCambiar={setEstudio}
+          onGuardar={() => guardarConEstudio(paso.existente)}
+          textoGuardar={paso.existente ? 'Guardar estudio' : 'Guardar lugar y estudio'}
+          onCerrar={() => setPaso(paso.existente ? { tipo: 'duplicados' } : { tipo: 'formulario' })}
+          otrasAcciones={(guardando) => (
+            <button
+              type="button"
+              className="btn btn-secondary btn-block"
+              onClick={() => setPaso(paso.existente ? { tipo: 'duplicados' } : { tipo: 'formulario' })}
+              disabled={guardando}
+            >
+              {paso.existente ? 'Volver a los lugares cercanos' : 'Volver a los datos del lugar'}
+            </button>
+          )}
+        />
       )}
     </div>
   )

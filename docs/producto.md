@@ -41,13 +41,13 @@ Reglas de negocio:
 2. En el mapa toca **"+ Nuevo lugar"**. Cuando existan las zonas (#15), elegirá entre **lugar** o **zona**.
 3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, o con "Mi ubicación".
    - Si el punto queda fuera de Manila, no deja continuar.
-   - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo. Por ahora se puede abrir su ficha en vez de duplicarlo; con #17 se le podrá **agregar el estudio** ahí mismo.
-4. Llena el lugar (nombre, categoría, dirección, complemento y contacto) y lo guarda. Con #17, en el mismo flujo llenará el **estudio**. La fecha y la hora de inicio vienen prellenadas, y los responsables vienen con los del último estudio hecho desde ese celular.
-5. Agrega las evidencias desde la ficha del lugar.
+   - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo. Si lo es, se toca y se le **agrega el estudio** ahí mismo, sin duplicar el lugar.
+4. Llena el lugar (nombre, categoría, dirección, complemento y contacto) y, en el siguiente paso, el **estudio**. La fecha (hoy) y la hora de inicio (ahora) vienen prellenadas, la de fin una hora después, y los responsables vienen con los del último estudio hecho desde ese celular. También puede elegir "Solo guardar el lugar".
+5. Agrega las evidencias desde la ficha del lugar (#18). En la ficha también está el histórico: los estudios del más reciente al más antiguo, con "Agregar estudio" para una visita nueva. Cada estudio se puede editar o archivar (con "Deshacer").
 
 Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo el área en m².
 
-> **Ya funcionan** los pasos 2 a 4 para puntos, sin el estudio. Falta el estudio (#17), las zonas (#15) y las evidencias (#18). La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
+> **Ya funcionan** los pasos 2 a 4 para puntos, con su estudio, y el histórico en la ficha. Faltan las zonas (#15) y las evidencias (#18). La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
 
 ## Estado
 
@@ -58,6 +58,7 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Administración de categorías (color e ícono) y responsables (avatar).
 - Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas en lila, cerrados atenuados y archivados ocultos. Al tocar uno se abre una ficha básica (nombre, tipo, categoría y estado).
 - Crear puntos desde el mapa: botón "+ Nuevo lugar", mira fija en el centro, "Mi ubicación", bloqueo fuera de Manila, aviso de lugares a menos de 15 m y formulario del lugar.
+- Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con responsables (vienen los del último estudio del celular). La ficha muestra el histórico, y cada estudio se puede editar o archivar.
 - Esquema completo en Supabase con seguridad (RLS) y bucket privado de evidencias.
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`.
@@ -68,7 +69,6 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 | --- | --- |
 | #15 | Crear zonas (y elegir punto o zona en el "+") |
 | #16 | Ficha del lugar completa (datos, histórico, editar y archivar) |
-| #17 | Estudios, también al crear un lugar y al encontrar un duplicado |
 | #18–#20 | Evidencias |
 | #21 | Filtros |
 | #22 | Prueba de SharePoint |

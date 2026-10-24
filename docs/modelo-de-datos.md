@@ -54,6 +54,8 @@ Las zonas no usan categoría, dirección ni contacto. Desde la app, la geometrí
 | `entrevistado` | text | A quién se entrevistó ("Tendero"…), opcional, máximo 120 caracteres |
 | `archivado_en` | timestamptz | NULL = visible |
 
+La app guarda primero el estudio y después sus responsables (`estudio_responsables`). Si la segunda parte falla, borra el estudio recién creado, que todavía no tiene evidencias, para no dejarlo a medias.
+
 ### `estudio_responsables`: quién participó
 
 `(estudio_id, responsable_id)` es la clave primaria. Ambas columnas tienen **ON DELETE CASCADE**: si se borra un responsable, sale de sus estudios.
