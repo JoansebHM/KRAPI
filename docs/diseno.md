@@ -38,7 +38,7 @@ Las **categorías** usan una paleta propia (`src/features/categorias/colores.ts`
 
 Se usa en la calle, con una mano y con sol:
 
-- **Ancho de referencia: 390 px.** Nada se debe desbordar a **320 px**. Desde **900 px** las secciones se abren en un panel lateral de 440 px, sin tapar todo el mapa.
+- **Ancho de referencia: 390 px.** Nada se debe desbordar a **320 px**. Desde **900 px** (computador) el menú queda **fijo a la izquierda**, debajo de la barra (☰ lo oculta o lo muestra, y se recuerda), y las secciones se abren en un **panel de 440 px a la derecha**, sin cerrar el menú. El panel se cierra al tocar el mapa (no al arrastrarlo); tocar un lugar abre su ficha.
 - **Áreas de toque de 44 px o más.** La acción principal de cada pantalla es un **botón flotante** (`.fab`, abajo a la derecha, al alcance del pulgar).
 - **Los diálogos salen desde abajo** en celular y respetan el área segura (`env(safe-area-inset-*)`).
 - **Todos los diálogos tienen una X en la esquina superior derecha**, en una superficie de toque de 44 px. Cierra cuando el flujo lo permite; durante operaciones no interrumpibles se muestra deshabilitada.
