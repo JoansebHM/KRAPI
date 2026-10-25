@@ -123,6 +123,7 @@ KIRA no permite registrarse: hay un solo usuario para todo el equipo, que crea u
 | `estudios` | Cada visita a un lugar: fecha, horas, responsables, a quién se entrevistó, título y notas |
 | `estudio_responsables` | Qué responsables participaron en cada estudio |
 | `evidencias` | Archivos, textos o enlaces de video de cada estudio |
+| `bitacora` | Cada acción sobre los datos, con quién la hizo (solo la leen los admins) |
 
 **Cómo se usa:** un lugar se crea una sola vez y acumula su histórico. Cada vez que alguien vuelve a ese lugar, se le **agrega un estudio nuevo**. Los estudios de zonas y de puntos tienen la misma estructura. La ficha de una zona muestra los locales que caen dentro (calculado por la geometría con `ubicaciones_en_zona`), y al crear un punto se avisa si hay otro a menos de 15 m (`ubicaciones_cercanas`) para no duplicarlo.
 
