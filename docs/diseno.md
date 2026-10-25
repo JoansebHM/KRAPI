@@ -57,6 +57,9 @@ Se usa en la calle, con una mano y con sol:
 | `.field`, `.field-label`, `.field-input`, `.field-error`, `.field-ayuda` | Campos de formulario; el error va debajo del campo y con `aria-invalid`. `.field-ayuda` es la ayuda gris debajo del campo cuando no hay error |
 | `CampoContrasena` | Contraseña con el botón "Mostrar" / "Ocultar" (login, registro) |
 | `PantallaAcceso`, `.login-alterno` | Pantalla centrada con la marca para entrar o registrarse, y el enlace de 44 px para pasar de una a otra |
+| `.pestanas`, `.pestana` | Pestañas en un control segmentado de todo el ancho (botones de 44 px con `role="tab"`), con la cantidad de cada una. Se usan en Usuarios (Pendientes, Activos, Otros) |
+| `.menu-contador` | Cantidad en amarillo neón junto a una sección del menú (cuentas por aprobar) |
+| `.usuario-inicial` | Círculo de 40 px con la inicial del nombre de una cuenta |
 | `CuentaNoActiva`, `.cuenta-estado` | Pantalla de cuenta pendiente, rechazada o desactivada: recuadro con el estado, el nombre y el usuario, y los botones "Revisar ahora" y "Salir" |
 | `.alert-error`, `.alert-info` | Mensajes fijos en una pantalla (por ejemplo, en el login) |
 | `.lista`, `.lista-item…` | Listas tocables de los catálogos |
