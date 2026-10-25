@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
@@ -21,6 +22,26 @@ export function useUsuarios({ habilitado = true } = {}) {
       return data.sort((a, b) => compararTexto(a.nombre, b.nombre))
     },
   })
+}
+
+/** Los registros anteriores a las cuentas individuales no tienen autor. */
+export const CUENTA_COMPARTIDA = 'Cuenta compartida'
+
+/**
+ * Nombre de quien hizo algo, a partir de creado_por o actualizado_por: "Cuenta compartida" si no
+ * tiene autor, o null mientras cargan las cuentas.
+ */
+export function useNombreDeCuenta() {
+  const { data: cuentas } = useUsuarios()
+  const nombres = useMemo(() => new Map((cuentas ?? []).map((cuenta) => [cuenta.id, cuenta.nombre])), [cuentas])
+  return useCallback(
+    (id: string | null): string | null => {
+      if (id === null) return CUENTA_COMPARTIDA
+      if (!cuentas) return null
+      return nombres.get(id) ?? CUENTA_COMPARTIDA
+    },
+    [cuentas, nombres],
+  )
 }
 
 /** Funciones de la base de datos que cambian el estado de una cuenta. */
