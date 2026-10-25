@@ -35,7 +35,10 @@ src/
                   mover puntos con la mira (MiraCentral, CrearPunto, MoverPunto)
     map/          Mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
     theme/        Modo claro/oscuro
+    tiposZona/    Tipos de zona: lista con color (TiposZonaPage)
     usuarios/     Cuentas: administración (solo admins), avatares (Avatar, SelectorAvatar) y useNombreDeCuenta
+    zonas/        Zonas: DibujarZona (mira + vista previa), CrearZona, RedibujarZona, ficha (LocalesEnZona,
+                  ComentariosZona, EditarZona) y geometria.ts (área, lados cruzados, EWKT)
   lib/            supabase.ts, almacenamiento.ts (archivos), queryClient.ts, notificar.ts,
                   errores.ts, texto.ts, color.ts
   styles/         theme.css (tokens), ui.css (botones, campos, listas)
@@ -98,6 +101,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Si desde un formulario se abre una confirmación, **se cierra el formulario** para que no queden dos diálogos encimados.
 - Dentro del diálogo, los campos van en `.formulario` (`ui.css`). Los opcionales llevan `.field-opcional` en la etiqueta.
 - Si un flujo tiene varios pasos (por ejemplo, ubicar → duplicados → lugar → estudio), los datos viven en la pantalla del flujo y no en cada diálogo, para no perderlos al volver atrás. Por eso `FormularioPunto` y `FormularioEstudio` son controlados (`campos` y `onCambiar`).
+- **Dibujar zonas:** `DibujarZona` usa la misma `MiraCentral` que crear un punto, con "Agregar esquina", "Deshacer" y "Terminar", y una vista previa en el mapa (fuente `dibujo-zona`, en naranja). `problemaDeZona()` revisa antes de guardar: 3 esquinas o más, dentro de Manila, sin lados cruzados y al menos 20 m² (la base de datos lo exige también). La reutilizan crear y redibujar una zona.
 - **Ficha del lugar:** `useLugar(id)` trae todo el lugar de `ubicaciones` (también si está archivado, a diferencia de `lugares_mapa()`), con `estudios(count)` para saber si se puede borrar. `CamposDelPunto` son los campos del punto, que comparten crear (`FormularioPunto`) y editar (`EditarPunto`).
 - Para elegir uno o varios elementos con ícono o avatar (categoría, participantes) se usan botones `.chip` con `aria-pressed` dentro de `.chips`.
 - `Panel` acepta `volver` para que el botón de atrás lleve a otra pantalla, por ejemplo de un estudio a la ficha de su lugar.

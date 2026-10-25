@@ -6,7 +6,7 @@ Para el *porqué* de cada decisión, ver [`decisiones/`](decisiones/).
 
 ## Diagrama
 
-![Modelo de datos: categorías, ubicaciones, estudios, participantes (cuentas), evidencias y el bucket](diagramas/modelo-de-datos.svg)
+![Modelo de datos: categorías, tipos de zona, ubicaciones, estudios, participantes (cuentas), evidencias, comentarios de zona y el bucket](diagramas/modelo-de-datos.svg)
 
 ## Tablas
 
@@ -14,12 +14,12 @@ Todas tienen `id uuid` (generado), `created_at` y `updated_at`; el trigger `set_
 
 ### Autoría
 
-`categorias`, `ubicaciones`, `estudios` y `evidencias` guardan quién hizo cada cosa. Todas son uuid → `auth.users` con **ON DELETE SET NULL**.
+`categorias`, `tipos_zona`, `ubicaciones`, `estudios`, `evidencias` y `comentarios_zona` guardan quién hizo cada cosa. Todas son uuid → `auth.users` con **ON DELETE SET NULL**.
 
 | Columna | Dónde | Qué guarda |
 | --- | --- | --- |
-| `creado_por` | Las cuatro tablas | Quién creó el registro. No cambia al editar |
-| `actualizado_por` | Las cuatro tablas | Quién lo editó por última vez (al crear, quien lo creó) |
+| `creado_por` | Esas tablas | Quién creó el registro. No cambia al editar |
+| `actualizado_por` | Esas tablas | Quién lo editó por última vez (al crear, quien lo creó) |
 | `archivada_por` / `archivado_por` | `ubicaciones` / `estudios` | Quién lo archivó. Se llena al archivar, se conserva si se edita archivado y se limpia al recuperar |
 
 - **Las llena la base de datos**, no la app: el trigger `poner_autoria()` usa `auth.uid()` y reemplaza cualquier valor que mande la app, así que no se pueden falsear.
@@ -51,6 +51,15 @@ Una fila por cada cuenta de `auth.users` ([decisión 0021](decisiones/0021-usuar
 | `color` | text | `#RRGGBB`. Por defecto `#0478FB` |
 | `icono` | text | Clave del catálogo `src/features/categorias/iconos.tsx` (`cafe`, `hotel`…). Solo `[a-z0-9-]`. NULL = ícono genérico |
 
+### `tipos_zona`: de qué es una zona
+
+| Columna | Tipo | Reglas |
+| --- | --- | --- |
+| `nombre` | text | Obligatorio, **único** sin importar mayúsculas ni espacios |
+| `color` | text | `#RRGGBB`, con el que se pinta la zona en el mapa. Por defecto lila |
+
+Vienen cinco para empezar (Comercial, Residencial, Mixta, Parque o zona verde, Institucional). Los crea y edita cualquier cuenta activa; solo un admin los borra ([decisión 0024](decisiones/0024-zonas.md)).
+
 ### `ubicaciones`: lugares (puntos y zonas)
 
 | Columna | Tipo | Reglas |
@@ -60,11 +69,12 @@ Una fila por cada cuenta de `auth.users` ([decisión 0021](decisiones/0021-usuar
 | `nombre` | text | Obligatorio |
 | `descripcion`, `direccion`, `complemento` | text | Opcionales |
 | `contacto_nombre`, `contacto_telefono` | text | Opcionales; el teléfono, si se escribe, debe tener formato de teléfono |
-| `categoria_id` | uuid → `categorias` | Opcional. **ON DELETE SET NULL** |
+| `categoria_id` | uuid → `categorias` | Opcional (puntos). **ON DELETE SET NULL** |
+| `tipo_zona_id` | uuid → `tipos_zona` | Opcional y **solo para zonas**. ON DELETE SET NULL |
 | `estado` | `estado_ubicacion` | `activa` (por defecto) o `cerrada` |
 | `archivada_en` | timestamptz | NULL = visible. Con fecha = archivada |
 
-Las zonas no usan categoría, dirección ni contacto. Desde la app, la geometría se envía como texto EWKT (`SRID=4326;POINT(-75.574 6.213)`) y se lee en GeoJSON con `lugares_mapa()`. Índices: GiST sobre `geom`, sobre `categoria_id` y uno parcial para lo no archivado.
+Las zonas no usan categoría, dirección ni contacto, y deben tener **al menos 20 m²** (`ubicaciones_zona_area_minima`). Desde la app, la geometría se envía como texto EWKT (`SRID=4326;POINT(-75.574 6.213)`) y se lee en GeoJSON con `lugares_mapa()`. Índices: GiST sobre `geom`, sobre `categoria_id` y uno parcial para lo no archivado.
 
 ### `estudios`: visitas
 
@@ -84,6 +94,16 @@ La app guarda primero el estudio y después sus participantes (`estudio_particip
 ### `estudio_participantes`: quién participó
 
 Las cuentas que participaron en cada estudio ([decisión 0023](decisiones/0023-participantes-son-cuentas.md)). `(estudio_id, usuario_id)` es la clave primaria; `usuario_id` → `perfiles`. Ambas columnas tienen **ON DELETE CASCADE**. La app solo deja elegir cuentas activas.
+
+### `comentarios_zona`: lo que el equipo dice de una zona
+
+| Columna | Tipo | Reglas |
+| --- | --- | --- |
+| `ubicacion_id` | uuid → `ubicaciones` | La zona. ON DELETE CASCADE |
+| `texto` | text | De 1 a 2000 caracteres |
+| `creado_por`, `created_at` | | Quién lo escribió y cuándo (autoría) |
+
+Lo lee y lo escribe cualquier cuenta activa; lo borra quien lo escribió o un admin.
 
 ### `evidencias`: material de cada estudio
 
@@ -123,8 +143,9 @@ Las columnas de autoría solo dicen quién creó y quién editó por última vez
 | Función | Qué devuelve | Uso |
 | --- | --- | --- |
 | `limite_manila()` | El polígono del barrio (SRID 4326). **Copia** de `src/features/map/manila.ts` | Regla `ubicaciones_dentro_de_manila` |
-| `lugares_mapa()` | Lugares no archivados (`id`, `tipo`, `nombre`, `estado`, `categoria_id`) con su forma en GeoJSON (`geojson`); zonas primero | Dibujar los lugares en el mapa. PostgREST devuelve `geom` en binario (WKB), que el mapa no entiende |
-| `ubicaciones_en_zona(zona_id)` | Puntos no archivados dentro de la zona | Ficha de la zona |
+| `lugares_mapa()` | Lugares no archivados (`id`, `tipo`, `nombre`, `estado`, `categoria_id`, `tipo_zona_id`) con su forma en GeoJSON (`geojson`); zonas primero | Dibujar los lugares en el mapa. PostgREST devuelve `geom` en binario (WKB), que el mapa no entiende |
+| `ubicaciones_en_zona(zona_id)` | Puntos no archivados dentro de la zona | (Reemplazada en la app por `locales_en_zona`) |
+| `locales_en_zona(zona_id)` | Puntos no archivados dentro de la zona o sobre su borde (`id`, `nombre`, `categoria_id`, `estado`) con la fecha de su último estudio (`ultimo_estudio`) | Ficha de la zona |
 | `ubicaciones_cercanas(lng, lat, metros = 15)` | Hasta 5 puntos no archivados a menos de N metros, con su distancia | Aviso de posible duplicado al crear un punto |
 
 Se llaman desde la app con `supabase.rpc('nombre', { ... })`. Corren con los permisos de quien llama, así que RLS aplica.
@@ -175,11 +196,12 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 
   | Tabla | Leer, crear y editar | Borrar |
   | --- | --- | --- |
-  | `categorias` | Cuenta activa | Solo admin |
+  | `categorias`, `tipos_zona` | Cuenta activa | Solo admin |
   | `ubicaciones` | Cuenta activa | Quien la creó o un admin, y solo si **no tiene estudios** |
   | `estudios` | Cuenta activa | Quien lo creó o un admin (la app solo lo usa para deshacer un estudio recién creado) |
   | `estudio_participantes` | Cuenta activa | Cuenta activa |
   | `evidencias` | Cuenta activa | Quien la subió o un admin |
+  | `comentarios_zona` | Cuenta activa (editar: su autor o un admin) | Quien lo escribió o un admin |
   | Bucket `evidencias` | Cuenta activa | Quien subió el archivo (`owner_id`, lo llena Storage) o un admin |
 
   Una cuenta pendiente, rechazada o desactivada recibe listas vacías y no puede crear nada, y las funciones del mapa no le devuelven nada. Como `es_miembro_activo()` se revisa en cada consulta, al desactivar a alguien pierde el acceso de inmediato, aunque su token siga vigente.
@@ -219,3 +241,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261025170000_cerrar_sesiones` | `cerrar_sesiones()` para la Edge Function `restablecer-clave` |
 | `20261026120000_notas_del_estudio` | `estudios.notas` (lista) reemplaza a `descripcion`; la nota que había pasa a ser la primera |
 | `20261026130000_participantes_son_cuentas` | `perfiles.avatar_semilla`, `estudio_participantes` y `estudios.participantes_anteriores`; pasa los responsables a sus cuentas y quita `responsables`, `estudio_responsables` y `perfiles.responsable_id` |
+| `20261026140000_zonas` | `tipos_zona` (con cinco tipos), `ubicaciones.tipo_zona_id`, área mínima de 20 m², `comentarios_zona`, `lugares_mapa()` con el tipo y `locales_en_zona()` |

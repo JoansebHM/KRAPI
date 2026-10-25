@@ -23,7 +23,9 @@ El foco está en los **locales fijos** (tiendas, cafés, restaurantes…): no en
 | --- | --- | --- |
 | **Lugar** (ubicación) | Algo en el mapa que se visita. Se crea **una sola vez** y existe siempre. Puede ser un **punto** o una **zona**. | "Tienda Don Pepe" |
 | **Punto** | Un local. Tiene nombre, categoría, dirección, complemento, contacto (nombre y teléfono del administrador) y estado. | Un café en una esquina |
-| **Zona** | Un polígono **opcional** que marca lo que se cubrió, por ejemplo la manzana donde un equipo revisó varios locales. No tiene tipo ni categoría: solo nombre, descripción y su forma. Las zonas pueden superponerse. | "Manzana del parque" |
+| **Zona** | Un área del barrio (una manzana, una cuadra, un parque). Tiene nombre, **tipo** (de qué es: comercial, residencial…, con su color en el mapa), descripción, **comentarios** del equipo y su histórico de **recorridos** (estudios de la zona). Las zonas pueden superponerse. | "Cuadra de los cafés" |
+| **Tipo de zona** | De qué es una zona, con un color. Administrable. | Comercial · azul |
+| **Comentario** | Lo que alguien del equipo dice de una zona, con quién lo escribió y cuándo. | "Mucho comercio informal en las tardes" |
 | **Estudio** | **Una visita** a un lugar: una entrevista o un levantamiento. Tiene fecha, hora de inicio y de fin, **participantes** (cuentas del equipo), **a quién se entrevistó** (texto corto), título, **notas** (varios apuntes sueltos) y evidencias. Los estudios de puntos y de zonas tienen **la misma estructura**. | "Entrevista al tendero, 30 oct, 2–4 p. m." |
 | **Evidencia** | Material de un estudio: fotos, audios, documentos (Word, PDF, Excel) o videos (por enlace de SharePoint). Los apuntes escritos van en las notas del estudio. Un estudio puede tener todas las evidencias que haga falta. | Foto de la fachada |
 | **Histórico** | La lista de estudios de un lugar, del más reciente al más antiguo. **Volver a un lugar es agregarle un estudio nuevo**, nunca reemplazar el anterior. | Tres visitas a la misma tienda en noviembre |
@@ -35,14 +37,14 @@ Reglas de negocio:
 - **Nada puede quedar fuera de Manila.** La app avisa y no deja continuar; la base de datos también lo impide.
 - **Estado del lugar:** activo o cerrado. Si un local cierra, se marca como cerrado y conserva su histórico. Si en el mismo sitio abre otro negocio, se crea un lugar nuevo.
 - **Archivar en vez de borrar.** Lugares y estudios se archivan: desaparecen del mapa pero se pueden recuperar. Solo se borra de verdad un lugar creado por error y sin estudios, o una evidencia equivocada.
-- **Una zona muestra los locales que tiene adentro**, calculado por la geometría, junto con sus propios estudios ("en la manzana no hay canecas", "la zona es muy oscura").
+- **Una zona muestra los locales que tiene adentro**, calculado por la geometría (con un botón para ir a la ficha de cada uno), junto con sus comentarios y sus recorridos ("en la manzana no hay canecas", "la zona es muy oscura"). Los estudios de una zona no tienen "a quién se entrevistó".
 - **Sin salidas.** No existe el concepto de "salida" o jornada: no todos van el mismo día. Cada estudio lleva su propia fecha y participantes (ver [decisión 0008](decisiones/0008-modelo-lugares-y-estudios.md)).
 - **Sin tipos de estudio ni equipos por ahora**, y sin datos medibles (conteos, cifras). La estructura de los locales se registra con fotos. Más adelante se puede agregar una tabla de mediciones sin romper el modelo.
 
 ## Cómo se usa en campo
 
 1. La persona entra con su **nombre de usuario** y su contraseña. Si no tiene cuenta, la crea en "Crear una cuenta" (nombre, nombre de usuario y contraseña, sin correo) y espera a que un admin la apruebe: mientras tanto ve una pantalla de espera y entra al mapa sola apenas la aprueban. La sesión dura hasta 7 días y se cierra tras 2 horas sin uso.
-2. En el mapa toca **"+ Nuevo lugar"**. Cuando existan las zonas (#15), elegirá entre **lugar** o **zona**.
+2. En el mapa toca **"+ Nuevo lugar"** y elige **Punto** (un local) o **Zona** (un área).
 3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, o con "Mi ubicación".
    - Si el punto queda fuera de Manila, no deja continuar.
    - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo. Si lo es, se toca y se le **agrega el estudio** ahí mismo, sin duplicar el lugar.
@@ -58,9 +60,9 @@ Reglas de negocio:
 
    En la ficha también está el histórico: los estudios del más reciente al más antiguo, con "Agregar estudio" para una visita nueva. Al tocar un estudio se abre una presentación con sus datos (y quién lo registró y quién lo editó por última vez), sus **notas** en una sección desplegable, un carrusel de fotos y las demás evidencias agrupadas por tipo. Cada grupo muestra su ícono en el título y cada tarjeta tiene un menú para descargar archivos, copiar enlaces o copiar notas. Los enlaces de archivos son temporales y duran una hora. Los audios usan controles compactos propios (reproducir/pausar, avance y tiempos) y se pueden escuchar a velocidad normal, doble o triple; desde el modal también se puede editar con el formulario existente o ir a la página del estudio para agregar evidencias. Todos los modales incluyen una X arriba a la derecha para cerrar cuando el flujo lo permite. El formulario permite archivarlo (con "Deshacer").
 
-Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo el área en m².
+Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo la forma y el área. No deja terminar si se sale de Manila, si sus lados se cruzan o si tiene menos de 20 m². Luego se llenan su nombre, su tipo y su descripción. En su ficha se ven el área, los locales de adentro, los comentarios y los recorridos; desde ahí se edita, se **redibuja**, se archiva o se borra (si no tiene estudios).
 
-> **Ya funcionan** los pasos 2 a 6 para puntos. Faltan las zonas (#15). Los estudios ya tienen una presentación con carrusel de fotos, reproducción de audio y descarga de documentos. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
+> **Ya funcionan** los pasos 2 a 6 para puntos y zonas. Los estudios ya tienen una presentación con carrusel de fotos, reproducción de audio y descarga de documentos. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
 
 ## Estado
 
@@ -70,7 +72,8 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Permisos en la base de datos según el estado y el rol de cada cuenta, autoría de cada registro y bitácora.
 - Notificaciones.
 - Administración de categorías (color e ícono). Cada cuenta tiene su avatar dibujado.
-- Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas en lila, cerrados atenuados y archivados ocultos.
+- Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas con el color de su tipo (lila sin tipo), cerrados atenuados y archivados ocultos.
+- Zonas: dibujarlas con la mira, su tipo (lista administrable), comentarios, locales adentro, recorridos, editarlas, redibujarlas y archivarlas.
 - Ficha del punto: todos sus datos (con el teléfono para llamar o abrir WhatsApp), editarlos, moverlo con la mira, marcarlo cerrado o activo, archivarlo y recuperarlo, y borrarlo si no tiene estudios. El histórico dice cuántas evidencias tiene cada estudio.
 - Crear puntos desde el mapa: botón "+ Nuevo lugar", mira fija en el centro, "Mi ubicación", bloqueo fuera de Manila, aviso de lugares a menos de 15 m y formulario del lugar.
 - Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con participantes (vienen marcadas la cuenta propia y las del último estudio del celular). La ficha muestra el histórico; al tocar un estudio se abre su presentación con fotos y otras evidencias, y desde ahí se puede editar o agregar evidencias.
@@ -84,7 +87,6 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 
 | Issue | Qué |
 | --- | --- |
-| #15 | Crear zonas (y elegir punto o zona en el "+"), y su ficha |
 | #21 | Filtros |
 | #22 | Prueba de SharePoint |
 | #23 | Revisión móvil |
