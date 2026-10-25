@@ -16,7 +16,7 @@ test.describe('Inicio de sesión', () => {
   test('una contraseña incorrecta muestra un mensaje claro', async ({ page, supabase }) => {
     void supabase
     await page.goto('/')
-    await iniciarSesion(page, 'clave-equivocada')
+    await iniciarSesion(page, { password: 'clave-equivocada' })
     await expect(page.getByRole('alert')).toHaveText('El correo o la contraseña no son correctos.')
   })
 

@@ -168,8 +168,8 @@ test.describe('Evidencias', () => {
     expect(supabase.archivos.size).toBe(0)
   })
 
-  test('si la cuenta no puede borrar la evidencia, lo explica y no toca el archivo', async ({ page, entrar, supabase }) => {
-    supabase.archivos.set('e1/a1-informe.pdf', { tipo: 'application/pdf', bytes: 1000 })
+  test('un miembro no puede borrar evidencias de otros: se explica y no toca el archivo', async ({ page, entrar, supabase }) => {
+    supabase.archivos.set('e1/a1-informe.pdf', { tipo: 'application/pdf', bytes: 1000, dueno: 'u-admin' })
     supabase.db.evidencias.push({
       id: 'v1',
       estudio_id: 'e1',
@@ -181,9 +181,9 @@ test.describe('Evidencias', () => {
       archivo_bytes: 1000,
       proveedor: 'supabase',
       created_at: '2026-10-20T15:00:00Z',
+      creado_por: 'u-admin',
     })
-    supabase.borradosNegados.add('evidencias')
-    await entrar()
+    await entrar('miembro')
     await page.goto('/lugares/p1/estudios/e1')
 
     await evidencias(page).getByRole('button', { name: 'Borrar «informe.pdf»' }).click()

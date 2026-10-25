@@ -1,10 +1,16 @@
 import type { BrowserContext, Route } from '@playwright/test'
 
 /**
- * Supabase simulado para las pruebas: inicio de sesión y una base de datos en memoria que
- * responde como PostgREST para las tablas que usa la app. Cada prueba tiene el suyo, vacío.
+ * Supabase simulado para las pruebas: cuentas, inicio de sesión y una base de datos en memoria que
+ * responde como PostgREST para las tablas que usa la app. Cada prueba tiene el suyo, vacío, con
+ * las cuentas de `CUENTAS` (un admin, un miembro y una cuenta pendiente).
  *
  * Imita las reglas importantes del esquema real:
+ * - registro con nombre de usuario (correo interno `<usuario>@usuarios.kira.invalid`): la cuenta queda pendiente
+ * - permisos (RLS): una cuenta que no está activa no recibe datos ni puede crear nada; categorías y
+ *   responsables solo los borra un admin; lugares, estudios, evidencias y archivos, quien los creó o un admin
+ * - creado_por y actualizado_por los pone la base de datos con la cuenta que hace la petición
+ * - funciones de admin para aprobar, rechazar, desactivar, reactivar y cambiar el rol
  * - nombres únicos (sin importar mayúsculas ni espacios) en categorías y responsables → 23505
  * - borrar una categoría deja sus ubicaciones sin categoría (ON DELETE SET NULL)
  * - borrar un responsable lo quita de sus estudios (ON DELETE CASCADE)
@@ -15,16 +21,49 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - los estudios traen embebidos sus responsables: estudio_responsables(responsable_id)
  * - una evidencia de foto, audio o documento lleva su archivo completo → 23514
  * - Storage: el bucket `evidencias` acepta solo sus tipos de archivo y hasta 50 MB, y firma enlaces
- * - si RLS no deja borrar (tablas en `borradosNegados`), el borrado no da error: borra 0 filas
+ * - si RLS no deja borrar, el borrado no da error: borra 0 filas
  *
  * En `ubicaciones`, `geom` se guarda directamente como GeoJSON (en la base real es PostGIS).
  * Si la app la envía como texto ('SRID=4326;POINT(lng lat)'), se convierte.
  */
 
-export const USUARIO = { email: 'compartido@kratos.test', password: 'clave-correcta-123' }
+export const DOMINIO_CUENTAS = 'usuarios.kira.invalid'
+export const correoDe = (usuario: string) => `${usuario}@${DOMINIO_CUENTAS}`
+
+/** Contraseña de todas las cuentas de prueba. */
+export const CLAVE = 'clave-correcta-123'
+
+type Rol = 'miembro' | 'admin'
+type Estado = 'pendiente' | 'activo' | 'rechazado' | 'desactivado'
+
+export interface Cuenta {
+  id: string
+  usuario: string
+  password: string
+  nombre: string
+  rol: Rol
+  estado: Estado
+  responsable_id: string | null
+  aprobado_por: string | null
+  aprobado_en: string | null
+  created_at: string
+}
+
+/** Cuentas con las que arranca cada prueba. */
+export const CUENTAS = {
+  admin: { id: 'u-admin', usuario: 'admin', nombre: 'Admin Kratos', rol: 'admin', estado: 'activo' },
+  miembro: { id: 'u-ana', usuario: 'ana', nombre: 'Ana Gómez', rol: 'miembro', estado: 'activo' },
+  pendiente: { id: 'u-pepe', usuario: 'pepe', nombre: 'Pepe Pérez', rol: 'miembro', estado: 'pendiente' },
+} as const satisfies Record<string, Pick<Cuenta, 'id' | 'usuario' | 'nombre' | 'rol' | 'estado'>>
+
+export type ComoQuien = keyof typeof CUENTAS
 
 type Fila = Record<string, unknown> & { id?: string }
 type Tabla = 'categorias' | 'responsables' | 'ubicaciones' | 'estudios' | 'estudio_responsables' | 'evidencias'
+
+/** Error de PostgreSQL como lo devuelve PostgREST. */
+const errorPg = (code: string, message: string, status = 400) => ({ status, json: { code, message, details: null, hint: null } })
+const SIN_PERMISO = errorPg('42501', 'new row violates row-level security policy', 403)
 
 /** Copia de la configuración del bucket (migración bucket_evidencias). */
 const BUCKET_TIPOS = [
@@ -39,6 +78,8 @@ export interface ArchivoFalso {
   tipo: string
   bytes: number
   contenido?: Buffer
+  /** Cuenta que subió el archivo (owner_id en Storage). */
+  dueno?: string
 }
 
 const MAPA_VACIO = {
@@ -65,32 +106,82 @@ function metrosEntre([lng1, lat1]: number[], [lng2, lat2]: number[]) {
   return 6_371_000 * 2 * Math.asin(Math.sqrt(a))
 }
 
-function jwt() {
+function jwt(cuenta: Cuenta) {
   const codificar = (datos: object) => Buffer.from(JSON.stringify(datos)).toString('base64url')
   const ahora = Math.floor(Date.now() / 1000)
-  return `${codificar({ alg: 'HS256', typ: 'JWT' })}.${codificar({ sub: 'u1', exp: ahora + DURACION_TOKEN_S, iat: ahora, role: 'authenticated', session_id: 's1', email: USUARIO.email })}.firma`
+  return `${codificar({ alg: 'HS256', typ: 'JWT' })}.${codificar({ sub: cuenta.id, exp: ahora + DURACION_TOKEN_S, iat: ahora, role: 'authenticated', session_id: `s-${cuenta.id}`, email: correoDe(cuenta.usuario) })}.firma`
 }
 
-const USUARIO_AUTH = {
-  id: 'u1',
+/** id de la cuenta del token de la petición (Authorization: Bearer <jwt>), si lo hay. */
+function idDelToken(autorizacion: string | undefined) {
+  const partes = autorizacion?.replace(/^Bearer /, '').split('.')
+  if (partes?.length !== 3) return null
+  try {
+    return (JSON.parse(Buffer.from(partes[1], 'base64url').toString()) as { sub?: string }).sub ?? null
+  } catch {
+    return null
+  }
+}
+
+const usuarioAuth = (cuenta: Cuenta) => ({
+  id: cuenta.id,
   aud: 'authenticated',
   role: 'authenticated',
-  email: USUARIO.email,
+  email: correoDe(cuenta.usuario),
   app_metadata: {},
-  user_metadata: {},
-  created_at: '2026-10-23T00:00:00Z',
-}
+  user_metadata: { nombre: cuenta.nombre },
+  created_at: cuenta.created_at,
+})
+
+const perfilDe = ({ password: _password, ...perfil }: Cuenta) => perfil
+
+const FUNCIONES_ADMIN = ['aprobar_usuario', 'rechazar_usuario', 'desactivar_usuario', 'reactivar_usuario', 'cambiar_rol']
 
 export class SupabaseFalso {
   db: Record<Tabla, Fila[]> = { categorias: [], responsables: [], ubicaciones: [], estudios: [], estudio_responsables: [], evidencias: [] }
+  /** Cuentas de auth.users con su perfil. */
+  cuentas: Cuenta[] = Object.values(CUENTAS).map((cuenta) => this.nuevaCuenta(cuenta))
   /** Archivos del bucket `evidencias`, por ruta. */
   archivos = new Map<string, ArchivoFalso>()
   /** Si es verdadero, las subidas de archivos fallan con un error del servidor. */
   fallarSubidas = false
-  /** Tablas en las que RLS no deja borrar: el DELETE responde sin error pero no borra nada. */
-  borradosNegados = new Set<Tabla>()
   /** Peticiones recibidas, por ejemplo "POST /auth/v1/logout?scope=global". */
   peticiones: string[] = []
+
+  /** Agrega una cuenta (por defecto, un miembro activo) y la devuelve. */
+  agregarCuenta(datos: Partial<Cuenta> & Pick<Cuenta, 'usuario'>) {
+    const cuenta = this.nuevaCuenta(datos)
+    this.cuentas.push(cuenta)
+    return cuenta
+  }
+
+  /** La cuenta con ese nombre de usuario. */
+  cuenta(usuario: string) {
+    const cuenta = this.cuentas.find((c) => c.usuario === usuario)
+    if (!cuenta) throw new Error(`No hay una cuenta "${usuario}" en el Supabase simulado`)
+    return cuenta
+  }
+
+  private nuevaCuenta(datos: Partial<Cuenta> & Pick<Cuenta, 'usuario'>): Cuenta {
+    return {
+      id: `u-${datos.usuario}`,
+      password: CLAVE,
+      nombre: datos.usuario,
+      rol: 'miembro',
+      estado: 'activo',
+      responsable_id: null,
+      aprobado_por: null,
+      aprobado_en: null,
+      created_at: '2026-10-23T00:00:00Z',
+      ...datos,
+    }
+  }
+
+  /** Cuenta que hace la petición, según su token. */
+  private quien(ruta: Route) {
+    const id = idDelToken(ruta.request().headers()['authorization'])
+    return this.cuentas.find((c) => c.id === id) ?? null
+  }
 
   async instalar(contexto: BrowserContext) {
     await contexto.route('https://mapa-falso.e2e.local/**', (ruta) => ruta.fulfill({ json: MAPA_VACIO }))
@@ -108,30 +199,59 @@ export class SupabaseFalso {
     return ruta.fulfill({ status: 404, json: {} })
   }
 
-  private async auth(ruta: Route, url: URL) {
-    if (url.pathname === '/auth/v1/token') {
-      const cuerpo = JSON.parse(ruta.request().postData() ?? '{}')
-      if (cuerpo.password !== USUARIO.password) {
-        return ruta.fulfill({
-          status: 400,
-          headers: { 'x-supabase-api-version': '2024-01-01' },
-          json: { code: 'invalid_credentials', error_code: 'invalid_credentials', msg: 'Invalid login credentials' },
-        })
-      }
-      return ruta.fulfill({
-        json: {
-          access_token: jwt(),
-          token_type: 'bearer',
-          expires_in: DURACION_TOKEN_S,
-          expires_at: Math.floor(Date.now() / 1000) + DURACION_TOKEN_S,
-          refresh_token: 'r1',
-          user: USUARIO_AUTH,
-        },
-      })
+  private sesion(cuenta: Cuenta) {
+    return {
+      access_token: jwt(cuenta),
+      token_type: 'bearer',
+      expires_in: DURACION_TOKEN_S,
+      expires_at: Math.floor(Date.now() / 1000) + DURACION_TOKEN_S,
+      refresh_token: `r-${cuenta.id}`,
+      user: usuarioAuth(cuenta),
     }
+  }
+
+  private errorAuth(ruta: Route, status: number, codigo: string, mensaje: string) {
+    return ruta.fulfill({
+      status,
+      headers: { 'x-supabase-api-version': '2024-01-01' },
+      json: { code: codigo, error_code: codigo, msg: mensaje },
+    })
+  }
+
+  private async auth(ruta: Route, url: URL) {
+    const cuerpo = JSON.parse(ruta.request().postData() || '{}')
+    if (url.pathname === '/auth/v1/token') {
+      const cuenta =
+        url.searchParams.get('grant_type') === 'refresh_token'
+          ? this.cuentas.find((c) => `r-${c.id}` === cuerpo.refresh_token)
+          : this.cuentas.find((c) => correoDe(c.usuario) === String(cuerpo.email).toLowerCase() && c.password === cuerpo.password)
+      if (!cuenta) return this.errorAuth(ruta, 400, 'invalid_credentials', 'Invalid login credentials')
+      return ruta.fulfill({ json: this.sesion(cuenta) })
+    }
+    if (url.pathname === '/auth/v1/signup') return this.registrar(ruta, cuerpo)
     if (url.pathname === '/auth/v1/logout') return ruta.fulfill({ status: 204, body: '' })
-    if (url.pathname === '/auth/v1/user') return ruta.fulfill({ json: USUARIO_AUTH })
+    if (url.pathname === '/auth/v1/user') {
+      const cuenta = this.quien(ruta)
+      return cuenta ? ruta.fulfill({ json: usuarioAuth(cuenta) }) : this.errorAuth(ruta, 403, 'session_not_found', 'Session not found')
+    }
     return ruta.fulfill({ status: 404, json: {} })
+  }
+
+  /** Registro como lo hacen Supabase Auth y el trigger crear_perfil: la cuenta queda pendiente. */
+  private registrar(ruta: Route, { email, password, data }: { email?: string; password?: string; data?: { nombre?: string } }) {
+    if (String(password ?? '').length < 10) {
+      return this.errorAuth(ruta, 422, 'weak_password', 'Password should be at least 10 characters.')
+    }
+    const [usuario, dominio] = String(email).toLowerCase().split('@')
+    if (dominio !== DOMINIO_CUENTAS || !/^[a-z0-9._-]{3,30}$/.test(usuario)) {
+      return this.errorAuth(ruta, 500, 'unexpected_failure', 'Database error saving new user')
+    }
+    if (this.cuentas.some((c) => c.usuario === usuario)) {
+      return this.errorAuth(ruta, 422, 'user_already_exists', 'User already registered')
+    }
+    const nombre = data?.nombre?.trim() || usuario
+    const cuenta = this.agregarCuenta({ usuario, nombre, password, estado: 'pendiente', created_at: new Date().toISOString() })
+    return ruta.fulfill({ json: this.sesion(cuenta) })
   }
 
   /** Storage: subir, borrar y firmar enlaces de archivos del bucket `evidencias`. */
@@ -139,6 +259,13 @@ export class SupabaseFalso {
     const peticion = ruta.request()
     const camino = decodeURIComponent(url.pathname.replace('/storage/v1/', ''))
     const json = () => JSON.parse(peticion.postData() ?? '{}')
+    const cuenta = this.quien(ruta)
+    const activa = cuenta?.estado === 'activo'
+
+    if (!activa && peticion.method() === 'POST' && camino.startsWith('object/evidencias/')) {
+      return ruta.fulfill({ status: 400, json: { statusCode: '403', error: 'Unauthorized', message: 'new row violates row-level security policy' } })
+    }
+    if (!activa && peticion.method() !== 'GET') return ruta.fulfill({ json: [] })
 
     if (peticion.method() === 'POST' && camino === 'object/sign/evidencias') {
       const { paths } = json() as { paths: string[] }
@@ -157,7 +284,8 @@ export class SupabaseFalso {
     }
     if (peticion.method() === 'DELETE' && camino === 'object/evidencias') {
       const { prefixes } = json() as { prefixes: string[] }
-      const borrados = prefixes.filter((path) => this.archivos.delete(path))
+      const puedeBorrar = (path: string) => cuenta?.rol === 'admin' || this.archivos.get(path)?.dueno === cuenta?.id
+      const borrados = prefixes.filter((path) => puedeBorrar(path) && this.archivos.delete(path))
       return ruta.fulfill({ json: borrados.map((name) => ({ name, bucket_id: 'evidencias' })) })
     }
     if (peticion.method() === 'POST' && camino.startsWith('object/evidencias/')) {
@@ -173,7 +301,7 @@ export class SupabaseFalso {
         return ruta.fulfill({ status: 413, json: { statusCode: '413', error: 'Payload too large', message: 'The object exceeded the maximum allowed size' } })
       }
       if (this.archivos.has(path)) return ruta.fulfill({ status: 400, json: { statusCode: '409', error: 'Duplicate', message: 'The resource already exists' } })
-      this.archivos.set(path, { tipo, bytes, contenido })
+      this.archivos.set(path, { tipo, bytes, contenido, dueno: cuenta?.id })
       return ruta.fulfill({ json: { Key: `evidencias/${path}`, Id: crypto.randomUUID() } })
     }
     return ruta.fulfill({ status: 404, json: { statusCode: '404', error: 'not_found', message: 'Not found' } })
@@ -182,6 +310,14 @@ export class SupabaseFalso {
   /** Funciones SQL que la app llama con supabase.rpc(). */
   private rpc(ruta: Route, funcion: string) {
     const argumentos = JSON.parse(ruta.request().postData() || '{}')
+    const cuenta = this.quien(ruta)
+    if (funcion === 'usuario_disponible') {
+      const usuario = String(argumentos.usuario).trim().toLowerCase()
+      return ruta.fulfill({ json: !this.cuentas.some((c) => c.usuario === usuario) })
+    }
+    if (FUNCIONES_ADMIN.includes(funcion)) return this.administrarCuenta(ruta, cuenta, funcion, argumentos)
+    // Las demás corren con los permisos de quien llama: a una cuenta no activa no le devuelven nada.
+    if (cuenta?.estado !== 'activo') return ruta.fulfill({ json: [] })
     if (funcion === 'ubicaciones_cercanas') {
       const { lng, lat, metros = 15 } = argumentos
       const cercanos = this.db.ubicaciones
@@ -202,11 +338,82 @@ export class SupabaseFalso {
     return ruta.fulfill({ status: 404, json: { code: 'PGRST202', message: `Función ${funcion} no simulada` } })
   }
 
+  /** aprobar_usuario, rechazar_usuario, desactivar_usuario, reactivar_usuario y cambiar_rol. */
+  private administrarCuenta(ruta: Route, quien: Cuenta | null, funcion: string, { usuario_id, rol }: { usuario_id: string; rol?: Rol }) {
+    const responder = ({ status, json }: { status: number; json: object }) => ruta.fulfill({ status, json })
+    if (quien?.estado !== 'activo' || quien.rol !== 'admin') return responder(errorPg('42501', 'Solo un admin puede administrar cuentas.', 403))
+    if (usuario_id === quien.id) return responder(errorPg('42501', 'No puedes cambiar tu propio rol ni tu propio estado.', 403))
+    const cuenta = this.cuentas.find((c) => c.id === usuario_id)
+    if (!cuenta) return responder(errorPg('P0002', 'La cuenta no existe.', 404))
+
+    const reglas: Record<string, { desde: Estado[]; mensaje: string; cambiar: () => void }> = {
+      aprobar_usuario: {
+        desde: ['pendiente', 'rechazado'],
+        mensaje: 'Solo se aprueban cuentas pendientes o rechazadas.',
+        cambiar: () => Object.assign(cuenta, { estado: 'activo', aprobado_por: quien.id, aprobado_en: new Date().toISOString() }),
+      },
+      rechazar_usuario: { desde: ['pendiente'], mensaje: 'Solo se rechazan cuentas pendientes.', cambiar: () => (cuenta.estado = 'rechazado') },
+      desactivar_usuario: { desde: ['activo'], mensaje: 'Solo se desactivan cuentas activas.', cambiar: () => (cuenta.estado = 'desactivado') },
+      reactivar_usuario: { desde: ['desactivado'], mensaje: 'Solo se reactivan cuentas desactivadas.', cambiar: () => (cuenta.estado = 'activo') },
+      cambiar_rol: { desde: ['activo'], mensaje: 'Solo se cambia el rol de cuentas activas.', cambiar: () => (cuenta.rol = rol ?? cuenta.rol) },
+    }
+    const regla = reglas[funcion]
+    if (!regla.desde.includes(cuenta.estado)) return responder(errorPg('22023', regla.mensaje))
+    regla.cambiar()
+    return ruta.fulfill({ json: perfilDe(cuenta) })
+  }
+
+  /** perfiles: cada quien lee el suyo; una cuenta activa lee todos y edita su nombre y su responsable. */
+  private perfiles(ruta: Route, url: URL, cuenta: Cuenta | null) {
+    const peticion = ruta.request()
+    const id = url.searchParams.get('id')?.replace(/^eq\./, '')
+    const visibles = this.cuentas.filter((c) => c.id === cuenta?.id || cuenta?.estado === 'activo').filter((c) => !id || c.id === id)
+    const unaFila = (peticion.headers()['accept'] ?? '').includes('vnd.pgrst.object')
+
+    if (peticion.method() === 'GET') {
+      const perfiles = visibles.map(perfilDe)
+      if (unaFila && perfiles.length !== 1) return ruta.fulfill({ status: 406, json: { code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' } })
+      return ruta.fulfill({ json: unaFila ? perfiles[0] : perfiles })
+    }
+    if (peticion.method() === 'PATCH') {
+      const cambios = JSON.parse(peticion.postData() ?? '{}') as Partial<Cuenta>
+      if (Object.keys(cambios).some((campo) => !['nombre', 'responsable_id'].includes(campo))) {
+        return ruta.fulfill(errorPg('42501', 'permission denied for table perfiles', 403))
+      }
+      const editables = visibles.filter((c) => c.id === cuenta?.id && c.estado === 'activo')
+      if (cambios.responsable_id && this.cuentas.some((c) => c.id !== cuenta?.id && c.responsable_id === cambios.responsable_id)) {
+        return this.duplicado(ruta)
+      }
+      editables.forEach((c) => Object.assign(c, cambios))
+      const select = url.searchParams.get('select')
+      if (!select) return ruta.fulfill({ status: 204, body: '' })
+      const perfiles = editables.map(perfilDe)
+      return ruta.fulfill({ json: unaFila ? perfiles[0] : perfiles })
+    }
+    return ruta.fulfill({ status: 405, json: {} })
+  }
+
+  /** Reglas de borrado de RLS. */
+  private puedeBorrar(tabla: Tabla, fila: Fila, cuenta: Cuenta) {
+    if (cuenta.rol === 'admin') return tabla !== 'ubicaciones' || !this.tieneEstudios(fila)
+    if (tabla === 'categorias' || tabla === 'responsables') return false
+    if (tabla === 'estudio_responsables') return true
+    return fila.creado_por === cuenta.id && (tabla !== 'ubicaciones' || !this.tieneEstudios(fila))
+  }
+
+  private tieneEstudios(ubicacion: Fila) {
+    return this.db.estudios.some((e) => e.ubicacion_id === ubicacion.id)
+  }
+
   private async rest(ruta: Route, url: URL) {
     if (url.pathname.startsWith('/rest/v1/rpc/')) return this.rpc(ruta, url.pathname.replace('/rest/v1/rpc/', ''))
     const peticion = ruta.request()
+    const cuenta = this.quien(ruta)
+    if (url.pathname === '/rest/v1/perfiles') return this.perfiles(ruta, url, cuenta)
     const tabla = url.pathname.replace('/rest/v1/', '') as Tabla
-    const filas = (this.db[tabla] ??= [])
+    // RLS: una cuenta que no está activa no ve ni toca nada.
+    const activa = cuenta?.estado === 'activo'
+    const filas = activa ? (this.db[tabla] ??= []) : []
     const select = url.searchParams.get('select')
     const filtros = [...url.searchParams.entries()].filter(([clave]) => !['select', 'order', 'limit', 'columns'].includes(clave))
     const coincide = (fila: Fila) =>
@@ -230,6 +437,7 @@ export class SupabaseFalso {
         return ruta.fulfill({ json: unaFila ? resultado[0] : resultado })
       }
       case 'POST': {
+        if (!activa) return ruta.fulfill(SIN_PERMISO)
         const cuerpo = JSON.parse(peticion.postData() ?? '[]')
         const creadas: Fila[] = []
         for (const datos of Array.isArray(cuerpo) ? cuerpo : [cuerpo]) {
@@ -237,7 +445,14 @@ export class SupabaseFalso {
           if (tabla === 'estudios' && !(String(datos.hora_fin) > String(datos.hora_inicio))) return this.invalido(ruta)
           if (tabla === 'evidencias' && !this.evidenciaValida(datos)) return this.invalido(ruta)
           if (tabla === 'ubicaciones' && datos.contacto_telefono && !/^\+?[0-9 ()-]{7,20}$/.test(datos.contacto_telefono)) return this.invalido(ruta)
-          const fila = { id: datos.id ?? crypto.randomUUID(), created_at: new Date().toISOString(), ...datos, ...(tabla === 'ubicaciones' ? { geom: geometria(datos.geom) } : {}) }
+          const fila = {
+            id: datos.id ?? crypto.randomUUID(),
+            created_at: new Date().toISOString(),
+            ...datos,
+            ...(tabla === 'ubicaciones' ? { geom: geometria(datos.geom) } : {}),
+            // Autoría: la pone la base de datos, no la app.
+            ...(tabla === 'estudio_responsables' ? {} : { creado_por: cuenta?.id, actualizado_por: cuenta?.id }),
+          }
           filas.push(fila)
           creadas.push(this.proyectar(tabla, fila, select))
         }
@@ -249,12 +464,12 @@ export class SupabaseFalso {
         if (tabla === 'estudios' && cambios.hora_inicio && !(String(cambios.hora_fin) > String(cambios.hora_inicio))) return this.invalido(ruta)
         for (const fila of filas.filter(coincide)) {
           if (typeof cambios.nombre === 'string' && this.nombreRepetido(tabla, cambios.nombre, fila.id)) return this.duplicado(ruta)
-          Object.assign(fila, cambios)
+          Object.assign(fila, cambios, tabla === 'estudio_responsables' ? {} : { creado_por: fila.creado_por, actualizado_por: cuenta?.id })
         }
         return ruta.fulfill({ status: 204, body: '' })
       }
       case 'DELETE': {
-        const borradas = this.borradosNegados.has(tabla) ? [] : filas.filter(coincide)
+        const borradas = filas.filter((fila) => coincide(fila) && cuenta && this.puedeBorrar(tabla, fila, cuenta))
         for (const fila of borradas) {
           filas.splice(filas.indexOf(fila), 1)
           if (tabla === 'categorias') {
