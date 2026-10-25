@@ -1,4 +1,4 @@
-/** Reglas de la sesión del usuario compartido. Cambiarlas aquí cambia el comportamiento en toda la app. */
+/** Reglas de la sesión de todas las cuentas. Cambiarlas aquí cambia el comportamiento en toda la app. */
 
 const MINUTO = 60 * 1000
 const HORA = 60 * MINUTO

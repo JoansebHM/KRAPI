@@ -90,4 +90,11 @@ test.describe('Ingresar con nombre de usuario', () => {
     await iniciarSesion(page, { usuario: '  Ana ', password: CLAVE })
     await expect(page.locator('.app-header')).toBeVisible()
   })
+
+  test('con un correo no se entra: las cuentas solo tienen nombre de usuario', async ({ page, supabase }) => {
+    void supabase
+    await page.goto('/')
+    await iniciarSesion(page, { usuario: 'ana@usuarios.kira.invalid', password: CLAVE })
+    await expect(page.getByRole('alert')).toHaveText('El usuario o la contraseña no son correctos.')
+  })
 })

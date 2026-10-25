@@ -10,11 +10,11 @@ El foco está en los **locales fijos** (tiendas, cafés, restaurantes…): no en
 
 ## Quién la usa
 
-- **Integrantes de Kratos.** Es un grupo pequeño. Hoy entra con **un solo usuario compartido** y se está pasando a **una cuenta por integrante** (milestone *Usuarios individuales*, [decisión 0021](decisiones/0021-usuarios-individuales.md)):
+- **Integrantes de Kratos.** Es un grupo pequeño, con **una cuenta por integrante** ([decisión 0021](decisiones/0021-usuarios-individuales.md)):
   - Cada quien se registra con **nombre, nombre de usuario y contraseña**, sin correo. La cuenta queda **pendiente** hasta que un admin la apruebe.
   - **Miembros:** ven, crean y editan lugares, estudios, evidencias y catálogos. Solo borran las evidencias y los lugares sin estudios que ellos mismos crearon.
-  - **Admins:** además aprueban, rechazan, desactivan y reactivan cuentas, nombran a otros admins y borran cualquier cosa que se pueda borrar. Si alguien olvida su contraseña, un admin la restablece.
-  - Cada registro guarda quién lo creó y quién lo editó por última vez.
+  - **Admins:** además aprueban, rechazan, desactivan y reactivan cuentas y nombran a otros admins desde **Usuarios** (menú ☰, con un contador de las cuentas por aprobar), y borran cualquier cosa que se pueda borrar. Si alguien olvida su contraseña, un admin le pone una temporal desde Usuarios.
+  - Cada registro guarda quién lo creó y quién lo editó por última vez, y una bitácora guarda cada acción. Lo registrado antes de las cuentas individuales aparece como "Cuenta compartida".
 - **Se usa sobre todo en el celular, en la calle.** A veces con una mano, con sol y con datos móviles. Por eso cada pantalla se diseña primero para celular (ver [`diseno.md`](diseno.md)).
 
 ## Conceptos
@@ -57,24 +57,23 @@ Reglas de negocio:
 
 Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo el área en m².
 
-> **Ya funcionan** los pasos 2 a 6 para puntos. Faltan las zonas (#15) y las notas de texto y videos por enlace (#19). Los estudios ya tienen una presentación con carrusel de fotos, reproducción de audio y descarga de documentos; falta completar el visor según el tipo de evidencia (#20). La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
+> **Ya funcionan** los pasos 2 a 6 para puntos. Faltan las zonas (#15) y las notas de texto y videos por enlace (#19). Los estudios ya tienen una presentación con carrusel de fotos, reproducción de audio y descarga de documentos. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
 
 ## Estado
 
 **Hecho:**
 - Mapa con el límite de Manila, navegación limitada a 1 km alrededor y modo claro/oscuro.
-- Login con nombre de usuario y política de sesión. Registro de cuentas con nombre de usuario (quedan pendientes de aprobación).
+- Cuentas individuales: registro con nombre de usuario (sin correo), aprobación de un admin, roles (miembro y admin), Mi perfil, administración de usuarios y política de sesión.
+- Permisos en la base de datos según el estado y el rol de cada cuenta, autoría de cada registro y bitácora.
 - Notificaciones.
 - Administración de categorías (color e ícono) y responsables (avatar).
 - Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas en lila, cerrados atenuados y archivados ocultos. Al tocar uno se abre una ficha básica (nombre, tipo, categoría y estado).
 - Crear puntos desde el mapa: botón "+ Nuevo lugar", mira fija en el centro, "Mi ubicación", bloqueo fuera de Manila, aviso de lugares a menos de 15 m y formulario del lugar.
-- Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con responsables (vienen del último estudio del celular). La ficha muestra el histórico; al tocar un estudio se abre su presentación con fotos y otras evidencias, y desde ahí se puede editar o agregar evidencias.
+- Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con responsables (vienen marcados el de la cuenta y los del último estudio del celular). La ficha muestra el histórico; al tocar un estudio se abre su presentación con fotos y otras evidencias, y desde ahí se puede editar o agregar evidencias.
 - Evidencias de archivo: tomar fotos (comprimidas antes de subir), grabar audios en la app y subir documentos, con avance, reintento y borrado con confirmación.
 - Esquema completo en Supabase con seguridad (RLS) y bucket privado de evidencias.
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`.
-
-**Siguiente: usuarios individuales** (milestone *Usuarios individuales*, #68 a #81). Va antes de lo que falta del MVP.
 
 **Pendiente del MVP:**
 
