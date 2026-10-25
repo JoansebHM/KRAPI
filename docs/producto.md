@@ -41,7 +41,7 @@ Reglas de negocio:
 
 ## Cómo se usa en campo
 
-1. La persona entra con el usuario compartido. La sesión dura hasta 7 días y se cierra tras 2 horas sin uso.
+1. La persona entra con su **nombre de usuario** y su contraseña. Si no tiene cuenta, la crea en "Crear una cuenta" (nombre, nombre de usuario y contraseña, sin correo) y espera a que un admin la apruebe. La sesión dura hasta 7 días y se cierra tras 2 horas sin uso.
 2. En el mapa toca **"+ Nuevo lugar"**. Cuando existan las zonas (#15), elegirá entre **lugar** o **zona**.
 3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, o con "Mi ubicación".
    - Si el punto queda fuera de Manila, no deja continuar.
@@ -63,7 +63,7 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 
 **Hecho:**
 - Mapa con el límite de Manila, navegación limitada a 1 km alrededor y modo claro/oscuro.
-- Login con usuario compartido y política de sesión.
+- Login con nombre de usuario y política de sesión. Registro de cuentas con nombre de usuario (quedan pendientes de aprobación).
 - Notificaciones.
 - Administración de categorías (color e ícono) y responsables (avatar).
 - Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas en lila, cerrados atenuados y archivados ocultos. Al tocar uno se abre una ficha básica (nombre, tipo, categoría y estado).

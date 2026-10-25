@@ -54,7 +54,9 @@ Se usa en la calle, con una mano y con sol:
 | `.btn` + `.btn-primary` / `.btn-secondary` / `.btn-danger` / `.btn-block` | Botones |
 | `.btn-texto`, `.btn-texto-peligro` | Acciones secundarias en línea |
 | `.icon-btn` | Botón de solo ícono (siempre con `aria-label`) |
-| `.field`, `.field-label`, `.field-input`, `.field-error` | Campos de formulario; el error va debajo del campo y con `aria-invalid` |
+| `.field`, `.field-label`, `.field-input`, `.field-error`, `.field-ayuda` | Campos de formulario; el error va debajo del campo y con `aria-invalid`. `.field-ayuda` es la ayuda gris debajo del campo cuando no hay error |
+| `CampoContrasena` | Contraseña con el botón "Mostrar" / "Ocultar" (login, registro) |
+| `PantallaAcceso`, `.login-alterno` | Pantalla centrada con la marca para entrar o registrarse, y el enlace de 44 px para pasar de una a otra |
 | `.alert-error`, `.alert-info` | Mensajes fijos en una pantalla (por ejemplo, en el login) |
 | `.lista`, `.lista-item…` | Listas tocables de los catálogos |
 | `.fab` | Botón flotante de crear. Sobre el mapa, `.fab-mapa` ("+ Nuevo lugar") queda por encima de los créditos |

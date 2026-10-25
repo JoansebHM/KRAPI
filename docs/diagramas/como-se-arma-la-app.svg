@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 736 504" width="736" height="504" role="img" aria-labelledby="como-se-arma-la-app-title como-se-arma-la-app-desc">
   <title id="como-se-arma-la-app-title">Cómo se arma la app</title>
-  <desc id="como-se-arma-la-app-desc">App, dentro de los proveedores de rutas, datos y sesión, muestra siempre las notificaciones y, según haya sesión, el login o AppConSesion, que contiene la barra, el mapa, los paneles, el menú y el aviso de inactividad.</desc>
+  <desc id="como-se-arma-la-app-desc">App, dentro de los proveedores de rutas, datos y sesión, muestra siempre las notificaciones y, según haya sesión, el login (o el registro de una cuenta) o AppConSesion, que contiene la barra, el mapa, los paneles, el menú y el aviso de inactividad.</desc>
   <defs>
     <style>
       /* Perfil "kratos" de diagram-design: tokens de src/styles/theme.css. Sigue el sistema y, dentro de /docs, el tema elegido. */
@@ -65,8 +65,8 @@
   <text class="mono muted" x="300" y="285" font-size="9">con sesión</text>
   <rect class="mascara" x="288" y="384" width="160" height="48" rx="6" />
   <rect class="hoja" x="288" y="384" width="160" height="48" rx="6" />
-  <text x="300" y="405" font-size="12" font-weight="600">Login</text>
-  <text class="mono muted" x="300" y="421" font-size="9">sin sesión</text>
+  <text x="300" y="405" font-size="12" font-weight="600">Login · Registro</text>
+  <text class="mono muted" x="300" y="421" font-size="9">sin sesión · /registro</text>
   <rect class="mascara" x="496" y="112" width="200" height="48" rx="6" />
   <rect class="hoja" x="496" y="112" width="200" height="48" rx="6" />
   <text x="508" y="133" font-size="12" font-weight="600">barra</text>

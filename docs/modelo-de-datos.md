@@ -174,7 +174,7 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 
 ## Seguridad
 
-- **Cuentas.** Hoy se entra con un usuario compartido creado con `npm run usuario:crear` y el **registro público está desactivado** (`[auth] enable_signup = false`). Se está pasando a cuentas individuales (milestone *Usuarios individuales*): la tabla `perfiles` ya existe y el usuario compartido quedó como admin activo, con el nombre "Cuenta compartida".
+- **Cuentas.** El **registro está abierto** (`[auth] enable_signup = true`): cada integrante crea su cuenta desde la app y queda pendiente. La protección está en RLS, no en el registro. El usuario compartido (creado con `npm run usuario:crear`) quedó como admin activo, con el nombre "Cuenta compartida", hasta que se haga el cambio a cuentas individuales (#81).
 - **`perfiles`.** Cada quien lee su propio perfil aunque esté pendiente, y un miembro activo lee todos. Un miembro activo solo puede editar su `nombre` y su `responsable_id` (`grant update (nombre, responsable_id)`). El rol y el estado solo cambian con las funciones de administración, y nadie cambia los suyos.
 - **RLS en todas las tablas, según el estado y el rol de la cuenta** ([decisión 0021](decisiones/0021-usuarios-individuales.md)). El rol `anon` no tiene ningún permiso.
 

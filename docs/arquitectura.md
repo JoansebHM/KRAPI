@@ -24,7 +24,8 @@ src/
                   FlechaLista, Notificaciones, PoweredBy
   config/         env.ts (variables), session.ts (tiempos de sesión)
   features/       Una carpeta por funcionalidad
-    auth/         Login, AuthProvider, política de sesión, menú de la cuenta
+    auth/         Login, registro, AuthProvider, política de sesión, menú de la cuenta,
+                  nombre de usuario → correo interno (nombreDeUsuario.ts)
     categorias/   CRUD de categorías, colores e íconos
     estudios/     Estudios de un lugar: formulario, selector de responsables, histórico y página del estudio
     evidencias/   Subir, grabar, listar y borrar evidencias; cola de subidas y compresión de fotos
@@ -62,6 +63,8 @@ Una funcionalidad nueva va en su propia carpeta `src/features/<nombre>/`, con:
 `main.tsx` envuelve la app en `BrowserRouter` → `QueryClientProvider` → `AuthProvider` (sesión y política de 2 h / 7 días). Dentro, `App` decide qué mostrar:
 
 ![Árbol de componentes: App, Notificaciones, Login, AppConSesion y sus hijos](diagramas/como-se-arma-la-app.svg)
+
+Sin sesión, `App` tiene sus propias rutas: `/registro` muestra el registro y cualquier otra, el login. Los dos usan `PantallaAcceso` (marca y tema) y `CampoContrasena` (contraseña con "Mostrar").
 
 Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para que las pantallas que se abren encima puedan usar el mapa.
 
