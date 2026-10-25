@@ -34,19 +34,35 @@
   font-weight: 400;
 }
 
-/* Teléfono del contacto: tocarlo llama; al lado, WhatsApp si es un celular. */
+/* Teléfono del contacto: botones con ícono para llamar y, si es un celular, escribir por WhatsApp. */
 .ficha-telefono {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1) var(--space-3);
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .ficha-telefono-enlace {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-2);
   min-height: 44px;
+  padding: 0 var(--space-4) 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg);
   color: var(--color-accent);
   font-weight: 600;
+  text-decoration: none;
+}
+
+.ficha-telefono-enlace:hover {
+  background: var(--color-surface);
+}
+
+.ficha-telefono-enlace:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 /* Editar, mover, cerrar y archivar: dos columnas de botones, y "Borrar" en texto rojo debajo. */

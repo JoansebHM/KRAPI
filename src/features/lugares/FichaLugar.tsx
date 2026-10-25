@@ -1,3 +1,4 @@
+import { MessageCircle, Phone } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { Dialog } from '../../components/Dialog'
@@ -113,6 +114,7 @@ export function FichaLugar() {
               {telefono && (
                 <span className="ficha-telefono">
                   <a href={telefono.llamar} className="ficha-telefono-enlace" aria-label={`Llamar al ${lugar.contactoTelefono}`}>
+                    <Phone size={18} aria-hidden="true" />
                     {lugar.contactoTelefono}
                   </a>
                   {telefono.whatsapp && (
@@ -123,6 +125,7 @@ export function FichaLugar() {
                       className="ficha-telefono-enlace"
                       aria-label={`Escribir por WhatsApp al ${lugar.contactoTelefono}`}
                     >
+                      <MessageCircle size={18} aria-hidden="true" />
                       WhatsApp
                     </a>
                   )}

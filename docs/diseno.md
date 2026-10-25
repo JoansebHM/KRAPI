@@ -60,7 +60,7 @@ Se usa en la calle, con una mano y con sol:
 | `PantallaAcceso`, `.login-alterno` | Pantalla centrada con la marca para entrar o registrarse, y el enlace de 44 px para pasar de una a otra |
 | `.estudio-presentacion-autoria` | "Registrado por Ana · 30 oct 2026" y "Editado por…" al final de los datos del estudio, en gris y separado por una línea. Lo de antes de las cuentas individuales dice "Cuenta compartida" |
 | `.ficha-acciones`, `.ficha-acciones-grilla` | Acciones de la ficha del lugar: dos columnas de botones (editar, mover, cerrar, archivar) y "Borrar lugar" en texto rojo debajo |
-| `.ficha-telefono-enlace` | Teléfono que se toca para llamar y enlace de WhatsApp, de 44 px de alto |
+| `.ficha-telefono-enlace` | Botones redondeados de 44 px con ícono (Lucide `Phone` y `MessageCircle`) para llamar al contacto y escribirle por WhatsApp |
 | `.pestanas`, `.pestana` | Pestañas en un control segmentado de todo el ancho (botones de 44 px con `role="tab"`), con la cantidad de cada una. Se usan en Usuarios (Pendientes, Activos, Otros) |
 | `.menu-contador` | Cantidad en amarillo neón junto a una sección del menú (cuentas por aprobar) |
 | `.usuario-inicial` | Círculo de 40 px con la inicial del nombre de una cuenta |
