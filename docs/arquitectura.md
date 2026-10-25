@@ -37,7 +37,7 @@ src/
   styles/         theme.css (tokens), ui.css (botones, campos, listas)
   types/          database.ts (tipos generados del esquema)
 e2e/              Pruebas Playwright y Supabase simulado (e2e/soporte/)
-supabase/         config.toml y migraciones
+supabase/         config.toml, migraciones y pruebas de la base de datos (tests/)
 scripts/          crear-usuario-compartido.mjs
   docs/           Generador de la documentación navegable (/docs)
 ```
@@ -135,4 +135,5 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Cada prueba arranca con la base vacía y prepara sus datos con el fixture `supabase.db`. Para iniciar sesión se usa `entrar()`.
 - Si agregas tablas o funciones que la app consulta, **amplía el Supabase simulado** para que responda igual que el real.
 - El Supabase simulado también imita Storage (`supabase.archivos`): subir con las reglas del bucket, borrar y firmar enlaces. Con `supabase.fallarSubidas = true` las subidas fallan.
+- `npm run db:test` corre las **pruebas de la base de datos** (`supabase/tests/*.test.sql`, pgTAP) sobre Supabase local en Docker (`npm run db:local`). Cubren lo que el simulador no puede probar: RLS, triggers y funciones. Para actuar como una cuenta se usa `set local role authenticated` y `set local request.jwt.claims = '{"sub": "<id>"}'`. Cada archivo corre dentro de una transacción que se deshace al final.
 - Chromium corre con micrófono y cámara simulados (`playwright.config.ts`), así se prueba la grabación de audio.

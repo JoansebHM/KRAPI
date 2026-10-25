@@ -31,10 +31,12 @@ npm run db:new nombre  # nueva migración en supabase/migrations/
 npm run db:push        # aplica migraciones al proyecto de Supabase (requiere `npx supabase login` y `npm run db:link`)
 npm run db:types       # regenera src/types/database.ts desde el proyecto
 npm run db:config      # aplica supabase/config.toml
+npm run db:local       # Supabase local en Docker (para probar migraciones)
+npm run db:test        # recrea la base local y corre las pruebas pgTAP de supabase/tests/
 npm run usuario:crear  # crea o actualiza el usuario compartido
 ```
 
-Los comandos `db:*` y `usuario:crear` se conectan al proyecto real de Supabase (`ggrwybqiqffoxuoojopp`) y los corre una persona del equipo en su computador.
+Los comandos `db:*` (salvo `db:local` y `db:test`, que usan Supabase en Docker) y `usuario:crear` se conectan al proyecto real de Supabase (`ggrwybqiqffoxuoojopp`) y los corre una persona del equipo en su computador.
 
 ## Reglas de trabajo
 
@@ -44,7 +46,7 @@ Los comandos `db:*` y `usuario:crear` se conectan al proyecto real de Supabase (
 - **Se une con merge commit** (no squash ni rebase) para conservar el historial.
 - **Documentación siempre al día.** Todo cambio que haga desactualizar algo de `README.md`, `CONTRIBUTING.md`, este archivo o `docs/` los corrige **en el mismo PR**. Eso incluye los diagramas de `docs/diagramas/`, las secciones de "Estado" y las tablas de comandos, variables o migraciones. Antes de abrir el PR, busca en los `.md` lo que tocaste (`grep`) y revisa la página en `/docs`. Si un documento nuevo debe aparecer en el menú de `/docs`, agrégalo a `SECCIONES` en `scripts/docs/generar.ts`.
 - **Antes de pedir revisión:** `npm run lint`, `npm run build` y `npm run test:e2e` sin errores. Toda funcionalidad nueva trae sus pruebas en `e2e/`.
-- **Base de datos solo con migraciones nuevas.** Nunca edites una migración ya aplicada ni cambies cosas a mano en el panel de Supabase. Cada tabla nueva lleva sus `grant` a `authenticated`, RLS y política en la misma migración (el proyecto tiene desactivado "Automatically expose new tables"). Actualiza `src/types/database.ts`.
+- **Base de datos solo con migraciones nuevas.** Nunca edites una migración ya aplicada ni cambies cosas a mano en el panel de Supabase. Cada tabla nueva lleva sus `grant` a `authenticated`, RLS y política en la misma migración (el proyecto tiene desactivado "Automatically expose new tables"). Actualiza `src/types/database.ts`. Prueba cada migración en Supabase local y, si toca seguridad, triggers o funciones, agrega su prueba en `supabase/tests/` (`npm run db:test`).
 - **Pensado para celular.** Revisa cada pantalla a 390 px (y que no se desborde a 320 px), en modo claro y oscuro. Áreas de toque de 44 px o más.
 - **Reutiliza los patrones existentes** (ver `docs/arquitectura.md`): `Panel`, `Dialog`, `notificar`, hooks de TanStack Query en `api.ts`, `mensajeErrorDatos`, tokens de `theme.css`.
 - **Nada con histórico se borra:** lugares y estudios se archivan. Solo se borra de verdad una evidencia equivocada o un lugar sin estudios.
