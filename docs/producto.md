@@ -46,14 +46,16 @@ Reglas de negocio:
 3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, o con "Mi ubicación".
    - Si el punto queda fuera de Manila, no deja continuar.
    - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo. Si lo es, se toca y se le **agrega el estudio** ahí mismo, sin duplicar el lugar.
-4. Llena el lugar (nombre, categoría, dirección, complemento y contacto) y, en el siguiente paso, el **estudio**. La fecha (hoy) y la hora de inicio (ahora) vienen prellenadas, la de fin una hora después, y los responsables vienen marcados: el de la cuenta ("Este soy yo", en Mi perfil) y los del último estudio hecho desde ese celular. También puede elegir "Solo guardar el lugar".
+4. Llena el lugar (nombre, categoría, dirección, complemento, contacto y descripción) y, en el siguiente paso, el **estudio**. La fecha (hoy) y la hora de inicio (ahora) vienen prellenadas, la de fin una hora después, y los responsables vienen marcados: el de la cuenta ("Este soy yo", en Mi perfil) y los del último estudio hecho desde ese celular. También puede elegir "Solo guardar el lugar".
 5. Al guardar el estudio se abre **su página**, con el botón **"Agregar evidencia"**:
    - **Tomar foto** con la cámara. Las fotos se reducen (2048 px de lado mayor) y se comprimen antes de subirlas, para ahorrar datos.
    - **Grabar audio** dentro de la app. Se escucha antes de subirlo.
    - **Elegir archivos**: fotos, audios, PDF, Word o Excel, varios a la vez, hasta 50 MB cada uno.
 
    Cada archivo muestra su avance. Si falla, se explica por qué y se puede reintentar. Las subidas siguen aunque se vuelva al mapa. Una evidencia equivocada se borra de verdad, con confirmación.
-6. En la ficha del lugar está el histórico: los estudios del más reciente al más antiguo, con "Agregar estudio" para una visita nueva. Al tocar un estudio se abre una presentación con sus datos (y quién lo registró y quién lo editó por última vez), un carrusel de fotos y las demás evidencias agrupadas por tipo. Cada grupo muestra su ícono en el título y cada tarjeta tiene un menú para descargar archivos, copiar enlaces o copiar notas. Los enlaces de archivos son temporales y duran una hora. Los audios usan controles compactos propios (reproducir/pausar, avance y tiempos) y se pueden escuchar a velocidad normal, doble o triple; desde el modal también se puede editar con el formulario existente o ir a la página del estudio para agregar evidencias. Todos los modales incluyen una X arriba a la derecha para cerrar cuando el flujo lo permite. El formulario permite archivarlo (con "Deshacer").
+6. Al tocar un punto se abre su **ficha**: categoría, estado, dirección, contacto (el teléfono se toca para llamar o, si es un celular, abrir WhatsApp) y descripción. Desde ahí se **edita**, se **mueve** con la misma mira, se marca **cerrado** (o activo de nuevo) y se **archiva**: sale del mapa, con "Deshacer", y desde su ficha se recupera. Solo se borra de verdad un punto sin estudios, y solo quien lo creó o un admin.
+
+   En la ficha también está el histórico: los estudios del más reciente al más antiguo, con "Agregar estudio" para una visita nueva. Al tocar un estudio se abre una presentación con sus datos (y quién lo registró y quién lo editó por última vez), un carrusel de fotos y las demás evidencias agrupadas por tipo. Cada grupo muestra su ícono en el título y cada tarjeta tiene un menú para descargar archivos, copiar enlaces o copiar notas. Los enlaces de archivos son temporales y duran una hora. Los audios usan controles compactos propios (reproducir/pausar, avance y tiempos) y se pueden escuchar a velocidad normal, doble o triple; desde el modal también se puede editar con el formulario existente o ir a la página del estudio para agregar evidencias. Todos los modales incluyen una X arriba a la derecha para cerrar cuando el flujo lo permite. El formulario permite archivarlo (con "Deshacer").
 
 Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo el área en m².
 
@@ -67,7 +69,8 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Permisos en la base de datos según el estado y el rol de cada cuenta, autoría de cada registro y bitácora.
 - Notificaciones.
 - Administración de categorías (color e ícono) y responsables (avatar).
-- Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas en lila, cerrados atenuados y archivados ocultos. Al tocar uno se abre una ficha básica (nombre, tipo, categoría y estado).
+- Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas en lila, cerrados atenuados y archivados ocultos.
+- Ficha del punto: todos sus datos (con el teléfono para llamar o abrir WhatsApp), editarlos, moverlo con la mira, marcarlo cerrado o activo, archivarlo y recuperarlo, y borrarlo si no tiene estudios. El histórico dice cuántas evidencias tiene cada estudio.
 - Crear puntos desde el mapa: botón "+ Nuevo lugar", mira fija en el centro, "Mi ubicación", bloqueo fuera de Manila, aviso de lugares a menos de 15 m y formulario del lugar.
 - Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con responsables (vienen marcados el de la cuenta y los del último estudio del celular). La ficha muestra el histórico; al tocar un estudio se abre su presentación con fotos y otras evidencias, y desde ahí se puede editar o agregar evidencias.
 - Evidencias de archivo: tomar fotos (comprimidas antes de subir), grabar audios en la app y subir documentos, con avance, reintento y borrado con confirmación.
@@ -79,8 +82,7 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 
 | Issue | Qué |
 | --- | --- |
-| #15 | Crear zonas (y elegir punto o zona en el "+") |
-| #16 | Ficha del lugar completa (datos, histórico, editar y archivar) |
+| #15 | Crear zonas (y elegir punto o zona en el "+"), y su ficha |
 | #19 | Evidencias de texto y videos por enlace |
 | #21 | Filtros |
 | #22 | Prueba de SharePoint |

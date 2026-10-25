@@ -72,7 +72,7 @@ Hecho:
 - Permisos en RLS según el estado y el rol, autoría (`creado_por`…) y bitácora de cada acción. Se muestra quién registró cada estudio y evidencia.
 - Notificaciones, menú lateral y paneles.
 - Categorías (color e ícono) y responsables (avatares).
-- Lugares en el mapa (puntos con su categoría y zonas) y ficha básica al tocarlos (`/lugares/:id`).
+- Lugares en el mapa (puntos con su categoría y zonas). Ficha completa del punto al tocarlo (`/lugares/:id`): datos, teléfono para llamar o WhatsApp, editar, mover con la mira (`/lugares/:id/mover`), cerrar, archivar o recuperar, y borrar si no tiene estudios.
 - Crear puntos con la mira central (`/lugares/nuevo`), con su primer estudio.
 - Estudios: crear, editar y archivar, con responsables; histórico en la ficha. Al tocar un estudio se abre un modal de presentación con carrusel de fotos y otras evidencias; desde allí se edita o se abre su página (`/lugares/:id/estudios/:estudioId`) para agregar evidencia.
 - Evidencias de archivo: fotos (comprimidas), audios grabados en la app y documentos, con avance de subida y borrado.
@@ -81,9 +81,9 @@ Hecho:
 - Documentación navegable en `/docs`, con diagramas hechos con diagram-design.
 
 Siguiente (en orden):
-1. **#19** evidencias de texto y videos por enlace (los videos esperan la prueba de SharePoint, #22)
-2. **#16** ficha del lugar (completar la ficha básica: datos, editar, cerrar y archivar el lugar)
-3. **#15** zonas (incluye elegir punto o zona en el "+")
+1. **#5** revisión automática de build, lint y pruebas en cada PR
+2. **#19** evidencias de texto y videos por enlace (los videos esperan la prueba de SharePoint, #22)
+3. **#15** zonas (incluye elegir punto o zona en el "+", y la ficha de la zona)
 4. **#21** filtros
 
 Ver el milestone *MVP* en GitHub.

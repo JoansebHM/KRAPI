@@ -55,7 +55,7 @@ npx supabase stop  # apaga Supabase local
 ## Navegación
 
 - El mapa siempre está de fondo. En **celular**, las secciones (Categorías, Responsables…) se abren desde el menú ☰ y ocupan la pantalla. En **computador**, el menú está siempre a la izquierda (☰ lo oculta o lo muestra) y cada sección se abre en un panel a la derecha, sin cerrar el menú. Tocar el mapa cierra el panel.
-- Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera. Al tocar un lugar del mapa se abre su ficha en `/lugares/<id>`, y "+ Nuevo lugar" abre la mira para registrar uno en `/lugares/nuevo`.
+- Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera. Al tocar un lugar del mapa se abre su ficha en `/lugares/<id>` (y "Mover" abre la mira en `/lugares/<id>/mover`), y "+ Nuevo lugar" abre la mira para registrar uno en `/lugares/nuevo`.
 - En el histórico de un lugar, tocar un estudio abre su presentación con el carrusel de fotos y el resto de evidencias. Desde el modal se puede editar o abrir la página del estudio para agregar evidencia.
 - Desde el menú de la cuenta, **Mi perfil** (`/perfil`) deja cambiar el nombre, la contraseña y elegir "Este soy yo": el responsable que es cada quien en los estudios, que luego viene marcado al registrar uno nuevo.
 - Los admins ven además **Usuarios** (`/usuarios`), con un contador de las cuentas que esperan aprobación. Ahí aprueban, rechazan, desactivan y reactivan cuentas, y nombran o quitan admins. Si un miembro entra a `/usuarios` por la URL, vuelve al mapa.
@@ -175,7 +175,7 @@ src/
     usuarios/     # Administración de cuentas (solo admins)
     estudios/   # Estudios de cada lugar (visitas), su histórico y la página de cada estudio
     evidencias/ # Subir fotos, audios y documentos de un estudio
-    lugares/    # Lugares en el mapa, su ficha y crear puntos
+    lugares/    # Lugares en el mapa, su ficha, crear y mover puntos
     map/        # Mapa base y límite del barrio
     theme/      # Modo claro y oscuro
   lib/          # Supabase, archivos (almacenamiento.ts), caché de datos, notificaciones y utilidades

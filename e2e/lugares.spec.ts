@@ -56,7 +56,7 @@ test.describe('Lugares en el mapa', () => {
 
     await expect(page).toHaveURL(/\/lugares\/p1$/)
     const ficha = page.getByRole('region', { name: 'Café Central' })
-    await expect(ficha.getByText('Punto (local)')).toBeVisible()
+    await expect(ficha.locator('.ficha-categoria')).toHaveText('Café')
     await expect(ficha.getByText('Activo')).toBeVisible()
     await expect(cafe).toHaveAttribute('aria-pressed', 'true')
 
@@ -80,9 +80,16 @@ test.describe('Lugares en el mapa', () => {
     await expect(ficha.getByText('Zona', { exact: true }).first()).toBeVisible()
   })
 
-  test('un enlace a un lugar archivado explica que no está en el mapa', async ({ page }) => {
+  test('un enlace a un lugar archivado muestra su ficha y que no está en el mapa', async ({ page }) => {
     await page.goto('/lugares/p4')
-    await expect(page.getByText('Este lugar no está en el mapa')).toBeVisible()
+    await expect(page.getByText('Este lugar está archivado: no aparece en el mapa.')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Recuperar lugar' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Agregar estudio' })).toHaveCount(0)
+  })
+
+  test('un enlace a un lugar que no existe lo explica', async ({ page }) => {
+    await page.goto('/lugares/no-existe')
+    await expect(page.getByText('Este lugar no existe')).toBeVisible()
     await page.getByRole('link', { name: 'Volver al mapa' }).last().click()
     await expect(page).toHaveURL(/\/$/)
   })

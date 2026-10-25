@@ -497,6 +497,7 @@ export class SupabaseFalso {
           Object.assign(
             fila,
             cambios,
+            tabla === 'ubicaciones' && 'geom' in cambios ? { geom: geometria(cambios.geom) } : {},
             tabla === 'estudio_responsables' ? {} : { creado_por: fila.creado_por, actualizado_por: cuenta?.id, updated_at: new Date().toISOString() },
           )
         }
@@ -543,6 +544,8 @@ export class SupabaseFalso {
   private contar(tabla: Tabla, fila: Fila) {
     if (tabla === 'categorias') return this.db.ubicaciones.filter((u) => u.categoria_id === fila.id).length
     if (tabla === 'responsables') return this.db.estudio_responsables.filter((r) => r.responsable_id === fila.id).length
+    if (tabla === 'ubicaciones') return this.db.estudios.filter((e) => e.ubicacion_id === fila.id).length
+    if (tabla === 'estudios') return this.db.evidencias.filter((e) => e.estudio_id === fila.id).length
     return 0
   }
 

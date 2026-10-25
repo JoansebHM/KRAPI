@@ -18,3 +18,70 @@
   background: var(--color-surface);
   color: var(--color-text-muted);
 }
+
+.ficha-archivado {
+  margin: 0 0 var(--space-4);
+}
+
+.ficha-complemento {
+  display: block;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.ficha-descripcion {
+  white-space: pre-wrap;
+  font-weight: 400;
+}
+
+/* Teléfono del contacto: botones con ícono para llamar y, si es un celular, escribir por WhatsApp. */
+.ficha-telefono {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.ficha-telefono-enlace {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-4) 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ficha-telefono-enlace:hover {
+  background: var(--color-surface);
+}
+
+.ficha-telefono-enlace:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Editar, mover, cerrar y archivar: dos columnas de botones, y "Borrar" en texto rojo debajo. */
+.ficha-acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+  margin: var(--space-6) 0;
+}
+
+.ficha-acciones-grilla {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.ficha-acciones-grilla .btn {
+  min-width: 0;
+  padding: 0 var(--space-2);
+  text-decoration: none;
+}
