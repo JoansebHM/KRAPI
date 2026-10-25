@@ -334,7 +334,8 @@ test.describe('Estudios', () => {
 
   test('al crear un punto, el segundo paso es su primer estudio', async ({ page, entrar, supabase }) => {
     await entrar()
-    await page.getByRole('link', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('button', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('link', { name: /Punto/ }).click()
     await page.getByRole('button', { name: 'Continuar' }).click()
     await page.getByPlaceholder('Ej.: Tienda Don Pepe').fill('Tienda Don Pepe')
     await page.getByRole('button', { name: 'Siguiente: el estudio' }).click()
@@ -361,7 +362,8 @@ test.describe('Estudios', () => {
   test('si el lugar ya existe a menos de 15 m, se le agrega el estudio sin crear otro', async ({ page, entrar, supabase }) => {
     supabase.db.ubicaciones.push({ id: 'p2', tipo: 'punto', nombre: 'Tienda vieja', categoria_id: null, estado: 'activa', geom: { type: 'Point', coordinates: CENTRO_MANILA } })
     await entrar()
-    await page.getByRole('link', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('button', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('link', { name: /Punto/ }).click()
     await page.getByRole('button', { name: 'Continuar' }).click()
     await page.getByRole('dialog', { name: '¿Es alguno de estos lugares?' }).getByRole('button', { name: /Tienda vieja/ }).click()
 

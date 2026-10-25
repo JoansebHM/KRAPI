@@ -15,7 +15,9 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - Edge Function restablecer-clave: un admin pone una contraseña temporal a otra cuenta
  * - nombres únicos (sin importar mayúsculas ni espacios) en categorías → 23505
  * - borrar una categoría deja sus ubicaciones sin categoría (ON DELETE SET NULL)
- * - lugares_mapa() devuelve los lugares no archivados, zonas primero
+ * - lugares_mapa() devuelve los lugares no archivados, zonas primero (con su tipo)
+ * - locales_en_zona() devuelve los puntos dentro de una zona, con su último estudio
+ * - tipos de zona: los borra un admin y sus zonas quedan sin tipo; comentarios: los borra su autor o un admin
  * - ubicaciones_cercanas() devuelve hasta 5 puntos no archivados a menos de N metros
  * - el teléfono de contacto debe tener formato de teléfono → 23514
  * - la hora de fin de un estudio debe ser posterior a la de inicio → 23514
@@ -62,7 +64,7 @@ export const CUENTAS = {
 export type ComoQuien = keyof typeof CUENTAS
 
 type Fila = Record<string, unknown> & { id?: string }
-type Tabla = 'categorias' | 'ubicaciones' | 'estudios' | 'estudio_participantes' | 'evidencias'
+type Tabla = 'categorias' | 'tipos_zona' | 'ubicaciones' | 'estudios' | 'estudio_participantes' | 'evidencias' | 'comentarios_zona'
 
 /** Error de PostgreSQL como lo devuelve PostgREST. */
 const errorPg = (code: string, message: string, status = 400) => ({ status, json: { code, message, details: null, hint: null } })
@@ -99,10 +101,24 @@ const DURACION_TOKEN_S = 365 * 24 * 3600
 
 const normalizar = (texto: string) => texto.trim().replace(/\s+/g, ' ').toLowerCase()
 
-/** 'SRID=4326;POINT(lng lat)' → GeoJSON. Otros valores quedan igual. */
+/** 'SRID=4326;POINT(lng lat)' o 'SRID=4326;POLYGON((lng lat, …))' → GeoJSON. Otros valores quedan igual. */
 function geometria(valor: unknown) {
   const punto = typeof valor === 'string' && valor.match(/POINT\(([-\d.]+) ([-\d.]+)\)/)
-  return punto ? { type: 'Point', coordinates: [Number(punto[1]), Number(punto[2])] } : valor
+  if (punto) return { type: 'Point', coordinates: [Number(punto[1]), Number(punto[2])] }
+  const poligono = typeof valor === 'string' && valor.match(/POLYGON\(\((.+)\)\)/)
+  if (poligono) return { type: 'Polygon', coordinates: [poligono[1].split(', ').map((par) => par.split(' ').map(Number))] }
+  return valor
+}
+
+/** Si un punto está dentro de un polígono (algoritmo del rayo). Basta para las pruebas. */
+function puntoEnPoligono([x, y]: number[], anillo: number[][]) {
+  let dentro = false
+  for (let i = 0, j = anillo.length - 1; i < anillo.length; j = i++) {
+    const [xi, yi] = anillo[i]
+    const [xj, yj] = anillo[j]
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) dentro = !dentro
+  }
+  return dentro
 }
 
 /** La misma regla que notas_validas() en la base de datos. */
@@ -148,7 +164,7 @@ const perfilDe = ({ password: _password, ...perfil }: Cuenta) => perfil
 const FUNCIONES_ADMIN = ['aprobar_usuario', 'rechazar_usuario', 'desactivar_usuario', 'reactivar_usuario', 'cambiar_rol']
 
 export class SupabaseFalso {
-  db: Record<Tabla, Fila[]> = { categorias: [], ubicaciones: [], estudios: [], estudio_participantes: [], evidencias: [] }
+  db: Record<Tabla, Fila[]> = { categorias: [], tipos_zona: [], ubicaciones: [], estudios: [], estudio_participantes: [], evidencias: [], comentarios_zona: [] }
   /** Cuentas de auth.users con su perfil. */
   cuentas: Cuenta[] = Object.values(CUENTAS).map((cuenta) => this.nuevaCuenta(cuenta))
   /** Archivos del bucket `evidencias`, por ruta. */
@@ -352,8 +368,28 @@ export class SupabaseFalso {
       const lugares = this.db.ubicaciones
         .filter((u) => u.archivada_en == null)
         .sort((a, b) => String(b.tipo).localeCompare(String(a.tipo)) || String(a.nombre).localeCompare(String(b.nombre)))
-        .map((u) => ({ id: u.id, tipo: u.tipo, nombre: u.nombre, estado: u.estado ?? 'activa', categoria_id: u.categoria_id ?? null, geojson: u.geom }))
+        .map((u) => ({
+          id: u.id,
+          tipo: u.tipo,
+          nombre: u.nombre,
+          estado: u.estado ?? 'activa',
+          categoria_id: u.categoria_id ?? null,
+          tipo_zona_id: u.tipo_zona_id ?? null,
+          geojson: u.geom,
+        }))
       return ruta.fulfill({ json: lugares })
+    }
+    if (funcion === 'locales_en_zona') {
+      const zona = this.db.ubicaciones.find((u) => u.id === argumentos.zona_id && u.tipo === 'zona')
+      const anillo = (zona?.geom as { coordinates: number[][][] } | undefined)?.coordinates[0] ?? []
+      const locales = this.db.ubicaciones
+        .filter((u) => u.tipo === 'punto' && u.archivada_en == null && puntoEnPoligono((u.geom as { coordinates: number[] }).coordinates, anillo))
+        .map((u) => {
+          const fechas = this.db.estudios.filter((e) => e.ubicacion_id === u.id && e.archivado_en == null).map((e) => String(e.fecha)).sort()
+          return { id: u.id, nombre: u.nombre, categoria_id: u.categoria_id ?? null, estado: u.estado ?? 'activa', ultimo_estudio: fechas.at(-1) ?? null }
+        })
+        .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre)))
+      return ruta.fulfill({ json: locales })
     }
     return ruta.fulfill({ status: 404, json: { code: 'PGRST202', message: `Función ${funcion} no simulada` } })
   }
@@ -427,7 +463,7 @@ export class SupabaseFalso {
   /** Reglas de borrado de RLS. */
   private puedeBorrar(tabla: Tabla, fila: Fila, cuenta: Cuenta) {
     if (cuenta.rol === 'admin') return tabla !== 'ubicaciones' || !this.tieneEstudios(fila)
-    if (tabla === 'categorias') return false
+    if (tabla === 'categorias' || tabla === 'tipos_zona') return false
     if (tabla === 'estudio_participantes') return true
     return fila.creado_por === cuenta.id && (tabla !== 'ubicaciones' || !this.tieneEstudios(fila))
   }
@@ -514,6 +550,9 @@ export class SupabaseFalso {
           if (tabla === 'categorias') {
             for (const ubicacion of this.db.ubicaciones) if (ubicacion.categoria_id === fila.id) ubicacion.categoria_id = null
           }
+          if (tabla === 'tipos_zona') {
+            for (const ubicacion of this.db.ubicaciones) if (ubicacion.tipo_zona_id === fila.id) ubicacion.tipo_zona_id = null
+          }
         }
         if (!select) return ruta.fulfill({ status: 204, body: '' })
         return ruta.fulfill({ json: borradas.map((fila) => this.proyectar(tabla, fila, select)) })
@@ -545,6 +584,7 @@ export class SupabaseFalso {
 
   private contar(tabla: Tabla, fila: Fila) {
     if (tabla === 'categorias') return this.db.ubicaciones.filter((u) => u.categoria_id === fila.id).length
+    if (tabla === 'tipos_zona') return this.db.ubicaciones.filter((u) => u.tipo_zona_id === fila.id).length
     if (tabla === 'ubicaciones') return this.db.estudios.filter((e) => e.ubicacion_id === fila.id).length
     if (tabla === 'estudios') return this.db.evidencias.filter((e) => e.estudio_id === fila.id).length
     return 0
@@ -557,7 +597,7 @@ export class SupabaseFalso {
   }
 
   private nombreRepetido(tabla: Tabla, nombre: string, excepto?: string) {
-    if (tabla !== 'categorias') return false
+    if (tabla !== 'categorias' && tabla !== 'tipos_zona') return false
     return this.db[tabla].some((fila) => fila.id !== excepto && normalizar(String(fila.nombre)) === normalizar(nombre))
   }
 
