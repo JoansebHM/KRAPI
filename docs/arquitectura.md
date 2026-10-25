@@ -66,6 +66,8 @@ Una funcionalidad nueva va en su propia carpeta `src/features/<nombre>/`, con:
 
 Sin sesión, `App` tiene sus propias rutas: `/registro` muestra el registro y cualquier otra, el login. Los dos usan `PantallaAcceso` (marca y tema) y `CampoContrasena` (contraseña con "Mostrar").
 
+Con sesión, `AuthProvider` carga el **perfil** de la cuenta (`usePerfil`) y lo expone en `useAuth()` junto con `esAdmin`. Si la cuenta no está activa, `App` muestra `CuentaNoActiva` (esperando aprobación, rechazada o desactivada) en lugar del mapa. El perfil se revisa cada 15 s mientras espera aprobación, cada minuto con la cuenta activa y siempre al volver a la pestaña: así la persona entra apenas la aprueban, y si un admin la desactiva se le cierra la sesión explicando por qué. `esAdmin` solo decide qué se muestra; la seguridad real está en RLS. Al cerrar sesión se vacía la caché de TanStack Query, para que otra cuenta en el mismo dispositivo no vea datos de la anterior.
+
 Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para que las pantallas que se abren encima puedan usar el mapa.
 
 ## Patrones a reutilizar
