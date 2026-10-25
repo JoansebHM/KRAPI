@@ -8,7 +8,8 @@ test('la barra muestra la firma "powered by KIT"', async ({ page, entrar }) => {
 })
 
 test('el menú lleva a cada sección y "atrás" vuelve al mapa', async ({ page, entrar }) => {
-  await entrar()
+  // Un miembro ve las secciones de todos; "Usuarios" solo lo ven los admins (ver usuarios.spec.ts).
+  await entrar('miembro')
   await page.getByRole('button', { name: 'Abrir menú' }).click()
   const menu = page.getByRole('navigation', { name: 'Secciones' })
   await expect(menu.getByRole('link')).toHaveText(['Mapa', 'Categorías', 'Responsables', 'Documentación'])
