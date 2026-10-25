@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      bitacora: {
+        Row: {
+          accion: Database["public"]["Enums"]["accion_bitacora"]
+          cambios: Json | null
+          id: number
+          ocurrio_en: string
+          registro_borrado: Json | null
+          registro_id: string
+          tabla: string
+          usuario_id: string | null
+        }
+        Insert: {
+          accion: Database["public"]["Enums"]["accion_bitacora"]
+          cambios?: Json | null
+          id?: never
+          ocurrio_en?: string
+          registro_borrado?: Json | null
+          registro_id: string
+          tabla: string
+          usuario_id?: string | null
+        }
+        Update: {
+          accion?: Database["public"]["Enums"]["accion_bitacora"]
+          cambios?: Json | null
+          id?: never
+          ocurrio_en?: string
+          registro_borrado?: Json | null
+          registro_id?: string
+          tabla?: string
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
       categorias: {
         Row: {
           actualizado_por: string | null
@@ -534,6 +567,7 @@ export type Database = {
       }
     }
     Enums: {
+      accion_bitacora: "crear" | "editar" | "archivar" | "recuperar" | "borrar"
       estado_cuenta: "pendiente" | "activo" | "rechazado" | "desactivado"
       estado_ubicacion: "activa" | "cerrada"
       proveedor_almacenamiento: "supabase" | "sharepoint" | "otro"
@@ -667,6 +701,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      accion_bitacora: ["crear", "editar", "archivar", "recuperar", "borrar"],
       estado_cuenta: ["pendiente", "activo", "rechazado", "desactivado"],
       estado_ubicacion: ["activa", "cerrada"],
       proveedor_almacenamiento: ["supabase", "sharepoint", "otro"],
