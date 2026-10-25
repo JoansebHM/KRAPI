@@ -21,7 +21,7 @@ interface LoginPageProps {
 
 export function LoginPage({ theme, onToggleTheme }: LoginPageProps) {
   const { iniciarSesion, motivoCierre } = useAuth()
-  const [email, setEmail] = useState('')
+  const [usuario, setUsuario] = useState('')
   const [password, setPassword] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +32,7 @@ export function LoginPage({ theme, onToggleTheme }: LoginPageProps) {
     evento.preventDefault()
     setEnviando(true)
     setError(null)
-    const resultado = await iniciarSesion(email, password)
+    const resultado = await iniciarSesion(usuario, password)
     setEnviando(false)
     if (resultado.error) setError(resultado.error)
     else notificar.exito('Sesión iniciada', { descripcion: 'Bienvenido a KIRA.' })
@@ -48,18 +48,18 @@ export function LoginPage({ theme, onToggleTheme }: LoginPageProps) {
 
       <form className="login-form" onSubmit={alEnviar} noValidate={false}>
         <label className="field">
-          <span className="field-label">Correo</span>
+          <span className="field-label">Usuario</span>
           <input
             className="field-input"
-            type="email"
-            inputMode="email"
+            type="text"
             autoComplete="username"
             autoCapitalize="none"
+            autoCorrect="off"
             spellCheck={false}
-            placeholder="nombre@ejemplo.com"
+            placeholder="Tu nombre de usuario"
             required
-            value={email}
-            onChange={(evento) => setEmail(evento.target.value)}
+            value={usuario}
+            onChange={(evento) => setUsuario(evento.target.value)}
           />
         </label>
 

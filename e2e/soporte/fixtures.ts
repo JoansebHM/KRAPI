@@ -1,5 +1,5 @@
 import { test as base, expect, type Page } from '@playwright/test'
-import { CLAVE, CUENTAS, correoDe, SupabaseFalso, type ComoQuien } from './supabase-falso'
+import { CLAVE, CUENTAS, SupabaseFalso, type ComoQuien } from './supabase-falso'
 
 interface Fixtures {
   /** Supabase simulado de esta prueba, para preparar datos y revisar qué se guardó. */
@@ -29,7 +29,7 @@ export const test = base.extend<Fixtures>({
 })
 
 export async function iniciarSesion(page: Page, { usuario = CUENTAS.admin.usuario as string, password = CLAVE } = {}) {
-  await page.getByLabel('Correo').fill(correoDe(usuario))
+  await page.getByLabel('Usuario').fill(usuario)
   await page.getByLabel('Contraseña', { exact: true }).fill(password)
   await page.getByRole('button', { name: 'Ingresar' }).click()
 }

@@ -6,7 +6,7 @@ export function mensajeDeError(error: unknown): string {
     return 'No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.'
   }
   if (error instanceof AuthApiError) {
-    if (error.code === 'invalid_credentials') return 'El correo o la contraseña no son correctos.'
+    if (error.code === 'invalid_credentials') return 'El usuario o la contraseña no son correctos.'
     if (error.status === 429) return 'Demasiados intentos. Espera un momento e inténtalo de nuevo.'
     if (error.code === 'email_not_confirmed') return 'Este usuario no está confirmado. Avísale al administrador.'
     if (error.code === 'email_provider_disabled') {

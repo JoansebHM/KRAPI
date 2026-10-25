@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 import { AuthContext, type AuthContextValue } from './AuthContext'
 import { mensajeDeError } from './mensajesError'
+import { correoParaEntrar } from './nombreDeUsuario'
 import {
   borrarMarcas,
   evaluarSesion,
@@ -87,9 +88,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [haySesion, cerrarPor])
 
-  const iniciarSesion = useCallback<AuthContextValue['iniciarSesion']>(async (email, password) => {
+  const iniciarSesion = useCallback<AuthContextValue['iniciarSesion']>(async (usuario, password) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+      const { error } = await supabase.auth.signInWithPassword({ email: correoParaEntrar(usuario), password })
       if (error) return { error: mensajeDeError(error) }
       registrarInicio()
       setMotivoCierre(null)
