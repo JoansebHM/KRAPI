@@ -186,6 +186,12 @@ export function EstudioPresentacion({
                             {[evidencia.archivo && mostrarTamano(evidencia.archivo.bytes), quienSubio(evidencia)].filter(Boolean).join(' · ')}
                           </span>
                           {evidencia.texto && <p className="estudio-evidencia-texto">{evidencia.texto}</p>}
+                          {evidencia.tipo === 'video' && evidencia.urlExterna && (
+                            <a className="estudio-evidencia-video" href={evidencia.urlExterna} target="_blank" rel="noopener noreferrer">
+                              <Play size={16} aria-hidden="true" />
+                              Ver en SharePoint
+                            </a>
+                          )}
                           {evidencia.tipo === 'audio' && evidencia.enlace && (
                             <AudioConVelocidad
                               enlace={evidencia.enlace}
