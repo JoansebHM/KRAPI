@@ -57,6 +57,7 @@ Se usa en la calle, con una mano y con sol:
 | `.field`, `.field-label`, `.field-input`, `.field-error`, `.field-ayuda` | Campos de formulario; el error va debajo del campo y con `aria-invalid`. `.field-ayuda` es la ayuda gris debajo del campo cuando no hay error |
 | `CampoContrasena` | Contraseña con el botón "Mostrar" / "Ocultar" (login, registro) |
 | `PantallaAcceso`, `.login-alterno` | Pantalla centrada con la marca para entrar o registrarse, y el enlace de 44 px para pasar de una a otra |
+| `CuentaNoActiva`, `.cuenta-estado` | Pantalla de cuenta pendiente, rechazada o desactivada: recuadro con el estado, el nombre y el usuario, y los botones "Revisar ahora" y "Salir" |
 | `.alert-error`, `.alert-info` | Mensajes fijos en una pantalla (por ejemplo, en el login) |
 | `.lista`, `.lista-item…` | Listas tocables de los catálogos |
 | `.fab` | Botón flotante de crear. Sobre el mapa, `.fab-mapa` ("+ Nuevo lugar") queda por encima de los créditos |

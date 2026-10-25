@@ -8,7 +8,13 @@ import { AVISO_ANTES_MS, DURACION_MAXIMA_MS, INACTIVIDAD_MAXIMA_MS } from '../..
  * aplica estas reglas en el dispositivo.
  */
 
-export type MotivoCierre = 'inactividad' | 'duracion_maxima' | 'manual' | 'todos_los_dispositivos' | 'remoto'
+export type MotivoCierre =
+  | 'inactividad'
+  | 'duracion_maxima'
+  | 'manual'
+  | 'todos_los_dispositivos'
+  | 'remoto'
+  | 'cuenta_desactivada'
 
 export type EstadoSesion =
   | { tipo: 'activa' }

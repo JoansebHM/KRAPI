@@ -3,9 +3,9 @@ import { Dialog } from '../../components/Dialog'
 import { useAuth } from './useAuth'
 import './UserMenu.css'
 
-/** Menú de la cuenta: correo del usuario, cerrar sesión y cerrar sesión en todos los dispositivos. */
+/** Menú de la cuenta: nombre y usuario, cerrar sesión y cerrar sesión en todos los dispositivos. */
 export function UserMenu() {
-  const { session, cerrarSesion, cerrarSesionEnTodos } = useAuth()
+  const { perfil, cerrarSesion, cerrarSesionEnTodos } = useAuth()
   const [abierto, setAbierto] = useState(false)
   const [confirmarTodos, setConfirmarTodos] = useState(false)
   const [procesando, setProcesando] = useState(false)
@@ -52,7 +52,13 @@ export function UserMenu() {
 
       {abierto && (
         <div className="user-menu-panel" role="menu">
-          <p className="user-menu-email">{session?.user.email}</p>
+          <div className="user-menu-cuenta">
+            <p className="user-menu-nombre">{perfil?.nombre}</p>
+            <p className="user-menu-usuario">
+              {perfil?.usuario}
+              {perfil?.rol === 'admin' && ' · admin'}
+            </p>
+          </div>
           <button
             type="button"
             role="menuitem"

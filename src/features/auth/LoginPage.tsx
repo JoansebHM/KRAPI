@@ -12,6 +12,7 @@ const MENSAJES_CIERRE: Record<MotivoCierre, string | null> = {
   duracion_maxima: 'Por seguridad, la sesión se cierra cada 7 días. Vuelve a ingresar.',
   todos_los_dispositivos: 'Se cerró la sesión en todos los dispositivos.',
   remoto: 'La sesión se cerró. Vuelve a ingresar.',
+  cuenta_desactivada: 'Un admin desactivó tu cuenta. Si crees que es un error, habla con un admin del equipo.',
   manual: null,
 }
 

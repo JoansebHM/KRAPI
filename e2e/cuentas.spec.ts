@@ -12,11 +12,11 @@ test.describe('Permisos según la cuenta', () => {
     await expect(page.getByRole('button', { name: 'Café Central (Sin categoría)' })).toBeVisible()
   })
 
-  test('una cuenta pendiente no recibe los lugares', async ({ page, entrar }) => {
-    const lugares = page.waitForResponse((respuesta) => respuesta.url().includes('/rpc/lugares_mapa'))
+  test('una cuenta pendiente no ve el mapa ni pide los lugares', async ({ page, entrar, supabase }) => {
     await entrar('pendiente')
-    expect(await (await lugares).json()).toEqual([])
-    await expect(page.getByRole('button', { name: /Café Central/ })).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Tu cuenta está esperando aprobación' })).toBeVisible()
+    await expect(page.locator('.app-header')).toHaveCount(0)
+    expect(supabase.peticiones.some((p) => p.includes('/rpc/lugares_mapa'))).toBe(false)
   })
 
   test('lo que crea una cuenta queda a su nombre', async ({ page, entrar, supabase }) => {
