@@ -142,3 +142,15 @@
   margin: 0 0 var(--space-3);
   color: var(--color-text-muted);
 }
+
+/* Íconos de "¿Qué vas a registrar?": punto o zona. */
+.nuevo-lugar-icono {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-info-bg);
+  color: var(--color-accent);
+}

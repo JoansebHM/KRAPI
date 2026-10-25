@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useMatch, useNavigate } from 'react-router'
+import { useLocation, useMatch, useNavigate } from 'react-router'
 import type { FeatureCollection, Polygon } from 'geojson'
 import { useCategorias, type Categoria } from '../categorias/api'
 import { COLOR_SIN_CATEGORIA } from '../categorias/colores'
 import { IconoCategoria } from '../categorias/IconoCategoria'
 import { Marker, type GeoJSONSource, type Map as MapLibreMap, type MapLayerMouseEvent } from '../map/maplibre'
 import type { Theme } from '../theme/useTheme'
+import { useTiposZona } from '../tiposZona/api'
 import { useLugares, type Punto, type Zona } from './api'
 import { CAPA_RELLENO, tocoUnMarcador } from './tocarLugar'
 import './LugaresEnMapa.css'
@@ -14,10 +15,13 @@ import './LugaresEnMapa.css'
 const FUENTE_ZONAS = 'lugares-zonas'
 const CAPA_BORDE = 'lugares-zonas-borde'
 
-/** Las zonas van en lila para no confundirse con el límite azul de Manila. */
-const COLORES_ZONA: Record<Theme, { relleno: string; borde: string; opacidad: number }> = {
-  light: { relleno: '#9e7ae1', borde: '#6100df', opacidad: 0.18 },
-  dark: { relleno: '#9e7ae1', borde: '#b59cf0', opacidad: 0.22 },
+/**
+ * Cada zona se pinta con el color de su tipo. Las que no tienen tipo van en lila, para no
+ * confundirse con el límite azul de Manila.
+ */
+const COLORES_ZONA: Record<Theme, { sinTipo: string; opacidad: number }> = {
+  light: { sinTipo: '#9e7ae1', opacidad: 0.2 },
+  dark: { sinTipo: '#b59cf0', opacidad: 0.26 },
 }
 
 interface LugaresEnMapaProps {
@@ -29,9 +33,11 @@ interface LugaresEnMapaProps {
 export function LugaresEnMapa({ mapa, theme }: LugaresEnMapaProps) {
   const { data: lugares } = useLugares()
   const { data: categorias } = useCategorias()
+  const { data: tiposZona } = useTiposZona()
   const navigate = useNavigate()
-  // Mientras se ubica un lugar nuevo, tocar el mapa no abre fichas.
-  const creando = useMatch('/lugares/nuevo') !== null
+  // Mientras se ubica o se dibuja un lugar, tocar el mapa no abre fichas.
+  const { pathname } = useLocation()
+  const creando = /^\/(lugares\/nuevo|zonas\/nueva)$|\/(mover|redibujar)$/.test(pathname)
   const idEnRuta = useMatch('/lugares/:id')?.params.id
   const seleccionado = creando ? undefined : idEnRuta
 
@@ -39,9 +45,11 @@ export function LugaresEnMapa({ mapa, theme }: LugaresEnMapaProps) {
   const zonas = useMemo(() => (lugares ?? []).filter((lugar): lugar is Zona => lugar.tipo === 'zona'), [lugares])
   const categoriaPorId = useMemo(() => new Map((categorias ?? []).map((categoria) => [categoria.id, categoria])), [categorias])
 
+  const colorPorTipo = useMemo(() => new Map((tiposZona ?? []).map((tipo) => [tipo.id, tipo.color])), [tiposZona])
+
   const abrir = useCallback((id: string) => navigate(`/lugares/${id}`), [navigate])
 
-  useZonas(mapa, zonas, theme, seleccionado, creando ? undefined : abrir)
+  useZonas(mapa, zonas, colorPorTipo, theme, seleccionado, creando ? undefined : abrir)
 
   return puntos.map((punto) => (
     <MarcadorPunto
@@ -104,17 +112,29 @@ function MarcadorPunto({ mapa, punto, categoria, seleccionado, onAbrir }: Marcad
 }
 
 /** Mantiene la fuente y las capas de las zonas, también después de cambiar el mapa base (tema). */
-function useZonas(mapa: MapLibreMap, zonas: Zona[], theme: Theme, seleccionado: string | undefined, onAbrir?: (id: string) => void) {
+function useZonas(
+  mapa: MapLibreMap,
+  zonas: Zona[],
+  colorPorTipo: Map<string, string>,
+  theme: Theme,
+  seleccionado: string | undefined,
+  onAbrir?: (id: string) => void,
+) {
   const datos = useMemo<FeatureCollection<Polygon>>(
     () => ({
       type: 'FeatureCollection',
       features: zonas.map((zona) => ({
         type: 'Feature',
         geometry: zona.geometria,
-        properties: { id: zona.id, cerrada: zona.estado === 'cerrada', seleccionada: zona.id === seleccionado },
+        properties: {
+          id: zona.id,
+          cerrada: zona.estado === 'cerrada',
+          seleccionada: zona.id === seleccionado,
+          color: (zona.tipoZonaId && colorPorTipo.get(zona.tipoZonaId)) || COLORES_ZONA[theme].sinTipo,
+        },
       })),
     }),
-    [zonas, seleccionado],
+    [zonas, seleccionado, colorPorTipo, theme],
   )
 
   // Los listeners del mapa leen siempre lo último sin volver a registrarse.
@@ -135,7 +155,7 @@ function useZonas(mapa: MapLibreMap, zonas: Zona[], theme: Theme, seleccionado: 
           type: 'fill',
           source: FUENTE_ZONAS,
           paint: {
-            'fill-color': colores.relleno,
+            'fill-color': ['get', 'color'],
             'fill-opacity': ['case', ['get', 'cerrada'], colores.opacidad / 2, colores.opacidad],
           },
         })
@@ -146,7 +166,7 @@ function useZonas(mapa: MapLibreMap, zonas: Zona[], theme: Theme, seleccionado: 
           type: 'line',
           source: FUENTE_ZONAS,
           paint: {
-            'line-color': colores.borde,
+            'line-color': ['get', 'color'],
             'line-width': ['case', ['get', 'seleccionada'], 4, 2],
             'line-opacity': ['case', ['get', 'cerrada'], 0.5, 1],
           },

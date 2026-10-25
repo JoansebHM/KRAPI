@@ -13,6 +13,7 @@ interface MenuNavegacionProps {
 const SECCIONES = [
   { ruta: '/', texto: 'Mapa', icono: <IconoMapa /> },
   { ruta: '/categorias', texto: 'Categorías', icono: <IconoEtiqueta /> },
+  { ruta: '/tipos-de-zona', texto: 'Tipos de zona', icono: <IconoZona /> },
 ]
 
 /** Menú lateral con las secciones de la app. En celular se abre encima con ☰ y se cierra al elegir. */
@@ -56,7 +57,7 @@ export function MenuFijo() {
   )
 }
 
-/** Las secciones de la app: Mapa, Categorías, Usuarios (admins) y Documentación. */
+/** Las secciones de la app: Mapa, Categorías, Tipos de zona, Usuarios (admins) y Documentación. */
 function ListaSecciones() {
   const { esAdmin } = useAuth()
   // Solo un admin ve "Usuarios", con cuántas cuentas esperan aprobación.
@@ -147,6 +148,14 @@ function IconoEtiqueta() {
     <svg {...icono}>
       <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />
       <circle cx="8" cy="8" r="1.5" />
+    </svg>
+  )
+}
+
+function IconoZona() {
+  return (
+    <svg {...icono}>
+      <path d="M4 7 10 4l10 4-2 11-12 1Z" />
     </svg>
   )
 }

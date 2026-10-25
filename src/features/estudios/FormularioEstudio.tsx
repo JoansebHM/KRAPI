@@ -23,9 +23,11 @@ interface FormularioEstudioProps {
   onCerrar: () => void
   /** Al editar se enfoca el botón y no el primer campo, para que en celular no salte el teclado. */
   editando?: boolean
+  /** Los estudios de una zona (recorridos) no tienen "a quién se entrevistó". */
+  esZona?: boolean
 }
 
-export function FormularioEstudio({ titulo, lugar, campos, onCambiar, onGuardar, textoGuardar, otrasAcciones, onCerrar, editando }: FormularioEstudioProps) {
+export function FormularioEstudio({ titulo, lugar, campos, onCambiar, onGuardar, textoGuardar, otrasAcciones, onCerrar, editando, esZona }: FormularioEstudioProps) {
   const [intentoGuardar, setIntentoGuardar] = useState(false)
   const [guardando, setGuardando] = useState(false)
 
@@ -145,21 +147,23 @@ export function FormularioEstudio({ titulo, lugar, campos, onCambiar, onGuardar,
           <SelectorParticipantes valor={campos.participanteIds} onCambiar={(ids) => cambiar('participanteIds', ids)} />
         </div>
 
-        <label className="field">
-          <span className="field-label">
-            A quién se entrevistó<span className="field-opcional"> (opcional)</span>
-          </span>
-          <input
-            className="field-input"
-            type="text"
-            placeholder="Ej.: Tendero, administradora"
-            maxLength={MAX_ENTREVISTADO}
-            autoCapitalize="sentences"
-            enterKeyHint="next"
-            value={campos.entrevistado}
-            onChange={(evento) => cambiar('entrevistado', evento.target.value)}
-          />
-        </label>
+        {!esZona && (
+          <label className="field">
+            <span className="field-label">
+              A quién se entrevistó<span className="field-opcional"> (opcional)</span>
+            </span>
+            <input
+              className="field-input"
+              type="text"
+              placeholder="Ej.: Tendero, administradora"
+              maxLength={MAX_ENTREVISTADO}
+              autoCapitalize="sentences"
+              enterKeyHint="next"
+              value={campos.entrevistado}
+              onChange={(evento) => cambiar('entrevistado', evento.target.value)}
+            />
+          </label>
+        )}
 
         <CampoNotas notas={campos.notas} onCambiar={(notas) => cambiar('notas', notas)} />
       </div>

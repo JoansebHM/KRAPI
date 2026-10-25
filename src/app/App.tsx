@@ -16,6 +16,9 @@ import { CrearPunto } from '../features/lugares/CrearPunto'
 import { EstudioPagina } from '../features/estudios/EstudioPagina'
 import { FichaLugar } from '../features/lugares/FichaLugar'
 import { MoverPunto } from '../features/lugares/MoverPunto'
+import { TiposZonaPage } from '../features/tiposZona/TiposZonaPage'
+import { CrearZona } from '../features/zonas/CrearZona'
+import { RedibujarZona } from '../features/zonas/RedibujarZona'
 import { MapaProvider } from '../features/map/MapaProvider'
 import { MapView } from '../features/map/MapView'
 import { PerfilPage } from '../features/perfil/PerfilPage'
@@ -107,6 +110,9 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
               <Route path="/lugares/nuevo" element={<CrearPunto />} />
               <Route path="/lugares/:id" element={<FichaLugar />} />
               <Route path="/lugares/:id/mover" element={<MoverPunto />} />
+              <Route path="/lugares/:id/redibujar" element={<RedibujarZona />} />
+              <Route path="/zonas/nueva" element={<CrearZona />} />
+              <Route path="/tipos-de-zona" element={<TiposZonaPage />} />
               <Route path="/lugares/:id/estudios/:estudioId" element={<EstudioPagina />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

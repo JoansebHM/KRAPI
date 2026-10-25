@@ -30,7 +30,8 @@ export function EstudioPagina() {
   const [agregando, setAgregando] = useState<'opciones' | 'audio' | 'video' | null>(null)
 
   const volver = { a: `/lugares/${lugarId}`, etiqueta: 'Volver al lugar' }
-  const nombreLugar = lugares?.find((l) => l.id === lugarId)?.nombre ?? 'Lugar'
+  const lugar = lugares?.find((l) => l.id === lugarId)
+  const nombreLugar = lugar?.nombre ?? 'Lugar'
 
   if (isPending || isError) {
     return (
@@ -149,6 +150,7 @@ export function EstudioPagina() {
         <FormularioEstudio
           titulo="Editar estudio"
           lugar={nombreLugar}
+          esZona={lugar?.tipo === 'zona'}
           campos={edicion}
           onCambiar={setEdicion}
           onGuardar={() => guardarCambios(estudio)}

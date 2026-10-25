@@ -14,7 +14,8 @@ interface LugarBase {
 }
 
 export type Punto = LugarBase & { tipo: 'punto'; geometria: Point }
-export type Zona = LugarBase & { tipo: 'zona'; geometria: Polygon }
+/** Una zona puede tener un tipo (comercial, residencial…) que le da su color en el mapa. */
+export type Zona = LugarBase & { tipo: 'zona'; geometria: Polygon; tipoZonaId: string | null }
 export type Lugar = Punto | Zona
 
 export const CLAVE_LUGARES = ['lugares'] as const
@@ -28,8 +29,16 @@ export function useLugares() {
       if (error) throw error
       // La función devuelve POINT para los puntos y POLYGON para las zonas (lo exige la base de datos).
       return data.map(
-        ({ id, tipo, nombre, estado, categoria_id, geojson }) =>
-          ({ id, tipo, nombre, estado, categoriaId: categoria_id ?? null, geometria: geojson as unknown as Lugar['geometria'] }) as Lugar,
+        ({ id, tipo, nombre, estado, categoria_id, tipo_zona_id, geojson }) =>
+          ({
+            id,
+            tipo,
+            nombre,
+            estado,
+            categoriaId: categoria_id ?? null,
+            tipoZonaId: tipo_zona_id ?? null,
+            geometria: geojson as unknown as Lugar['geometria'],
+          }) as Lugar,
       )
     },
   })
@@ -128,6 +137,8 @@ export interface DetalleLugar {
   contactoNombre: string | null
   contactoTelefono: string | null
   categoriaId: string | null
+  /** Solo zonas: de qué es la zona. */
+  tipoZonaId: string | null
   estado: Enums<'estado_ubicacion'>
   archivadaEn: string | null
   creadoPor: string | null
@@ -145,7 +156,7 @@ export function useLugar(id: string | undefined) {
       const { data, error } = await supabase
         .from('ubicaciones')
         .select(
-          'id, tipo, nombre, descripcion, direccion, complemento, contacto_nombre, contacto_telefono, categoria_id, estado, archivada_en, creado_por, estudios(count)',
+          'id, tipo, nombre, descripcion, direccion, complemento, contacto_nombre, contacto_telefono, categoria_id, tipo_zona_id, estado, archivada_en, creado_por, estudios(count)',
         )
         .eq('id', id!)
         .maybeSingle()
@@ -161,6 +172,7 @@ export function useLugar(id: string | undefined) {
         contactoNombre: data.contacto_nombre,
         contactoTelefono: data.contacto_telefono,
         categoriaId: data.categoria_id,
+        tipoZonaId: data.tipo_zona_id,
         estado: data.estado,
         archivadaEn: data.archivada_en,
         creadoPor: data.creado_por,
@@ -183,7 +195,7 @@ export function camposDePunto(lugar: DetalleLugar): CamposPunto {
 }
 
 /** Después de cambiar un lugar se actualizan el mapa, su ficha y los conteos de las categorías. */
-function useAlCambiarLugar() {
+export function useAlCambiarLugar() {
   const queryClient = useQueryClient()
   return (_resultado: unknown, { id }: { id: string }) => {
     void queryClient.invalidateQueries({ queryKey: CLAVE_LUGARES })

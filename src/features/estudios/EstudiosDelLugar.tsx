@@ -16,6 +16,8 @@ import './EstudiosDelLugar.css'
 interface EstudiosDelLugarProps {
   ubicacionId: string
   nombreLugar: string
+  /** Los estudios de una zona son recorridos: no tienen "a quién se entrevistó". */
+  esZona?: boolean
   /** Estudio nuevo en preparación: el botón "Agregar estudio" está en el pie de la ficha. */
   nuevo: CamposEstudio | null
   onCambiarNuevo: (campos: CamposEstudio | null) => void
@@ -25,7 +27,7 @@ interface EstudiosDelLugarProps {
  * Histórico de estudios de un lugar (del más reciente al más antiguo). Cada estudio abre su página,
  * donde se edita, se archiva y se le agregan evidencias.
  */
-export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNuevo }: EstudiosDelLugarProps) {
+export function EstudiosDelLugar({ ubicacionId, nombreLugar, esZona = false, nuevo, onCambiarNuevo }: EstudiosDelLugarProps) {
   const { data: estudios, isPending, isError, refetch } = useEstudios(ubicacionId)
   const { data: cuentas } = useUsuarios()
   const guardar = useGuardarEstudio()
@@ -136,6 +138,7 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
         <FormularioEstudio
           titulo="Nuevo estudio"
           lugar={nombreLugar}
+          esZona={esZona}
           campos={nuevo}
           onCambiar={onCambiarNuevo}
           onGuardar={guardarNuevo}
@@ -154,6 +157,7 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
           <FormularioEstudio
             titulo="Editar estudio"
             lugar={nombreLugar}
+          esZona={esZona}
             campos={edicion}
             onCambiar={setEdicion}
             onGuardar={guardarCambios}
