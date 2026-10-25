@@ -1,11 +1,14 @@
 import { test as base, expect, type Page } from '@playwright/test'
-import { SupabaseFalso, USUARIO } from './supabase-falso'
+import { CLAVE, CUENTAS, correoDe, SupabaseFalso, type ComoQuien } from './supabase-falso'
 
 interface Fixtures {
   /** Supabase simulado de esta prueba, para preparar datos y revisar qué se guardó. */
   supabase: SupabaseFalso
-  /** Inicia sesión con el usuario compartido y deja la app en el mapa. */
-  entrar: () => Promise<void>
+  /**
+   * Inicia sesión con una de las cuentas de prueba (por defecto, el admin) y espera a que la
+   * app deje el login.
+   */
+  entrar: (como?: ComoQuien) => Promise<void>
 }
 
 export const test = base.extend<Fixtures>({
@@ -16,16 +19,17 @@ export const test = base.extend<Fixtures>({
   },
   entrar: async ({ page, supabase }, usar) => {
     void supabase // asegura que el Supabase simulado esté instalado antes de abrir la app
-    await usar(async () => {
+    await usar(async (como = 'admin') => {
       await page.goto('/')
-      await iniciarSesion(page)
-      await expect(page.locator('.app-header')).toBeVisible()
+      await iniciarSesion(page, { usuario: CUENTAS[como].usuario })
+      await expect(page.getByRole('button', { name: 'Ingresar' })).toBeHidden()
+      if (CUENTAS[como].estado === 'activo') await expect(page.locator('.app-header')).toBeVisible()
     })
   },
 })
 
-export async function iniciarSesion(page: Page, password = USUARIO.password) {
-  await page.getByLabel('Correo').fill(USUARIO.email)
+export async function iniciarSesion(page: Page, { usuario = CUENTAS.admin.usuario as string, password = CLAVE } = {}) {
+  await page.getByLabel('Correo').fill(correoDe(usuario))
   await page.getByLabel('Contraseña', { exact: true }).fill(password)
   await page.getByRole('button', { name: 'Ingresar' }).click()
 }
