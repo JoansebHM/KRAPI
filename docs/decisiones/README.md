@@ -28,3 +28,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0020 | [Nombre oficial KIRA](0020-nombre-oficial-kira.md) | Aceptada |
 | 0021 | [Usuarios individuales con aprobación de un admin](0021-usuarios-individuales.md) | Aceptada |
 | 0022 | [Edge Function para restablecer contraseñas](0022-edge-function-restablecer-clave.md) | Aceptada |
+| 0023 | [Los participantes de un estudio son cuentas](0023-participantes-son-cuentas.md) | Aceptada |
