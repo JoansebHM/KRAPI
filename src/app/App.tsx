@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
-import { BotonMenu, MenuNavegacion } from '../components/MenuNavegacion'
+import { BotonMenu, MenuFijo, MenuNavegacion } from '../components/MenuNavegacion'
 import { Notificaciones } from '../components/Notificaciones'
 import { PoweredBy } from '../components/PoweredBy'
 import { variablesFaltantes } from '../config/env'
@@ -22,6 +22,8 @@ import { ResponsablesPage } from '../features/responsables/ResponsablesPage'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
 import { UsuariosPage } from '../features/usuarios/UsuariosPage'
 import { useTheme, type Theme } from '../features/theme/useTheme'
+import { useEsEscritorio } from '../lib/useEsEscritorio'
+import { CerrarPanelAlTocarElMapa } from './CerrarPanelAlTocarElMapa'
 import './App.css'
 
 export function App() {
@@ -63,13 +65,24 @@ function Contenido({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () =
 
 function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void }) {
   const { esAdmin } = useAuth()
+  const esEscritorio = useEsEscritorio()
   const [menuAbierto, setMenuAbierto] = useState(false)
   const cerrarMenu = useCallback(() => setMenuAbierto(false), [])
+  const [menuFijoVisible, setMenuFijoVisible] = useState(leerMenuFijoVisible)
+
+  function alternarMenuFijo() {
+    setMenuFijoVisible(!menuFijoVisible)
+    guardarMenuFijoVisible(!menuFijoVisible)
+  }
 
   return (
     <div className="app">
       <header className="app-header">
-        <BotonMenu onAbrir={() => setMenuAbierto(true)} />
+        {esEscritorio ? (
+          <BotonMenu onTocar={alternarMenuFijo} menuFijoVisible={menuFijoVisible} />
+        ) : (
+          <BotonMenu onTocar={() => setMenuAbierto(true)} />
+        )}
         <span className="app-marca">
           <span className="app-brand">KIRA</span>
           <PoweredBy />
@@ -79,28 +92,52 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
           <UserMenu />
         </div>
       </header>
-      <main className="app-main">
-        <MapaProvider>
-          {/* El mapa siempre está montado; las secciones se abren encima. */}
-          <MapView theme={theme} />
-          <Routes>
-            <Route path="/" element={<BotonNuevoLugar />} />
-            <Route path="/categorias" element={<CategoriasPage />} />
-            <Route path="/responsables" element={<ResponsablesPage />} />
-            <Route path="/perfil" element={<PerfilPage />} />
-            {/* Un miembro que entra por la URL vuelve al mapa. */}
-            <Route path="/usuarios" element={esAdmin ? <UsuariosPage /> : <Navigate to="/" replace />} />
-            <Route path="/lugares/nuevo" element={<CrearPunto />} />
-            <Route path="/lugares/:id" element={<FichaLugar />} />
-            <Route path="/lugares/:id/estudios/:estudioId" element={<EstudioPagina />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </MapaProvider>
-      </main>
-      <MenuNavegacion abierto={menuAbierto} onCerrar={cerrarMenu} />
+      <div className="app-cuerpo">
+        {esEscritorio && menuFijoVisible && <MenuFijo />}
+        <main className="app-main">
+          <MapaProvider>
+            {/* El mapa siempre está montado; las secciones se abren encima. */}
+            <MapView theme={theme} />
+            <Routes>
+              <Route path="/" element={<BotonNuevoLugar />} />
+              <Route path="/categorias" element={<CategoriasPage />} />
+              <Route path="/responsables" element={<ResponsablesPage />} />
+              <Route path="/perfil" element={<PerfilPage />} />
+              {/* Un miembro que entra por la URL vuelve al mapa. */}
+              <Route path="/usuarios" element={esAdmin ? <UsuariosPage /> : <Navigate to="/" replace />} />
+              <Route path="/lugares/nuevo" element={<CrearPunto />} />
+              <Route path="/lugares/:id" element={<FichaLugar />} />
+              <Route path="/lugares/:id/estudios/:estudioId" element={<EstudioPagina />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            {esEscritorio && <CerrarPanelAlTocarElMapa />}
+          </MapaProvider>
+        </main>
+      </div>
+      {!esEscritorio && <MenuNavegacion abierto={menuAbierto} onCerrar={cerrarMenu} />}
       <InactivityDialog />
     </div>
   )
+}
+
+/** En computador el menú fijo se ve por defecto; si se oculta, se recuerda en este dispositivo. */
+const CLAVE_MENU_FIJO = 'krapi-menu-lateral'
+
+function leerMenuFijoVisible() {
+  try {
+    return localStorage.getItem(CLAVE_MENU_FIJO) !== 'oculto'
+  } catch {
+    return true
+  }
+}
+
+function guardarMenuFijoVisible(visible: boolean) {
+  try {
+    if (visible) localStorage.removeItem(CLAVE_MENU_FIJO)
+    else localStorage.setItem(CLAVE_MENU_FIJO, 'oculto')
+  } catch {
+    // Sin almacenamiento (por ejemplo, navegación privada): vuelve a verse al recargar.
+  }
 }
 
 function ConfiguracionIncompleta({ variables }: { variables: string[] }) {

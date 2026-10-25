@@ -91,7 +91,8 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Los errores de formulario van **en el campo** (`.field-error`), y los del servidor, en un toast. El formulario se queda abierto para corregir.
 
 **Pantallas y formularios**
-- `Panel`: cada sección se abre sobre el mapa, con un botón para volver. En celular ocupa todo y desde 900 px es un panel lateral de 440 px. Admite un `pie`, por ejemplo el botón flotante `.fab`.
+- `Panel`: cada sección se abre sobre el mapa, con un botón para volver. En celular ocupa todo y desde 900 px es un panel lateral de 440 px a la derecha. Admite un `pie`, por ejemplo el botón flotante `.fab`.
+- **Menú:** `useEsEscritorio()` (`lib/`) decide. En celular, `MenuNavegacion` se abre encima con ☰ y se cierra al elegir. En computador, `MenuFijo` queda a la izquierda dentro de `.app-cuerpo` (el mapa se acomoda solo al espacio) y ☰ lo oculta o lo muestra (`krapi-menu-lateral` en `localStorage`). `CerrarPanelAlTocarElMapa` cierra el panel con un clic en el mapa, salvo que se toque un lugar (`tocoUnLugar`, en `lugares/tocarLugar.ts`).
 - `Dialog`: modal accesible dibujado en `<body>` con portal. El encabezado siempre tiene título y botón X arriba a la derecha; el botón cierra mediante `onCerrar` y queda deshabilitado cuando el flujo no admite cierre. Con `onSubmit` se vuelve formulario. Al abrir enfoca el primer campo, el elemento con `data-autofocus` o el primer botón. **Al editar se enfoca el botón**, para que no salte el teclado. En celular sale desde abajo.
 - Si desde un formulario se abre una confirmación, **se cierra el formulario** para que no queden dos diálogos encimados.
 - Dentro del diálogo, los campos van en `.formulario` (`ui.css`). Los opcionales llevan `.field-opcional` en la etiqueta.

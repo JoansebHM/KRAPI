@@ -117,3 +117,17 @@
   line-height: 22px;
   text-align: center;
 }
+
+/* En computador el menú queda fijo a la izquierda, debajo de la barra, y el mapa usa el resto. */
+.menu-fijo {
+  position: static;
+  z-index: auto;
+  flex-shrink: 0;
+  width: 248px;
+  padding: var(--space-3);
+  overflow-y: auto;
+  box-shadow: none;
+  transform: none;
+  visibility: visible;
+  transition: none;
+}

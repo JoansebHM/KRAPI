@@ -84,7 +84,7 @@
   <rect class="mascara" x="496" y="316" width="200" height="48" rx="6" />
   <rect class="hoja" x="496" y="316" width="200" height="48" rx="6" />
   <text x="508" y="337" font-size="12" font-weight="600">MenuNavegacion</text>
-  <text class="mono muted" x="508" y="353" font-size="9">menú lateral ☰</text>
+  <text class="mono muted" x="508" y="353" font-size="9">☰ en celular · fijo en computador</text>
   <rect class="mascara" x="496" y="384" width="200" height="48" rx="6" />
   <rect class="hoja" x="496" y="384" width="200" height="48" rx="6" />
   <text x="508" y="405" font-size="12" font-weight="600">InactivityDialog</text>

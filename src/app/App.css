@@ -61,8 +61,16 @@
   background: var(--color-surface);
 }
 
+/* Debajo de la barra: el menú fijo (solo en computador) y el mapa con las secciones encima. */
+.app-cuerpo {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
 .app-main {
   position: relative;
   flex: 1;
+  min-width: 0;
   overflow: hidden;
 }
