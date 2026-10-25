@@ -5,6 +5,7 @@ import { Panel } from '../../components/Panel'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { AgregarEvidencia } from '../evidencias/AgregarEvidencia'
+import { AgregarVideo } from '../evidencias/AgregarVideo'
 import { EvidenciasDelEstudio } from '../evidencias/EvidenciasDelEstudio'
 import { GrabadorAudio } from '../evidencias/GrabadorAudio'
 import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
@@ -28,7 +29,7 @@ export function EstudioPagina() {
   const guardar = useGuardarEstudio()
   const archivar = useArchivarEstudio()
   const [edicion, setEdicion] = useState<CamposEstudio | null>(null)
-  const [agregando, setAgregando] = useState<'opciones' | 'audio' | null>(null)
+  const [agregando, setAgregando] = useState<'opciones' | 'audio' | 'video' | null>(null)
 
   const volver = { a: `/lugares/${lugarId}`, etiqueta: 'Volver al lugar' }
   const nombreLugar = lugares?.find((l) => l.id === lugarId)?.nombre ?? 'Lugar'
@@ -148,9 +149,15 @@ export function EstudioPagina() {
       <EvidenciasDelEstudio estudioId={estudio.id} />
 
       {agregando === 'opciones' && (
-        <AgregarEvidencia onArchivos={subir} onGrabarAudio={() => setAgregando('audio')} onCerrar={() => setAgregando(null)} />
+        <AgregarEvidencia
+          onArchivos={subir}
+          onGrabarAudio={() => setAgregando('audio')}
+          onVideo={() => setAgregando('video')}
+          onCerrar={() => setAgregando(null)}
+        />
       )}
       {agregando === 'audio' && <GrabadorAudio onUsar={(audio) => subir([audio])} onCerrar={() => setAgregando(null)} />}
+      {agregando === 'video' && <AgregarVideo estudioId={estudio.id} onCerrar={() => setAgregando(null)} />}
 
       {edicion && (
         <FormularioEstudio

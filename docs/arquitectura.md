@@ -28,7 +28,8 @@ src/
                   nombre de usuario → correo interno (nombreDeUsuario.ts)
     categorias/   CRUD de categorías, colores e íconos
     estudios/     Estudios de un lugar: formulario, selector de responsables, histórico y página del estudio
-    evidencias/   Subir, grabar, listar y borrar evidencias; cola de subidas y compresión de fotos
+    evidencias/   Subir, grabar, listar y borrar evidencias; cola de subidas y compresión de fotos;
+                  videos de SharePoint por enlace (AgregarVideo, sharepoint.ts)
     perfil/       Mi perfil: nombre, "Este soy yo" (responsable vinculado) y cambiar la contraseña
     lugares/      Lugares en el mapa (marcadores y zonas), su ficha (FichaLugar, EditarPunto) y crear y
                   mover puntos con la mira (MiraCentral, CrearPunto, MoverPunto)

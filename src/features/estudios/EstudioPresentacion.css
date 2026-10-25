@@ -494,3 +494,22 @@
   font-size: 0.8125rem;
   color: var(--color-text-muted);
 }
+
+/* Un video de SharePoint se abre en otra pestaña (mientras se resuelve #22). */
+.estudio-evidencia-video {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0 var(--space-4) 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.estudio-evidencia-video:hover {
+  background: var(--color-surface);
+}

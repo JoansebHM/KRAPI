@@ -64,10 +64,10 @@ export function EvidenciasDelEstudio({ estudioId }: { estudioId: string }) {
             <li key={evidencia.id} className="evidencia">
               <a
                 className="lista-item"
-                href={evidencia.enlace ?? undefined}
+                href={enlaceDe(evidencia) ?? undefined}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-disabled={!evidencia.enlace}
+                aria-disabled={!enlaceDe(evidencia)}
               >
                 <IconoTipoEvidencia tipo={evidencia.tipo} mime={evidencia.archivo?.mime} />
                 <span className="lista-item-textos">
@@ -75,6 +75,7 @@ export function EvidenciasDelEstudio({ estudioId }: { estudioId: string }) {
                   <span className="lista-item-detalle">
                     {NOMBRE_TIPO[evidencia.tipo]}
                     {evidencia.archivo && ` · ${mostrarTamano(evidencia.archivo.bytes)}`}
+                    {evidencia.urlExterna && ' · SharePoint'}
                     {nombreDeCuenta(evidencia.creadaPor) && ` · ${nombreDeCuenta(evidencia.creadaPor)}`}
                   </span>
                 </span>
@@ -110,7 +111,10 @@ export function EvidenciasDelEstudio({ estudioId }: { estudioId: string }) {
           }
         >
           <p>
-            Se borra «{nombreDe(porBorrar)}» con su archivo, para siempre. <strong>No se puede deshacer.</strong>
+            {porBorrar.archivo
+              ? `Se borra «${nombreDe(porBorrar)}» con su archivo, para siempre. `
+              : `Se quita «${nombreDe(porBorrar)}» de este estudio. El video sigue en SharePoint. `}
+            <strong>No se puede deshacer.</strong>
           </p>
         </Dialog>
       )}
@@ -119,6 +123,9 @@ export function EvidenciasDelEstudio({ estudioId }: { estudioId: string }) {
 }
 
 const nombreDe = (evidencia: Evidencia) => evidencia.titulo ?? evidencia.archivo?.nombre ?? NOMBRE_TIPO[evidencia.tipo]
+
+/** Un archivo se abre con su enlace temporal; un video, con su enlace de SharePoint. */
+const enlaceDe = (evidencia: Evidencia) => evidencia.enlace ?? evidencia.urlExterna
 
 function FilaSubida({ subida }: { subida: Subida }) {
   const conError = subida.estado === 'error'

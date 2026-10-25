@@ -51,6 +51,7 @@ Reglas de negocio:
    - **Tomar foto** con la cámara. Las fotos se reducen (2048 px de lado mayor) y se comprimen antes de subirlas, para ahorrar datos.
    - **Grabar audio** dentro de la app. Se escucha antes de subirlo.
    - **Elegir archivos**: fotos, audios, PDF, Word o Excel, varios a la vez, hasta 50 MB cada uno.
+   - **Video de SharePoint**: se pega el enlace (o el código para insertar) y un título opcional. Por ahora solo se aceptan enlaces de SharePoint, y el video se abre en otra pestaña (verlo dentro de la app espera la prueba de #22).
 
    Cada archivo muestra su avance. Si falla, se explica por qué y se puede reintentar. Las subidas siguen aunque se vuelva al mapa. Una evidencia equivocada se borra de verdad, con confirmación.
 6. Al tocar un punto se abre su **ficha**: categoría, estado, dirección, contacto (el teléfono se toca para llamar o, si es un celular, abrir WhatsApp) y descripción. Desde ahí se **edita**, se **mueve** con la misma mira, se marca **cerrado** (o activo de nuevo) y se **archiva**: sale del mapa, con "Deshacer", y desde su ficha se recupera. Solo se borra de verdad un punto sin estudios, y solo quien lo creó o un admin.
@@ -59,7 +60,7 @@ Reglas de negocio:
 
 Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo el área en m².
 
-> **Ya funcionan** los pasos 2 a 6 para puntos. Faltan las zonas (#15) y los videos por enlace (#19). Los estudios ya tienen una presentación con carrusel de fotos, reproducción de audio y descarga de documentos. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
+> **Ya funcionan** los pasos 2 a 6 para puntos. Faltan las zonas (#15). Los estudios ya tienen una presentación con carrusel de fotos, reproducción de audio y descarga de documentos. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
 
 ## Estado
 
@@ -74,6 +75,7 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Crear puntos desde el mapa: botón "+ Nuevo lugar", mira fija en el centro, "Mi ubicación", bloqueo fuera de Manila, aviso de lugares a menos de 15 m y formulario del lugar.
 - Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con responsables (vienen marcados el de la cuenta y los del último estudio del celular). La ficha muestra el histórico; al tocar un estudio se abre su presentación con fotos y otras evidencias, y desde ahí se puede editar o agregar evidencias.
 - Evidencias de archivo: tomar fotos (comprimidas antes de subir), grabar audios en la app y subir documentos, con avance, reintento y borrado con confirmación.
+- Videos de SharePoint por enlace (se abren en otra pestaña).
 - Esquema completo en Supabase con seguridad (RLS) y bucket privado de evidencias.
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`.
@@ -83,7 +85,6 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 | Issue | Qué |
 | --- | --- |
 | #15 | Crear zonas (y elegir punto o zona en el "+"), y su ficha |
-| #19 | Evidencias de video por enlace |
 | #21 | Filtros |
 | #22 | Prueba de SharePoint |
 | #23 | Revisión móvil |
