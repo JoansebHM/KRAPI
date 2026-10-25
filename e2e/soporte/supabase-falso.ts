@@ -90,6 +90,9 @@ const MAPA_VACIO = {
   layers: [{ id: 'fondo', type: 'background', paint: { 'background-color': '#eef0f3' } }],
 }
 
+/** Fecha de creación de las filas que preparan las pruebas sin indicarla. */
+const FECHA_PREPARADA = '2026-10-23T15:00:00Z'
+
 /** El token simulado dura un año: así las pruebas pueden fijar el reloj del navegador en otra fecha. */
 const DURACION_TOKEN_S = 365 * 24 * 3600
 
@@ -458,6 +461,7 @@ export class SupabaseFalso {
           const fila = {
             id: datos.id ?? crypto.randomUUID(),
             created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
             ...datos,
             ...(tabla === 'ubicaciones' ? { geom: geometria(datos.geom) } : {}),
             // Autoría: la pone la base de datos, no la app.
@@ -474,7 +478,11 @@ export class SupabaseFalso {
         if (tabla === 'estudios' && cambios.hora_inicio && !(String(cambios.hora_fin) > String(cambios.hora_inicio))) return this.invalido(ruta)
         for (const fila of filas.filter(coincide)) {
           if (typeof cambios.nombre === 'string' && this.nombreRepetido(tabla, cambios.nombre, fila.id)) return this.duplicado(ruta)
-          Object.assign(fila, cambios, tabla === 'estudio_responsables' ? {} : { creado_por: fila.creado_por, actualizado_por: cuenta?.id })
+          Object.assign(
+            fila,
+            cambios,
+            tabla === 'estudio_responsables' ? {} : { creado_por: fila.creado_por, actualizado_por: cuenta?.id, updated_at: new Date().toISOString() },
+          )
         }
         return ruta.fulfill({ status: 204, body: '' })
       }
@@ -509,6 +517,8 @@ export class SupabaseFalso {
           .filter((r) => r.estudio_id === fila.id)
           .map((r) => ({ [embebida[2]]: r[embebida[2]] }))
       }
+      // Las filas que preparan las pruebas pueden no traer fechas; en la base real siempre las tienen.
+      else if ((campo === 'created_at' || campo === 'updated_at') && fila[campo] == null) resultado[campo] = FECHA_PREPARADA
       else resultado[campo] = fila[campo] ?? null
     }
     return resultado
