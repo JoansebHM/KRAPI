@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
+import { useAuth } from '../auth/useAuth'
 import { CLAVE_RESPONSABLES, useResponsables } from '../responsables/api'
 import { estudioNuevo, recordarResponsables } from './campos'
 
@@ -67,7 +68,8 @@ export function useEstudios(ubicacionId: string | undefined) {
 /** Prepara los campos de un estudio nuevo en el momento de abrir el formulario. */
 export function useCamposEstudioNuevo() {
   const { data: responsables } = useResponsables()
-  return () => estudioNuevo(responsables?.map((r) => r.id))
+  const { perfil } = useAuth()
+  return () => estudioNuevo(responsables?.map((r) => r.id), perfil?.responsable_id)
 }
 
 /** Texto limpio o NULL si quedó vacío. */

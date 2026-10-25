@@ -57,6 +57,7 @@ npx supabase stop  # apaga Supabase local
 - El mapa siempre está de fondo. Las secciones (Categorías, Responsables…) se abren encima desde el menú ☰: en celular ocupan la pantalla y en computador son un panel lateral.
 - Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera. Al tocar un lugar del mapa se abre su ficha en `/lugares/<id>`, y "+ Nuevo lugar" abre la mira para registrar uno en `/lugares/nuevo`.
 - En el histórico de un lugar, tocar un estudio abre su presentación con el carrusel de fotos y el resto de evidencias. Desde el modal se puede editar o abrir la página del estudio para agregar evidencia.
+- Desde el menú de la cuenta, **Mi perfil** (`/perfil`) deja cambiar el nombre, la contraseña y elegir "Este soy yo": el responsable que es cada quien en los estudios, que luego viene marcado al registrar uno nuevo.
 - Los admins ven además **Usuarios** (`/usuarios`), con un contador de las cuentas que esperan aprobación. Ahí aprueban, rechazan, desactivan y reactivan cuentas, y nombran o quitan admins. Si un miembro entra a `/usuarios` por la URL, vuelve al mapa.
 - Al desplegar (#24) el hosting debe redirigir todas las rutas a `index.html`, excepto `/docs`, que es un archivo propio (`dist/docs/index.html`).
 
@@ -164,6 +165,7 @@ src/
   features/     # Una carpeta por funcionalidad
     auth/       # Inicio de sesión, registro, política de sesión y menú de la cuenta
     categorias/ # Administración de categorías
+    perfil/       # Mi perfil: nombre, responsable vinculado y contraseña
     responsables/ # Administración de responsables
     usuarios/     # Administración de cuentas (solo admins)
     estudios/   # Estudios de cada lugar (visitas), su histórico y la página de cada estudio

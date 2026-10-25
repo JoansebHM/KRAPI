@@ -46,7 +46,7 @@ Reglas de negocio:
 3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, o con "Mi ubicación".
    - Si el punto queda fuera de Manila, no deja continuar.
    - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo. Si lo es, se toca y se le **agrega el estudio** ahí mismo, sin duplicar el lugar.
-4. Llena el lugar (nombre, categoría, dirección, complemento y contacto) y, en el siguiente paso, el **estudio**. La fecha (hoy) y la hora de inicio (ahora) vienen prellenadas, la de fin una hora después, y los responsables vienen con los del último estudio hecho desde ese celular. También puede elegir "Solo guardar el lugar".
+4. Llena el lugar (nombre, categoría, dirección, complemento y contacto) y, en el siguiente paso, el **estudio**. La fecha (hoy) y la hora de inicio (ahora) vienen prellenadas, la de fin una hora después, y los responsables vienen marcados: el de la cuenta ("Este soy yo", en Mi perfil) y los del último estudio hecho desde ese celular. También puede elegir "Solo guardar el lugar".
 5. Al guardar el estudio se abre **su página**, con el botón **"Agregar evidencia"**:
    - **Tomar foto** con la cámara. Las fotos se reducen (2048 px de lado mayor) y se comprimen antes de subirlas, para ahorrar datos.
    - **Grabar audio** dentro de la app. Se escucha antes de subirlo.

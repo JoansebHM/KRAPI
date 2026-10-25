@@ -29,6 +29,7 @@ src/
     categorias/   CRUD de categorías, colores e íconos
     estudios/     Estudios de un lugar: formulario, selector de responsables, histórico y página del estudio
     evidencias/   Subir, grabar, listar y borrar evidencias; cola de subidas y compresión de fotos
+    perfil/       Mi perfil: nombre, "Este soy yo" (responsable vinculado) y cambiar la contraseña
     lugares/      Lugares en el mapa (marcadores y zonas), su ficha y crear puntos
     map/          Mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
     responsables/ CRUD de responsables y avatares

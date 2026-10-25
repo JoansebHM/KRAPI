@@ -28,10 +28,15 @@ export function fechaLocal(fecha = new Date()) {
 }
 
 /**
- * Campos de un estudio nuevo: hoy, desde ahora hasta dentro de una hora, con los responsables del último
- * estudio que todavía existen (si aún no se conocen los existentes, sin responsables).
+ * Campos de un estudio nuevo: hoy, desde ahora hasta dentro de una hora, con el responsable vinculado a la
+ * cuenta ("Este soy yo") y los del último estudio de este dispositivo que todavía existen (si aún no se
+ * conocen los existentes, sin responsables).
  */
-export function estudioNuevo(responsablesExistentes: string[] | undefined, ahora = new Date()): CamposEstudio {
+export function estudioNuevo(
+  responsablesExistentes: string[] | undefined,
+  responsablePropio: string | null = null,
+  ahora = new Date(),
+): CamposEstudio {
   const inicio = `${dosDigitos(ahora.getHours())}:${dosDigitos(ahora.getMinutes())}`
   // Si la hora siguiente pasa de la medianoche, el fin queda en 23:59 (el estudio es de un solo día).
   const fin = ahora.getHours() < 23 ? `${dosDigitos(ahora.getHours() + 1)}:${dosDigitos(ahora.getMinutes())}` : '23:59'
@@ -40,7 +45,9 @@ export function estudioNuevo(responsablesExistentes: string[] | undefined, ahora
     fecha: fechaLocal(ahora),
     horaInicio: inicio,
     horaFin: fin,
-    responsableIds: ultimosResponsables().filter((id) => responsablesExistentes?.includes(id)),
+    responsableIds: [...new Set([responsablePropio, ...ultimosResponsables()])].filter(
+      (id): id is string => id !== null && Boolean(responsablesExistentes?.includes(id)),
+    ),
     entrevistado: '',
     descripcion: '',
   }
