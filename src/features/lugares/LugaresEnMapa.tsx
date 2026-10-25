@@ -8,10 +8,10 @@ import { IconoCategoria } from '../categorias/IconoCategoria'
 import { Marker, type GeoJSONSource, type Map as MapLibreMap, type MapLayerMouseEvent } from '../map/maplibre'
 import type { Theme } from '../theme/useTheme'
 import { useLugares, type Punto, type Zona } from './api'
+import { CAPA_RELLENO, tocoUnMarcador } from './tocarLugar'
 import './LugaresEnMapa.css'
 
 const FUENTE_ZONAS = 'lugares-zonas'
-const CAPA_RELLENO = 'lugares-zonas-relleno'
 const CAPA_BORDE = 'lugares-zonas-borde'
 
 /** Las zonas van en lila para no confundirse con el límite azul de Manila. */
@@ -156,7 +156,7 @@ function useZonas(mapa: MapLibreMap, zonas: Zona[], theme: Theme, seleccionado: 
 
     function alTocar(evento: MapLayerMouseEvent) {
       // Un toque sobre un marcador también llega al mapa: ese lo maneja el marcador.
-      if (evento.originalEvent.target instanceof Element && evento.originalEvent.target.closest('.marcador-lugar')) return
+      if (tocoUnMarcador(evento)) return
       // Si hay zonas superpuestas, se abre la más pequeña, que es la más difícil de tocar.
       const zona = [...(evento.features ?? [])].sort((a, b) => area(a.geometry as Polygon) - area(b.geometry as Polygon))[0]
       if (zona) actual.current.onAbrir?.(String(zona.properties.id))
