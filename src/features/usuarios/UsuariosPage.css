@@ -52,18 +52,6 @@
   color: var(--color-on-primary);
 }
 
-.usuario-inicial {
-  display: grid;
-  flex-shrink: 0;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--color-info-bg);
-  color: var(--color-accent);
-  font-weight: 700;
-}
-
 .usuario-tu {
   font-weight: 400;
   color: var(--color-text-muted);

@@ -11,11 +11,16 @@ export type Rol = Enums<'rol_usuario'>
 
 export const CLAVE_USUARIOS = ['usuarios'] as const
 
-/** Cuentas del equipo. Solo las usa un admin (un miembro activo también las puede leer). */
+/** Semilla con la que se dibuja el avatar de una cuenta: la elegida, o el id si nunca se eligió una. */
+export const semillaDe = (cuenta: Pick<Usuario, 'id' | 'avatar_semilla'>) => cuenta.avatar_semilla ?? cuenta.id
+
+/**
+ * Cuentas del equipo: para administrarlas, elegir participantes y mostrar quién hizo qué. Un
+ * miembro activo las puede leer todas.
+ */
 export function useUsuarios({ habilitado = true } = {}) {
   return useQuery({
     queryKey: CLAVE_USUARIOS,
-    refetchOnMount: 'always',
     enabled: habilitado,
     queryFn: async (): Promise<Usuario[]> => {
       const { data, error } = await supabase.from('perfiles').select('*')
