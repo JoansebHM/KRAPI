@@ -10,7 +10,11 @@ El foco está en los **locales fijos** (tiendas, cafés, restaurantes…): no en
 
 ## Quién la usa
 
-- **Integrantes de Kratos.** Es un grupo pequeño que entra con **un solo usuario compartido**. Cualquiera que haya iniciado sesión puede ver y editar todo.
+- **Integrantes de Kratos.** Es un grupo pequeño. Hoy entra con **un solo usuario compartido** y se está pasando a **una cuenta por integrante** (milestone *Usuarios individuales*, [decisión 0021](decisiones/0021-usuarios-individuales.md)):
+  - Cada quien se registra con **nombre, nombre de usuario y contraseña**, sin correo. La cuenta queda **pendiente** hasta que un admin la apruebe.
+  - **Miembros:** ven, crean y editan lugares, estudios, evidencias y catálogos. Solo borran las evidencias y los lugares sin estudios que ellos mismos crearon.
+  - **Admins:** además aprueban, rechazan, desactivan y reactivan cuentas, nombran a otros admins y borran cualquier cosa que se pueda borrar. Si alguien olvida su contraseña, un admin la restablece.
+  - Cada registro guarda quién lo creó y quién lo editó por última vez.
 - **Se usa sobre todo en el celular, en la calle.** A veces con una mano, con sol y con datos móviles. Por eso cada pantalla se diseña primero para celular (ver [`diseno.md`](diseno.md)).
 
 ## Conceptos
@@ -70,6 +74,8 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`.
 
+**Siguiente: usuarios individuales** (milestone *Usuarios individuales*, #68 a #81). Va antes de lo que falta del MVP.
+
 **Pendiente del MVP:**
 
 | Issue | Qué |
@@ -77,7 +83,6 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 | #15 | Crear zonas (y elegir punto o zona en el "+") |
 | #16 | Ficha del lugar completa (datos, histórico, editar y archivar) |
 | #19 | Evidencias de texto y videos por enlace |
-| #20 | Visor de evidencias según su tipo |
 | #21 | Filtros |
 | #22 | Prueba de SharePoint |
 | #23 | Revisión móvil |
@@ -90,5 +95,4 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Salidas o jornadas de campo.
 - Tipos de estudio, equipos (estrategia, desarrollo técnico…).
 - Datos medibles y reportes numéricos.
-- Usuarios individuales y permisos por persona.
 - Subida de videos al bucket (se usan enlaces de SharePoint).

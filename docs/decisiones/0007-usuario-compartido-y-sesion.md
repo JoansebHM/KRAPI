@@ -1,6 +1,6 @@
 # 0007 · Usuario compartido y política de sesión
 
-**Estado:** aceptada · 2026-10
+**Estado:** reemplazada por [0021 · Usuarios individuales con aprobación de un admin](0021-usuarios-individuales.md) · 2026-10
 
 ## Contexto
 

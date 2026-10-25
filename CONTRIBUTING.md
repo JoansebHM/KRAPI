@@ -94,6 +94,7 @@ Cada issue lleva al menos un label de **tipo**, uno de **área** y uno de **prio
 ## Milestones
 
 - **MVP:** todo lo necesario para la primera versión usable en campo.
+- **Usuarios individuales:** cuentas por integrante con registro, aprobación de un admin, roles y trazabilidad. Va antes de lo que falta del MVP.
 
 Las funcionalidades posteriores se agrupan en nuevos milestones a medida que se definan.
 
