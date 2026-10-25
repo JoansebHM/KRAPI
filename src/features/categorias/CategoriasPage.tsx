@@ -50,7 +50,9 @@ export function CategoriasPage() {
         },
       })
     } catch (error) {
-      notificar.error('No se pudo eliminar', { descripcion: mensajeErrorDatos(error) })
+      notificar.error('No se pudo eliminar', {
+        descripcion: mensajeErrorDatos(error, { sinPermiso: 'Solo un admin puede eliminar categorías.' }),
+      })
     }
   }
 

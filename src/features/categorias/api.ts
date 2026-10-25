@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { SIN_PERMISO } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
 import { compararTexto } from '../../lib/texto'
 import type { Tables } from '../../types/database'
@@ -75,8 +76,9 @@ export function useEliminarCategoria() {
         .eq('categoria_id', categoria.id)
       if (errorUbicaciones) throw errorUbicaciones
 
-      const { error } = await supabase.from('categorias').delete().eq('id', categoria.id)
+      const { data: borradas, error } = await supabase.from('categorias').delete().eq('id', categoria.id).select('id')
       if (error) throw error
+      if (borradas.length === 0) throw SIN_PERMISO
       return { categoria, ubicacionIds: ubicaciones.map(({ id }) => id) }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CLAVE_CATEGORIAS }),

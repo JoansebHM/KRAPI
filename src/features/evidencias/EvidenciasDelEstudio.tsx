@@ -23,7 +23,9 @@ export function EvidenciasDelEstudio({ estudioId }: { estudioId: string }) {
       setPorBorrar(null)
       notificar.exito('Evidencia borrada', { descripcion: `«${nombreDe(evidencia)}» se borró.` })
     } catch (error) {
-      notificar.error('No se pudo borrar', { descripcion: mensajeErrorDatos(error) })
+      notificar.error('No se pudo borrar', {
+        descripcion: mensajeErrorDatos(error, { sinPermiso: 'Solo quien la subió o un admin puede borrarla.' }),
+      })
     }
   }
 

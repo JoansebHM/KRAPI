@@ -15,6 +15,7 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - los estudios traen embebidos sus responsables: estudio_responsables(responsable_id)
  * - una evidencia de foto, audio o documento lleva su archivo completo → 23514
  * - Storage: el bucket `evidencias` acepta solo sus tipos de archivo y hasta 50 MB, y firma enlaces
+ * - si RLS no deja borrar (tablas en `borradosNegados`), el borrado no da error: borra 0 filas
  *
  * En `ubicaciones`, `geom` se guarda directamente como GeoJSON (en la base real es PostGIS).
  * Si la app la envía como texto ('SRID=4326;POINT(lng lat)'), se convierte.
@@ -86,6 +87,8 @@ export class SupabaseFalso {
   archivos = new Map<string, ArchivoFalso>()
   /** Si es verdadero, las subidas de archivos fallan con un error del servidor. */
   fallarSubidas = false
+  /** Tablas en las que RLS no deja borrar: el DELETE responde sin error pero no borra nada. */
+  borradosNegados = new Set<Tabla>()
   /** Peticiones recibidas, por ejemplo "POST /auth/v1/logout?scope=global". */
   peticiones: string[] = []
 
@@ -251,7 +254,8 @@ export class SupabaseFalso {
         return ruta.fulfill({ status: 204, body: '' })
       }
       case 'DELETE': {
-        for (const fila of filas.filter(coincide)) {
+        const borradas = this.borradosNegados.has(tabla) ? [] : filas.filter(coincide)
+        for (const fila of borradas) {
           filas.splice(filas.indexOf(fila), 1)
           if (tabla === 'categorias') {
             for (const ubicacion of this.db.ubicaciones) if (ubicacion.categoria_id === fila.id) ubicacion.categoria_id = null
@@ -260,7 +264,8 @@ export class SupabaseFalso {
             this.db.estudio_responsables = this.db.estudio_responsables.filter((r) => r.responsable_id !== fila.id)
           }
         }
-        return ruta.fulfill({ status: 204, body: '' })
+        if (!select) return ruta.fulfill({ status: 204, body: '' })
+        return ruta.fulfill({ json: borradas.map((fila) => this.proyectar(tabla, fila, select)) })
       }
       default:
         return ruta.fulfill({ status: 405, json: {} })
