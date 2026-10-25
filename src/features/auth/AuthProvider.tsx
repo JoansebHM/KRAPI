@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
+import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
+import { usePerfil } from './api'
 import { AuthContext, type AuthContextValue } from './AuthContext'
 import { mensajeDeError } from './mensajesError'
 import { correoParaEntrar } from './nombreDeUsuario'
@@ -25,6 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [avisoInactividadSegundos, setAvisoInactividadSegundos] = useState<number | null>(null)
   // Motivo del próximo cierre, cuando lo inicia esta misma pestaña.
   const motivoPendienteRef = useRef<MotivoCierre | null>(null)
+  const queryClient = useQueryClient()
 
   // Sesión guardada y cambios de sesión (inicio, cierre, renovación del token).
   useEffect(() => {
@@ -38,15 +41,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         motivoPendienteRef.current = null
         setAvisoInactividadSegundos(null)
         borrarMarcas()
+        // Si después entra otra cuenta en este dispositivo, no debe ver datos de la anterior.
+        queryClient.clear()
       }
     })
     return () => data.subscription.unsubscribe()
-  }, [])
+  }, [queryClient])
 
   const cerrarPor = useCallback(async (motivo: MotivoCierre) => {
     motivoPendienteRef.current = motivo
     await supabase.auth.signOut({ scope: 'local' })
   }, [])
+
+  // Perfil de la cuenta: rol y estado. Si un admin la desactiva con la app abierta, se cierra la sesión.
+  const consultaPerfil = usePerfil(session?.user.id)
+  const perfil = consultaPerfil.data
+  const estadoAnteriorRef = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    if (perfil?.estado === 'desactivado' && estadoAnteriorRef.current === 'activo') void cerrarPor('cuenta_desactivada')
+    estadoAnteriorRef.current = perfil?.estado
+  }, [perfil?.estado, cerrarPor])
 
   // Política de sesión: inactividad (2 h) y duración máxima (7 días).
   const haySesion = Boolean(session)
@@ -135,9 +149,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAvisoInactividadSegundos(null)
   }, [])
 
+  const { refetch: refetchPerfil } = consultaPerfil
+  const recargarPerfil = useCallback(() => void refetchPerfil(), [refetchPerfil])
+  const errorPerfil = consultaPerfil.isError && !perfil
+  const esAdmin = perfil?.estado === 'activo' && perfil.rol === 'admin'
+
   const valor = useMemo<AuthContextValue>(
     () => ({
       session,
+      perfil,
+      errorPerfil,
+      recargarPerfil,
+      esAdmin,
       motivoCierre,
       avisoInactividadSegundos,
       iniciarSesion,
@@ -146,7 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       cerrarSesionEnTodos,
       seguirConectado,
     }),
-    [session, motivoCierre, avisoInactividadSegundos, iniciarSesion, registrarse, cerrarSesion, cerrarSesionEnTodos, seguirConectado],
+    [session, perfil, errorPerfil, recargarPerfil, esAdmin, motivoCierre, avisoInactividadSegundos, iniciarSesion, registrarse, cerrarSesion, cerrarSesionEnTodos, seguirConectado],
   )
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>
