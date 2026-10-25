@@ -80,6 +80,44 @@ export type Database = {
         }
         Relationships: []
       }
+      comentarios_zona: {
+        Row: {
+          actualizado_por: string | null
+          creado_por: string | null
+          created_at: string
+          id: string
+          texto: string
+          ubicacion_id: string
+          updated_at: string
+        }
+        Insert: {
+          actualizado_por?: string | null
+          creado_por?: string | null
+          created_at?: string
+          id?: string
+          texto: string
+          ubicacion_id: string
+          updated_at?: string
+        }
+        Update: {
+          actualizado_por?: string | null
+          creado_por?: string | null
+          created_at?: string
+          id?: string
+          texto?: string
+          ubicacion_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comentarios_zona_ubicacion_id_fkey"
+            columns: ["ubicacion_id"]
+            isOneToOne: false
+            referencedRelation: "ubicaciones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       estudio_participantes: {
         Row: {
           estudio_id: string
@@ -279,6 +317,36 @@ export type Database = {
         }
         Relationships: []
       }
+      tipos_zona: {
+        Row: {
+          actualizado_por: string | null
+          color: string
+          creado_por: string | null
+          created_at: string
+          id: string
+          nombre: string
+          updated_at: string
+        }
+        Insert: {
+          actualizado_por?: string | null
+          color?: string
+          creado_por?: string | null
+          created_at?: string
+          id?: string
+          nombre: string
+          updated_at?: string
+        }
+        Update: {
+          actualizado_por?: string | null
+          color?: string
+          creado_por?: string | null
+          created_at?: string
+          id?: string
+          nombre?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ubicaciones: {
         Row: {
           actualizado_por: string | null
@@ -297,6 +365,7 @@ export type Database = {
           id: string
           nombre: string
           tipo: Database["public"]["Enums"]["tipo_ubicacion"]
+          tipo_zona_id: string | null
           updated_at: string
         }
         Insert: {
@@ -316,6 +385,7 @@ export type Database = {
           id?: string
           nombre: string
           tipo: Database["public"]["Enums"]["tipo_ubicacion"]
+          tipo_zona_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -335,6 +405,7 @@ export type Database = {
           id?: string
           nombre?: string
           tipo?: Database["public"]["Enums"]["tipo_ubicacion"]
+          tipo_zona_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -343,6 +414,13 @@ export type Database = {
             columns: ["categoria_id"]
             isOneToOne: false
             referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ubicaciones_tipo_zona_id_fkey"
+            columns: ["tipo_zona_id"]
+            isOneToOne: false
+            referencedRelation: "tipos_zona"
             referencedColumns: ["id"]
           },
         ]
@@ -418,6 +496,16 @@ export type Database = {
       es_admin: { Args: never; Returns: boolean }
       es_miembro_activo: { Args: never; Returns: boolean }
       limite_manila: { Args: never; Returns: unknown }
+      locales_en_zona: {
+        Args: { zona_id: string }
+        Returns: {
+          categoria_id: string
+          estado: Database["public"]["Enums"]["estado_ubicacion"]
+          id: string
+          nombre: string
+          ultimo_estudio: string
+        }[]
+      }
       lugares_mapa: {
         Args: never
         Returns: {
@@ -427,6 +515,7 @@ export type Database = {
           id: string
           nombre: string
           tipo: Database["public"]["Enums"]["tipo_ubicacion"]
+          tipo_zona_id: string
         }[]
       }
       notas_validas: { Args: { notas: string[] }; Returns: boolean }
