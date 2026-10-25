@@ -1,11 +1,8 @@
 import { useState } from 'react'
 import { Dialog } from '../../components/Dialog'
 import type { CamposPunto } from './api'
-import { SelectorCategoria } from './SelectorCategoria'
-
-const MAX_NOMBRE = 80
-/** La misma regla que ubicaciones_telefono_valido en la base de datos. */
-const TELEFONO_VALIDO = /^\+?[0-9 ()-]{7,20}$/
+import { CamposDelPunto } from './CamposDelPunto'
+import { hayErroresDePunto } from './validarPunto'
 
 interface FormularioPuntoProps {
   /** Los datos viven en la pantalla de crear, para no perderlos si se vuelve a ubicar. */
@@ -22,14 +19,7 @@ export function FormularioPunto({ campos, onCambiar, onVolver, onSiguiente, onSo
   const [intentoGuardar, setIntentoGuardar] = useState(false)
   const [guardando, setGuardando] = useState(false)
 
-  const cambiar = (campo: keyof CamposPunto) => (valor: string | null) => onCambiar({ ...campos, [campo]: valor })
-
-  const telefono = campos.contactoTelefono.trim()
-  const errores = {
-    nombre: campos.nombre.trim() ? null : 'Escribe el nombre del lugar.',
-    telefono: !telefono || TELEFONO_VALIDO.test(telefono) ? null : 'Escribe solo números, espacios, paréntesis o guiones (7 a 20).',
-  }
-  const hayErrores = Object.values(errores).some(Boolean)
+  const hayErrores = hayErroresDePunto(campos)
 
   /** Revisa los campos y, si están bien, ejecuta la acción elegida. */
   function siEsValido(accion: () => void) {
@@ -65,95 +55,8 @@ export function FormularioPunto({ campos, onCambiar, onVolver, onSiguiente, onSo
         </>
       }
     >
-      <div className="formulario">
-        <Campo
-          etiqueta="Nombre"
-          id="punto-nombre"
-          error={intentoGuardar ? errores.nombre : null}
-          valor={campos.nombre}
-          onCambiar={cambiar('nombre')}
-          placeholder="Ej.: Tienda Don Pepe"
-          maxLength={MAX_NOMBRE}
-          autoCapitalize="words"
-        />
-
-        <div className="field">
-          <span className="field-label">Categoría</span>
-          <SelectorCategoria valor={campos.categoriaId} onCambiar={cambiar('categoriaId')} />
-        </div>
-
-        <Campo etiqueta="Dirección" opcional id="punto-direccion" valor={campos.direccion} onCambiar={cambiar('direccion')} placeholder="Ej.: Calle 10 # 43E-20" />
-        <Campo
-          etiqueta="Complemento"
-          opcional
-          id="punto-complemento"
-          valor={campos.complemento}
-          onCambiar={cambiar('complemento')}
-          placeholder="Ej.: Local 102, segundo piso"
-        />
-        <Campo
-          etiqueta="Nombre del contacto"
-          opcional
-          id="punto-contacto"
-          valor={campos.contactoNombre}
-          onCambiar={cambiar('contactoNombre')}
-          placeholder="Ej.: Administradora"
-          autoCapitalize="words"
-        />
-        <Campo
-          etiqueta="Teléfono del contacto"
-          opcional
-          id="punto-telefono"
-          tipo="tel"
-          error={intentoGuardar ? errores.telefono : null}
-          valor={campos.contactoTelefono}
-          onCambiar={cambiar('contactoTelefono')}
-          placeholder="Ej.: 300 123 4567"
-        />
-      </div>
+      <CamposDelPunto campos={campos} onCambiar={onCambiar} mostrarErrores={intentoGuardar} />
     </Dialog>
   )
 }
 
-interface CampoProps {
-  etiqueta: string
-  id: string
-  valor: string
-  onCambiar: (valor: string) => void
-  placeholder?: string
-  opcional?: boolean
-  error?: string | null
-  tipo?: 'text' | 'tel'
-  maxLength?: number
-  autoCapitalize?: 'sentences' | 'words'
-}
-
-function Campo({ etiqueta, id, valor, onCambiar, placeholder, opcional, error, tipo = 'text', maxLength = 120, autoCapitalize = 'sentences' }: CampoProps) {
-  return (
-    <label className="field">
-      <span className="field-label">
-        {etiqueta}
-        {opcional && <span className="field-opcional"> (opcional)</span>}
-      </span>
-      <input
-        className="field-input"
-        type={tipo}
-        inputMode={tipo === 'tel' ? 'tel' : undefined}
-        autoComplete={tipo === 'tel' ? 'tel' : 'off'}
-        autoCapitalize={tipo === 'tel' ? 'off' : autoCapitalize}
-        enterKeyHint="next"
-        placeholder={placeholder}
-        maxLength={maxLength}
-        value={valor}
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${id}-error` : undefined}
-        onChange={(evento) => onCambiar(evento.target.value)}
-      />
-      {error && (
-        <p id={`${id}-error`} className="field-error">
-          {error}
-        </p>
-      )}
-    </label>
-  )
-}

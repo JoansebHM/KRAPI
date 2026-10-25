@@ -323,6 +323,15 @@ a.lista-item {
   color: var(--color-text-muted);
 }
 
+/* Campo de varias líneas (descripciones, notas). */
+.field-textarea {
+  min-height: 88px;
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+  line-height: 1.4;
+  resize: vertical;
+}
+
 .field-input[aria-invalid='true'] {
   border-color: var(--color-danger);
 }
