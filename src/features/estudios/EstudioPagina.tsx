@@ -15,6 +15,7 @@ import { semillaDe, useResponsables } from '../responsables/api'
 import { useArchivarEstudio, useEstudios, useGuardarEstudio, type CamposEstudio, type Estudio } from './api'
 import { camposDe, mostrarFecha, mostrarHora } from './campos'
 import { FormularioEstudio } from './FormularioEstudio'
+import { NotasDelEstudio } from './NotasDelEstudio'
 import './EstudioPagina.css'
 
 /** Página de un estudio (`/lugares/:id/estudios/:estudioId`): sus datos y sus evidencias. */
@@ -136,13 +137,9 @@ export function EstudioPagina() {
             <dd>{estudio.entrevistado}</dd>
           </div>
         )}
-        {estudio.descripcion && (
-          <div>
-            <dt>Notas</dt>
-            <dd className="estudio-notas-texto">{estudio.descripcion}</dd>
-          </div>
-        )}
       </dl>
+
+      <NotasDelEstudio notas={estudio.notas} />
 
       <button type="button" className="btn btn-secondary estudio-editar" onClick={() => setEdicion(camposDe(estudio))}>
         Editar estudio

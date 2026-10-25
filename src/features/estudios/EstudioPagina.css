@@ -18,13 +18,6 @@
   font-weight: 400;
 }
 
-.estudio-notas-texto {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  font-weight: 400;
-  line-height: 1.5;
-}
-
 .estudio-editar {
   margin-top: var(--space-4);
 }
