@@ -132,10 +132,11 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 
 ## Pruebas
 
-- `npm run test:e2e` corre Playwright en tamaño de celular contra un **Supabase simulado** (`e2e/soporte/supabase-falso.ts`): inicio de sesión y PostgREST en memoria, con las reglas del esquema real.
-- Cada prueba arranca con la base vacía y prepara sus datos con el fixture `supabase.db`. Para iniciar sesión se usa `entrar()`.
+- `npm run test:e2e` corre Playwright en tamaño de celular contra un **Supabase simulado** (`e2e/soporte/supabase-falso.ts`): cuentas, inicio de sesión y PostgREST en memoria, con las reglas del esquema real.
+- Cada prueba arranca con la base vacía y prepara sus datos con el fixture `supabase.db`.
+- **Cuentas:** cada prueba trae las de `CUENTAS`: `admin` (admin activo), `miembro` (Ana, miembro activo) y `pendiente` (Pepe). Todas usan la contraseña `CLAVE`. Para iniciar sesión se usa `entrar()` (como admin) o `entrar('miembro')` / `entrar('pendiente')`. Con `supabase.agregarCuenta({ usuario, estado, rol… })` se crean otras, y con `supabase.cuenta('ana')` se revisa o cambia una (por ejemplo, su `estado`).
+- **Permisos:** el simulador aplica las reglas de RLS según la cuenta del token. Una cuenta que no está activa recibe listas vacías y no puede crear. Categorías y responsables solo los borra un admin; lugares, estudios, evidencias y archivos, quien los creó (`creado_por`, o `dueno` en `supabase.archivos`) o un admin. Un borrado sin permiso no da error y borra 0 filas, igual que en Supabase. También pone `creado_por` y `actualizado_por` y responde `usuario_disponible` y las funciones de admin.
 - Si agregas tablas o funciones que la app consulta, **amplía el Supabase simulado** para que responda igual que el real.
-- Para simular que RLS no deja borrar en una tabla: `supabase.borradosNegados.add('evidencias')`.
 - El Supabase simulado también imita Storage (`supabase.archivos`): subir con las reglas del bucket, borrar y firmar enlaces. Con `supabase.fallarSubidas = true` las subidas fallan.
 - `npm run db:test` corre las **pruebas de la base de datos** (`supabase/tests/*.test.sql`, pgTAP) sobre Supabase local en Docker (`npm run db:local`). Cubren lo que el simulador no puede probar: RLS, triggers y funciones. Para actuar como una cuenta se usa `set local role authenticated` y `set local request.jwt.claims = '{"sub": "<id>"}'`. Cada archivo corre dentro de una transacción que se deshace al final.
 - Chromium corre con micrófono y cámara simulados (`playwright.config.ts`), así se prueba la grabación de audio.
