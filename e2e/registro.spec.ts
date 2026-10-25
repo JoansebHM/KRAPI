@@ -35,6 +35,8 @@ test.describe('Registro', () => {
     await page.getByRole('button', { name: 'Crear cuenta' }).click()
 
     await expect(toast(page, 'Cuenta creada')).toContainText('Un admin debe aprobarla')
+    await expect(page.getByRole('heading', { name: 'Tu cuenta está esperando aprobación' })).toBeVisible()
+    await expect(page.getByText('María López · maria.lopez')).toBeVisible()
     expect(supabase.cuenta('maria.lopez')).toMatchObject({ nombre: 'María López', estado: 'pendiente', rol: 'miembro' })
     expect(supabase.peticiones).toContain('POST /auth/v1/signup')
   })

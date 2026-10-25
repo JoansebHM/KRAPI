@@ -4,6 +4,7 @@ import { BotonMenu, MenuNavegacion } from '../components/MenuNavegacion'
 import { Notificaciones } from '../components/Notificaciones'
 import { PoweredBy } from '../components/PoweredBy'
 import { variablesFaltantes } from '../config/env'
+import { CuentaNoActiva } from '../features/auth/CuentaNoActiva'
 import { InactivityDialog } from '../features/auth/InactivityDialog'
 import { LoginPage } from '../features/auth/LoginPage'
 import { RegistroPage } from '../features/auth/RegistroPage'
@@ -33,7 +34,7 @@ export function App() {
 }
 
 function Contenido({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void }) {
-  const { session } = useAuth()
+  const { session, perfil, errorPerfil } = useAuth()
 
   if (variablesFaltantes.length > 0) return <ConfiguracionIncompleta variables={variablesFaltantes} />
 
@@ -48,6 +49,12 @@ function Contenido({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () =
       </Routes>
     )
   }
+
+  // Revisando el estado de la cuenta.
+  if (!perfil && !errorPerfil) return <div className="app-loading" aria-busy="true" />
+
+  // Pendiente, rechazada, desactivada o sin poder revisarla: no se muestra el mapa.
+  if (perfil?.estado !== 'activo') return <CuentaNoActiva theme={theme} onToggleTheme={onToggleTheme} />
 
   return <AppConSesion theme={theme} onToggleTheme={onToggleTheme} />
 }
