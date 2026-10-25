@@ -68,13 +68,13 @@ Los comandos `db:*` (salvo `db:local` y `db:test`, que usan Supabase en Docker) 
 Hecho:
 - Mapa con el límite de Manila, navegación limitada a 1 km y modo claro/oscuro con mapa nocturno.
 - Cuentas individuales sin correo (decisión 0021): registro con nombre de usuario, aprobación de un admin, pantalla de espera, sesión de 2 h de inactividad y 7 días máximo, y cierre en todos los dispositivos.
-- Usuarios (`/usuarios`, solo admins): aprobar, rechazar, desactivar, reactivar, roles y contraseña temporal (Edge Function `restablecer-clave`, decisión 0022). Mi perfil (`/perfil`): nombre, "Este soy yo" y contraseña.
+- Usuarios (`/usuarios`, solo admins): aprobar, rechazar, desactivar, reactivar, roles y contraseña temporal (Edge Function `restablecer-clave`, decisión 0022). Mi perfil (`/perfil`): nombre, avatar y contraseña.
 - Permisos en RLS según el estado y el rol, autoría (`creado_por`…) y bitácora de cada acción. Se muestra quién registró cada estudio y evidencia.
 - Notificaciones, menú lateral y paneles.
-- Categorías (color e ícono) y responsables (avatares).
+- Categorías (color e ícono). Cada cuenta tiene su avatar dibujado (se elige al registrarse).
 - Lugares en el mapa (puntos con su categoría y zonas). Ficha completa del punto al tocarlo (`/lugares/:id`): datos, teléfono para llamar o WhatsApp, editar, mover con la mira (`/lugares/:id/mover`), cerrar, archivar o recuperar, y borrar si no tiene estudios.
 - Crear puntos con la mira central (`/lugares/nuevo`), con su primer estudio.
-- Estudios: crear, editar y archivar, con responsables y varias notas (`estudios.notas`); histórico en la ficha. Al tocar un estudio se abre un modal de presentación con carrusel de fotos y otras evidencias; desde allí se edita o se abre su página (`/lugares/:id/estudios/:estudioId`) para agregar evidencia.
+- Estudios: crear, editar y archivar, con participantes (cuentas, decisión 0023) y varias notas (`estudios.notas`); histórico en la ficha. Al tocar un estudio se abre un modal de presentación con carrusel de fotos y otras evidencias; desde allí se edita o se abre su página (`/lugares/:id/estudios/:estudioId`) para agregar evidencia.
 - Evidencias de archivo: fotos (comprimidas), audios grabados en la app y documentos, con avance de subida y borrado. Videos de SharePoint por enlace (solo `*.sharepoint.com`; se abren en otra pestaña hasta #22).
 - Esquema completo en Supabase.
 - Pruebas de punta a punta.

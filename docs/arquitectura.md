@@ -11,7 +11,7 @@
 | **React Router** | Una dirección por sección (`/categorias`, `/lugares/:id`), así el "atrás" del celular funciona |
 | **Sonner** | Notificaciones (toasts) |
 | **Lucide** | Íconos de categorías e interfaz |
-| **DiceBear (Croodles)** | Avatares dibujados de los responsables |
+| **DiceBear (Croodles)** | Avatares dibujados de las cuentas |
 | **Playwright** | Pruebas de punta a punta |
 | **oxlint** | Revisión de código (`--deny-warnings`) |
 
@@ -27,16 +27,15 @@ src/
     auth/         Login, registro, AuthProvider, política de sesión, menú de la cuenta,
                   nombre de usuario → correo interno (nombreDeUsuario.ts)
     categorias/   CRUD de categorías, colores e íconos
-    estudios/     Estudios de un lugar: formulario, selector de responsables, histórico y página del estudio
+    estudios/     Estudios de un lugar: formulario, participantes, notas, histórico y página del estudio
     evidencias/   Subir, grabar, listar y borrar evidencias; cola de subidas y compresión de fotos;
                   videos de SharePoint por enlace (AgregarVideo, sharepoint.ts)
-    perfil/       Mi perfil: nombre, "Este soy yo" (responsable vinculado) y cambiar la contraseña
+    perfil/       Mi perfil: nombre, avatar y cambiar la contraseña
     lugares/      Lugares en el mapa (marcadores y zonas), su ficha (FichaLugar, EditarPunto) y crear y
                   mover puntos con la mira (MiraCentral, CrearPunto, MoverPunto)
     map/          Mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
-    responsables/ CRUD de responsables y avatares
     theme/        Modo claro/oscuro
-    usuarios/     Administración de cuentas (solo admins): aprobar, rechazar, desactivar, roles
+    usuarios/     Cuentas: administración (solo admins), avatares (Avatar, SelectorAvatar) y useNombreDeCuenta
   lib/            supabase.ts, almacenamiento.ts (archivos), queryClient.ts, notificar.ts,
                   errores.ts, texto.ts, color.ts
   styles/         theme.css (tokens), ui.css (botones, campos, listas)
@@ -83,7 +82,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Clave de caché constante (`CLAVE_CATEGORIAS`). Las mutaciones la invalidan en `onSuccess`.
 - Las listas de catálogos usan `refetchOnMount: 'always'`: muestran la caché al instante y se actualizan en segundo plano.
 - Los conteos se traen embebidos: `select('id, nombre, ubicaciones(count)')`.
-- **Escrituras en varias tablas:** Supabase no ofrece transacciones desde el navegador. Si la segunda escritura falla, se deshace la primera cuando todavía no tiene histórico. Por ejemplo, `useGuardarEstudio` borra el estudio recién creado si no pudo guardar sus responsables. Si la primera ya quedó y es un registro con valor (un lugar), se avisa en vez de borrarlo.
+- **Escrituras en varias tablas:** Supabase no ofrece transacciones desde el navegador. Si la segunda escritura falla, se deshace la primera cuando todavía no tiene histórico. Por ejemplo, `useGuardarEstudio` borra el estudio recién creado si no pudo guardar sus participantes. Si la primera ya quedó y es un registro con valor (un lugar), se avisa en vez de borrarlo.
 - **Eliminar con "Deshacer":** antes de borrar se guarda lo necesario para restaurar (el registro y sus relaciones), y la restauración reinserta con el **mismo id**.
 
 **Errores y avisos**
@@ -100,9 +99,9 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Dentro del diálogo, los campos van en `.formulario` (`ui.css`). Los opcionales llevan `.field-opcional` en la etiqueta.
 - Si un flujo tiene varios pasos (por ejemplo, ubicar → duplicados → lugar → estudio), los datos viven en la pantalla del flujo y no en cada diálogo, para no perderlos al volver atrás. Por eso `FormularioPunto` y `FormularioEstudio` son controlados (`campos` y `onCambiar`).
 - **Ficha del lugar:** `useLugar(id)` trae todo el lugar de `ubicaciones` (también si está archivado, a diferencia de `lugares_mapa()`), con `estudios(count)` para saber si se puede borrar. `CamposDelPunto` son los campos del punto, que comparten crear (`FormularioPunto`) y editar (`EditarPunto`).
-- Para elegir uno o varios elementos con ícono o avatar (categoría, responsables) se usan botones `.chip` con `aria-pressed` dentro de `.chips`.
+- Para elegir uno o varios elementos con ícono o avatar (categoría, participantes) se usan botones `.chip` con `aria-pressed` dentro de `.chips`.
 - `Panel` acepta `volver` para que el botón de atrás lleve a otra pantalla, por ejemplo de un estudio a la ficha de su lugar.
-- **Estudios:** tocar uno del histórico abre `EstudioPresentacion`, un diálogo con sus datos, carrusel de fotos y otras evidencias (audio, documentos, texto y enlaces externos). Desde allí se edita con el mismo `FormularioEstudio`; "Agregar evidencia" abre la página `EstudioPagina` (`/lugares/:id/estudios/:estudioId`). Al guardar un estudio nuevo se navega a esa página. `useCamposEstudioNuevo()` prepara uno nuevo al abrir el formulario: hoy, de ahora a una hora después, y los responsables del último estudio de ese dispositivo (`krapi-ultimos-responsables` en `localStorage`, filtrados a los que todavía existen). Los estudios se archivan (`archivado_en`) con "Deshacer", nunca se borran.
+- **Estudios:** tocar uno del histórico abre `EstudioPresentacion`, un diálogo con sus datos, carrusel de fotos y otras evidencias (audio, documentos, texto y enlaces externos). Desde allí se edita con el mismo `FormularioEstudio`; "Agregar evidencia" abre la página `EstudioPagina` (`/lugares/:id/estudios/:estudioId`). Al guardar un estudio nuevo se navega a esa página. `useCamposEstudioNuevo()` prepara uno nuevo al abrir el formulario: hoy, de ahora a una hora después, con la cuenta propia y los participantes del último estudio de ese dispositivo (`krapi-ultimos-participantes` en `localStorage`, filtrados a las cuentas activas). Los estudios se archivan (`archivado_en`) con "Deshacer", nunca se borran.
 - `Buscador`, `EstadoVacio`, `ListaCargando` y `ErrorCarga` para las listas.
 - `normalizar`, `compararTexto` y `plural` (`lib/texto.ts`) para buscar y ordenar en español.
 
@@ -147,7 +146,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - `npm run test:e2e` corre Playwright en tamaño de celular contra un **Supabase simulado** (`e2e/soporte/supabase-falso.ts`): cuentas, inicio de sesión y PostgREST en memoria, con las reglas del esquema real.
 - Cada prueba arranca con la base vacía y prepara sus datos con el fixture `supabase.db`.
 - **Cuentas:** cada prueba trae las de `CUENTAS`: `admin` (admin activo), `miembro` (Ana, miembro activo) y `pendiente` (Pepe). Todas usan la contraseña `CLAVE`. Para iniciar sesión se usa `entrar()` (como admin) o `entrar('miembro')` / `entrar('pendiente')`. Con `supabase.agregarCuenta({ usuario, estado, rol… })` se crean otras, y con `supabase.cuenta('ana')` se revisa o cambia una (por ejemplo, su `estado`).
-- **Permisos:** el simulador aplica las reglas de RLS según la cuenta del token. Una cuenta que no está activa recibe listas vacías y no puede crear. Categorías y responsables solo los borra un admin; lugares, estudios, evidencias y archivos, quien los creó (`creado_por`, o `dueno` en `supabase.archivos`) o un admin. Un borrado sin permiso no da error y borra 0 filas, igual que en Supabase. También pone `creado_por` y `actualizado_por` y responde `usuario_disponible` y las funciones de admin.
+- **Permisos:** el simulador aplica las reglas de RLS según la cuenta del token. Una cuenta que no está activa recibe listas vacías y no puede crear. Categorías solo las borra un admin; lugares, estudios, evidencias y archivos, quien los creó (`creado_por`, o `dueno` en `supabase.archivos`) o un admin. Un borrado sin permiso no da error y borra 0 filas, igual que en Supabase. También pone `creado_por` y `actualizado_por` y responde `usuario_disponible` y las funciones de admin.
 - Si agregas tablas o funciones que la app consulta, **amplía el Supabase simulado** para que responda igual que el real.
 - El Supabase simulado también imita Storage (`supabase.archivos`): subir con las reglas del bucket, borrar y firmar enlaces. Con `supabase.fallarSubidas = true` las subidas fallan.
 - `npm run db:test` corre las **pruebas de la base de datos** (`supabase/tests/*.test.sql`, pgTAP) sobre Supabase local en Docker (`npm run db:local`). Cubren lo que el simulador no puede probar: RLS, triggers y funciones. Para actuar como una cuenta se usa `set local role authenticated` y `set local request.jwt.claims = '{"sub": "<id>"}'`. Cada archivo corre dentro de una transacción que se deshace al final.

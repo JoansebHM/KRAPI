@@ -54,10 +54,10 @@ npx supabase stop  # apaga Supabase local
 
 ## Navegación
 
-- El mapa siempre está de fondo. En **celular**, las secciones (Categorías, Responsables…) se abren desde el menú ☰ y ocupan la pantalla. En **computador**, el menú está siempre a la izquierda (☰ lo oculta o lo muestra) y cada sección se abre en un panel a la derecha, sin cerrar el menú. Tocar el mapa cierra el panel.
+- El mapa siempre está de fondo. En **celular**, las secciones (Categorías, Usuarios…) se abren desde el menú ☰ y ocupan la pantalla. En **computador**, el menú está siempre a la izquierda (☰ lo oculta o lo muestra) y cada sección se abre en un panel a la derecha, sin cerrar el menú. Tocar el mapa cierra el panel.
 - Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera. Al tocar un lugar del mapa se abre su ficha en `/lugares/<id>` (y "Mover" abre la mira en `/lugares/<id>/mover`), y "+ Nuevo lugar" abre la mira para registrar uno en `/lugares/nuevo`.
 - En el histórico de un lugar, tocar un estudio abre su presentación con el carrusel de fotos y el resto de evidencias. Desde el modal se puede editar o abrir la página del estudio para agregar evidencia.
-- Desde el menú de la cuenta, **Mi perfil** (`/perfil`) deja cambiar el nombre, la contraseña y elegir "Este soy yo": el responsable que es cada quien en los estudios, que luego viene marcado al registrar uno nuevo.
+- Desde el menú de la cuenta, **Mi perfil** (`/perfil`) deja cambiar el nombre, el avatar y la contraseña.
 - Los admins ven además **Usuarios** (`/usuarios`), con un contador de las cuentas que esperan aprobación. Ahí aprueban, rechazan, desactivan y reactivan cuentas, y nombran o quitan admins. Si un miembro entra a `/usuarios` por la URL, vuelve al mapa.
 - Al desplegar (#24) el hosting debe redirigir todas las rutas a `index.html`, excepto `/docs`, que es un archivo propio (`dist/docs/index.html`).
 
@@ -67,7 +67,7 @@ Cada categoría tiene un ícono de [Lucide](https://lucide.dev) (licencia ISC) d
 
 ## Avatares
 
-Cada responsable tiene un avatar dibujado en blanco y negro (estilo Croodles de [DiceBear](https://www.dicebear.com/styles/croodles), licencia CC0). El dibujo se genera en el dispositivo a partir de una semilla guardada en `responsables.avatar_semilla`: no se guardan imágenes y funciona sin internet. Se elige desde el formulario del responsable.
+Cada cuenta tiene un avatar dibujado en blanco y negro (estilo Croodles de [DiceBear](https://www.dicebear.com/styles/croodles), licencia CC0). El dibujo se genera en el dispositivo a partir de una semilla guardada en `perfiles.avatar_semilla`: no se guardan imágenes y funciona sin internet. Se elige al registrarse y se cambia en Mi perfil.
 
 ## Base de datos (Supabase)
 
@@ -121,12 +121,11 @@ Los dos aceptan el nombre de usuario como argumento (`npm run usuario:clave -- a
 
 | Tabla | Qué guarda |
 | --- | --- |
-| `perfiles` | Una fila por cuenta: nombre, nombre de usuario, rol (miembro o admin), estado (pendiente, activo, rechazado o desactivado) y responsable vinculado |
+| `perfiles` | Una fila por cuenta: nombre, nombre de usuario, rol (miembro o admin), estado (pendiente, activo, rechazado o desactivado) y la semilla de su avatar dibujado |
 | `categorias` | Tipos de lugar (comercio, café...) con un color y un ícono para el mapa |
-| `responsables` | Personas que pueden figurar en los estudios, con la semilla de su avatar dibujado |
 | `ubicaciones` | Lugares dentro de Manila: puntos (locales) y zonas (lo que se cubrió, por ejemplo una manzana). Con estado (activa/cerrada) |
-| `estudios` | Cada visita a un lugar: fecha, horas, responsables, a quién se entrevistó, título y sus notas (una lista) |
-| `estudio_responsables` | Qué responsables participaron en cada estudio |
+| `estudios` | Cada visita a un lugar: fecha, horas, a quién se entrevistó, título y sus notas (una lista) |
+| `estudio_participantes` | Qué cuentas participaron en cada estudio |
 | `evidencias` | Archivos, textos o enlaces de video de cada estudio |
 | `bitacora` | Cada acción sobre los datos, con quién la hizo (solo la leen los admins) |
 
@@ -170,9 +169,8 @@ src/
   features/     # Una carpeta por funcionalidad
     auth/       # Inicio de sesión, registro, política de sesión y menú de la cuenta
     categorias/ # Administración de categorías
-    perfil/       # Mi perfil: nombre, responsable vinculado y contraseña
-    responsables/ # Administración de responsables
-    usuarios/     # Administración de cuentas (solo admins)
+    perfil/       # Mi perfil: nombre, avatar y contraseña
+    usuarios/     # Cuentas: administración (solo admins), avatares y quién hizo qué
     estudios/   # Estudios de cada lugar (visitas), su histórico y la página de cada estudio
     evidencias/ # Subir fotos, audios y documentos de un estudio
     lugares/    # Lugares en el mapa, su ficha, crear y mover puntos
