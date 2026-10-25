@@ -6,6 +6,7 @@ import { PoweredBy } from '../components/PoweredBy'
 import { variablesFaltantes } from '../config/env'
 import { InactivityDialog } from '../features/auth/InactivityDialog'
 import { LoginPage } from '../features/auth/LoginPage'
+import { RegistroPage } from '../features/auth/RegistroPage'
 import { UserMenu } from '../features/auth/UserMenu'
 import { useAuth } from '../features/auth/useAuth'
 import { CategoriasPage } from '../features/categorias/CategoriasPage'
@@ -39,7 +40,14 @@ function Contenido({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () =
   // Revisando si hay una sesión guardada: no se muestra nada para evitar un destello del login.
   if (session === undefined) return <div className="app-loading" aria-busy="true" />
 
-  if (!session) return <LoginPage theme={theme} onToggleTheme={onToggleTheme} />
+  if (!session) {
+    return (
+      <Routes>
+        <Route path="/registro" element={<RegistroPage theme={theme} onToggleTheme={onToggleTheme} />} />
+        <Route path="*" element={<LoginPage theme={theme} onToggleTheme={onToggleTheme} />} />
+      </Routes>
+    )
+  }
 
   return <AppConSesion theme={theme} onToggleTheme={onToggleTheme} />
 }

@@ -92,7 +92,7 @@ KIRA no permite registrarse: hay un solo usuario para todo el equipo, que crea u
 
 ### Sesión en la app
 
-- Para entrar se usa el usuario compartido (correo y contraseña). En `.env.local` deben estar `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`.
+- Cada integrante crea su cuenta en "Crear una cuenta" (nombre, nombre de usuario y contraseña, sin correo) y entra con su nombre de usuario cuando un admin la apruebe. El usuario compartido sigue entrando con su correo hasta que se haga el cambio (#81). En `.env.local` deben estar `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`.
 - El token de Supabase se renueva solo mientras la app esté abierta.
 - La sesión se cierra tras **2 horas sin usar la app** (con un aviso un minuto antes) y, en todo caso, a los **7 días**. Los tiempos están en `src/config/session.ts`.
 - Desde el menú de la cuenta se puede cerrar la sesión en **todos los dispositivos**: úsalo si cambia la contraseña o alguien deja el grupo. En los demás dispositivos tarda hasta una hora en aplicarse.
@@ -161,7 +161,7 @@ src/
   components/   # Piezas compartidas: diálogos, panel, menú, buscador, notificaciones
   config/       # Variables de entorno y configuración (sesión, mapa)
   features/     # Una carpeta por funcionalidad
-    auth/       # Inicio de sesión, política de sesión y menú de la cuenta
+    auth/       # Inicio de sesión, registro, política de sesión y menú de la cuenta
     categorias/ # Administración de categorías
     responsables/ # Administración de responsables
     estudios/   # Estudios de cada lugar (visitas), su histórico y la página de cada estudio

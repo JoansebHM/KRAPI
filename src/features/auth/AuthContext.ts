@@ -9,10 +9,19 @@ export interface AuthContextValue {
   motivoCierre: MotivoCierre | null
   /** Segundos que faltan para cerrar por inactividad, o null si no hay aviso. */
   avisoInactividadSegundos: number | null
-  iniciarSesion: (email: string, password: string) => Promise<{ error: string | null }>
+  /** Entra con el nombre de usuario (o el correo de la cuenta compartida) y la contraseña. */
+  iniciarSesion: (usuario: string, password: string) => Promise<{ error: string | null }>
+  /** Crea una cuenta pendiente de aprobación y entra con ella. */
+  registrarse: (datos: DatosRegistro) => Promise<{ error: string | null }>
   cerrarSesion: () => Promise<void>
   cerrarSesionEnTodos: () => Promise<{ error: string | null }>
   seguirConectado: () => void
+}
+
+export interface DatosRegistro {
+  nombre: string
+  usuario: string
+  password: string
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

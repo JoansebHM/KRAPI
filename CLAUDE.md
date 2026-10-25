@@ -53,7 +53,8 @@ Los comandos `db:*` (salvo `db:local` y `db:test`, que usan Supabase en Docker) 
 
 ## Trampas conocidas
 
-- **`supabase/config.toml`:** `[auth.email] enable_signup` debe quedar en `true`. En la CLI ese valor activa o desactiva **todo** el login por correo; los registros se bloquean con `[auth] enable_signup = false`. Los *vector buckets* están desactivados porque solo existen en el plan de pago.
+- **`supabase/config.toml`:** `[auth.email] enable_signup` debe quedar en `true`. En la CLI ese valor activa o desactiva **todo** el login por correo (y las cuentas por nombre de usuario usan un correo interno). Los registros se controlan con `[auth] enable_signup`, que está en `true` porque cada integrante crea su cuenta: la protección está en RLS, que no deja ver nada a una cuenta que no esté activa. **Nunca** apliques `enable_signup = true` (`npm run db:config`) a un proyecto sin las políticas de `20261025140000_rls_cuentas_activas`. Los *vector buckets* están desactivados porque solo existen en el plan de pago.
+- **Cuentas sin correo:** se entra con el nombre de usuario, que la app convierte en `<usuario>@usuarios.kira.invalid` (`src/features/auth/nombreDeUsuario.ts`). Si se escribe algo con `@`, se usa tal cual: así sigue entrando el usuario compartido hasta #81.
 - **MapLibre 6 + Vite:** el worker se configura en `src/features/map/maplibre.ts` (`setWorkerUrl`). Importa MapLibre siempre desde ese archivo, no desde `maplibre-gl`.
 - **Diálogos:** `Dialog` se dibuja en `<body>` con un portal. No lo reemplaces por un modal dentro del panel, porque la barra superior lo tapaba.
 - **Mac no distingue mayúsculas en nombres de archivo:** no crees `avatar.ts` junto a `Avatar.tsx`.

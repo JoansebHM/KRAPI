@@ -17,7 +17,7 @@ test.describe('Inicio de sesión', () => {
     void supabase
     await page.goto('/')
     await iniciarSesion(page, { password: 'clave-equivocada' })
-    await expect(page.getByRole('alert')).toHaveText('El correo o la contraseña no son correctos.')
+    await expect(page.getByRole('alert')).toHaveText('El usuario o la contraseña no son correctos.')
   })
 
   test('con la contraseña correcta entra y la sesión se mantiene al recargar', async ({ page, entrar }) => {

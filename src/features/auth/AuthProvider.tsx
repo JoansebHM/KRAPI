@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 import { AuthContext, type AuthContextValue } from './AuthContext'
 import { mensajeDeError } from './mensajesError'
+import { correoParaEntrar } from './nombreDeUsuario'
 import {
   borrarMarcas,
   evaluarSesion,
@@ -87,9 +88,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [haySesion, cerrarPor])
 
-  const iniciarSesion = useCallback<AuthContextValue['iniciarSesion']>(async (email, password) => {
+  const iniciarSesion = useCallback<AuthContextValue['iniciarSesion']>(async (usuario, password) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+      const { error } = await supabase.auth.signInWithPassword({ email: correoParaEntrar(usuario), password })
+      if (error) return { error: mensajeDeError(error) }
+      registrarInicio()
+      setMotivoCierre(null)
+      return { error: null }
+    } catch (error) {
+      return { error: mensajeDeError(error) }
+    }
+  }, [])
+
+  const registrarse = useCallback<AuthContextValue['registrarse']>(async ({ nombre, usuario, password }) => {
+    try {
+      // El nombre viaja en los metadatos para que el trigger crear_perfil lo guarde en el perfil.
+      const { error } = await supabase.auth.signUp({
+        email: correoParaEntrar(usuario),
+        password,
+        options: { data: { nombre: nombre.trim() } },
+      })
       if (error) return { error: mensajeDeError(error) }
       registrarInicio()
       setMotivoCierre(null)
@@ -123,11 +141,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       motivoCierre,
       avisoInactividadSegundos,
       iniciarSesion,
+      registrarse,
       cerrarSesion,
       cerrarSesionEnTodos,
       seguirConectado,
     }),
-    [session, motivoCierre, avisoInactividadSegundos, iniciarSesion, cerrarSesion, cerrarSesionEnTodos, seguirConectado],
+    [session, motivoCierre, avisoInactividadSegundos, iniciarSesion, registrarse, cerrarSesion, cerrarSesionEnTodos, seguirConectado],
   )
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>

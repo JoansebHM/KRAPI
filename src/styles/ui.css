@@ -316,6 +316,13 @@ a.lista-item {
   color: var(--color-danger);
 }
 
+/* Ayuda debajo de un campo, cuando no hay error (por ejemplo, "Está disponible"). */
+.field-ayuda {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
 .field-input[aria-invalid='true'] {
   border-color: var(--color-danger);
 }
