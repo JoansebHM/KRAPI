@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
 import { compararTexto } from '../../lib/texto'
@@ -66,6 +67,23 @@ export function useCambiarRol() {
       if (error) throw error
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CLAVE_USUARIOS }),
+  })
+}
+
+/**
+ * Pone una contraseña temporal a otra cuenta con la Edge Function restablecer-clave (decisión 0022),
+ * que también cierra sus sesiones. Si falla, el error trae el motivo en español.
+ */
+export function useRestablecerClave() {
+  return useMutation({
+    mutationFn: async ({ usuario, password }: { usuario: Usuario; password: string }) => {
+      const { error } = await supabase.functions.invoke('restablecer-clave', { body: { usuario_id: usuario.id, password } })
+      if (error instanceof FunctionsHttpError) {
+        const { error: motivo } = await error.context.json().catch(() => ({ error: null }))
+        throw new Error(motivo ?? 'No se pudo cambiar la contraseña. Inténtalo de nuevo.')
+      }
+      if (error) throw error
+    },
   })
 }
 

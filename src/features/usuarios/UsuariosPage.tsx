@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { Buscador } from '../../components/Buscador'
 import { Dialog } from '../../components/Dialog'
 import { ErrorCarga, EstadoVacio, ListaCargando } from '../../components/Estados'
@@ -6,9 +6,20 @@ import { FlechaLista } from '../../components/FlechaLista'
 import { Panel } from '../../components/Panel'
 import { notificar } from '../../lib/notificar'
 import { normalizar, plural } from '../../lib/texto'
+import { CampoContrasena } from '../auth/CampoContrasena'
+import { MINIMO_CLAVE } from '../auth/nombreDeUsuario'
 import { useAuth } from '../auth/useAuth'
 import { mostrarFecha } from '../estudios/campos'
-import { mensajeErrorCuenta, useCambiarEstado, useCambiarRol, useUsuarios, type CambioDeEstado, type Rol, type Usuario } from './api'
+import {
+  mensajeErrorCuenta,
+  useCambiarEstado,
+  useCambiarRol,
+  useRestablecerClave,
+  useUsuarios,
+  type CambioDeEstado,
+  type Rol,
+  type Usuario,
+} from './api'
 import './UsuariosPage.css'
 
 type Pestana = 'pendientes' | 'activos' | 'otros'
@@ -125,6 +136,7 @@ export function UsuariosPage() {
   const [busqueda, setBusqueda] = useState('')
   const [abierto, setAbierto] = useState<Usuario | null>(null)
   const [porConfirmar, setPorConfirmar] = useState<{ usuario: Usuario; accion: Accion } | null>(null)
+  const [restableciendo, setRestableciendo] = useState<Usuario | null>(null)
   const procesando = cambiarEstado.isPending || cambiarRol.isPending
 
   const pendientes = usuarios?.filter((usuario) => usuario.estado === 'pendiente').length ?? 0
@@ -274,6 +286,19 @@ export function UsuariosPage() {
                     </button>
                   )
                 })}
+              {abierto.id !== perfil?.id && abierto.estado === 'activo' && (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-block"
+                  disabled={procesando}
+                  onClick={() => {
+                    setAbierto(null)
+                    setRestableciendo(abierto)
+                  }}
+                >
+                  Poner contraseña temporal
+                </button>
+              )}
               <button type="button" className="btn btn-secondary btn-block" disabled={procesando} onClick={() => setAbierto(null)}>
                 Cerrar
               </button>
@@ -316,6 +341,8 @@ export function UsuariosPage() {
         </Dialog>
       )}
 
+      {restableciendo && <ContrasenaTemporal usuario={restableciendo} onCerrar={() => setRestableciendo(null)} />}
+
       {porConfirmar && (
         <ConfirmarAccion
           usuario={porConfirmar.usuario}
@@ -355,6 +382,78 @@ function ConfirmarAccion({ usuario, accion, procesando, onConfirmar, onCancelar 
       }
     >
       <p>{confirmar.texto}</p>
+    </Dialog>
+  )
+}
+
+/** Para quien olvidó su contraseña: un admin le pone una temporal (decisión 0022). */
+function ContrasenaTemporal({ usuario, onCerrar }: { usuario: Usuario; onCerrar: () => void }) {
+  const [password, setPassword] = useState('')
+  const [confirmacion, setConfirmacion] = useState('')
+  const [intentoGuardar, setIntentoGuardar] = useState(false)
+  const restablecer = useRestablecerClave()
+
+  const errores = {
+    password: password.length < MINIMO_CLAVE ? `Usa al menos ${MINIMO_CLAVE} caracteres.` : null,
+    confirmacion: !confirmacion ? 'Repite la contraseña.' : confirmacion !== password ? 'Las contraseñas no coinciden.' : null,
+  }
+
+  async function guardar(evento: FormEvent) {
+    evento.preventDefault()
+    setIntentoGuardar(true)
+    if (errores.password || errores.confirmacion) return
+    try {
+      await restablecer.mutateAsync({ usuario, password })
+      onCerrar()
+      notificar.exito('Contraseña temporal lista', {
+        descripcion: `Pásasela a ${usuario.nombre} por un medio seguro y pídele que la cambie en Mi perfil.`,
+      })
+    } catch (error) {
+      notificar.error('No se pudo cambiar la contraseña', {
+        descripcion: error instanceof Error ? error.message : mensajeErrorCuenta(error),
+      })
+    }
+  }
+
+  return (
+    <Dialog
+      titulo={`Contraseña temporal para ${usuario.nombre}`}
+      onCerrar={restablecer.isPending ? undefined : onCerrar}
+      onSubmit={(evento) => void guardar(evento)}
+      acciones={
+        <>
+          <button type="submit" className="btn btn-primary btn-block" disabled={restablecer.isPending}>
+            {restablecer.isPending ? 'Guardando…' : 'Poner contraseña'}
+          </button>
+          <button type="button" className="btn btn-secondary btn-block" disabled={restablecer.isPending} onClick={onCerrar}>
+            Cancelar
+          </button>
+        </>
+      }
+    >
+      <p>
+        Úsalo si {usuario.nombre} olvidó su contraseña. Se cerrarán sus sesiones abiertas y tendrá que entrar con la
+        nueva.
+      </p>
+      <div className="formulario">
+        <CampoContrasena
+          id="temporal-password"
+          etiqueta="Contraseña temporal"
+          valor={password}
+          onCambiar={setPassword}
+          autoComplete="new-password"
+          error={intentoGuardar ? errores.password : null}
+          ayuda={`Mínimo ${MINIMO_CLAVE} caracteres.`}
+        />
+        <CampoContrasena
+          id="temporal-confirmacion"
+          etiqueta="Repite la contraseña temporal"
+          valor={confirmacion}
+          onCambiar={setConfirmacion}
+          autoComplete="new-password"
+          error={intentoGuardar || (confirmacion && confirmacion.length >= password.length) ? errores.confirmacion : null}
+        />
+      </div>
     </Dialog>
   )
 }

@@ -27,3 +27,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0019 | [Subida de evidencias: página del estudio, cola con avance y servicio de almacenamiento](0019-subida-de-evidencias.md) | Aceptada |
 | 0020 | [Nombre oficial KIRA](0020-nombre-oficial-kira.md) | Aceptada |
 | 0021 | [Usuarios individuales con aprobación de un admin](0021-usuarios-individuales.md) | Aceptada |
+| 0022 | [Edge Function para restablecer contraseñas](0022-edge-function-restablecer-clave.md) | Aceptada |

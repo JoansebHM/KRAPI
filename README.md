@@ -81,6 +81,7 @@ npm run db:link        # enlaza con el proyecto; pide la contraseña de la base 
 npm run db:push        # aplica las migraciones que falten
 npm run db:config      # aplica supabase/config.toml (por ejemplo, el registro de cuentas)
 npm run db:types       # genera src/types/database.ts a partir del esquema
+npm run db:funciones   # despliega las Edge Functions (restablecer-clave)
 ```
 
 La contraseña de la base de datos y las claves del proyecto **nunca** se suben al repositorio.
@@ -90,7 +91,7 @@ La contraseña de la base de datos y las claves del proyecto **nunca** se suben 
 Cada integrante crea su cuenta desde la app y un admin la aprueba en **Usuarios**. Para lo que no se puede hacer desde la app hay dos scripts. Necesitan `VITE_SUPABASE_URL` y `SUPABASE_SECRET_KEY` en `.env.local` (ver `.env.example`) y piden las contraseñas sin mostrarlas en pantalla.
 
 - `npm run usuario:admin` crea una cuenta de admin activa o, si el nombre de usuario ya existe, la nombra admin y la activa. Sirve para el **primer admin**, que no tiene quién lo apruebe.
-- `npm run usuario:clave` pone una contraseña nueva a una cuenta. Como las cuentas no tienen correo, así se ayuda a quien olvidó la suya.
+- `npm run usuario:clave` pone una contraseña nueva a una cuenta. Como las cuentas no tienen correo, así se ayuda a quien olvidó la suya. Desde la app, un admin hace lo mismo en **Usuarios** → la cuenta → "Poner contraseña temporal" (Edge Function `restablecer-clave`, [decisión 0022](docs/decisiones/0022-edge-function-restablecer-clave.md)).
 
 Los dos aceptan el nombre de usuario como argumento (`npm run usuario:clave -- ana.gomez`) o lo preguntan.
 
@@ -153,6 +154,7 @@ Reglas principales:
 | `npm run db:push` | Aplica las migraciones pendientes |
 | `npm run db:types` | Genera los tipos de TypeScript del esquema |
 | `npm run db:config` | Aplica `supabase/config.toml` al proyecto |
+| `npm run db:funciones` | Despliega las Edge Functions de `supabase/functions/` |
 | `npm run db:local` | Levanta Supabase en Docker para probar migraciones |
 | `npm run db:test` | Recrea la base local y corre las pruebas de `supabase/tests/` |
 | `npm run usuario:admin` | Crea el primer admin o nombra admin una cuenta existente |
@@ -187,6 +189,7 @@ supabase/
   config.toml   # Configuración del proyecto de Supabase
   migrations/   # Esquema de la base de datos, en orden
   tests/        # Pruebas de la base de datos (pgTAP)
+  functions/    # Edge Functions (restablecer-clave)
 ```
 
 ## Cómo contribuir

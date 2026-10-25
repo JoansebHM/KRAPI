@@ -31,6 +31,7 @@ npm run db:new nombre  # nueva migración en supabase/migrations/
 npm run db:push        # aplica migraciones al proyecto de Supabase (requiere `npx supabase login` y `npm run db:link`)
 npm run db:types       # regenera src/types/database.ts desde el proyecto
 npm run db:config      # aplica supabase/config.toml
+npm run db:funciones   # despliega las Edge Functions de supabase/functions/
 npm run db:local       # Supabase local en Docker (para probar migraciones)
 npm run db:test        # recrea la base local y corre las pruebas pgTAP de supabase/tests/
 npm run usuario:admin  # crea el primer admin o nombra admin una cuenta existente

@@ -128,3 +128,52 @@ test.describe('Usuarios: administrar cuentas', () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   })
 })
+
+test.describe('Usuarios: contraseña temporal', () => {
+  test('un admin le pone una contraseña temporal a quien olvidó la suya', async ({ page, entrar, supabase }) => {
+    await entrar('admin')
+    await page.goto('/usuarios')
+    await pestana(page, 'Activos').click()
+    await fila(page, 'Ana Gómez').click()
+    await ficha(page, 'Ana Gómez').getByRole('button', { name: 'Poner contraseña temporal' }).click()
+
+    const dialogo = page.getByRole('dialog', { name: 'Contraseña temporal para Ana Gómez' })
+    await expect(dialogo).toContainText('Se cerrarán sus sesiones abiertas')
+    await dialogo.getByLabel('Contraseña temporal', { exact: true }).fill('temporal-123456')
+    await dialogo.getByLabel('Repite la contraseña temporal', { exact: true }).fill('temporal-000000')
+    await dialogo.getByRole('button', { name: 'Poner contraseña' }).click()
+    await expect(dialogo.getByText('Las contraseñas no coinciden.')).toBeVisible()
+
+    await dialogo.getByLabel('Repite la contraseña temporal', { exact: true }).fill('temporal-123456')
+    await dialogo.getByRole('button', { name: 'Poner contraseña' }).click()
+    await expect(toast(page, 'Contraseña temporal lista')).toContainText('pídele que la cambie en Mi perfil')
+    expect(supabase.cuenta('ana').password).toBe('temporal-123456')
+    expect(supabase.peticiones).toContain('POST /functions/v1/restablecer-clave')
+  })
+
+  test('si el servidor la rechaza, se muestra su motivo', async ({ page, entrar, supabase }) => {
+    await entrar('admin')
+    await page.goto('/usuarios')
+    await pestana(page, 'Activos').click()
+    await fila(page, 'Ana Gómez').click()
+    await ficha(page, 'Ana Gómez').getByRole('button', { name: 'Poner contraseña temporal' }).click()
+    // Mientras tanto, a quien la pone le quitaron el rol de admin.
+    supabase.cuenta('admin').rol = 'miembro'
+    const dialogo = page.getByRole('dialog', { name: 'Contraseña temporal para Ana Gómez' })
+    await dialogo.getByLabel('Contraseña temporal', { exact: true }).fill('temporal-123456')
+    await dialogo.getByLabel('Repite la contraseña temporal', { exact: true }).fill('temporal-123456')
+    await dialogo.getByRole('button', { name: 'Poner contraseña' }).click()
+    await expect(toast(page, 'No se pudo cambiar la contraseña')).toContainText('Solo un admin puede restablecer contraseñas.')
+  })
+
+  test('no aparece en la cuenta propia ni en cuentas que no están activas', async ({ page, entrar }) => {
+    await entrar('admin')
+    await page.goto('/usuarios')
+    await fila(page, 'Pepe Pérez').click()
+    await expect(ficha(page, 'Pepe Pérez').getByRole('button', { name: 'Poner contraseña temporal' })).toHaveCount(0)
+    await page.keyboard.press('Escape')
+    await pestana(page, 'Activos').click()
+    await fila(page, 'Admin Kratos').click()
+    await expect(ficha(page, 'Admin Kratos').getByRole('button', { name: 'Poner contraseña temporal' })).toHaveCount(0)
+  })
+})

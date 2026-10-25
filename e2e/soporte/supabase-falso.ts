@@ -12,6 +12,7 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - creado_por y actualizado_por los pone la base de datos con la cuenta que hace la petición
  * - funciones de admin para aprobar, rechazar, desactivar, reactivar y cambiar el rol
  * - cambiar la contraseña propia (PUT /auth/v1/user): mínimo 10 caracteres y distinta de la actual
+ * - Edge Function restablecer-clave: un admin pone una contraseña temporal a otra cuenta
  * - un responsable solo se vincula a una cuenta (perfiles.responsable_id único) → 23505
  * - nombres únicos (sin importar mayúsculas ni espacios) en categorías y responsables → 23505
  * - borrar una categoría deja sus ubicaciones sin categoría (ON DELETE SET NULL)
@@ -201,6 +202,7 @@ export class SupabaseFalso {
     if (url.pathname.startsWith('/auth/v1/')) return this.auth(ruta, url)
     if (url.pathname.startsWith('/rest/v1/')) return this.rest(ruta, url)
     if (url.pathname.startsWith('/storage/v1/')) return this.storage(ruta, url)
+    if (url.pathname === '/functions/v1/restablecer-clave') return this.restablecerClave(ruta)
     return ruta.fulfill({ status: 404, json: {} })
   }
 
@@ -349,6 +351,20 @@ export class SupabaseFalso {
       return ruta.fulfill({ json: lugares })
     }
     return ruta.fulfill({ status: 404, json: { code: 'PGRST202', message: `Función ${funcion} no simulada` } })
+  }
+
+  /** Edge Function restablecer-clave: un admin pone una contraseña temporal a otra cuenta. */
+  private restablecerClave(ruta: Route) {
+    const quien = this.quien(ruta)
+    const { usuario_id, password } = JSON.parse(ruta.request().postData() || '{}')
+    const error = (status: number, mensaje: string) => ruta.fulfill({ status, json: { error: mensaje } })
+    if (quien?.estado !== 'activo' || quien.rol !== 'admin') return error(403, 'Solo un admin puede restablecer contraseñas.')
+    if (String(password ?? '').length < 10) return error(400, 'La contraseña debe tener al menos 10 caracteres.')
+    if (usuario_id === quien.id) return error(400, 'Para cambiar tu propia contraseña usa Mi perfil.')
+    const cuenta = this.cuentas.find((c) => c.id === usuario_id)
+    if (!cuenta) return error(404, 'La cuenta no existe.')
+    cuenta.password = password
+    return ruta.fulfill({ json: { ok: true } })
   }
 
   /** aprobar_usuario, rechazar_usuario, desactivar_usuario, reactivar_usuario y cambiar_rol. */
