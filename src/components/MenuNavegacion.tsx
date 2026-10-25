@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router'
+import { useAuth } from '../features/auth/useAuth'
+import { useUsuarios } from '../features/usuarios/api'
 import { PoweredBy } from './PoweredBy'
 import './MenuNavegacion.css'
 
@@ -17,6 +19,10 @@ const SECCIONES = [
 /** Menú lateral con las secciones de la app. */
 export function MenuNavegacion({ abierto, onCerrar }: MenuNavegacionProps) {
   const { pathname } = useLocation()
+  const { esAdmin } = useAuth()
+  // Solo un admin ve "Usuarios", con cuántas cuentas esperan aprobación.
+  const { data: usuarios } = useUsuarios({ habilitado: esAdmin })
+  const pendientes = usuarios?.filter((usuario) => usuario.estado === 'pendiente').length ?? 0
 
   // Al cambiar de sección, el menú se cierra solo.
   useEffect(() => {
@@ -49,6 +55,19 @@ export function MenuNavegacion({ abierto, onCerrar }: MenuNavegacionProps) {
               </NavLink>
             </li>
           ))}
+          {esAdmin && (
+            <li>
+              <NavLink to="/usuarios" className={({ isActive }) => `menu-item${isActive ? ' menu-item-activo' : ''}`}>
+                <IconoCuenta />
+                <span>Usuarios</span>
+                {pendientes > 0 && (
+                  <span className="menu-contador" aria-label={`${pendientes} por aprobar`}>
+                    {pendientes}
+                  </span>
+                )}
+              </NavLink>
+            </li>
+          )}
           <li>
             <a href="/docs" className="menu-item">
               <IconoDocumentacion />
@@ -108,6 +127,16 @@ function IconoPersonas() {
       <circle cx="9" cy="8" r="3.5" />
       <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
       <path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6" />
+    </svg>
+  )
+}
+
+function IconoCuenta() {
+  return (
+    <svg {...icono}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
+      <path d="m16.5 12.5 1.5 1.5 3-3" />
     </svg>
   )
 }

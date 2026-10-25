@@ -103,3 +103,17 @@
 .menu-item-activo svg {
   color: var(--color-primary);
 }
+
+/* Cuántas cuentas esperan aprobación, junto a "Usuarios". */
+.menu-contador {
+  min-width: 22px;
+  margin-left: auto;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--color-highlight);
+  color: var(--color-on-highlight);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 22px;
+  text-align: center;
+}
