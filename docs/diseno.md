@@ -73,7 +73,7 @@ Se usa en la calle, con una mano y con sol:
 | `.fab` | Botón flotante de crear. Sobre el mapa, `.fab-mapa` ("+ Nuevo lugar") queda por encima de los créditos |
 | `.formulario`, `.field-opcional` | Campos de un formulario, uno debajo del otro; "(opcional)" en gris junto a la etiqueta |
 | `FlechaLista` | Flecha (›) al final de una fila que se puede abrir |
-| `.chips`, `.chip` | Opciones que se marcan tocándolas, con ícono o avatar (categoría del lugar, responsables del estudio). La marcada lleva borde azul y fondo suave |
+| `.chips`, `.chip` | Opciones que se marcan tocándolas, con ícono o avatar (categoría del lugar, participantes del estudio). La marcada lleva borde azul y fondo suave |
 | `.ficha-datos` | Datos de una ficha (lugar, estudio): etiqueta pequeña arriba y valor debajo |
 | `.solo-lector` | Texto que solo leen los lectores de pantalla (por ejemplo, los nombres detrás de los avatares de un estudio) |
 | `Dialog`, `Panel`, `MenuNavegacion`, `Buscador`, `Estados` | Ver [`arquitectura.md`](arquitectura.md) |
@@ -83,7 +83,7 @@ Se usa en la calle, con una mano y con sol:
 | `.estudio-audio-velocidades` | Selector accesible de velocidad del audio (1×, 2×, 3×), con opción seleccionada visible y botones de al menos 44 px |
 | `.estudio-evidencias-titulo`, `.estudio-evidencia-menu` | Las evidencias se agrupan por tipo con su ícono en el título; cada tarjeta tiene un menú desplegable de acciones con botones de toque de 44 px |
 | `notificar.*` | Toasts de Sonner arriba al centro, con botón de cerrar de 40 px y colores de marca |
-| `Avatar` | Avatar dibujado (DiceBear Croodles, a lápiz) de un responsable |
+| `Avatar`, `SelectorAvatar` | Avatar dibujado (DiceBear Croodles, a lápiz) de una cuenta, y el selector con propuestas para elegirlo (registro y Mi perfil). El botón de la cuenta en la barra muestra el avatar propio |
 | `IconoCategoria` | Ícono de Lucide sobre el color de la categoría |
 | `IconoTipoEvidencia` | Círculo de 44 px con el ícono del tipo de evidencia (cámara, micrófono, documento, hoja de cálculo) sobre fondo azul suave |
 | `.evidencia`, `.evidencia-accion`, `.evidencia-progreso` | Fila de evidencia: abre el archivo en otra pestaña y a la derecha lleva botones de 44 px (borrar; o cancelar, reintentar y descartar mientras sube). La subida muestra "Subiendo… N %" y una barra de avance; el error va en rojo, debajo del nombre |

@@ -26,14 +26,14 @@ test.describe('Menú lateral en computador', () => {
     await expect(menu(page)).toBeVisible()
 
     // Elegir otra sección cambia el panel; el menú sigue ahí.
-    await menu(page).getByRole('link', { name: 'Responsables' }).click()
-    await expect(panel(page, 'Responsables')).toBeVisible()
+    await menu(page).getByRole('link', { name: 'Usuarios' }).click()
+    await expect(panel(page, 'Usuarios')).toBeVisible()
     await expect(menu(page)).toBeVisible()
 
     // Tocar el panel no cierra nada.
-    await panel(page, 'Responsables').click()
+    await panel(page, 'Usuarios').click()
     await expect(menu(page)).toBeVisible()
-    await expect(page).toHaveURL(/\/responsables$/)
+    await expect(page).toHaveURL(/\/usuarios$/)
 
     // El panel queda a la derecha del menú.
     const cajaMenu = await menu(page).boundingBox()

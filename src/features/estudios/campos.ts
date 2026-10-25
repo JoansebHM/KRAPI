@@ -1,20 +1,20 @@
 import type { CamposEstudio, Estudio } from './api'
 
-/** Responsables del último estudio guardado desde este dispositivo. */
-const CLAVE_ULTIMOS_RESPONSABLES = 'krapi-ultimos-responsables'
+/** Participantes del último estudio guardado desde este dispositivo. */
+const CLAVE_ULTIMOS_PARTICIPANTES = 'krapi-ultimos-participantes'
 
-export function ultimosResponsables(): string[] {
+export function ultimosParticipantes(): string[] {
   try {
-    const guardados = JSON.parse(localStorage.getItem(CLAVE_ULTIMOS_RESPONSABLES) ?? '[]')
+    const guardados = JSON.parse(localStorage.getItem(CLAVE_ULTIMOS_PARTICIPANTES) ?? '[]')
     return Array.isArray(guardados) ? guardados.filter((id) => typeof id === 'string') : []
   } catch {
     return []
   }
 }
 
-export function recordarResponsables(ids: string[]) {
+export function recordarParticipantes(ids: string[]) {
   try {
-    localStorage.setItem(CLAVE_ULTIMOS_RESPONSABLES, JSON.stringify(ids))
+    localStorage.setItem(CLAVE_ULTIMOS_PARTICIPANTES, JSON.stringify(ids))
   } catch {
     // Sin almacenamiento (por ejemplo, navegación privada): la próxima vez vendrán vacíos.
   }
@@ -28,15 +28,11 @@ export function fechaLocal(fecha = new Date()) {
 }
 
 /**
- * Campos de un estudio nuevo: hoy, desde ahora hasta dentro de una hora, con el responsable vinculado a la
- * cuenta ("Este soy yo") y los del último estudio de este dispositivo que todavía existen (si aún no se
- * conocen los existentes, sin responsables).
+ * Campos de un estudio nuevo: hoy, desde ahora hasta dentro de una hora, con la cuenta propia y los
+ * participantes del último estudio de este dispositivo que siguen activos (si aún no se conocen las
+ * cuentas activas, solo la propia).
  */
-export function estudioNuevo(
-  responsablesExistentes: string[] | undefined,
-  responsablePropio: string | null = null,
-  ahora = new Date(),
-): CamposEstudio {
+export function estudioNuevo(cuentasActivas: string[] | undefined, cuentaPropia: string | null = null, ahora = new Date()): CamposEstudio {
   const inicio = `${dosDigitos(ahora.getHours())}:${dosDigitos(ahora.getMinutes())}`
   // Si la hora siguiente pasa de la medianoche, el fin queda en 23:59 (el estudio es de un solo día).
   const fin = ahora.getHours() < 23 ? `${dosDigitos(ahora.getHours() + 1)}:${dosDigitos(ahora.getMinutes())}` : '23:59'
@@ -45,8 +41,8 @@ export function estudioNuevo(
     fecha: fechaLocal(ahora),
     horaInicio: inicio,
     horaFin: fin,
-    responsableIds: [...new Set([responsablePropio, ...ultimosResponsables()])].filter(
-      (id): id is string => id !== null && Boolean(responsablesExistentes?.includes(id)),
+    participanteIds: [...new Set([cuentaPropia, ...ultimosParticipantes()])].filter(
+      (id): id is string => id !== null && (id === cuentaPropia || Boolean(cuentasActivas?.includes(id))),
     ),
     entrevistado: '',
     notas: [],
@@ -59,7 +55,7 @@ export function camposDe(estudio: Estudio): CamposEstudio {
     fecha: estudio.fecha,
     horaInicio: estudio.horaInicio,
     horaFin: estudio.horaFin,
-    responsableIds: estudio.responsableIds,
+    participanteIds: estudio.participanteIds,
     entrevistado: estudio.entrevistado ?? '',
     notas: [...estudio.notas],
   }

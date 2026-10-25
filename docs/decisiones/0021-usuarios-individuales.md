@@ -18,7 +18,7 @@ Hasta ahora todo el equipo entraba con un usuario compartido ([decisión 0007](0
   Supabase Auth exige un correo, así que la app convierte el nombre de usuario en un **correo interno** (`ana.gomez@usuarios.kira.invalid`). Nadie lo ve y nunca recibe nada, porque la confirmación de correo está desactivada. El dominio `.invalid` está reservado y no existe.
 - **Estados de una cuenta:** `pendiente` (recién registrada), `activo`, `rechazado` y `desactivado`. Solo `activo` tiene acceso a los datos.
 - **Roles:** `miembro` y `admin`. Puede haber varios admins y un admin puede nombrar a otros.
-- **Usuarios y responsables son cosas distintas.** Una cuenta puede vincularse a un responsable ("Este soy yo") y puede haber responsables sin cuenta.
+- ~~**Usuarios y responsables son cosas distintas.**~~ Reemplazado por la [0023](0023-participantes-son-cuentas.md): los participantes de un estudio son cuentas.
 - **Trazabilidad:** cada registro guarda quién lo creó y quién lo editó por última vez (lo llena la base de datos con `auth.uid()`, no la app), y una bitácora guarda cada acción.
 - **La protección vive en RLS, no en la interfaz.** El registro queda abierto en Supabase, pero una cuenta que no está activa no puede leer ni escribir nada.
 - **Contraseñas olvidadas:** las restablece un admin (`npm run usuario:clave`, y más adelante desde `/usuarios`, #80).

@@ -32,9 +32,13 @@ test.describe('Registro', () => {
     await llenar(page, { nombre: 'María López', usuario: 'Maria.Lopez', password: 'una-clave-larga', confirmacion: 'una-clave-larga' })
     await expect(usuario(page)).toHaveValue('maria.lopez')
     await expect(page.getByText('Está disponible.')).toBeVisible()
+    // Viene con un avatar al azar; se elige otro.
+    await expect(page.getByRole('button', { name: 'Avatar 1' })).toHaveAttribute('aria-pressed', 'true')
+    await page.getByRole('button', { name: 'Avatar 4' }).click()
     await page.getByRole('button', { name: 'Crear cuenta' }).click()
 
     await expect(toast(page, 'Cuenta creada')).toContainText('Un admin debe aprobarla')
+    expect(supabase.cuenta('maria.lopez').avatar_semilla).toEqual(expect.any(String))
     await expect(page.getByRole('heading', { name: 'Tu cuenta está esperando aprobación' })).toBeVisible()
     await expect(page.getByText('María López · maria.lopez')).toBeVisible()
     expect(supabase.cuenta('maria.lopez')).toMatchObject({ nombre: 'María López', estado: 'pendiente', rol: 'miembro' })

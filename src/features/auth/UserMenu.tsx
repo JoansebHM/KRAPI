@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Dialog } from '../../components/Dialog'
+import { Avatar } from '../usuarios/Avatar'
+import { semillaDe } from '../usuarios/api'
 import { useAuth } from './useAuth'
 import './UserMenu.css'
 
@@ -49,7 +51,7 @@ export function UserMenu() {
         aria-expanded={abierto}
         onClick={() => setAbierto((valor) => !valor)}
       >
-        <UserIcon />
+        {perfil ? <Avatar semilla={semillaDe(perfil)} tamano={32} /> : <UserIcon />}
       </button>
 
       {abierto && (

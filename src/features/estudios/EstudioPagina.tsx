@@ -11,12 +11,11 @@ import { GrabadorAudio } from '../evidencias/GrabadorAudio'
 import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
 import { agregarArchivos } from '../evidencias/subidas'
 import { useLugares } from '../lugares/api'
-import { Avatar } from '../responsables/Avatar'
-import { semillaDe, useResponsables } from '../responsables/api'
 import { useArchivarEstudio, useEstudios, useGuardarEstudio, type CamposEstudio, type Estudio } from './api'
 import { camposDe, mostrarFecha, mostrarHora } from './campos'
 import { FormularioEstudio } from './FormularioEstudio'
 import { NotasDelEstudio } from './NotasDelEstudio'
+import { ParticipantesDelEstudio } from './ParticipantesDelEstudio'
 import './EstudioPagina.css'
 
 /** Página de un estudio (`/lugares/:id/estudios/:estudioId`): sus datos y sus evidencias. */
@@ -25,7 +24,6 @@ export function EstudioPagina() {
   const navigate = useNavigate()
   const { data: lugares } = useLugares()
   const { data: estudios, isPending, isError, refetch } = useEstudios(lugarId)
-  const { data: responsables } = useResponsables()
   const guardar = useGuardarEstudio()
   const archivar = useArchivarEstudio()
   const [edicion, setEdicion] = useState<CamposEstudio | null>(null)
@@ -60,7 +58,6 @@ export function EstudioPagina() {
     )
   }
 
-  const personas = estudio.responsableIds.map((id) => responsables?.find((r) => r.id === id)).filter((r) => r !== undefined)
 
   async function guardarCambios(actual: Estudio) {
     await guardar.mutateAsync({ ...edicion!, ubicacionId: lugarId, id: actual.id })
@@ -116,20 +113,9 @@ export function EstudioPagina() {
           </dd>
         </div>
         <div>
-          <dt>Responsables</dt>
+          <dt>Participantes</dt>
           <dd>
-            {personas.length === 0 ? (
-              <span className="estudio-sin-dato">Sin responsables</span>
-            ) : (
-              <ul className="estudio-personas">
-                {personas.map((r) => (
-                  <li key={r.id}>
-                    <Avatar semilla={semillaDe(r)} tamano={28} />
-                    {r.nombre}
-                  </li>
-                ))}
-              </ul>
-            )}
+            <ParticipantesDelEstudio estudio={estudio} claseLista="estudio-personas" claseVacio="estudio-sin-dato" />
           </dd>
         </div>
         {estudio.entrevistado && (

@@ -7,7 +7,7 @@ test.describe('Estudios', () => {
     // 30 de octubre de 2026, 2:05 p. m. en Medellín.
     await page.clock.setFixedTime(new Date('2026-10-30T14:05:00-05:00'))
     supabase.db.categorias.push({ id: 'c1', nombre: 'Café', color: '#9E7AE1', icono: 'cafe' })
-    supabase.db.responsables.push({ id: 'r1', nombre: 'Ana', avatar_semilla: 'ana' }, { id: 'r2', nombre: 'Beto', avatar_semilla: 'beto' })
+    supabase.agregarCuenta({ usuario: 'beto', nombre: 'Beto', avatar_semilla: 'beto' })
     supabase.db.ubicaciones.push({
       id: 'p1',
       tipo: 'punto',
@@ -21,7 +21,7 @@ test.describe('Estudios', () => {
       { id: 'e2', ubicacion_id: 'p1', fecha: '2026-10-22', hora_inicio: '15:00:00', hora_fin: '16:30:00', titulo: 'Segunda visita', entrevistado: null, archivado_en: null },
       { id: 'e3', ubicacion_id: 'p1', fecha: '2026-10-21', hora_inicio: '08:00:00', hora_fin: '09:00:00', titulo: 'Visita archivada', entrevistado: null, archivado_en: '2026-10-21T20:00:00Z' },
     )
-    supabase.db.estudio_responsables.push({ estudio_id: 'e1', responsable_id: 'r1' })
+    supabase.db.estudio_participantes.push({ estudio_id: 'e1', usuario_id: 'u-ana' })
   })
 
   test('la ficha muestra el histórico del más reciente al más antiguo, sin los archivados', async ({ page, entrar }) => {
@@ -35,13 +35,13 @@ test.describe('Estudios', () => {
     await expect(estudios.nth(1)).toContainText('Primera visita')
     await expect(estudios.nth(1)).toContainText('20 oct 2026')
     await expect(estudios.nth(1)).toContainText('Entrevista: Tendero')
-    await expect(estudios.nth(1)).toContainText('Responsables: Ana')
+    await expect(estudios.nth(1)).toContainText('Participantes: Ana Gómez')
     await expect(historico.getByText('Visita archivada')).toHaveCount(0)
   })
 
-  test('agregar: viene con hoy, la hora actual y los últimos responsables, y valida las horas', async ({ page, entrar, supabase }) => {
+  test('agregar: viene con hoy, la hora actual, la cuenta propia y los últimos participantes, y valida las horas', async ({ page, entrar, supabase }) => {
     // El último estudio de este celular lo hizo Beto (y alguien que ya no existe).
-    await page.addInitScript(() => localStorage.setItem('krapi-ultimos-responsables', JSON.stringify(['r2', 'borrado'])))
+    await page.addInitScript(() => localStorage.setItem('krapi-ultimos-participantes', JSON.stringify(['u-beto', 'borrado'])))
     await entrar()
     await page.goto('/lugares/p1')
     await page.getByRole('button', { name: 'Agregar estudio' }).click()
@@ -52,8 +52,11 @@ test.describe('Estudios', () => {
     await expect(fecha).toHaveValue('2026-10-30')
     await expect(inicio).toHaveValue('14:05')
     await expect(fin).toHaveValue('15:05')
+    await expect(formulario.getByRole('button', { name: 'Admin Kratos' })).toHaveAttribute('aria-pressed', 'true')
     await expect(formulario.getByRole('button', { name: 'Beto' })).toHaveAttribute('aria-pressed', 'true')
-    await expect(formulario.getByRole('button', { name: 'Ana' })).toHaveAttribute('aria-pressed', 'false')
+    await expect(formulario.getByRole('button', { name: 'Ana Gómez' })).toHaveAttribute('aria-pressed', 'false')
+    // Una cuenta pendiente no se puede elegir.
+    await expect(formulario.getByRole('button', { name: 'Pepe Pérez' })).toHaveCount(0)
 
     await fin.fill('13:00')
     await formulario.getByRole('button', { name: 'Guardar estudio' }).click()
@@ -62,7 +65,7 @@ test.describe('Estudios', () => {
 
     await formulario.getByPlaceholder('Ej.: Entrevista al tendero').fill('Tercera visita')
     await fin.fill('15:30')
-    await formulario.getByRole('button', { name: 'Ana' }).click()
+    await formulario.getByRole('button', { name: 'Ana Gómez' }).click()
     await formulario.getByPlaceholder('Ej.: Tendero, administradora').fill('Administradora')
     await formulario.getByRole('button', { name: 'Guardar estudio' }).click()
 
@@ -71,11 +74,21 @@ test.describe('Estudios', () => {
     expect(nuevo).toEqual(
       expect.objectContaining({ ubicacion_id: 'p1', fecha: '2026-10-30', hora_inicio: '14:05', hora_fin: '15:30', entrevistado: 'Administradora', notas: [] }),
     )
-    expect(supabase.db.estudio_responsables.filter((r) => r.estudio_id === nuevo!.id).map((r) => r.responsable_id)).toEqual(['r2', 'r1'])
+    expect(supabase.db.estudio_participantes.filter((p) => p.estudio_id === nuevo!.id).map((p) => p.usuario_id)).toEqual(['u-admin', 'u-beto', 'u-ana'])
     // Se abre la página del nuevo estudio, para agregarle evidencias.
     await expect(page).toHaveURL(`/lugares/p1/estudios/${nuevo!.id}`)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Tercera visita')
-    expect(await page.evaluate(() => localStorage.getItem('krapi-ultimos-responsables'))).toBe('["r2","r1"]')
+    expect(await page.evaluate(() => localStorage.getItem('krapi-ultimos-participantes'))).toBe('["u-admin","u-beto","u-ana"]')
+  })
+
+  test('los participantes de antes que no tenían cuenta se muestran por su nombre', async ({ page, entrar, supabase }) => {
+    supabase.db.estudios[0].participantes_anteriores = ['Beto (sin cuenta)', 'Caro']
+    await entrar()
+    await page.goto('/lugares/p1')
+    await page.getByRole('region', { name: /Estudios/ }).getByRole('button', { name: /Primera visita/ }).click()
+    const datos = page.getByRole('dialog', { name: 'Primera visita' }).locator('.estudio-presentacion-datos')
+    await expect(datos).toContainText('Ana Gómez')
+    await expect(datos).toContainText('También participó: Beto (sin cuenta), Caro')
   })
 
   test('la presentación muestra los datos del estudio en un modal', async ({ page, entrar, supabase }) => {
@@ -295,15 +308,15 @@ test.describe('Estudios', () => {
 
     await page.getByRole('button', { name: 'Editar estudio' }).click()
     const formulario = page.getByRole('dialog', { name: 'Editar estudio' })
-    await expect(formulario.getByRole('button', { name: 'Ana' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(formulario.getByRole('button', { name: 'Ana Gómez' })).toHaveAttribute('aria-pressed', 'true')
     await formulario.getByPlaceholder('Ej.: Entrevista al tendero').fill('Primera visita (mañana)')
-    await formulario.getByRole('button', { name: 'Ana' }).click()
+    await formulario.getByRole('button', { name: 'Ana Gómez' }).click()
     await formulario.getByRole('button', { name: 'Beto' }).click()
     await formulario.getByRole('button', { name: 'Guardar cambios' }).click()
 
     await expect(toast(page, 'Cambios guardados')).toBeVisible()
     expect(supabase.db.estudios.find((e) => e.id === 'e1')).toEqual(expect.objectContaining({ titulo: 'Primera visita (mañana)', hora_inicio: '09:00' }))
-    expect(supabase.db.estudio_responsables.filter((r) => r.estudio_id === 'e1').map((r) => r.responsable_id)).toEqual(['r2'])
+    expect(supabase.db.estudio_participantes.filter((p) => p.estudio_id === 'e1').map((p) => p.usuario_id)).toEqual(['u-beto'])
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Primera visita (mañana)')
     await page.getByRole('button', { name: 'Editar estudio' }).click()

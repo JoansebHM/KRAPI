@@ -8,15 +8,14 @@ import { CampoContrasena } from '../auth/CampoContrasena'
 import { mensajeDeError } from '../auth/mensajesError'
 import { MINIMO_CLAVE } from '../auth/nombreDeUsuario'
 import { useAuth } from '../auth/useAuth'
-import { Avatar } from '../responsables/Avatar'
-import { semillaDe, useResponsables } from '../responsables/api'
-import { useUsuarios } from '../usuarios/api'
+import { semillaDe } from '../usuarios/api'
+import { SelectorAvatar } from '../usuarios/SelectorAvatar'
 import { useActualizarPerfil, useCambiarContrasena } from './api'
 import './PerfilPage.css'
 
 const MAX_NOMBRE = 80
 
-/** Mi perfil: nombre, "Este soy yo" y cambiar la contraseña. */
+/** Mi perfil: nombre, avatar y cambiar la contraseña. */
 export function PerfilPage() {
   const { perfil } = useAuth()
   // App solo muestra esta página con la cuenta activa, así que el perfil ya está cargado.
@@ -31,30 +30,22 @@ export function PerfilPage() {
 
 function DatosDelPerfil({ perfil }: { perfil: Perfil }) {
   const [nombre, setNombre] = useState(perfil.nombre)
-  const [responsableId, setResponsableId] = useState(perfil.responsable_id)
+  const [avatarSemilla, setAvatarSemilla] = useState(() => semillaDe(perfil))
   const [intentoGuardar, setIntentoGuardar] = useState(false)
   const actualizar = useActualizarPerfil(perfil.id)
-  const { data: responsables, isPending: cargandoResponsables } = useResponsables()
-  const { data: cuentas } = useUsuarios()
 
-  // Responsables que ya son de otra cuenta: id → nombre de usuario de esa cuenta.
-  const tomados = new Map(
-    (cuentas ?? []).filter((cuenta) => cuenta.id !== perfil.id && cuenta.responsable_id).map((cuenta) => [cuenta.responsable_id!, cuenta.usuario]),
-  )
   const error = !nombre.trim() ? 'Escribe tu nombre.' : null
-  const sinCambios = nombre.trim() === perfil.nombre && responsableId === perfil.responsable_id
+  const sinCambios = nombre.trim() === perfil.nombre && avatarSemilla === semillaDe(perfil)
 
   async function guardar(evento: FormEvent) {
     evento.preventDefault()
     setIntentoGuardar(true)
     if (error) return
     try {
-      await actualizar.mutateAsync({ nombre, responsableId })
+      await actualizar.mutateAsync({ nombre, avatarSemilla })
       notificar.exito('Perfil actualizado')
     } catch (errorGuardar) {
-      notificar.error('No se pudo guardar', {
-        descripcion: mensajeErrorDatos(errorGuardar, { duplicado: 'Ese responsable ya está vinculado a otra cuenta.' }),
-      })
+      notificar.error('No se pudo guardar', { descripcion: mensajeErrorDatos(errorGuardar) })
     }
   }
 
@@ -84,42 +75,11 @@ function DatosDelPerfil({ perfil }: { perfil: Perfil }) {
         )}
       </label>
 
-      <fieldset className="field perfil-este-soy-yo">
-        <legend className="field-label">Este soy yo</legend>
-        <p className="field-ayuda">
-          El responsable que eres en los estudios. Vendrá marcado cuando registres un estudio nuevo.
-        </p>
-        {cargandoResponsables ? (
-          <p className="chips-nota">Cargando responsables…</p>
-        ) : !responsables?.length ? (
-          <p className="chips-nota">Aún no hay responsables. Puedes crearlos desde el menú, en Responsables.</p>
-        ) : (
-          <div className="chips">
-            <button type="button" className="chip perfil-chip-ninguno" aria-pressed={responsableId === null} onClick={() => setResponsableId(null)}>
-              <span>Ninguno</span>
-            </button>
-            {responsables.map((responsable) => {
-              const deOtraCuenta = tomados.get(responsable.id)
-              return (
-                <button
-                  key={responsable.id}
-                  type="button"
-                  className={`chip${deOtraCuenta ? ' perfil-chip-tomado' : ''}`}
-                  aria-pressed={responsableId === responsable.id}
-                  aria-disabled={deOtraCuenta ? true : undefined}
-                  onClick={() => !deOtraCuenta && setResponsableId(responsable.id)}
-                >
-                  <Avatar semilla={semillaDe(responsable)} tamano={32} />
-                  <span>
-                    {responsable.nombre}
-                    {deOtraCuenta && <span className="perfil-chip-detalle"> · cuenta de {deOtraCuenta}</span>}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        )}
-      </fieldset>
+      <div className="field">
+        <span className="field-label">Tu avatar</span>
+        <p className="field-ayuda">Así te ve el equipo en los estudios y en las asignaciones.</p>
+        <SelectorAvatar valor={avatarSemilla} onCambiar={setAvatarSemilla} />
+      </div>
 
       <button type="submit" className="btn btn-primary btn-block" disabled={actualizar.isPending || sinCambios}>
         {actualizar.isPending ? 'Guardando…' : 'Guardar cambios'}

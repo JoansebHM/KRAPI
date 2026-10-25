@@ -10,11 +10,13 @@ import { CampoContrasena } from '../auth/CampoContrasena'
 import { MINIMO_CLAVE } from '../auth/nombreDeUsuario'
 import { useAuth } from '../auth/useAuth'
 import { mostrarFecha } from '../estudios/campos'
+import { Avatar } from './Avatar'
 import {
   mensajeErrorCuenta,
   useCambiarEstado,
   useCambiarRol,
   useRestablecerClave,
+  semillaDe,
   useUsuarios,
   type CambioDeEstado,
   type Rol,
@@ -236,9 +238,7 @@ export function UsuariosPage() {
                 {filtrados.map((usuario) => (
                   <li key={usuario.id}>
                     <button type="button" className="lista-item" onClick={() => setAbierto(usuario)}>
-                      <span className="usuario-inicial" aria-hidden="true">
-                        {usuario.nombre.trim().charAt(0).toUpperCase()}
-                      </span>
+                      <Avatar semilla={semillaDe(usuario)} tamano={40} />
                       <span className="lista-item-textos">
                         <span className="lista-item-titulo">
                           {usuario.nombre}

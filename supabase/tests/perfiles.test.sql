@@ -4,12 +4,12 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(28);
+select plan(30);
 
 -- Cuentas de prueba. El trigger crea cada perfil en "pendiente".
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-00000000000a', 'admin.uno@usuarios.kira.invalid', '{"nombre": "Admin Uno"}'),
-  ('00000000-0000-0000-0000-00000000000b', 'ana@usuarios.kira.invalid', '{"nombre": "Ana"}'),
+  ('00000000-0000-0000-0000-00000000000b', 'ana@usuarios.kira.invalid', '{"nombre": "Ana", "avatar_semilla": "lapiz-7"}'),
   ('00000000-0000-0000-0000-00000000000c', 'pepe@usuarios.kira.invalid', '{}');
 update public.perfiles set rol = 'admin', estado = 'activo'
  where id = '00000000-0000-0000-0000-00000000000a';
@@ -26,6 +26,9 @@ select is(
 select is(
   (select nombre from public.perfiles where id = '00000000-0000-0000-0000-00000000000c'),
   'pepe', 'sin nombre en los metadatos se usa el nombre de usuario');
+select is(
+  (select avatar_semilla from public.perfiles where id = '00000000-0000-0000-0000-00000000000b'),
+  'lapiz-7', 'el avatar sale de los metadatos del registro');
 
 select throws_ok(
   $$ insert into auth.users (id, email) values (gen_random_uuid(), 'alguien@gmail.com') $$,
@@ -96,6 +99,9 @@ select is(
 select isnt_empty(
   $$ update public.perfiles set nombre = 'Ana María' where id = auth.uid() returning id $$,
   'activo: edita su nombre');
+select isnt_empty(
+  $$ update public.perfiles set avatar_semilla = 'otra-semilla' where id = auth.uid() returning id $$,
+  'activo: cambia su avatar');
 select throws_ok(
   $$ update public.perfiles set rol = 'admin' where id = auth.uid() $$,
   '42501', null, 'nadie cambia su propio rol');

@@ -8,7 +8,7 @@ interface AvatarProps {
   tamano?: number
 }
 
-/** Avatar dibujado de un responsable (ver ./dibujoAvatar.ts). */
+/** Avatar dibujado de una cuenta (ver ./dibujoAvatar.ts). */
 export function Avatar({ semilla, tamano = 44 }: AvatarProps) {
   const src = useMemo(() => dibujarAvatar(semilla), [semilla])
   return (

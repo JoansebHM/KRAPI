@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
 
-/** Caché de datos compartida por toda la app (categorías, responsables, ubicaciones...). */
+/** Caché de datos compartida por toda la app (categorías, cuentas, ubicaciones...). */
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -15,7 +15,7 @@
   color: var(--color-text-muted);
 }
 
-/* Última línea de cada estudio: responsables (avatares encimados) y a quién se entrevistó. */
+/* Última línea de cada estudio: participantes (avatares encimados) y a quién se entrevistó. */
 .estudio-meta {
   display: flex;
   flex-wrap: wrap;

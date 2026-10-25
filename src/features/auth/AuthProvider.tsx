@@ -114,13 +114,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const registrarse = useCallback<AuthContextValue['registrarse']>(async ({ nombre, usuario, password }) => {
+  const registrarse = useCallback<AuthContextValue['registrarse']>(async ({ nombre, usuario, password, avatarSemilla }) => {
     try {
-      // El nombre viaja en los metadatos para que el trigger crear_perfil lo guarde en el perfil.
+      // El nombre y el avatar viajan en los metadatos para que el trigger crear_perfil los guarde en el perfil.
       const { error } = await supabase.auth.signUp({
         email: correoParaEntrar(usuario),
         password,
-        options: { data: { nombre: nombre.trim() } },
+        options: { data: { nombre: nombre.trim(), avatar_semilla: avatarSemilla } },
       })
       if (error) return { error: mensajeDeError(error) }
       registrarInicio()

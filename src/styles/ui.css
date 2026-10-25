@@ -194,7 +194,7 @@
   outline-offset: 3px;
 }
 
-/* Opciones que se marcan tocándolas, con ícono o avatar (categoría, responsables). */
+/* Opciones que se marcan tocándolas, con ícono o avatar (categoría, participantes). */
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -244,7 +244,7 @@
   color: var(--color-text-muted);
 }
 
-/* Listas tocables (categorías, responsables...). */
+/* Listas tocables (categorías, usuarios...). */
 .lista {
   margin: 0;
   padding: 0;
