@@ -7,11 +7,12 @@ import { IconoTipoEvidencia } from './IconoTipoEvidencia'
 interface AgregarEvidenciaProps {
   onArchivos: (archivos: File[]) => void
   onGrabarAudio: () => void
+  onVideo: () => void
   onCerrar: () => void
 }
 
-/** Elegir cómo agregar una evidencia: con la cámara, con el micrófono o desde los archivos. */
-export function AgregarEvidencia({ onArchivos, onGrabarAudio, onCerrar }: AgregarEvidenciaProps) {
+/** Elegir cómo agregar una evidencia: con la cámara, con el micrófono, desde los archivos o un video de SharePoint. */
+export function AgregarEvidencia({ onArchivos, onGrabarAudio, onVideo, onCerrar }: AgregarEvidenciaProps) {
   function alElegir(evento: ChangeEvent<HTMLInputElement>) {
     const archivos = [...(evento.target.files ?? [])]
     evento.target.value = ''
@@ -52,6 +53,16 @@ export function AgregarEvidencia({ onArchivos, onGrabarAudio, onCerrar }: Agrega
           >
             <input type="file" accept={ACEPTA_ARCHIVOS} multiple onChange={alElegir} className="solo-lector" />
           </Opcion>
+        </li>
+        <li>
+          <button type="button" className="lista-item" onClick={onVideo}>
+            <IconoTipoEvidencia tipo="video" />
+            <span className="lista-item-textos">
+              <span className="lista-item-titulo">Video de SharePoint</span>
+              <span className="lista-item-detalle">Pegando su enlace: el video se queda en SharePoint</span>
+            </span>
+            <FlechaLista />
+          </button>
         </li>
       </ul>
     </Dialog>

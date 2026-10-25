@@ -71,6 +71,24 @@ export interface ArchivoSubido {
  * Registra en la tabla un archivo ya subido. Si no se puede, borra el archivo
  * para no dejarlo huérfano en el bucket.
  */
+/** Agrega un video de SharePoint como evidencia: se guarda el enlace, no el archivo (decisión 0010). */
+export function useAgregarVideo() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ estudioId, enlace, titulo }: { estudioId: string; enlace: string; titulo: string }) => {
+      const { error } = await supabase.from('evidencias').insert({
+        estudio_id: estudioId,
+        tipo: 'video',
+        titulo: titulo.trim().replace(/\s+/g, ' ') || null,
+        url_externa: enlace,
+        proveedor: 'sharepoint',
+      })
+      if (error) throw error
+    },
+    onSuccess: (_resultado, { estudioId }) => queryClient.invalidateQueries({ queryKey: claveEvidencias(estudioId) }),
+  })
+}
+
 export async function registrarArchivo({ estudioId, tipo, ruta, nombre, mime, bytes }: ArchivoSubido) {
   const { error } = await supabase.from('evidencias').insert({
     estudio_id: estudioId,
