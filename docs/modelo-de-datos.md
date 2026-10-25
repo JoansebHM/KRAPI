@@ -149,6 +149,7 @@ Estas funciones son `security definer` (corren con permisos de dueño) y tienen 
 | `desactivar_usuario(usuario_id)` | Admin | `activo` → `desactivado`, y borra sus sesiones (`auth.sessions`) para que no pueda renovar el token |
 | `reactivar_usuario(usuario_id)` | Admin | `desactivado` → `activo` |
 | `cambiar_rol(usuario_id, rol)` | Admin | Nombra o quita admins entre las cuentas activas |
+| `cerrar_sesiones(usuario_id)` | Solo `service_role` (Edge Function `restablecer-clave`) | Borra las sesiones de la cuenta después de ponerle una contraseña temporal |
 
 Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es admin (`42501`), si intenta cambiarse a sí mismo (`42501`) o si el cambio de estado no aplica (`22023`). Como nadie se cambia a sí mismo y quien llama es un admin activo, **nunca se queda el sistema sin admins**.
 
@@ -221,3 +222,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261025140000_rls_cuentas_activas` | Reemplaza el acceso total por políticas según el estado y el rol de la cuenta, también en el bucket |
 | `20261025150000_bitacora` | `bitacora`, enum `accion_bitacora` y sus triggers |
 | `20261025160000_permisos_scripts_admin` | `select` y `update` sobre `perfiles` para `service_role` (scripts de administración) |
+| `20261025170000_cerrar_sesiones` | `cerrar_sesiones()` para la Edge Function `restablecer-clave` |

@@ -6,7 +6,7 @@
 | --- | --- |
 | **React 19 + TypeScript (estricto) + Vite** | La app. Es privada y no necesita SEO, así que no hay servidor propio (ver [decisión 0001](decisiones/0001-vite-react-typescript.md)) |
 | **MapLibre GL 6** | El mapa. Mapa base provisional: OpenFreeMap (gratis, sin clave) |
-| **Supabase** (`@supabase/supabase-js`) | Base de datos PostgreSQL + PostGIS, autenticación y archivos |
+| **Supabase** (`@supabase/supabase-js`) | Base de datos PostgreSQL + PostGIS, autenticación y archivos. Una sola Edge Function (`restablecer-clave`, Deno) para lo que exige la clave secreta ([decisión 0022](decisiones/0022-edge-function-restablecer-clave.md)) |
 | **TanStack Query** | Caché de datos: consultas, recargas y actualización después de guardar |
 | **React Router** | Una dirección por sección (`/categorias`, `/lugares/:id`), así el "atrás" del celular funciona |
 | **Sonner** | Notificaciones (toasts) |
@@ -40,7 +40,7 @@ src/
   styles/         theme.css (tokens), ui.css (botones, campos, listas)
   types/          database.ts (tipos generados del esquema)
 e2e/              Pruebas Playwright y Supabase simulado (e2e/soporte/)
-supabase/         config.toml, migraciones y pruebas de la base de datos (tests/)
+supabase/         config.toml, migraciones, pruebas de la base de datos (tests/) y Edge Functions (functions/)
 scripts/
   cuentas/        crear-admin.mjs y restablecer-clave.mjs (usuario:admin y usuario:clave), comun.mjs
   docs/           Generador de la documentación navegable (/docs)
