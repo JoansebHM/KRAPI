@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Point, Polygon } from 'geojson'
+import { SIN_PERMISO } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
 import type { Enums } from '../../types/database'
 import { CLAVE_CATEGORIAS } from '../categorias/api'
@@ -59,6 +60,7 @@ export interface CamposPunto {
   complemento: string
   contactoNombre: string
   contactoTelefono: string
+  descripcion: string
 }
 
 export const PUNTO_VACIO: CamposPunto = {
@@ -68,12 +70,27 @@ export const PUNTO_VACIO: CamposPunto = {
   complemento: '',
   contactoNombre: '',
   contactoTelefono: '',
+  descripcion: '',
 }
 
 export type DatosPunto = CamposPunto & { lng: number; lat: number }
 
 /** Texto limpio o NULL si quedó vacío. */
 const opcional = (texto: string) => texto.trim().replace(/\s+/g, ' ') || null
+
+/** Columnas de ubicaciones que se llenan con el formulario de un punto. */
+function columnasDePunto(campos: CamposPunto) {
+  return {
+    nombre: campos.nombre.trim().replace(/\s+/g, ' '),
+    categoria_id: campos.categoriaId,
+    direccion: opcional(campos.direccion),
+    complemento: opcional(campos.complemento),
+    contacto_nombre: opcional(campos.contactoNombre),
+    contacto_telefono: opcional(campos.contactoTelefono),
+    // La descripción puede tener varias líneas: solo se quitan los espacios de los extremos.
+    descripcion: campos.descripcion.trim() || null,
+  }
+}
 
 export function useCrearPunto() {
   const queryClient = useQueryClient()
@@ -85,12 +102,7 @@ export function useCrearPunto() {
           tipo: 'punto',
           // PostGIS acepta la geometría como texto (EWKT), con su sistema de coordenadas.
           geom: `SRID=4326;POINT(${datos.lng} ${datos.lat})`,
-          nombre: datos.nombre.trim().replace(/\s+/g, ' '),
-          categoria_id: datos.categoriaId,
-          direccion: opcional(datos.direccion),
-          complemento: opcional(datos.complemento),
-          contacto_nombre: opcional(datos.contactoNombre),
-          contacto_telefono: opcional(datos.contactoTelefono),
+          ...columnasDePunto(datos),
         })
         .select('id')
         .single()
@@ -102,5 +114,142 @@ export function useCrearPunto() {
       // Las categorías muestran cuántas ubicaciones las usan.
       void queryClient.invalidateQueries({ queryKey: CLAVE_CATEGORIAS })
     },
+  })
+}
+
+/** Todo lo de un lugar para su ficha, también si está archivado (lugares_mapa solo trae los visibles). */
+export interface DetalleLugar {
+  id: string
+  tipo: Enums<'tipo_ubicacion'>
+  nombre: string
+  descripcion: string | null
+  direccion: string | null
+  complemento: string | null
+  contactoNombre: string | null
+  contactoTelefono: string | null
+  categoriaId: string | null
+  estado: Enums<'estado_ubicacion'>
+  archivadaEn: string | null
+  creadoPor: string | null
+  /** Cuántos estudios tiene, contando los archivados: solo se borra de verdad un lugar sin estudios. */
+  estudios: number
+}
+
+export const claveLugar = (id: string) => ['lugar', id] as const
+
+export function useLugar(id: string | undefined) {
+  return useQuery({
+    queryKey: claveLugar(id ?? ''),
+    enabled: Boolean(id),
+    queryFn: async (): Promise<DetalleLugar | null> => {
+      const { data, error } = await supabase
+        .from('ubicaciones')
+        .select(
+          'id, tipo, nombre, descripcion, direccion, complemento, contacto_nombre, contacto_telefono, categoria_id, estado, archivada_en, creado_por, estudios(count)',
+        )
+        .eq('id', id!)
+        .maybeSingle()
+      if (error) throw error
+      if (!data) return null
+      return {
+        id: data.id,
+        tipo: data.tipo,
+        nombre: data.nombre,
+        descripcion: data.descripcion,
+        direccion: data.direccion,
+        complemento: data.complemento,
+        contactoNombre: data.contacto_nombre,
+        contactoTelefono: data.contacto_telefono,
+        categoriaId: data.categoria_id,
+        estado: data.estado,
+        archivadaEn: data.archivada_en,
+        creadoPor: data.creado_por,
+        estudios: data.estudios[0]?.count ?? 0,
+      }
+    },
+  })
+}
+
+export function camposDePunto(lugar: DetalleLugar): CamposPunto {
+  return {
+    nombre: lugar.nombre,
+    categoriaId: lugar.categoriaId,
+    direccion: lugar.direccion ?? '',
+    complemento: lugar.complemento ?? '',
+    contactoNombre: lugar.contactoNombre ?? '',
+    contactoTelefono: lugar.contactoTelefono ?? '',
+    descripcion: lugar.descripcion ?? '',
+  }
+}
+
+/** Después de cambiar un lugar se actualizan el mapa, su ficha y los conteos de las categorías. */
+function useAlCambiarLugar() {
+  const queryClient = useQueryClient()
+  return (_resultado: unknown, { id }: { id: string }) => {
+    void queryClient.invalidateQueries({ queryKey: CLAVE_LUGARES })
+    void queryClient.invalidateQueries({ queryKey: claveLugar(id) })
+    void queryClient.invalidateQueries({ queryKey: CLAVE_CATEGORIAS })
+  }
+}
+
+export function useActualizarPunto() {
+  const onSuccess = useAlCambiarLugar()
+  return useMutation({
+    mutationFn: async ({ id, campos }: { id: string; campos: CamposPunto }) => {
+      const { error } = await supabase.from('ubicaciones').update(columnasDePunto(campos)).eq('id', id)
+      if (error) throw error
+    },
+    onSuccess,
+  })
+}
+
+export function useMoverPunto() {
+  const onSuccess = useAlCambiarLugar()
+  return useMutation({
+    mutationFn: async ({ id, lng, lat }: { id: string; lng: number; lat: number }) => {
+      const { error } = await supabase.from('ubicaciones').update({ geom: `SRID=4326;POINT(${lng} ${lat})` }).eq('id', id)
+      if (error) throw error
+    },
+    onSuccess,
+  })
+}
+
+/** Activo o cerrado (por ejemplo, un local que cerró). Conserva su histórico. */
+export function useCambiarEstadoLugar() {
+  const onSuccess = useAlCambiarLugar()
+  return useMutation({
+    mutationFn: async ({ id, estado }: { id: string; estado: Enums<'estado_ubicacion'> }) => {
+      const { error } = await supabase.from('ubicaciones').update({ estado }).eq('id', id)
+      if (error) throw error
+    },
+    onSuccess,
+  })
+}
+
+/** Archivar: desaparece del mapa pero conserva todo y se puede recuperar. */
+export function useArchivarLugar() {
+  const onSuccess = useAlCambiarLugar()
+  return useMutation({
+    mutationFn: async ({ id, archivar }: { id: string; archivar: boolean }) => {
+      const { error } = await supabase
+        .from('ubicaciones')
+        .update({ archivada_en: archivar ? new Date().toISOString() : null })
+        .eq('id', id)
+      if (error) throw error
+    },
+    onSuccess,
+  })
+}
+
+/** Borra de verdad un lugar creado por error. RLS solo lo deja si no tiene estudios y es de quien lo creó (o un admin). */
+export function useBorrarLugar() {
+  const onSuccess = useAlCambiarLugar()
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const { data: borrados, error } = await supabase.from('ubicaciones').delete().eq('id', id).select('id')
+      if (error) throw error
+      if (borrados.length === 0) throw SIN_PERMISO
+    },
+    onSuccess,
   })
 }

@@ -16,6 +16,8 @@ export interface Estudio {
   descripcion: string | null
   entrevistado: string | null
   responsableIds: string[]
+  /** Cuántas evidencias tiene. */
+  evidencias: number
   /** Quién lo registró y quién lo editó por última vez (NULL = antes de las cuentas individuales). */
   creadoPor: string | null
   actualizadoPor: string | null
@@ -50,7 +52,7 @@ export function useEstudios(ubicacionId: string | undefined) {
       const { data, error } = await supabase
         .from('estudios')
         .select(
-          'id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo, descripcion, entrevistado, created_at, updated_at, creado_por, actualizado_por, estudio_responsables(responsable_id)',
+          'id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo, descripcion, entrevistado, created_at, updated_at, creado_por, actualizado_por, estudio_responsables(responsable_id), evidencias(count)',
         )
         .eq('ubicacion_id', ubicacionId!)
         .is('archivado_en', null)
@@ -66,6 +68,7 @@ export function useEstudios(ubicacionId: string | undefined) {
           descripcion: fila.descripcion,
           entrevistado: fila.entrevistado,
           responsableIds: fila.estudio_responsables.map((r) => r.responsable_id),
+          evidencias: fila.evidencias[0]?.count ?? 0,
           creadoPor: fila.creado_por,
           actualizadoPor: fila.actualizado_por,
           creadoEn: fila.created_at,
