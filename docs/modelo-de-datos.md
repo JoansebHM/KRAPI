@@ -100,7 +100,7 @@ La app guarda primero el estudio y después sus responsables (`estudio_responsab
 | `titulo` | text | Opcional |
 | `archivo_path`, `archivo_nombre`, `archivo_mime`, `archivo_bytes` | | Archivo en el bucket (ruta única) |
 | `texto` | text | Texto escrito en la app (hoy no se usa: los apuntes van en `estudios.notas`) |
-| `url_externa` | text | Enlace (`http(s)://`), por ejemplo a SharePoint |
+| `url_externa` | text | Enlace (`http(s)://`). Hoy la app solo acepta videos de SharePoint (`https://*.sharepoint.com`), con `proveedor = 'sharepoint'` |
 | `proveedor` | `proveedor_almacenamiento` | `supabase`, `sharepoint`, `otro`. NULL solo para textos |
 
 Reglas: cada evidencia es **exactamente una** de archivo, texto o enlace. Si es archivo, lleva nombre, tipo MIME y tamaño. Foto, audio y documento siempre son archivo. Un texto puede ser nota escrita o archivo. Un video puede ser enlace o archivo.
