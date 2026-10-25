@@ -16,13 +16,9 @@ const SECCIONES = [
   { ruta: '/responsables', texto: 'Responsables', icono: <IconoPersonas /> },
 ]
 
-/** Menú lateral con las secciones de la app. */
+/** Menú lateral con las secciones de la app. En celular se abre encima con ☰ y se cierra al elegir. */
 export function MenuNavegacion({ abierto, onCerrar }: MenuNavegacionProps) {
   const { pathname } = useLocation()
-  const { esAdmin } = useAuth()
-  // Solo un admin ve "Usuarios", con cuántas cuentas esperan aprobación.
-  const { data: usuarios } = useUsuarios({ habilitado: esAdmin })
-  const pendientes = usuarios?.filter((usuario) => usuario.estado === 'pendiente').length ?? 0
 
   // Al cambiar de sección, el menú se cierra solo.
   useEffect(() => {
@@ -46,44 +42,79 @@ export function MenuNavegacion({ abierto, onCerrar }: MenuNavegacionProps) {
           <span className="menu-marca-nombre">KIRA</span>
           <PoweredBy />
         </div>
-        <ul className="menu-lista">
-          {SECCIONES.map(({ ruta, texto, icono }) => (
-            <li key={ruta}>
-              <NavLink to={ruta} end className={({ isActive }) => `menu-item${isActive ? ' menu-item-activo' : ''}`}>
-                {icono}
-                <span>{texto}</span>
-              </NavLink>
-            </li>
-          ))}
-          {esAdmin && (
-            <li>
-              <NavLink to="/usuarios" className={({ isActive }) => `menu-item${isActive ? ' menu-item-activo' : ''}`}>
-                <IconoCuenta />
-                <span>Usuarios</span>
-                {pendientes > 0 && (
-                  <span className="menu-contador" aria-label={`${pendientes} por aprobar`}>
-                    {pendientes}
-                  </span>
-                )}
-              </NavLink>
-            </li>
-          )}
-          <li>
-            <a href="/docs" className="menu-item">
-              <IconoDocumentacion />
-              <span>Documentación</span>
-            </a>
-          </li>
-        </ul>
+        <ListaSecciones />
       </nav>
     </>
   )
 }
 
-/** Botón ☰ que abre el menú. */
-export function BotonMenu({ onAbrir }: { onAbrir: () => void }) {
+/** Menú fijo a la izquierda, debajo de la barra superior. Solo en computador. */
+export function MenuFijo() {
   return (
-    <button type="button" className="icon-btn" aria-label="Abrir menú" onClick={onAbrir}>
+    <nav className="menu menu-fijo" aria-label="Secciones">
+      <ListaSecciones />
+    </nav>
+  )
+}
+
+/** Las secciones de la app: Mapa, Categorías, Responsables, Usuarios (admins) y Documentación. */
+function ListaSecciones() {
+  const { esAdmin } = useAuth()
+  // Solo un admin ve "Usuarios", con cuántas cuentas esperan aprobación.
+  const { data: usuarios } = useUsuarios({ habilitado: esAdmin })
+  const pendientes = usuarios?.filter((usuario) => usuario.estado === 'pendiente').length ?? 0
+
+  return (
+    <ul className="menu-lista">
+      {SECCIONES.map(({ ruta, texto, icono }) => (
+        <li key={ruta}>
+          <NavLink to={ruta} end className={({ isActive }) => `menu-item${isActive ? ' menu-item-activo' : ''}`}>
+            {icono}
+            <span>{texto}</span>
+          </NavLink>
+        </li>
+      ))}
+      {esAdmin && (
+        <li>
+          <NavLink to="/usuarios" className={({ isActive }) => `menu-item${isActive ? ' menu-item-activo' : ''}`}>
+            <IconoCuenta />
+            <span>Usuarios</span>
+            {pendientes > 0 && (
+              <span className="menu-contador" aria-label={`${pendientes} por aprobar`}>
+                {pendientes}
+              </span>
+            )}
+          </NavLink>
+        </li>
+      )}
+      <li>
+        <a href="/docs" className="menu-item">
+          <IconoDocumentacion />
+          <span>Documentación</span>
+        </a>
+      </li>
+    </ul>
+  )
+}
+
+interface BotonMenuProps {
+  onTocar: () => void
+  /** En computador el botón oculta o muestra el menú fijo; en celular lo abre encima. */
+  menuFijoVisible?: boolean
+}
+
+/** Botón ☰ de la barra superior. */
+export function BotonMenu({ onTocar, menuFijoVisible }: BotonMenuProps) {
+  const etiqueta = menuFijoVisible === undefined ? 'Abrir menú' : menuFijoVisible ? 'Ocultar menú' : 'Mostrar menú'
+  return (
+    <button
+      type="button"
+      className="icon-btn"
+      aria-label={etiqueta}
+      title={etiqueta}
+      aria-expanded={menuFijoVisible}
+      onClick={onTocar}
+    >
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
         <path d="M4 7h16M4 12h16M4 17h16" />
       </svg>
