@@ -10,7 +10,8 @@ test.describe('Crear un punto', () => {
 
   test('el botón "Nuevo lugar" abre la mira y "Cancelar" vuelve al mapa', async ({ page, entrar }) => {
     await entrar()
-    await page.getByRole('link', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('button', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('link', { name: /Punto/ }).click()
 
     await expect(page).toHaveURL(/\/lugares\/nuevo$/)
     await expect(page.getByText('Mueve el mapa hasta que la mira quede sobre el local.')).toBeVisible()
@@ -18,12 +19,13 @@ test.describe('Crear un punto', () => {
 
     await page.getByRole('link', { name: 'Cancelar' }).click()
     await expect(page).toHaveURL(/\/$/)
-    await expect(page.getByRole('link', { name: 'Nuevo lugar' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Nuevo lugar' })).toBeVisible()
   })
 
   test('"Solo guardar el lugar" guarda sus datos sin estudio, valida los campos y lo muestra en el mapa', async ({ page, entrar, supabase }) => {
     await entrar()
-    await page.getByRole('link', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('button', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('link', { name: /Punto/ }).click()
     await page.getByRole('button', { name: 'Continuar' }).click()
 
     const formulario = page.getByRole('dialog', { name: 'Nuevo lugar' })
@@ -64,7 +66,8 @@ test.describe('Crear un punto', () => {
 
   test('fuera de Manila la mira se pone roja y no deja continuar', async ({ page, entrar }) => {
     await entrar()
-    await page.getByRole('link', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('button', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('link', { name: /Punto/ }).click()
 
     // Arrastra el mapa para que la mira quede al sur del barrio.
     const mapa = (await page.locator('.map-view').boundingBox())!
@@ -85,7 +88,8 @@ test.describe('Crear un punto', () => {
 
     test('avisa y lleva la mira a donde se está', async ({ page, entrar }) => {
       await entrar()
-      await page.getByRole('link', { name: 'Nuevo lugar' }).click()
+      await page.getByRole('button', { name: 'Nuevo lugar' }).click()
+      await page.getByRole('link', { name: /Punto/ }).click()
       await page.getByRole('button', { name: 'Mi ubicación' }).click()
 
       await expect(toast(page, 'Estás fuera de Manila')).toBeVisible()
@@ -103,7 +107,8 @@ test.describe('Crear un punto', () => {
       geom: { type: 'Point', coordinates: CENTRO_MANILA },
     })
     await entrar()
-    await page.getByRole('link', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('button', { name: 'Nuevo lugar' }).click()
+    await page.getByRole('link', { name: /Punto/ }).click()
     await page.getByRole('button', { name: 'Continuar' }).click()
 
     const aviso = page.getByRole('dialog', { name: '¿Es alguno de estos lugares?' })

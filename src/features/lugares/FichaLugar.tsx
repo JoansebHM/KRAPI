@@ -12,7 +12,13 @@ import { COLOR_SIN_CATEGORIA } from '../categorias/colores'
 import { IconoCategoria } from '../categorias/IconoCategoria'
 import { useCamposEstudioNuevo, type CamposEstudio } from '../estudios/api'
 import { EstudiosDelLugar } from '../estudios/EstudiosDelLugar'
-import { useArchivarLugar, useBorrarLugar, useCambiarEstadoLugar, useLugar, type DetalleLugar } from './api'
+import { useTiposZona } from '../tiposZona/api'
+import { ComentariosZona } from '../zonas/ComentariosZona'
+import { EditarZona } from '../zonas/EditarZona'
+import { areaM2, esquinasDe, mostrarArea } from '../zonas/geometria'
+import { LocalesEnZona } from '../zonas/LocalesEnZona'
+import '../tiposZona/TiposZonaPage.css'
+import { useArchivarLugar, useBorrarLugar, useCambiarEstadoLugar, useLugar, useLugares, type DetalleLugar } from './api'
 import { EditarPunto } from './EditarPunto'
 import { enlacesTelefono } from './telefono'
 import './FichaLugar.css'
@@ -22,6 +28,8 @@ export function FichaLugar() {
   const { id } = useParams()
   const { data: lugar, isPending, isError, refetch } = useLugar(id)
   const { data: categorias } = useCategorias()
+  const { data: tiposZona } = useTiposZona()
+  const { data: lugaresVisibles } = useLugares()
   const camposEstudioNuevo = useCamposEstudioNuevo()
   const [nuevoEstudio, setNuevoEstudio] = useState<CamposEstudio | null>(null)
 
@@ -59,7 +67,11 @@ export function FichaLugar() {
   }
 
   const categoria = lugar.categoriaId ? categorias?.find((c) => c.id === lugar.categoriaId) : undefined
+  const tipoZona = lugar.tipoZonaId ? tiposZona?.find((tipo) => tipo.id === lugar.tipoZonaId) : undefined
   const esZona = lugar.tipo === 'zona'
+  // El área se calcula de la forma que trae el mapa (un lugar archivado no está en él).
+  const forma = lugaresVisibles?.find((visible) => visible.id === lugar.id)
+  const area = forma?.tipo === 'zona' ? areaM2(esquinasDe(forma.geometria.coordinates[0])) : null
   const cerrado = lugar.estado === 'cerrada'
   const archivado = lugar.archivadaEn !== null
   const telefono = lugar.contactoTelefono ? enlacesTelefono(lugar.contactoTelefono) : null
@@ -67,7 +79,7 @@ export function FichaLugar() {
   return (
     <Panel
       titulo={lugar.nombre}
-      subtitulo={esZona ? 'Zona' : (categoria?.nombre ?? 'Sin categoría')}
+      subtitulo={esZona ? `Zona${tipoZona ? ` · ${tipoZona.nombre}` : ''}` : (categoria?.nombre ?? 'Sin categoría')}
       pie={
         archivado ? undefined : (
           <button type="button" className="fab" onClick={() => setNuevoEstudio(camposEstudioNuevo())}>
@@ -91,12 +103,29 @@ export function FichaLugar() {
             </dd>
           </div>
         )}
-        <div>
-          <dt>Estado</dt>
-          <dd>
-            <span className={`ficha-estado${cerrado ? ' ficha-estado-cerrado' : ''}`}>{cerrado ? 'Cerrado' : 'Activo'}</span>
-          </dd>
-        </div>
+        {esZona && (
+          <div>
+            <dt>Tipo de zona</dt>
+            <dd className="ficha-categoria">
+              {tipoZona && <span className="tipo-zona-muestra tipo-zona-muestra-chica" style={{ background: tipoZona.color }} aria-hidden="true" />}
+              {tipoZona?.nombre ?? 'Sin tipo'}
+            </dd>
+          </div>
+        )}
+        {esZona && area !== null && (
+          <div>
+            <dt>Área</dt>
+            <dd>{mostrarArea(area)}</dd>
+          </div>
+        )}
+        {!esZona && (
+          <div>
+            <dt>Estado</dt>
+            <dd>
+              <span className={`ficha-estado${cerrado ? ' ficha-estado-cerrado' : ''}`}>{cerrado ? 'Cerrado' : 'Activo'}</span>
+            </dd>
+          </div>
+        )}
         {(lugar.direccion || lugar.complemento) && (
           <div>
             <dt>Dirección</dt>
@@ -142,15 +171,18 @@ export function FichaLugar() {
         )}
       </dl>
 
-      {!esZona && <AccionesDelPunto lugar={lugar} />}
+      <AccionesDelLugar lugar={lugar} />
 
-      <EstudiosDelLugar ubicacionId={lugar.id} nombreLugar={lugar.nombre} nuevo={nuevoEstudio} onCambiarNuevo={setNuevoEstudio} />
+      {esZona && !archivado && <LocalesEnZona zonaId={lugar.id} />}
+      {esZona && <ComentariosZona zonaId={lugar.id} />}
+
+      <EstudiosDelLugar ubicacionId={lugar.id} nombreLugar={lugar.nombre} esZona={esZona} nuevo={nuevoEstudio} onCambiarNuevo={setNuevoEstudio} />
     </Panel>
   )
 }
 
-/** Editar, mover, cerrar, archivar (o recuperar) y borrar un punto. */
-function AccionesDelPunto({ lugar }: { lugar: DetalleLugar }) {
+/** Editar, mover (o redibujar una zona), cerrar un punto, archivar (o recuperar) y borrar un lugar. */
+function AccionesDelLugar({ lugar }: { lugar: DetalleLugar }) {
   const navigate = useNavigate()
   const { perfil, esAdmin } = useAuth()
   const cambiarEstado = useCambiarEstadoLugar()
@@ -161,6 +193,7 @@ function AccionesDelPunto({ lugar }: { lugar: DetalleLugar }) {
   const procesando = cambiarEstado.isPending || archivarLugar.isPending || borrar.isPending
   const cerrado = lugar.estado === 'cerrada'
   const archivado = lugar.archivadaEn !== null
+  const esZona = lugar.tipo === 'zona'
   // Solo se borra de verdad un lugar sin estudios, y solo quien lo creó o un admin (lo asegura RLS).
   const puedeBorrar = lugar.estudios === 0 && (esAdmin || (lugar.creadoPor !== null && lugar.creadoPor === perfil?.id))
 
@@ -223,12 +256,14 @@ function AccionesDelPunto({ lugar }: { lugar: DetalleLugar }) {
           <button type="button" className="btn btn-secondary" onClick={() => setEditando(true)} disabled={procesando}>
             Editar datos
           </button>
-          <Link to={`/lugares/${lugar.id}/mover`} className="btn btn-secondary">
-            Mover
+          <Link to={`/lugares/${lugar.id}/${esZona ? 'redibujar' : 'mover'}`} className="btn btn-secondary">
+            {esZona ? 'Redibujar' : 'Mover'}
           </Link>
-          <button type="button" className="btn btn-secondary" onClick={() => void alternarCerrado()} disabled={procesando}>
-            {cerrado ? 'Marcar activo' : 'Marcar cerrado'}
-          </button>
+          {!esZona && (
+            <button type="button" className="btn btn-secondary" onClick={() => void alternarCerrado()} disabled={procesando}>
+              {cerrado ? 'Marcar activo' : 'Marcar cerrado'}
+            </button>
+          )}
           <button type="button" className="btn btn-secondary" onClick={() => void cambiarArchivado(true)} disabled={procesando}>
             Archivar
           </button>
@@ -236,11 +271,11 @@ function AccionesDelPunto({ lugar }: { lugar: DetalleLugar }) {
       )}
       {puedeBorrar && (
         <button type="button" className="btn-texto btn-texto-peligro" onClick={() => setConfirmarBorrar(true)} disabled={procesando}>
-          Borrar lugar
+          {esZona ? 'Borrar zona' : 'Borrar lugar'}
         </button>
       )}
 
-      {editando && <EditarPunto lugar={lugar} onCerrar={() => setEditando(false)} />}
+      {editando && (esZona ? <EditarZona lugar={lugar} onCerrar={() => setEditando(false)} /> : <EditarPunto lugar={lugar} onCerrar={() => setEditando(false)} />)}
 
       {confirmarBorrar && (
         <Dialog

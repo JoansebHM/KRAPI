@@ -220,6 +220,11 @@
   cursor: pointer;
 }
 
+/* Un chip sin ícono ni avatar necesita el mismo margen a los dos lados. */
+.chip-sin-icono {
+  padding-left: var(--space-3);
+}
+
 .chip span {
   overflow: hidden;
   text-overflow: ellipsis;

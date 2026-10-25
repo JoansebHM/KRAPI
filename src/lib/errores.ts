@@ -10,6 +10,8 @@ interface Contexto {
   duplicado?: string
   /** Mensaje cuando la cuenta no tiene permiso para la acción (por ejemplo, borrar algo de otra persona). */
   sinPermiso?: string
+  /** Mensaje cuando la base de datos rechaza un dato por una de sus reglas (por ejemplo, una zona fuera de Manila). */
+  invalido?: string
 }
 
 /**
@@ -28,7 +30,7 @@ export function mensajeErrorDatos(error: unknown, contexto: Contexto = {}): stri
       return contexto.duplicado ?? 'Ya existe un registro igual.'
     case '23514':
     case '23502':
-      return 'Algún dato no es válido. Revisa el formulario.'
+      return contexto.invalido ?? 'Algún dato no es válido. Revisa el formulario.'
     case '42501':
       return contexto.sinPermiso ?? 'No tienes permiso para hacer esto.'
     case 'PGRST301':

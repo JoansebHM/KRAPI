@@ -1,0 +1,122 @@
+.zona-seccion {
+  margin-top: var(--space-6);
+}
+
+.zona-seccion-titulo {
+  margin: 0 0 var(--space-3);
+  font-size: 1.0625rem;
+}
+
+.zona-seccion-cantidad {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.zona-vacio {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+/* Locales dentro de la zona: poca información y un botón para ir a la ficha de cada uno. */
+.zona-locales,
+.zona-comentarios {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.zona-local {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.zona-local-textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.zona-local-nombre {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zona-local-cerrado,
+.zona-local-detalle {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.zona-local-ver {
+  flex-shrink: 0;
+  min-width: 64px;
+  text-decoration: none;
+}
+
+/* Comentarios: escribir arriba y la lista debajo, del más reciente al más antiguo. */
+.zona-comentar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.zona-comentar .field-textarea {
+  width: 100%;
+  min-height: 64px;
+}
+
+.zona-comentario {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.zona-comentario-sin-autor {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-surface);
+}
+
+.zona-comentario-cuerpo {
+  flex: 1;
+  min-width: 0;
+}
+
+.zona-comentario-meta {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.zona-comentario-meta strong {
+  color: var(--color-text);
+}
+
+.zona-comentario-texto {
+  margin: var(--space-1) 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.zona-comentario-borrar {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  color: var(--color-danger);
+}

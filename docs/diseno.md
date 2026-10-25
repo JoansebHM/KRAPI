@@ -62,6 +62,10 @@ Se usa en la calle, con una mano y con sol:
 | `PantallaAcceso`, `.login-alterno` | Pantalla centrada con la marca para entrar o registrarse, y el enlace de 44 px para pasar de una a otra |
 | `.estudio-presentacion-autoria` | "Registrado por Ana · 30 oct 2026" y "Editado por…" al final de los datos del estudio, en gris y separado por una línea. Lo de antes de las cuentas individuales dice "Cuenta compartida" |
 | `.ficha-acciones`, `.ficha-acciones-grilla` | Acciones de la ficha del lugar: dos columnas de botones (editar, mover, cerrar, archivar) y "Borrar lugar" en texto rojo debajo |
+| `.dibujo-barra` | Barra de abajo al dibujar una zona: "Deshacer" y "Agregar esquina" arriba, "Cancelar" y "Terminar" abajo. La zona en curso se ve en naranja sobre el mapa |
+| `.tipo-zona-muestra` | Cuadrado con el color de un tipo de zona (lista, selector y ficha) |
+| `.zona-local`, `.zona-local-ver` | Local dentro de una zona: ícono, nombre, último estudio y botón "Ver" que lleva a su ficha |
+| `.zona-comentario` | Comentario de una zona: avatar, autor, fecha y texto; botón de borrar (44 px) solo para su autor o un admin |
 | `.estudio-evidencia-video` | Botón redondeado "Ver en SharePoint" (44 px, con ícono de play) en la tarjeta de un video; se abre en otra pestaña |
 | `.ficha-telefono-enlace` | Botones redondeados de 44 px con ícono (Lucide `Phone` y `MessageCircle`) para llamar al contacto y escribirle por WhatsApp |
 | `.pestanas`, `.pestana` | Pestañas en un control segmentado de todo el ancho (botones de 44 px con `role="tab"`), con la cantidad de cada una. Se usan en Usuarios (Pendientes, Activos, Otros) |
