@@ -75,6 +75,16 @@ export function mostrarFecha(fecha: string) {
   return `${partes.day} ${partes.month.replace('.', '')} ${partes.year}`
 }
 
+/** Fecha y hora guardadas por la base de datos (ISO, en UTC) → '30 oct 2026' en la hora local. */
+export function mostrarFechaDe(momento: string) {
+  return mostrarFecha(fechaLocal(new Date(momento)))
+}
+
+/** Si un registro se editó después de crearlo (no cuenta el primer minuto, cuando se guardan sus partes). */
+export function fueEditado(creadoEn: string, actualizadoEn: string) {
+  return new Date(actualizadoEn).getTime() - new Date(creadoEn).getTime() > 60 * 1000
+}
+
 /** '14:00' → '2:00 p. m.'. */
 export function mostrarHora(hora: string) {
   const [h, m] = hora.split(':').map(Number)
