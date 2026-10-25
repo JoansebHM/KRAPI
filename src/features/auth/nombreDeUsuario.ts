@@ -19,11 +19,7 @@ export function errorDeUsuario(usuario: string): string | null {
   return null
 }
 
-/**
- * Correo con el que se entra a Supabase. Si se escribe un correo, se usa tal cual: así sigue
- * entrando el usuario compartido mientras se pasa a cuentas individuales (#81).
- */
+/** Correo interno con el que se entra a Supabase. */
 export function correoParaEntrar(texto: string) {
-  const valor = normalizarUsuario(texto)
-  return valor.includes('@') ? valor : `${valor}@${DOMINIO_CUENTAS}`
+  return `${normalizarUsuario(texto)}@${DOMINIO_CUENTAS}`
 }
