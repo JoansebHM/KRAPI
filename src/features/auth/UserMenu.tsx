@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Dialog } from '../../components/Dialog'
 import { useAuth } from './useAuth'
 import './UserMenu.css'
 
-/** Menú de la cuenta: nombre y usuario, cerrar sesión y cerrar sesión en todos los dispositivos. */
+/** Menú de la cuenta: nombre y usuario, mi perfil, cerrar sesión y cerrar sesión en todos los dispositivos. */
 export function UserMenu() {
   const { perfil, cerrarSesion, cerrarSesionEnTodos } = useAuth()
+  const navegar = useNavigate()
   const [abierto, setAbierto] = useState(false)
   const [confirmarTodos, setConfirmarTodos] = useState(false)
   const [procesando, setProcesando] = useState(false)
@@ -65,6 +67,17 @@ export function UserMenu() {
             className="user-menu-item"
             onClick={() => {
               setAbierto(false)
+              navegar('/perfil')
+            }}
+          >
+            Mi perfil
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="user-menu-item"
+            onClick={() => {
+              setAbierto(false)
               void cerrarSesion()
             }}
           >
@@ -110,10 +123,10 @@ export function UserMenu() {
           }
         >
           <p>
-            Todas las personas que estén usando KIRA con esta cuenta tendrán que volver a ingresar. En los demás
-            dispositivos puede tardar hasta una hora en aplicarse.
+            Tu cuenta se cerrará en todos los dispositivos donde hayas entrado, incluido este. Las cuentas de los
+            demás no cambian. En los otros dispositivos puede tardar hasta una hora en aplicarse.
           </p>
-          <p>Úsalo si cambiaste la contraseña o si alguien dejó el grupo.</p>
+          <p>Úsalo si perdiste un celular o si crees que alguien más conoce tu contraseña.</p>
           {error && (
             <p className="alert alert-error" role="alert">
               {error}
