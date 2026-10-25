@@ -13,7 +13,8 @@ export interface Estudio {
   horaInicio: string
   horaFin: string
   titulo: string
-  descripcion: string | null
+  /** Apuntes de la visita, en el orden en que se escribieron. */
+  notas: string[]
   entrevistado: string | null
   responsableIds: string[]
   /** Cuántas evidencias tiene. */
@@ -33,7 +34,8 @@ export interface CamposEstudio {
   horaFin: string
   responsableIds: string[]
   entrevistado: string
-  descripcion: string
+  /** Una entrada por nota. Las vacías no se guardan. */
+  notas: string[]
 }
 
 export const MAX_ENTREVISTADO = 120
@@ -52,7 +54,7 @@ export function useEstudios(ubicacionId: string | undefined) {
       const { data, error } = await supabase
         .from('estudios')
         .select(
-          'id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo, descripcion, entrevistado, created_at, updated_at, creado_por, actualizado_por, estudio_responsables(responsable_id), evidencias(count)',
+          'id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo, notas, entrevistado, created_at, updated_at, creado_por, actualizado_por, estudio_responsables(responsable_id), evidencias(count)',
         )
         .eq('ubicacion_id', ubicacionId!)
         .is('archivado_en', null)
@@ -65,7 +67,7 @@ export function useEstudios(ubicacionId: string | undefined) {
           horaInicio: hora(fila.hora_inicio),
           horaFin: hora(fila.hora_fin),
           titulo: fila.titulo,
-          descripcion: fila.descripcion,
+          notas: fila.notas,
           entrevistado: fila.entrevistado,
           responsableIds: fila.estudio_responsables.map((r) => r.responsable_id),
           evidencias: fila.evidencias[0]?.count ?? 0,
@@ -86,6 +88,9 @@ export function useCamposEstudioNuevo() {
   return () => estudioNuevo(responsables?.map((r) => r.id), perfil?.responsable_id)
 }
 
+/** Las notas sin espacios en los extremos y sin las vacías. */
+export const limpiarNotas = (notas: string[]) => notas.map((nota) => nota.trim()).filter(Boolean)
+
 /** Texto limpio o NULL si quedó vacío. */
 const opcional = (texto: string) => texto.trim().replace(/\s+/g, ' ') || null
 
@@ -97,7 +102,7 @@ function filaEstudio(campos: CamposEstudio) {
     hora_fin: campos.horaFin,
     entrevistado: opcional(campos.entrevistado),
     // Las notas conservan sus saltos de línea.
-    descripcion: campos.descripcion.trim() || null,
+    notas: limpiarNotas(campos.notas),
   }
 }
 

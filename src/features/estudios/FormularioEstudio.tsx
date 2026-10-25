@@ -3,6 +3,7 @@ import { Dialog } from '../../components/Dialog'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { MAX_ENTREVISTADO, type CamposEstudio } from './api'
+import { CampoNotas } from './CampoNotas'
 import { SelectorResponsables } from './SelectorResponsables'
 import './FormularioEstudio.css'
 
@@ -160,18 +161,7 @@ export function FormularioEstudio({ titulo, lugar, campos, onCambiar, onGuardar,
           />
         </label>
 
-        <label className="field">
-          <span className="field-label">
-            Notas<span className="field-opcional"> (opcional)</span>
-          </span>
-          <textarea
-            className="field-input estudio-notas"
-            placeholder="Lo más importante de la visita"
-            rows={4}
-            value={campos.descripcion}
-            onChange={(evento) => cambiar('descripcion', evento.target.value)}
-          />
-        </label>
+        <CampoNotas notas={campos.notas} onCambiar={(notas) => cambiar('notas', notas)} />
       </div>
     </Dialog>
   )
