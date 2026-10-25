@@ -7,12 +7,18 @@ test('la barra muestra la firma "powered by KIT"', async ({ page, entrar }) => {
   await expect(firma).toHaveAttribute('aria-label', 'powered by Kratos Innovation Team')
 })
 
+test('la sección de responsables ya no existe: lleva al mapa', async ({ page, entrar }) => {
+  await entrar()
+  await page.goto('/responsables')
+  await expect(page).toHaveURL(/\/$/)
+})
+
 test('el menú lleva a cada sección y "atrás" vuelve al mapa', async ({ page, entrar }) => {
   // Un miembro ve las secciones de todos; "Usuarios" solo lo ven los admins (ver usuarios.spec.ts).
   await entrar('miembro')
   await page.getByRole('button', { name: 'Abrir menú' }).click()
   const menu = page.getByRole('navigation', { name: 'Secciones' })
-  await expect(menu.getByRole('link')).toHaveText(['Mapa', 'Categorías', 'Responsables', 'Documentación'])
+  await expect(menu.getByRole('link')).toHaveText(['Mapa', 'Categorías', 'Documentación'])
 
   await menu.getByRole('link', { name: 'Categorías' }).click()
   await expect(page).toHaveURL(/\/categorias$/)
@@ -35,9 +41,9 @@ test('el menú abre la documentación de KIRA', async ({ page, entrar }) => {
 
 test('los formularios se abren por encima de la barra superior', async ({ page, entrar }) => {
   await entrar()
-  await page.goto('/responsables')
-  await page.getByRole('button', { name: 'Agregar el primero' }).click()
-  const dialogo = page.getByRole('dialog', { name: 'Nuevo responsable' })
+  await page.goto('/categorias')
+  await page.getByRole('button', { name: 'Crear la primera' }).click()
+  const dialogo = page.getByRole('dialog', { name: 'Nueva categoría' })
   await expect(dialogo).toBeVisible()
   // El diálogo se dibuja en <body>, no dentro del panel, y nada lo tapa.
   expect(await page.evaluate(() => document.querySelector('.dialog-backdrop')?.parentElement === document.body)).toBe(true)

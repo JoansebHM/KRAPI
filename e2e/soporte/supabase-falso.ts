@@ -8,21 +8,20 @@ import type { BrowserContext, Route } from '@playwright/test'
  * Imita las reglas importantes del esquema real:
  * - registro con nombre de usuario (correo interno `<usuario>@usuarios.kira.invalid`): la cuenta queda pendiente
  * - permisos (RLS): una cuenta que no está activa no recibe datos ni puede crear nada; categorías y
- *   responsables solo los borra un admin; lugares, estudios, evidencias y archivos, quien los creó o un admin
+ *   categorías solo las borra un admin; lugares, estudios, evidencias y archivos, quien los creó o un admin
  * - creado_por y actualizado_por los pone la base de datos con la cuenta que hace la petición
  * - funciones de admin para aprobar, rechazar, desactivar, reactivar y cambiar el rol
  * - cambiar la contraseña propia (PUT /auth/v1/user): mínimo 10 caracteres y distinta de la actual
  * - Edge Function restablecer-clave: un admin pone una contraseña temporal a otra cuenta
- * - un responsable solo se vincula a una cuenta (perfiles.responsable_id único) → 23505
- * - nombres únicos (sin importar mayúsculas ni espacios) en categorías y responsables → 23505
+ * - nombres únicos (sin importar mayúsculas ni espacios) en categorías → 23505
  * - borrar una categoría deja sus ubicaciones sin categoría (ON DELETE SET NULL)
- * - borrar un responsable lo quita de sus estudios (ON DELETE CASCADE)
  * - lugares_mapa() devuelve los lugares no archivados, zonas primero
  * - ubicaciones_cercanas() devuelve hasta 5 puntos no archivados a menos de N metros
  * - el teléfono de contacto debe tener formato de teléfono → 23514
  * - la hora de fin de un estudio debe ser posterior a la de inicio → 23514
  * - las notas de un estudio no pueden estar vacías → 23514
- * - los estudios traen embebidos sus responsables: estudio_responsables(responsable_id)
+ * - los estudios traen embebidos sus participantes: estudio_participantes(usuario_id)
+ * - al registrarse, el avatar viaja en los metadatos (avatar_semilla)
  * - una evidencia de foto, audio o documento lleva su archivo completo → 23514
  * - Storage: el bucket `evidencias` acepta solo sus tipos de archivo y hasta 50 MB, y firma enlaces
  * - si RLS no deja borrar, el borrado no da error: borra 0 filas
@@ -47,7 +46,7 @@ export interface Cuenta {
   nombre: string
   rol: Rol
   estado: Estado
-  responsable_id: string | null
+  avatar_semilla: string | null
   aprobado_por: string | null
   aprobado_en: string | null
   created_at: string
@@ -63,7 +62,7 @@ export const CUENTAS = {
 export type ComoQuien = keyof typeof CUENTAS
 
 type Fila = Record<string, unknown> & { id?: string }
-type Tabla = 'categorias' | 'responsables' | 'ubicaciones' | 'estudios' | 'estudio_responsables' | 'evidencias'
+type Tabla = 'categorias' | 'ubicaciones' | 'estudios' | 'estudio_participantes' | 'evidencias'
 
 /** Error de PostgreSQL como lo devuelve PostgREST. */
 const errorPg = (code: string, message: string, status = 400) => ({ status, json: { code, message, details: null, hint: null } })
@@ -149,7 +148,7 @@ const perfilDe = ({ password: _password, ...perfil }: Cuenta) => perfil
 const FUNCIONES_ADMIN = ['aprobar_usuario', 'rechazar_usuario', 'desactivar_usuario', 'reactivar_usuario', 'cambiar_rol']
 
 export class SupabaseFalso {
-  db: Record<Tabla, Fila[]> = { categorias: [], responsables: [], ubicaciones: [], estudios: [], estudio_responsables: [], evidencias: [] }
+  db: Record<Tabla, Fila[]> = { categorias: [], ubicaciones: [], estudios: [], estudio_participantes: [], evidencias: [] }
   /** Cuentas de auth.users con su perfil. */
   cuentas: Cuenta[] = Object.values(CUENTAS).map((cuenta) => this.nuevaCuenta(cuenta))
   /** Archivos del bucket `evidencias`, por ruta. */
@@ -180,7 +179,7 @@ export class SupabaseFalso {
       nombre: datos.usuario,
       rol: 'miembro',
       estado: 'activo',
-      responsable_id: null,
+      avatar_semilla: null,
       aprobado_por: null,
       aprobado_en: null,
       created_at: '2026-10-23T00:00:00Z',
@@ -258,7 +257,7 @@ export class SupabaseFalso {
   }
 
   /** Registro como lo hacen Supabase Auth y el trigger crear_perfil: la cuenta queda pendiente. */
-  private registrar(ruta: Route, { email, password, data }: { email?: string; password?: string; data?: { nombre?: string } }) {
+  private registrar(ruta: Route, { email, password, data }: { email?: string; password?: string; data?: { nombre?: string; avatar_semilla?: string } }) {
     if (String(password ?? '').length < 10) {
       return this.errorAuth(ruta, 422, 'weak_password', 'Password should be at least 10 characters.')
     }
@@ -270,7 +269,8 @@ export class SupabaseFalso {
       return this.errorAuth(ruta, 422, 'user_already_exists', 'User already registered')
     }
     const nombre = data?.nombre?.trim() || usuario
-    const cuenta = this.agregarCuenta({ usuario, nombre, password, estado: 'pendiente', created_at: new Date().toISOString() })
+    const avatar_semilla = data?.avatar_semilla?.trim() || null
+    const cuenta = this.agregarCuenta({ usuario, nombre, password, avatar_semilla, estado: 'pendiente', created_at: new Date().toISOString() })
     return ruta.fulfill({ json: this.sesion(cuenta) })
   }
 
@@ -397,7 +397,7 @@ export class SupabaseFalso {
     return ruta.fulfill({ json: perfilDe(cuenta) })
   }
 
-  /** perfiles: cada quien lee el suyo; una cuenta activa lee todos y edita su nombre y su responsable. */
+  /** perfiles: cada quien lee el suyo; una cuenta activa lee todos y edita su nombre y su avatar. */
   private perfiles(ruta: Route, url: URL, cuenta: Cuenta | null) {
     const peticion = ruta.request()
     const id = url.searchParams.get('id')?.replace(/^eq\./, '')
@@ -411,13 +411,10 @@ export class SupabaseFalso {
     }
     if (peticion.method() === 'PATCH') {
       const cambios = JSON.parse(peticion.postData() ?? '{}') as Partial<Cuenta>
-      if (Object.keys(cambios).some((campo) => !['nombre', 'responsable_id'].includes(campo))) {
+      if (Object.keys(cambios).some((campo) => !['nombre', 'avatar_semilla'].includes(campo))) {
         return ruta.fulfill(errorPg('42501', 'permission denied for table perfiles', 403))
       }
       const editables = visibles.filter((c) => c.id === cuenta?.id && c.estado === 'activo')
-      if (cambios.responsable_id && this.cuentas.some((c) => c.id !== cuenta?.id && c.responsable_id === cambios.responsable_id)) {
-        return this.duplicado(ruta)
-      }
       editables.forEach((c) => Object.assign(c, cambios))
       const select = url.searchParams.get('select')
       if (!select) return ruta.fulfill({ status: 204, body: '' })
@@ -430,8 +427,8 @@ export class SupabaseFalso {
   /** Reglas de borrado de RLS. */
   private puedeBorrar(tabla: Tabla, fila: Fila, cuenta: Cuenta) {
     if (cuenta.rol === 'admin') return tabla !== 'ubicaciones' || !this.tieneEstudios(fila)
-    if (tabla === 'categorias' || tabla === 'responsables') return false
-    if (tabla === 'estudio_responsables') return true
+    if (tabla === 'categorias') return false
+    if (tabla === 'estudio_participantes') return true
     return fila.creado_por === cuenta.id && (tabla !== 'ubicaciones' || !this.tieneEstudios(fila))
   }
 
@@ -487,7 +484,7 @@ export class SupabaseFalso {
             ...datos,
             ...(tabla === 'ubicaciones' ? { geom: geometria(datos.geom) } : {}),
             // Autoría: la pone la base de datos, no la app.
-            ...(tabla === 'estudio_responsables' ? {} : { creado_por: cuenta?.id, actualizado_por: cuenta?.id }),
+            ...(tabla === 'estudio_participantes' ? {} : { creado_por: cuenta?.id, actualizado_por: cuenta?.id }),
           }
           filas.push(fila)
           creadas.push(this.proyectar(tabla, fila, select))
@@ -505,7 +502,7 @@ export class SupabaseFalso {
             fila,
             cambios,
             tabla === 'ubicaciones' && 'geom' in cambios ? { geom: geometria(cambios.geom) } : {},
-            tabla === 'estudio_responsables' ? {} : { creado_por: fila.creado_por, actualizado_por: cuenta?.id, updated_at: new Date().toISOString() },
+            tabla === 'estudio_participantes' ? {} : { creado_por: fila.creado_por, actualizado_por: cuenta?.id, updated_at: new Date().toISOString() },
           )
         }
         return ruta.fulfill({ status: 204, body: '' })
@@ -516,9 +513,6 @@ export class SupabaseFalso {
           filas.splice(filas.indexOf(fila), 1)
           if (tabla === 'categorias') {
             for (const ubicacion of this.db.ubicaciones) if (ubicacion.categoria_id === fila.id) ubicacion.categoria_id = null
-          }
-          if (tabla === 'responsables') {
-            this.db.estudio_responsables = this.db.estudio_responsables.filter((r) => r.responsable_id !== fila.id)
           }
         }
         if (!select) return ruta.fulfill({ status: 204, body: '' })
@@ -536,14 +530,14 @@ export class SupabaseFalso {
       const conteo = campo.match(/^(\w+)\(count\)$/)
       const embebida = campo.match(/^(\w+)\((\w+)\)$/)
       if (conteo) resultado[conteo[1]] = [{ count: this.contar(tabla, fila) }]
-      else if (tabla === 'estudios' && embebida?.[1] === 'estudio_responsables') {
-        resultado.estudio_responsables = this.db.estudio_responsables
+      else if (tabla === 'estudios' && embebida?.[1] === 'estudio_participantes') {
+        resultado.estudio_participantes = this.db.estudio_participantes
           .filter((r) => r.estudio_id === fila.id)
           .map((r) => ({ [embebida[2]]: r[embebida[2]] }))
       }
       // Las filas que preparan las pruebas pueden no traer fechas; en la base real siempre las tienen.
       else if ((campo === 'created_at' || campo === 'updated_at') && fila[campo] == null) resultado[campo] = FECHA_PREPARADA
-      else if (tabla === 'estudios' && campo === 'notas' && fila.notas == null) resultado.notas = []
+      else if (tabla === 'estudios' && (campo === 'notas' || campo === 'participantes_anteriores') && fila[campo] == null) resultado[campo] = []
       else resultado[campo] = fila[campo] ?? null
     }
     return resultado
@@ -551,7 +545,6 @@ export class SupabaseFalso {
 
   private contar(tabla: Tabla, fila: Fila) {
     if (tabla === 'categorias') return this.db.ubicaciones.filter((u) => u.categoria_id === fila.id).length
-    if (tabla === 'responsables') return this.db.estudio_responsables.filter((r) => r.responsable_id === fila.id).length
     if (tabla === 'ubicaciones') return this.db.estudios.filter((e) => e.ubicacion_id === fila.id).length
     if (tabla === 'estudios') return this.db.evidencias.filter((e) => e.estudio_id === fila.id).length
     return 0
@@ -564,7 +557,7 @@ export class SupabaseFalso {
   }
 
   private nombreRepetido(tabla: Tabla, nombre: string, excepto?: string) {
-    if (tabla !== 'categorias' && tabla !== 'responsables') return false
+    if (tabla !== 'categorias') return false
     return this.db[tabla].some((fila) => fila.id !== excepto && normalizar(String(fila.nombre)) === normalizar(nombre))
   }
 

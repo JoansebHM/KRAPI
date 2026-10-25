@@ -20,7 +20,7 @@ test.describe('Usuarios: acceso', () => {
   test('un miembro no ve "Usuarios" y si entra por la URL vuelve al mapa', async ({ page, entrar }) => {
     await entrar('miembro')
     await page.getByRole('button', { name: 'Abrir menú' }).click()
-    await expect(page.getByRole('link', { name: 'Responsables' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Categorías' })).toBeVisible()
     await expect(page.getByRole('link', { name: /Usuarios/ })).toHaveCount(0)
     await page.goto('/usuarios')
     await expect(page).toHaveURL(/\/$/)
