@@ -54,10 +54,13 @@ Se usa en la calle, con una mano y con sol:
 | `.btn` + `.btn-primary` / `.btn-secondary` / `.btn-danger` / `.btn-block` | Botones |
 | `.btn-texto`, `.btn-texto-peligro` | Acciones secundarias en línea |
 | `.icon-btn` | Botón de solo ícono (siempre con `aria-label`) |
+| `.field-textarea` | Campo de varias líneas (descripción del lugar) |
 | `.field`, `.field-label`, `.field-input`, `.field-error`, `.field-ayuda` | Campos de formulario; el error va debajo del campo y con `aria-invalid`. `.field-ayuda` es la ayuda gris debajo del campo cuando no hay error |
 | `CampoContrasena` | Contraseña con el botón "Mostrar" / "Ocultar" (login, registro) |
 | `PantallaAcceso`, `.login-alterno` | Pantalla centrada con la marca para entrar o registrarse, y el enlace de 44 px para pasar de una a otra |
 | `.estudio-presentacion-autoria` | "Registrado por Ana · 30 oct 2026" y "Editado por…" al final de los datos del estudio, en gris y separado por una línea. Lo de antes de las cuentas individuales dice "Cuenta compartida" |
+| `.ficha-acciones`, `.ficha-acciones-grilla` | Acciones de la ficha del lugar: dos columnas de botones (editar, mover, cerrar, archivar) y "Borrar lugar" en texto rojo debajo |
+| `.ficha-telefono-enlace` | Teléfono que se toca para llamar y enlace de WhatsApp, de 44 px de alto |
 | `.pestanas`, `.pestana` | Pestañas en un control segmentado de todo el ancho (botones de 44 px con `role="tab"`), con la cantidad de cada una. Se usan en Usuarios (Pendientes, Activos, Otros) |
 | `.menu-contador` | Cantidad en amarillo neón junto a una sección del menú (cuentas por aprobar) |
 | `.usuario-inicial` | Círculo de 40 px con la inicial del nombre de una cuenta |
