@@ -12,6 +12,23 @@ Para el *porqué* de cada decisión, ver [`decisiones/`](decisiones/).
 
 Todas tienen `id uuid` (generado), `created_at` y `updated_at`; el trigger `set_updated_at()` mantiene `updated_at` al día. La excepción es `estudio_responsables`, que es una tabla de unión.
 
+### `perfiles`: cuentas del equipo
+
+Una fila por cada cuenta de `auth.users` ([decisión 0021](decisiones/0021-usuarios-individuales.md)). Su `id` es el mismo de `auth.users` (**ON DELETE CASCADE**).
+
+| Columna | Tipo | Reglas |
+| --- | --- | --- |
+| `nombre` | text | Obligatorio, de 1 a 80 caracteres. Lo elige cada quien |
+| `usuario` | text | Nombre de usuario para entrar. **Único**, de 3 a 30 caracteres `[a-z0-9._-]` (siempre en minúsculas). No cambia |
+| `rol` | `rol_usuario` | `miembro` (por defecto) o `admin` |
+| `estado` | `estado_cuenta` | `pendiente` (por defecto), `activo`, `rechazado` o `desactivado`. Solo `activo` tiene acceso a los datos |
+| `responsable_id` | uuid → `responsables` | Opcional ("Este soy yo"). **Único**: un responsable solo se vincula a una cuenta. ON DELETE SET NULL |
+| `aprobado_por`, `aprobado_en` | uuid → `auth.users`, timestamptz | Quién aprobó la cuenta y cuándo |
+
+- **Sin correos.** Supabase Auth exige un correo, así que la app entra con `<usuario>@usuarios.kira.invalid`. Nadie lo ve y nunca recibe nada.
+- **El perfil lo crea la base de datos.** El trigger `crear_perfil_al_registrarse` (sobre `auth.users`) crea el perfil en `pendiente`. Toma el nombre de usuario del correo interno y el nombre de los metadatos del registro (`nombre`). Rechaza las cuentas con un correo que no sea interno.
+- **El correo interno no cambia** (trigger `impedir_cambio_correo`), porque el nombre de usuario no cambia.
+
 ### `categorias`: tipos de local
 
 | Columna | Tipo | Reglas |
@@ -85,6 +102,23 @@ Reglas: cada evidencia es **exactamente una** de archivo, texto o enlace. Si es 
 
 Se llaman desde la app con `supabase.rpc('nombre', { ... })`. Corren con los permisos de quien llama, así que RLS aplica.
 
+### Cuentas y permisos
+
+Estas funciones son `security definer` (corren con permisos de dueño) y tienen `search_path` fijo.
+
+| Función | Quién la usa | Qué hace |
+| --- | --- | --- |
+| `es_miembro_activo()` | Políticas RLS | `true` si quien llama tiene la cuenta activa |
+| `es_admin()` | Políticas RLS | `true` si quien llama es admin con la cuenta activa |
+| `usuario_disponible(usuario)` | Formulario de registro, **también sin sesión** | `true` si nadie tiene ese nombre de usuario (sin distinguir mayúsculas) |
+| `aprobar_usuario(usuario_id)` | Admin | `pendiente` o `rechazado` → `activo`. Guarda `aprobado_por` y `aprobado_en` |
+| `rechazar_usuario(usuario_id)` | Admin | `pendiente` → `rechazado` |
+| `desactivar_usuario(usuario_id)` | Admin | `activo` → `desactivado`, y borra sus sesiones (`auth.sessions`) para que no pueda renovar el token |
+| `reactivar_usuario(usuario_id)` | Admin | `desactivado` → `activo` |
+| `cambiar_rol(usuario_id, rol)` | Admin | Nombra o quita admins entre las cuentas activas |
+
+Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es admin (`42501`), si intenta cambiarse a sí mismo (`42501`) o si el cambio de estado no aplica (`22023`). Como nadie se cambia a sí mismo y quien llama es un admin activo, **nunca se queda el sistema sin admins**.
+
 ## Archivar en vez de borrar
 
 - La app **archiva** lugares y estudios (`archivada_en` / `archivado_en = now()`) y los filtra con `archivada_en is null`. Recuperar es volver a poner NULL.
@@ -107,7 +141,8 @@ Se llaman desde la app con `supabase.rpc('nombre', { ... })`. Corren con los per
 
 ## Seguridad
 
-- **Usuario compartido.** Hay un solo usuario, que crea un administrador con `npm run usuario:crear`. El **registro público está desactivado** (`[auth] enable_signup = false`).
+- **Cuentas.** Hoy se entra con un usuario compartido creado con `npm run usuario:crear` y el **registro público está desactivado** (`[auth] enable_signup = false`). Se está pasando a cuentas individuales (milestone *Usuarios individuales*): la tabla `perfiles` ya existe y el usuario compartido quedó como admin activo, con el nombre "Cuenta compartida".
+- **`perfiles`.** Cada quien lee su propio perfil aunque esté pendiente, y un miembro activo lee todos. Un miembro activo solo puede editar su `nombre` y su `responsable_id` (`grant update (nombre, responsable_id)`). El rol y el estado solo cambian con las funciones de administración, y nadie cambia los suyos.
 - **RLS en todas las tablas.** El rol `authenticated` tiene acceso total y el rol `anon` no tiene ningún permiso. Lo mismo para el bucket.
 - **Permisos explícitos.** El proyecto tiene desactivado "Automatically expose new tables" y activado "automatic RLS": cada tabla nueva debe traer en su migración los `grant` a `authenticated`, `enable row level security` y su política.
 - **Claves.** La clave pública (`VITE_SUPABASE_PUBLISHABLE_KEY`) es segura en el navegador gracias a RLS. La clave secreta (`SUPABASE_SECRET_KEY`) **solo** va en `.env.local`, sin prefijo `VITE_`, y la usan los scripts de administración.
@@ -116,8 +151,9 @@ Se llaman desde la app con `supabase.rpc('nombre', { ... })`. Corren con los per
 
 1. `npm run db:new nombre_del_cambio`.
 2. Escribir el SQL, con comentarios, sus permisos y RLS si es una tabla nueva.
-3. `npm run db:push` y `npm run db:types`.
-4. Actualizar **este documento** en el mismo PR.
+3. Probarla en Supabase local (`npm run db:local`). Si toca seguridad, triggers o funciones, agregar su prueba en `supabase/tests/` y correr `npm run db:test`.
+4. `npm run db:push` y `npm run db:types`.
+5. Actualizar **este documento** en el mismo PR.
 
 ## Migraciones
 
@@ -134,3 +170,4 @@ Se llaman desde la app con `supabase.rpc('nombre', { ... })`. Corren con los per
 | `20261023220000_icono_categorias` | `categorias.icono` |
 | `20261024000000_estado_archivado_entrevistado` | Estado, archivado, entrevistado, `ubicaciones_en_zona`, `ubicaciones_cercanas` |
 | `20261024120000_lugares_mapa` | `lugares_mapa()` |
+| `20261025120000_perfiles` | `perfiles`, enums `rol_usuario` y `estado_cuenta`, triggers sobre `auth.users`, funciones de cuentas y backfill del usuario compartido |

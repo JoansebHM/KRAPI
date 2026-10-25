@@ -44,6 +44,14 @@ npm run test:e2e
 
 Si una prueba falla, `npx playwright show-report` muestra el paso exacto con captura y traza. Cada funcionalidad nueva debe venir con sus pruebas.
 
+Las **pruebas de la base de datos** (`supabase/tests/`, con [pgTAP](https://pgtap.org)) corren sobre un Supabase local en Docker y revisan las reglas que el simulador no puede probar: políticas RLS, triggers y funciones.
+
+```bash
+npm run db:local   # levanta Supabase en Docker (la primera vez descarga las imágenes)
+npm run db:test    # recrea la base local con todas las migraciones y corre las pruebas
+npx supabase stop  # apaga Supabase local
+```
+
 ## Navegación
 
 - El mapa siempre está de fondo. Las secciones (Categorías, Responsables…) se abren encima desde el menú ☰: en celular ocupan la pantalla y en computador son un panel lateral.
@@ -101,12 +109,14 @@ KIRA no permite registrarse: hay un solo usuario para todo el equipo, que crea u
 1. `npm run db:new nombre_del_cambio` crea un archivo nuevo en `supabase/migrations/`.
 2. Escribe el SQL del cambio. No edites migraciones que ya se aplicaron: siempre agrega una nueva.
 3. `npm run db:push` para aplicarla y `npm run db:types` para actualizar los tipos.
-4. Sube la migración y los tipos en el mismo PR.
+4. Si cambia una regla de seguridad, un trigger o una función, agrega o ajusta su prueba en `supabase/tests/` y córrela con `npm run db:test`.
+5. Sube la migración, los tipos y las pruebas en el mismo PR.
 
 ### Modelo de datos
 
 | Tabla | Qué guarda |
 | --- | --- |
+| `perfiles` | Una fila por cuenta: nombre, nombre de usuario, rol (miembro o admin), estado (pendiente, activo, rechazado o desactivado) y responsable vinculado |
 | `categorias` | Tipos de lugar (comercio, café...) con un color y un ícono para el mapa |
 | `responsables` | Personas que pueden figurar en los estudios, con la semilla de su avatar dibujado |
 | `ubicaciones` | Lugares dentro de Manila: puntos (locales) y zonas (lo que se cubrió, por ejemplo una manzana). Con estado (activa/cerrada) |
@@ -138,6 +148,8 @@ Reglas principales:
 | `npm run db:push` | Aplica las migraciones pendientes |
 | `npm run db:types` | Genera los tipos de TypeScript del esquema |
 | `npm run db:config` | Aplica `supabase/config.toml` al proyecto |
+| `npm run db:local` | Levanta Supabase en Docker para probar migraciones |
+| `npm run db:test` | Recrea la base local y corre las pruebas de `supabase/tests/` |
 | `npm run usuario:crear` | Crea o actualiza el usuario compartido |
 
 ## Estructura
@@ -166,6 +178,7 @@ scripts/
 supabase/
   config.toml   # Configuración del proyecto de Supabase
   migrations/   # Esquema de la base de datos, en orden
+  tests/        # Pruebas de la base de datos (pgTAP)
 ```
 
 ## Cómo contribuir
