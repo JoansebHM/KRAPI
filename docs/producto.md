@@ -24,8 +24,8 @@ El foco está en los **locales fijos** (tiendas, cafés, restaurantes…): no en
 | **Lugar** (ubicación) | Algo en el mapa que se visita. Se crea **una sola vez** y existe siempre. Puede ser un **punto** o una **zona**. | "Tienda Don Pepe" |
 | **Punto** | Un local. Tiene nombre, categoría, dirección, complemento, contacto (nombre y teléfono del administrador) y estado. | Un café en una esquina |
 | **Zona** | Un polígono **opcional** que marca lo que se cubrió, por ejemplo la manzana donde un equipo revisó varios locales. No tiene tipo ni categoría: solo nombre, descripción y su forma. Las zonas pueden superponerse. | "Manzana del parque" |
-| **Estudio** | **Una visita** a un lugar: una entrevista o un levantamiento. Tiene fecha, hora de inicio y de fin, responsables, **a quién se entrevistó** (texto corto), título, notas y evidencias. Los estudios de puntos y de zonas tienen **la misma estructura**. | "Entrevista al tendero, 30 oct, 2–4 p. m." |
-| **Evidencia** | Material de un estudio: fotos, audios, documentos (Word, PDF, Excel), notas de texto o videos (por enlace de SharePoint). Un estudio puede tener todas las evidencias que haga falta. | Foto de la fachada |
+| **Estudio** | **Una visita** a un lugar: una entrevista o un levantamiento. Tiene fecha, hora de inicio y de fin, responsables, **a quién se entrevistó** (texto corto), título, **notas** (varios apuntes sueltos) y evidencias. Los estudios de puntos y de zonas tienen **la misma estructura**. | "Entrevista al tendero, 30 oct, 2–4 p. m." |
+| **Evidencia** | Material de un estudio: fotos, audios, documentos (Word, PDF, Excel) o videos (por enlace de SharePoint). Los apuntes escritos van en las notas del estudio. Un estudio puede tener todas las evidencias que haga falta. | Foto de la fachada |
 | **Histórico** | La lista de estudios de un lugar, del más reciente al más antiguo. **Volver a un lugar es agregarle un estudio nuevo**, nunca reemplazar el anterior. | Tres visitas a la misma tienda en noviembre |
 | **Categoría** | Tipo de local (comercio, café, hotelería…), con un **color** y un **ícono** que se usan en el mapa. Administrable. | Café · lila · taza |
 | **Responsable** | Persona del equipo que participa en estudios, con su **avatar dibujado**. Administrable. | Ana |
@@ -46,7 +46,7 @@ Reglas de negocio:
 3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, o con "Mi ubicación".
    - Si el punto queda fuera de Manila, no deja continuar.
    - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo. Si lo es, se toca y se le **agrega el estudio** ahí mismo, sin duplicar el lugar.
-4. Llena el lugar (nombre, categoría, dirección, complemento, contacto y descripción) y, en el siguiente paso, el **estudio**. La fecha (hoy) y la hora de inicio (ahora) vienen prellenadas, la de fin una hora después, y los responsables vienen marcados: el de la cuenta ("Este soy yo", en Mi perfil) y los del último estudio hecho desde ese celular. También puede elegir "Solo guardar el lugar".
+4. Llena el lugar (nombre, categoría, dirección, complemento, contacto y descripción) y, en el siguiente paso, el **estudio**. En el estudio puede ir sumando **notas** sueltas con "Agregar nota" y borrar las que sobren. La fecha (hoy) y la hora de inicio (ahora) vienen prellenadas, la de fin una hora después, y los responsables vienen marcados: el de la cuenta ("Este soy yo", en Mi perfil) y los del último estudio hecho desde ese celular. También puede elegir "Solo guardar el lugar".
 5. Al guardar el estudio se abre **su página**, con el botón **"Agregar evidencia"**:
    - **Tomar foto** con la cámara. Las fotos se reducen (2048 px de lado mayor) y se comprimen antes de subirlas, para ahorrar datos.
    - **Grabar audio** dentro de la app. Se escucha antes de subirlo.
@@ -55,11 +55,11 @@ Reglas de negocio:
    Cada archivo muestra su avance. Si falla, se explica por qué y se puede reintentar. Las subidas siguen aunque se vuelva al mapa. Una evidencia equivocada se borra de verdad, con confirmación.
 6. Al tocar un punto se abre su **ficha**: categoría, estado, dirección, contacto (el teléfono se toca para llamar o, si es un celular, abrir WhatsApp) y descripción. Desde ahí se **edita**, se **mueve** con la misma mira, se marca **cerrado** (o activo de nuevo) y se **archiva**: sale del mapa, con "Deshacer", y desde su ficha se recupera. Solo se borra de verdad un punto sin estudios, y solo quien lo creó o un admin.
 
-   En la ficha también está el histórico: los estudios del más reciente al más antiguo, con "Agregar estudio" para una visita nueva. Al tocar un estudio se abre una presentación con sus datos (y quién lo registró y quién lo editó por última vez), un carrusel de fotos y las demás evidencias agrupadas por tipo. Cada grupo muestra su ícono en el título y cada tarjeta tiene un menú para descargar archivos, copiar enlaces o copiar notas. Los enlaces de archivos son temporales y duran una hora. Los audios usan controles compactos propios (reproducir/pausar, avance y tiempos) y se pueden escuchar a velocidad normal, doble o triple; desde el modal también se puede editar con el formulario existente o ir a la página del estudio para agregar evidencias. Todos los modales incluyen una X arriba a la derecha para cerrar cuando el flujo lo permite. El formulario permite archivarlo (con "Deshacer").
+   En la ficha también está el histórico: los estudios del más reciente al más antiguo, con "Agregar estudio" para una visita nueva. Al tocar un estudio se abre una presentación con sus datos (y quién lo registró y quién lo editó por última vez), sus **notas** en una sección desplegable, un carrusel de fotos y las demás evidencias agrupadas por tipo. Cada grupo muestra su ícono en el título y cada tarjeta tiene un menú para descargar archivos, copiar enlaces o copiar notas. Los enlaces de archivos son temporales y duran una hora. Los audios usan controles compactos propios (reproducir/pausar, avance y tiempos) y se pueden escuchar a velocidad normal, doble o triple; desde el modal también se puede editar con el formulario existente o ir a la página del estudio para agregar evidencias. Todos los modales incluyen una X arriba a la derecha para cerrar cuando el flujo lo permite. El formulario permite archivarlo (con "Deshacer").
 
 Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo el área en m².
 
-> **Ya funcionan** los pasos 2 a 6 para puntos. Faltan las zonas (#15) y las notas de texto y videos por enlace (#19). Los estudios ya tienen una presentación con carrusel de fotos, reproducción de audio y descarga de documentos. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
+> **Ya funcionan** los pasos 2 a 6 para puntos. Faltan las zonas (#15) y los videos por enlace (#19). Los estudios ya tienen una presentación con carrusel de fotos, reproducción de audio y descarga de documentos. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
 
 ## Estado
 
@@ -83,7 +83,7 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 | Issue | Qué |
 | --- | --- |
 | #15 | Crear zonas (y elegir punto o zona en el "+"), y su ficha |
-| #19 | Evidencias de texto y videos por enlace |
+| #19 | Evidencias de video por enlace |
 | #21 | Filtros |
 | #22 | Prueba de SharePoint |
 | #23 | Revisión móvil |

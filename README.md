@@ -125,7 +125,7 @@ Los dos aceptan el nombre de usuario como argumento (`npm run usuario:clave -- a
 | `categorias` | Tipos de lugar (comercio, café...) con un color y un ícono para el mapa |
 | `responsables` | Personas que pueden figurar en los estudios, con la semilla de su avatar dibujado |
 | `ubicaciones` | Lugares dentro de Manila: puntos (locales) y zonas (lo que se cubrió, por ejemplo una manzana). Con estado (activa/cerrada) |
-| `estudios` | Cada visita a un lugar: fecha, horas, responsables, a quién se entrevistó, título y notas |
+| `estudios` | Cada visita a un lugar: fecha, horas, responsables, a quién se entrevistó, título y sus notas (una lista) |
 | `estudio_responsables` | Qué responsables participaron en cada estudio |
 | `evidencias` | Archivos, textos o enlaces de video de cada estudio |
 | `bitacora` | Cada acción sobre los datos, con quién la hizo (solo la leen los admins) |
