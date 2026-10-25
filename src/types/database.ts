@@ -117,12 +117,12 @@ export type Database = {
           archivado_por: string | null
           creado_por: string | null
           created_at: string
-          descripcion: string | null
           entrevistado: string | null
           fecha: string
           hora_fin: string
           hora_inicio: string
           id: string
+          notas: string[]
           titulo: string
           ubicacion_id: string
           updated_at: string
@@ -133,12 +133,12 @@ export type Database = {
           archivado_por?: string | null
           creado_por?: string | null
           created_at?: string
-          descripcion?: string | null
           entrevistado?: string | null
           fecha: string
           hora_fin: string
           hora_inicio: string
           id?: string
+          notas?: string[]
           titulo: string
           ubicacion_id: string
           updated_at?: string
@@ -149,12 +149,12 @@ export type Database = {
           archivado_por?: string | null
           creado_por?: string | null
           created_at?: string
-          descripcion?: string | null
           entrevistado?: string | null
           fecha?: string
           hora_fin?: string
           hora_inicio?: string
           id?: string
+          notas?: string[]
           titulo?: string
           ubicacion_id?: string
           updated_at?: string
@@ -464,6 +464,7 @@ export type Database = {
           tipo: Database["public"]["Enums"]["tipo_ubicacion"]
         }[]
       }
+      notas_validas: { Args: { notas: string[] }; Returns: boolean }
       reactivar_usuario: {
         Args: { usuario_id: string }
         Returns: {
