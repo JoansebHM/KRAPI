@@ -11,6 +11,8 @@ import type { BrowserContext, Route } from '@playwright/test'
  *   responsables solo los borra un admin; lugares, estudios, evidencias y archivos, quien los creó o un admin
  * - creado_por y actualizado_por los pone la base de datos con la cuenta que hace la petición
  * - funciones de admin para aprobar, rechazar, desactivar, reactivar y cambiar el rol
+ * - cambiar la contraseña propia (PUT /auth/v1/user): mínimo 10 caracteres y distinta de la actual
+ * - un responsable solo se vincula a una cuenta (perfiles.responsable_id único) → 23505
  * - nombres únicos (sin importar mayúsculas ni espacios) en categorías y responsables → 23505
  * - borrar una categoría deja sus ubicaciones sin categoría (ON DELETE SET NULL)
  * - borrar un responsable lo quita de sus estudios (ON DELETE CASCADE)
@@ -232,7 +234,15 @@ export class SupabaseFalso {
     if (url.pathname === '/auth/v1/logout') return ruta.fulfill({ status: 204, body: '' })
     if (url.pathname === '/auth/v1/user') {
       const cuenta = this.quien(ruta)
-      return cuenta ? ruta.fulfill({ json: usuarioAuth(cuenta) }) : this.errorAuth(ruta, 403, 'session_not_found', 'Session not found')
+      if (!cuenta) return this.errorAuth(ruta, 403, 'session_not_found', 'Session not found')
+      if (ruta.request().method() === 'PUT' && typeof cuerpo.password === 'string') {
+        if (cuerpo.password.length < 10) return this.errorAuth(ruta, 422, 'weak_password', 'Password should be at least 10 characters.')
+        if (cuerpo.password === cuenta.password) {
+          return this.errorAuth(ruta, 422, 'same_password', 'New password should be different from the old password.')
+        }
+        cuenta.password = cuerpo.password
+      }
+      return ruta.fulfill({ json: usuarioAuth(cuenta) })
     }
     return ruta.fulfill({ status: 404, json: {} })
   }

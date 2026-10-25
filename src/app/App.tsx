@@ -17,6 +17,7 @@ import { EstudioPagina } from '../features/estudios/EstudioPagina'
 import { FichaLugar } from '../features/lugares/FichaLugar'
 import { MapaProvider } from '../features/map/MapaProvider'
 import { MapView } from '../features/map/MapView'
+import { PerfilPage } from '../features/perfil/PerfilPage'
 import { ResponsablesPage } from '../features/responsables/ResponsablesPage'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
 import { UsuariosPage } from '../features/usuarios/UsuariosPage'
@@ -86,6 +87,7 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
             <Route path="/" element={<BotonNuevoLugar />} />
             <Route path="/categorias" element={<CategoriasPage />} />
             <Route path="/responsables" element={<ResponsablesPage />} />
+            <Route path="/perfil" element={<PerfilPage />} />
             {/* Un miembro que entra por la URL vuelve al mapa. */}
             <Route path="/usuarios" element={esAdmin ? <UsuariosPage /> : <Navigate to="/" replace />} />
             <Route path="/lugares/nuevo" element={<CrearPunto />} />
