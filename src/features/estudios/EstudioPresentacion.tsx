@@ -13,6 +13,7 @@ import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
 import { useNombreDeCuenta } from '../usuarios/api'
 import type { Estudio } from './api'
 import { fueEditado, mostrarFecha, mostrarFechaDe, mostrarHora } from './campos'
+import { NotasDelEstudio } from './NotasDelEstudio'
 import './EstudioPresentacion.css'
 
 interface EstudioPresentacionProps {
@@ -96,15 +97,11 @@ export function EstudioPresentacion({
                 )}
               </dd>
             </div>
-            {estudio.descripcion && (
-              <div>
-                <dt>Notas</dt>
-                <dd className="estudio-presentacion-notas">{estudio.descripcion}</dd>
-              </div>
-            )}
           </dl>
 
           <Autoria estudio={estudio} />
+
+          <NotasDelEstudio notas={estudio.notas} />
 
           <section className="estudio-presentacion-evidencias" aria-labelledby="estudio-fotos-titulo">
             <h3 id="estudio-fotos-titulo" className="estudio-evidencias-titulo">

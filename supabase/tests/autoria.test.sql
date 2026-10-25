@@ -59,7 +59,7 @@ select is(
 
 -- Ana edita el estudio archivado: quien lo archivó no cambia.
 set local request.jwt.claims = '{"sub": "00000000-0000-0000-0000-0000000000a1", "role": "authenticated"}';
-update public.estudios set descripcion = 'Notas', archivado_por = auth.uid()
+update public.estudios set notas = array['Notas'], archivado_por = auth.uid()
  where id = '00000000-0000-0000-0000-000000000002';
 
 select is(

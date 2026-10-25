@@ -17,9 +17,9 @@ test.describe('Estudios', () => {
       geom: { type: 'Point', coordinates: [-75.576, 6.214] },
     })
     supabase.db.estudios.push(
-      { id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Primera visita', entrevistado: 'Tendero', descripcion: null, archivado_en: null },
-      { id: 'e2', ubicacion_id: 'p1', fecha: '2026-10-22', hora_inicio: '15:00:00', hora_fin: '16:30:00', titulo: 'Segunda visita', entrevistado: null, descripcion: null, archivado_en: null },
-      { id: 'e3', ubicacion_id: 'p1', fecha: '2026-10-21', hora_inicio: '08:00:00', hora_fin: '09:00:00', titulo: 'Visita archivada', entrevistado: null, descripcion: null, archivado_en: '2026-10-21T20:00:00Z' },
+      { id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Primera visita', entrevistado: 'Tendero', archivado_en: null },
+      { id: 'e2', ubicacion_id: 'p1', fecha: '2026-10-22', hora_inicio: '15:00:00', hora_fin: '16:30:00', titulo: 'Segunda visita', entrevistado: null, archivado_en: null },
+      { id: 'e3', ubicacion_id: 'p1', fecha: '2026-10-21', hora_inicio: '08:00:00', hora_fin: '09:00:00', titulo: 'Visita archivada', entrevistado: null, archivado_en: '2026-10-21T20:00:00Z' },
     )
     supabase.db.estudio_responsables.push({ estudio_id: 'e1', responsable_id: 'r1' })
   })
@@ -69,7 +69,7 @@ test.describe('Estudios', () => {
     await expect(toast(page, 'Estudio guardado')).toBeVisible()
     const nuevo = supabase.db.estudios.find((e) => e.titulo === 'Tercera visita')
     expect(nuevo).toEqual(
-      expect.objectContaining({ ubicacion_id: 'p1', fecha: '2026-10-30', hora_inicio: '14:05', hora_fin: '15:30', entrevistado: 'Administradora', descripcion: null }),
+      expect.objectContaining({ ubicacion_id: 'p1', fecha: '2026-10-30', hora_inicio: '14:05', hora_fin: '15:30', entrevistado: 'Administradora', notas: [] }),
     )
     expect(supabase.db.estudio_responsables.filter((r) => r.estudio_id === nuevo!.id).map((r) => r.responsable_id)).toEqual(['r2', 'r1'])
     // Se abre la página del nuevo estudio, para agregarle evidencias.
@@ -79,7 +79,7 @@ test.describe('Estudios', () => {
   })
 
   test('la presentación muestra los datos del estudio en un modal', async ({ page, entrar, supabase }) => {
-    supabase.db.estudios[0].descripcion = 'Vende desde 1990.\nAbre los domingos.'
+    supabase.db.estudios[0].notas = ['Vende desde 1990.\nAbre los domingos.']
     await entrar()
     await page.goto('/lugares/p1')
     await page.getByRole('region', { name: /Estudios/ }).getByRole('button', { name: /Primera visita/ }).click()
@@ -91,7 +91,7 @@ test.describe('Estudios', () => {
     await expect(datos).toContainText('20 oct 2026')
     await expect(datos).toContainText('Ana')
     await expect(datos).toContainText('Tendero')
-    await expect(datos).toContainText('Abre los domingos.')
+    await expect(presentacion.locator('.estudio-notas')).toContainText('Notas1')
     await expect(presentacion).toContainText('Este estudio todavía no tiene fotos.')
     await expect(presentacion.getByRole('button', { name: 'Editar estudio' })).toBeVisible()
     await expect(presentacion.getByRole('button', { name: 'Agregar evidencia' })).toBeVisible()

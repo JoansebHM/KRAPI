@@ -21,6 +21,7 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - ubicaciones_cercanas() devuelve hasta 5 puntos no archivados a menos de N metros
  * - el teléfono de contacto debe tener formato de teléfono → 23514
  * - la hora de fin de un estudio debe ser posterior a la de inicio → 23514
+ * - las notas de un estudio no pueden estar vacías → 23514
  * - los estudios traen embebidos sus responsables: estudio_responsables(responsable_id)
  * - una evidencia de foto, audio o documento lleva su archivo completo → 23514
  * - Storage: el bucket `evidencias` acepta solo sus tipos de archivo y hasta 50 MB, y firma enlaces
@@ -104,6 +105,10 @@ function geometria(valor: unknown) {
   const punto = typeof valor === 'string' && valor.match(/POINT\(([-\d.]+) ([-\d.]+)\)/)
   return punto ? { type: 'Point', coordinates: [Number(punto[1]), Number(punto[2])] } : valor
 }
+
+/** La misma regla que notas_validas() en la base de datos. */
+const notasValidas = (notas: unknown) =>
+  notas === undefined || (Array.isArray(notas) && notas.length <= 50 && notas.every((nota) => typeof nota === 'string' && nota.trim().length >= 1 && nota.trim().length <= 2000))
 
 /** Distancia en metros entre dos coordenadas (fórmula del haversine). */
 function metrosEntre([lng1, lat1]: number[], [lng2, lat2]: number[]) {
@@ -472,6 +477,7 @@ export class SupabaseFalso {
         for (const datos of Array.isArray(cuerpo) ? cuerpo : [cuerpo]) {
           if (typeof datos.nombre === 'string' && this.nombreRepetido(tabla, datos.nombre)) return this.duplicado(ruta)
           if (tabla === 'estudios' && !(String(datos.hora_fin) > String(datos.hora_inicio))) return this.invalido(ruta)
+          if (tabla === 'estudios' && !notasValidas(datos.notas)) return this.invalido(ruta)
           if (tabla === 'evidencias' && !this.evidenciaValida(datos)) return this.invalido(ruta)
           if (tabla === 'ubicaciones' && datos.contacto_telefono && !/^\+?[0-9 ()-]{7,20}$/.test(datos.contacto_telefono)) return this.invalido(ruta)
           const fila = {
@@ -492,6 +498,7 @@ export class SupabaseFalso {
       case 'PATCH': {
         const cambios = JSON.parse(peticion.postData() ?? '{}')
         if (tabla === 'estudios' && cambios.hora_inicio && !(String(cambios.hora_fin) > String(cambios.hora_inicio))) return this.invalido(ruta)
+        if (tabla === 'estudios' && !notasValidas(cambios.notas)) return this.invalido(ruta)
         for (const fila of filas.filter(coincide)) {
           if (typeof cambios.nombre === 'string' && this.nombreRepetido(tabla, cambios.nombre, fila.id)) return this.duplicado(ruta)
           Object.assign(
@@ -536,6 +543,7 @@ export class SupabaseFalso {
       }
       // Las filas que preparan las pruebas pueden no traer fechas; en la base real siempre las tienen.
       else if ((campo === 'created_at' || campo === 'updated_at') && fila[campo] == null) resultado[campo] = FECHA_PREPARADA
+      else if (tabla === 'estudios' && campo === 'notas' && fila.notas == null) resultado.notas = []
       else resultado[campo] = fila[campo] ?? null
     }
     return resultado

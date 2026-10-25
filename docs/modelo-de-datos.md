@@ -81,7 +81,7 @@ Las zonas no usan categoría, dirección ni contacto. Desde la app, la geometrí
 | `fecha` | date | Obligatoria |
 | `hora_inicio`, `hora_fin` | time | Obligatorias; `hora_fin > hora_inicio` (mismo día) |
 | `titulo` | text | Obligatorio |
-| `descripcion` | text | Notas, opcional |
+| `notas` | text[] | Apuntes de la visita, en orden. Lista vacía = sin notas. Hasta 50, cada una de 1 a 2000 caracteres (`notas_validas()`) |
 | `entrevistado` | text | A quién se entrevistó ("Tendero"…), opcional, máximo 120 caracteres |
 | `archivado_en` | timestamptz | NULL = visible |
 
@@ -99,7 +99,7 @@ La app guarda primero el estudio y después sus responsables (`estudio_responsab
 | `tipo` | `tipo_evidencia` | `foto`, `audio`, `documento`, `texto`, `video` |
 | `titulo` | text | Opcional |
 | `archivo_path`, `archivo_nombre`, `archivo_mime`, `archivo_bytes` | | Archivo en el bucket (ruta única) |
-| `texto` | text | Nota escrita en la app |
+| `texto` | text | Texto escrito en la app (hoy no se usa: los apuntes van en `estudios.notas`) |
 | `url_externa` | text | Enlace (`http(s)://`), por ejemplo a SharePoint |
 | `proveedor` | `proveedor_almacenamiento` | `supabase`, `sharepoint`, `otro`. NULL solo para textos |
 
@@ -223,3 +223,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261025150000_bitacora` | `bitacora`, enum `accion_bitacora` y sus triggers |
 | `20261025160000_permisos_scripts_admin` | `select` y `update` sobre `perfiles` para `service_role` (scripts de administración) |
 | `20261025170000_cerrar_sesiones` | `cerrar_sesiones()` para la Edge Function `restablecer-clave` |
+| `20261026120000_notas_del_estudio` | `estudios.notas` (lista) reemplaza a `descripcion`; la nota que había pasa a ser la primera |

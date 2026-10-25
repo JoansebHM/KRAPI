@@ -49,7 +49,7 @@ export function estudioNuevo(
       (id): id is string => id !== null && Boolean(responsablesExistentes?.includes(id)),
     ),
     entrevistado: '',
-    descripcion: '',
+    notas: [],
   }
 }
 
@@ -61,7 +61,7 @@ export function camposDe(estudio: Estudio): CamposEstudio {
     horaFin: estudio.horaFin,
     responsableIds: estudio.responsableIds,
     entrevistado: estudio.entrevistado ?? '',
-    descripcion: estudio.descripcion ?? '',
+    notas: [...estudio.notas],
   }
 }
 

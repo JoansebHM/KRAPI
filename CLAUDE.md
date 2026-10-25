@@ -74,7 +74,7 @@ Hecho:
 - Categorías (color e ícono) y responsables (avatares).
 - Lugares en el mapa (puntos con su categoría y zonas). Ficha completa del punto al tocarlo (`/lugares/:id`): datos, teléfono para llamar o WhatsApp, editar, mover con la mira (`/lugares/:id/mover`), cerrar, archivar o recuperar, y borrar si no tiene estudios.
 - Crear puntos con la mira central (`/lugares/nuevo`), con su primer estudio.
-- Estudios: crear, editar y archivar, con responsables; histórico en la ficha. Al tocar un estudio se abre un modal de presentación con carrusel de fotos y otras evidencias; desde allí se edita o se abre su página (`/lugares/:id/estudios/:estudioId`) para agregar evidencia.
+- Estudios: crear, editar y archivar, con responsables y varias notas (`estudios.notas`); histórico en la ficha. Al tocar un estudio se abre un modal de presentación con carrusel de fotos y otras evidencias; desde allí se edita o se abre su página (`/lugares/:id/estudios/:estudioId`) para agregar evidencia.
 - Evidencias de archivo: fotos (comprimidas), audios grabados en la app y documentos, con avance de subida y borrado.
 - Esquema completo en Supabase.
 - Pruebas de punta a punta.
@@ -82,7 +82,7 @@ Hecho:
 
 Siguiente (en orden):
 1. **#5** revisión automática de build, lint y pruebas en cada PR
-2. **#19** evidencias de texto y videos por enlace (los videos esperan la prueba de SharePoint, #22)
+2. **#19** evidencias de video por enlace (por ahora se abren en otra pestaña; verlos dentro de la app espera la prueba de SharePoint, #22)
 3. **#15** zonas (incluye elegir punto o zona en el "+", y la ficha de la zona)
 4. **#21** filtros
 

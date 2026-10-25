@@ -7,7 +7,7 @@ const PDF = { name: 'informe.pdf', mimeType: 'application/pdf', buffer: Buffer.f
 test.describe('Evidencias', () => {
   test.beforeEach(async ({ supabase }) => {
     supabase.db.ubicaciones.push({ id: 'p1', tipo: 'punto', nombre: 'Café Central', categoria_id: null, estado: 'activa', geom: { type: 'Point', coordinates: [-75.576, 6.214] } })
-    supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Primera visita', entrevistado: null, descripcion: null, archivado_en: null })
+    supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Primera visita', entrevistado: null, archivado_en: null })
   })
 
   /** Abre "Agregar evidencia" en la página del estudio y devuelve el diálogo. */
@@ -201,7 +201,7 @@ test.describe('Evidencias: grabar audio', () => {
 
   test('graba un audio en la app, se escucha y se sube', async ({ page, entrar, supabase }) => {
     supabase.db.ubicaciones.push({ id: 'p1', tipo: 'punto', nombre: 'Café Central', categoria_id: null, estado: 'activa', geom: { type: 'Point', coordinates: [-75.576, 6.214] } })
-    supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Primera visita', entrevistado: null, descripcion: null, archivado_en: null })
+    supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Primera visita', entrevistado: null, archivado_en: null })
     await entrar()
     await page.goto('/lugares/p1/estudios/e1')
     await page.getByRole('button', { name: 'Agregar evidencia' }).click()
