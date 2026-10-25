@@ -1,0 +1,30 @@
+/* Barra para dibujar una zona: Deshacer y Agregar esquina arriba; Cancelar y Terminar abajo. */
+.dibujo-barra {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-overlay);
+}
+
+.dibujo-barra .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 0 var(--space-3);
+  text-decoration: none;
+}
+
+/* "Mi ubicación" sube un poco, porque la barra tiene dos filas. */
+.crear-punto:has(.dibujo-barra) .crear-mi-ubicacion {
+  bottom: calc(152px + env(safe-area-inset-bottom));
+}
