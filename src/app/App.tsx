@@ -19,6 +19,7 @@ import { MapaProvider } from '../features/map/MapaProvider'
 import { MapView } from '../features/map/MapView'
 import { ResponsablesPage } from '../features/responsables/ResponsablesPage'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
+import { UsuariosPage } from '../features/usuarios/UsuariosPage'
 import { useTheme, type Theme } from '../features/theme/useTheme'
 import './App.css'
 
@@ -60,6 +61,7 @@ function Contenido({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () =
 }
 
 function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void }) {
+  const { esAdmin } = useAuth()
   const [menuAbierto, setMenuAbierto] = useState(false)
   const cerrarMenu = useCallback(() => setMenuAbierto(false), [])
 
@@ -84,6 +86,8 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
             <Route path="/" element={<BotonNuevoLugar />} />
             <Route path="/categorias" element={<CategoriasPage />} />
             <Route path="/responsables" element={<ResponsablesPage />} />
+            {/* Un miembro que entra por la URL vuelve al mapa. */}
+            <Route path="/usuarios" element={esAdmin ? <UsuariosPage /> : <Navigate to="/" replace />} />
             <Route path="/lugares/nuevo" element={<CrearPunto />} />
             <Route path="/lugares/:id" element={<FichaLugar />} />
             <Route path="/lugares/:id/estudios/:estudioId" element={<EstudioPagina />} />

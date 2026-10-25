@@ -33,6 +33,7 @@ src/
     map/          Mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
     responsables/ CRUD de responsables y avatares
     theme/        Modo claro/oscuro
+    usuarios/     Administración de cuentas (solo admins): aprobar, rechazar, desactivar, roles
   lib/            supabase.ts, almacenamiento.ts (archivos), queryClient.ts, notificar.ts,
                   errores.ts, texto.ts, color.ts
   styles/         theme.css (tokens), ui.css (botones, campos, listas)
