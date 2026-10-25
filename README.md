@@ -97,7 +97,7 @@ Los dos aceptan el nombre de usuario como argumento (`npm run usuario:clave -- a
 
 ### Sesión en la app
 
-- Cada integrante crea su cuenta en "Crear una cuenta" (nombre, nombre de usuario y contraseña, sin correo) y entra con su nombre de usuario cuando un admin la apruebe. El usuario compartido sigue entrando con su correo hasta que se haga el cambio (#81). En `.env.local` deben estar `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`.
+- Cada integrante crea su cuenta en "Crear una cuenta" (nombre, nombre de usuario y contraseña, sin correo) y entra con su nombre de usuario cuando un admin la apruebe. En `.env.local` deben estar `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`.
 - El token de Supabase se renueva solo mientras la app esté abierta.
 - La sesión se cierra tras **2 horas sin usar la app** (con un aviso un minuto antes) y, en todo caso, a los **7 días**. Los tiempos están en `src/config/session.ts`.
 - Desde el menú de la cuenta se puede cerrar la sesión propia en **todos los dispositivos**: úsalo si perdiste un celular o alguien más conoce tu contraseña. En los demás dispositivos tarda hasta una hora en aplicarse. Para sacar a alguien del equipo, un admin desactiva su cuenta.

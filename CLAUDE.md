@@ -56,7 +56,7 @@ Los comandos `db:*` (salvo `db:local` y `db:test`, que usan Supabase en Docker) 
 ## Trampas conocidas
 
 - **`supabase/config.toml`:** `[auth.email] enable_signup` debe quedar en `true`. En la CLI ese valor activa o desactiva **todo** el login por correo (y las cuentas por nombre de usuario usan un correo interno). Los registros se controlan con `[auth] enable_signup`, que está en `true` porque cada integrante crea su cuenta: la protección está en RLS, que no deja ver nada a una cuenta que no esté activa. **Nunca** apliques `enable_signup = true` (`npm run db:config`) a un proyecto sin las políticas de `20261025140000_rls_cuentas_activas`. Los *vector buckets* están desactivados porque solo existen en el plan de pago.
-- **Cuentas sin correo:** se entra con el nombre de usuario, que la app convierte en `<usuario>@usuarios.kira.invalid` (`src/features/auth/nombreDeUsuario.ts`). Si se escribe algo con `@`, se usa tal cual: así sigue entrando el usuario compartido hasta #81.
+- **Cuentas sin correo:** se entra con el nombre de usuario, que la app convierte en `<usuario>@usuarios.kira.invalid` (`src/features/auth/nombreDeUsuario.ts`).
 - **MapLibre 6 + Vite:** el worker se configura en `src/features/map/maplibre.ts` (`setWorkerUrl`). Importa MapLibre siempre desde ese archivo, no desde `maplibre-gl`.
 - **Diálogos:** `Dialog` se dibuja en `<body>` con un portal. No lo reemplaces por un modal dentro del panel, porque la barra superior lo tapaba.
 - **Mac no distingue mayúsculas en nombres de archivo:** no crees `avatar.ts` junto a `Avatar.tsx`.
@@ -67,7 +67,9 @@ Los comandos `db:*` (salvo `db:local` y `db:test`, que usan Supabase en Docker) 
 
 Hecho:
 - Mapa con el límite de Manila, navegación limitada a 1 km y modo claro/oscuro con mapa nocturno.
-- Login con usuario compartido, sesión de 2 h de inactividad y 7 días máximo, y cierre en todos los dispositivos.
+- Cuentas individuales sin correo (decisión 0021): registro con nombre de usuario, aprobación de un admin, pantalla de espera, sesión de 2 h de inactividad y 7 días máximo, y cierre en todos los dispositivos.
+- Usuarios (`/usuarios`, solo admins): aprobar, rechazar, desactivar, reactivar, roles y contraseña temporal (Edge Function `restablecer-clave`, decisión 0022). Mi perfil (`/perfil`): nombre, "Este soy yo" y contraseña.
+- Permisos en RLS según el estado y el rol, autoría (`creado_por`…) y bitácora de cada acción. Se muestra quién registró cada estudio y evidencia.
 - Notificaciones, menú lateral y paneles.
 - Categorías (color e ícono) y responsables (avatares).
 - Lugares en el mapa (puntos con su categoría y zonas) y ficha básica al tocarlos (`/lugares/:id`).
@@ -79,10 +81,9 @@ Hecho:
 - Documentación navegable en `/docs`, con diagramas hechos con diagram-design.
 
 Siguiente (en orden):
-1. **Milestone *Usuarios individuales*** (#68 a #81): una cuenta por integrante con nombre de usuario (sin correo), aprobación de un admin, roles, permisos en RLS y autoría de cada registro (ver [`docs/decisiones/0021-usuarios-individuales.md`](docs/decisiones/0021-usuarios-individuales.md)). Va antes de lo que falta del MVP.
-2. **#19** evidencias de texto y videos por enlace (los videos esperan la prueba de SharePoint, #22)
-3. **#16** ficha del lugar (completar la ficha básica: datos, editar, cerrar y archivar el lugar)
-4. **#15** zonas (incluye elegir punto o zona en el "+")
-5. **#21** filtros
+1. **#19** evidencias de texto y videos por enlace (los videos esperan la prueba de SharePoint, #22)
+2. **#16** ficha del lugar (completar la ficha básica: datos, editar, cerrar y archivar el lugar)
+3. **#15** zonas (incluye elegir punto o zona en el "+")
+4. **#21** filtros
 
-Ver los milestones *Usuarios individuales* y *MVP* en GitHub.
+Ver el milestone *MVP* en GitHub.
