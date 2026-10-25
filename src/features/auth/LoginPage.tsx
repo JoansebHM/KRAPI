@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router'
 import { notificar } from '../../lib/notificar'
 import type { Theme } from '../theme/useTheme'
 import { CampoContrasena } from './CampoContrasena'
@@ -83,6 +84,9 @@ export function LoginPage({ theme, onToggleTheme }: LoginPageProps) {
         </button>
       </form>
 
+      <p className="login-alterno">
+        ¿Aún no tienes cuenta? <Link to="/registro">Crear una cuenta</Link>
+      </p>
     </PantallaAcceso>
   )
 }

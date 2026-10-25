@@ -100,6 +100,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const registrarse = useCallback<AuthContextValue['registrarse']>(async ({ nombre, usuario, password }) => {
+    try {
+      // El nombre viaja en los metadatos para que el trigger crear_perfil lo guarde en el perfil.
+      const { error } = await supabase.auth.signUp({
+        email: correoParaEntrar(usuario),
+        password,
+        options: { data: { nombre: nombre.trim() } },
+      })
+      if (error) return { error: mensajeDeError(error) }
+      registrarInicio()
+      setMotivoCierre(null)
+      return { error: null }
+    } catch (error) {
+      return { error: mensajeDeError(error) }
+    }
+  }, [])
+
   const cerrarSesion = useCallback(() => cerrarPor('manual'), [cerrarPor])
 
   const cerrarSesionEnTodos = useCallback<AuthContextValue['cerrarSesionEnTodos']>(async () => {
@@ -124,11 +141,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       motivoCierre,
       avisoInactividadSegundos,
       iniciarSesion,
+      registrarse,
       cerrarSesion,
       cerrarSesionEnTodos,
       seguirConectado,
     }),
-    [session, motivoCierre, avisoInactividadSegundos, iniciarSesion, cerrarSesion, cerrarSesionEnTodos, seguirConectado],
+    [session, motivoCierre, avisoInactividadSegundos, iniciarSesion, registrarse, cerrarSesion, cerrarSesionEnTodos, seguirConectado],
   )
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>
