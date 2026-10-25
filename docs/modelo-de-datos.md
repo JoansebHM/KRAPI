@@ -12,6 +12,20 @@ Para el *porqué* de cada decisión, ver [`decisiones/`](decisiones/).
 
 Todas tienen `id uuid` (generado), `created_at` y `updated_at`; el trigger `set_updated_at()` mantiene `updated_at` al día. La excepción es `estudio_responsables`, que es una tabla de unión.
 
+### Autoría
+
+`categorias`, `responsables`, `ubicaciones`, `estudios` y `evidencias` guardan quién hizo cada cosa. Todas son uuid → `auth.users` con **ON DELETE SET NULL**.
+
+| Columna | Dónde | Qué guarda |
+| --- | --- | --- |
+| `creado_por` | Las cinco tablas | Quién creó el registro. No cambia al editar |
+| `actualizado_por` | Las cinco tablas | Quién lo editó por última vez (al crear, quien lo creó) |
+| `archivada_por` / `archivado_por` | `ubicaciones` / `estudios` | Quién lo archivó. Se llena al archivar, se conserva si se edita archivado y se limpia al recuperar |
+
+- **Las llena la base de datos**, no la app: el trigger `poner_autoria()` usa `auth.uid()` y reemplaza cualquier valor que mande la app, así que no se pueden falsear.
+- Los cambios en cascada de las claves foráneas (por ejemplo, al borrar una cuenta) pasan sin tocar.
+- Los registros anteriores a las cuentas individuales quedan en NULL y se muestran como **"Cuenta compartida"**.
+
 ### `perfiles`: cuentas del equipo
 
 Una fila por cada cuenta de `auth.users` ([decisión 0021](decisiones/0021-usuarios-individuales.md)). Su `id` es el mismo de `auth.users` (**ON DELETE CASCADE**).
@@ -171,3 +185,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261024000000_estado_archivado_entrevistado` | Estado, archivado, entrevistado, `ubicaciones_en_zona`, `ubicaciones_cercanas` |
 | `20261024120000_lugares_mapa` | `lugares_mapa()` |
 | `20261025120000_perfiles` | `perfiles`, enums `rol_usuario` y `estado_cuenta`, triggers sobre `auth.users`, funciones de cuentas y backfill del usuario compartido |
+| `20261025130000_autoria` | `creado_por`, `actualizado_por`, `archivada_por` y `archivado_por` con el trigger `poner_autoria()` |

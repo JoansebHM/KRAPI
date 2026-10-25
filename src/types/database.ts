@@ -16,7 +16,9 @@ export type Database = {
     Tables: {
       categorias: {
         Row: {
+          actualizado_por: string | null
           color: string
+          creado_por: string | null
           created_at: string
           icono: string | null
           id: string
@@ -24,7 +26,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          actualizado_por?: string | null
           color?: string
+          creado_por?: string | null
           created_at?: string
           icono?: string | null
           id?: string
@@ -32,7 +36,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          actualizado_por?: string | null
           color?: string
+          creado_por?: string | null
           created_at?: string
           icono?: string | null
           id?: string
@@ -73,7 +79,10 @@ export type Database = {
       }
       estudios: {
         Row: {
+          actualizado_por: string | null
           archivado_en: string | null
+          archivado_por: string | null
+          creado_por: string | null
           created_at: string
           descripcion: string | null
           entrevistado: string | null
@@ -86,7 +95,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          actualizado_por?: string | null
           archivado_en?: string | null
+          archivado_por?: string | null
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           entrevistado?: string | null
@@ -99,7 +111,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          actualizado_por?: string | null
           archivado_en?: string | null
+          archivado_por?: string | null
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           entrevistado?: string | null
@@ -123,10 +138,12 @@ export type Database = {
       }
       evidencias: {
         Row: {
+          actualizado_por: string | null
           archivo_bytes: number | null
           archivo_mime: string | null
           archivo_nombre: string | null
           archivo_path: string | null
+          creado_por: string | null
           created_at: string
           estudio_id: string
           id: string
@@ -140,10 +157,12 @@ export type Database = {
           url_externa: string | null
         }
         Insert: {
+          actualizado_por?: string | null
           archivo_bytes?: number | null
           archivo_mime?: string | null
           archivo_nombre?: string | null
           archivo_path?: string | null
+          creado_por?: string | null
           created_at?: string
           estudio_id: string
           id?: string
@@ -157,10 +176,12 @@ export type Database = {
           url_externa?: string | null
         }
         Update: {
+          actualizado_por?: string | null
           archivo_bytes?: number | null
           archivo_mime?: string | null
           archivo_nombre?: string | null
           archivo_path?: string | null
+          creado_por?: string | null
           created_at?: string
           estudio_id?: string
           id?: string
@@ -232,21 +253,27 @@ export type Database = {
       }
       responsables: {
         Row: {
+          actualizado_por: string | null
           avatar_semilla: string | null
+          creado_por: string | null
           created_at: string
           id: string
           nombre: string
           updated_at: string
         }
         Insert: {
+          actualizado_por?: string | null
           avatar_semilla?: string | null
+          creado_por?: string | null
           created_at?: string
           id?: string
           nombre: string
           updated_at?: string
         }
         Update: {
+          actualizado_por?: string | null
           avatar_semilla?: string | null
+          creado_por?: string | null
           created_at?: string
           id?: string
           nombre?: string
@@ -256,11 +283,14 @@ export type Database = {
       }
       ubicaciones: {
         Row: {
+          actualizado_por: string | null
           archivada_en: string | null
+          archivada_por: string | null
           categoria_id: string | null
           complemento: string | null
           contacto_nombre: string | null
           contacto_telefono: string | null
+          creado_por: string | null
           created_at: string
           descripcion: string | null
           direccion: string | null
@@ -272,11 +302,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          actualizado_por?: string | null
           archivada_en?: string | null
+          archivada_por?: string | null
           categoria_id?: string | null
           complemento?: string | null
           contacto_nombre?: string | null
           contacto_telefono?: string | null
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           direccion?: string | null
@@ -288,11 +321,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          actualizado_por?: string | null
           archivada_en?: string | null
+          archivada_por?: string | null
           categoria_id?: string | null
           complemento?: string | null
           contacto_nombre?: string | null
           contacto_telefono?: string | null
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           direccion?: string | null
@@ -449,11 +485,14 @@ export type Database = {
       ubicaciones_en_zona: {
         Args: { zona_id: string }
         Returns: {
+          actualizado_por: string | null
           archivada_en: string | null
+          archivada_por: string | null
           categoria_id: string | null
           complemento: string | null
           contacto_nombre: string | null
           contacto_telefono: string | null
+          creado_por: string | null
           created_at: string
           descripcion: string | null
           direccion: string | null
