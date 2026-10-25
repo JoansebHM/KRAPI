@@ -105,6 +105,25 @@ La app guarda primero el estudio y después sus responsables (`estudio_responsab
 
 Reglas: cada evidencia es **exactamente una** de archivo, texto o enlace. Si es archivo, lleva nombre, tipo MIME y tamaño. Foto, audio y documento siempre son archivo. Un texto puede ser nota escrita o archivo. Un video puede ser enlace o archivo.
 
+### `bitacora`: todo lo que pasó
+
+Las columnas de autoría solo dicen quién creó y quién editó por última vez. La bitácora guarda **cada acción**, incluida una copia de lo que se borró.
+
+| Columna | Tipo | Qué guarda |
+| --- | --- | --- |
+| `id` | bigint | Consecutivo |
+| `ocurrio_en` | timestamptz | Cuándo |
+| `usuario_id` | uuid | Quién (`auth.uid()`). **Sin clave foránea**, para no perderlo si se borra la cuenta. NULL = script o sistema |
+| `tabla`, `registro_id` | text, uuid | Qué registro. En `estudio_responsables`, el id del estudio |
+| `accion` | `accion_bitacora` | `crear`, `editar`, `archivar`, `recuperar` o `borrar` |
+| `cambios` | jsonb | Al crear, los campos del registro. Al editar, archivar o recuperar, solo los que cambiaron: `{"titulo": {"antes": "…", "despues": "…"}}` |
+| `registro_borrado` | jsonb | Al borrar, una copia completa del registro |
+
+- La llena el trigger `registrar_bitacora()` en `categorias`, `responsables`, `ubicaciones`, `estudios`, `estudio_responsables` y `evidencias`, y en los cambios de `rol` y `estado` de `perfiles`.
+- No registra las columnas que mantiene la base de datos (`created_at`, `updated_at`, `creado_por`, `actualizado_por`, `archivada_por`, `archivado_por`). Si solo cambió una de ellas, no se agrega nada.
+- **Solo se agregan filas:** nadie la edita, la borra ni la vacía, ni siquiera con la clave secreta (trigger `impedir_cambios_bitacora()`). Solo los admins la leen.
+- Índices por `registro_id` (con la fecha) y por `ocurrio_en`. La vista de la bitácora en la app queda para una issue posterior.
+
 ## Funciones
 
 | Función | Qué devuelve | Uso |
@@ -200,3 +219,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261025120000_perfiles` | `perfiles`, enums `rol_usuario` y `estado_cuenta`, triggers sobre `auth.users`, funciones de cuentas y backfill del usuario compartido |
 | `20261025130000_autoria` | `creado_por`, `actualizado_por`, `archivada_por` y `archivado_por` con el trigger `poner_autoria()` |
 | `20261025140000_rls_cuentas_activas` | Reemplaza el acceso total por políticas según el estado y el rol de la cuenta, también en el bucket |
+| `20261025150000_bitacora` | `bitacora`, enum `accion_bitacora` y sus triggers |
