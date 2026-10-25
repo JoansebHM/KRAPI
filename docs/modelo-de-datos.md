@@ -174,7 +174,7 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 
 ## Seguridad
 
-- **Cuentas.** El **registro está abierto** (`[auth] enable_signup = true`): cada integrante crea su cuenta desde la app y queda pendiente. La protección está en RLS, no en el registro. El usuario compartido (creado con `npm run usuario:crear`) quedó como admin activo, con el nombre "Cuenta compartida", hasta que se haga el cambio a cuentas individuales (#81).
+- **Cuentas.** El **registro está abierto** (`[auth] enable_signup = true`): cada integrante crea su cuenta desde la app y queda pendiente. La protección está en RLS, no en el registro. El primer admin se crea con `npm run usuario:admin` y las contraseñas olvidadas se restablecen con `npm run usuario:clave` (los scripts usan la clave secreta, con `select` y `update` sobre `perfiles` para `service_role`). El usuario compartido quedó como admin activo, con el nombre "Cuenta compartida", hasta que se haga el cambio a cuentas individuales (#81).
 - **`perfiles`.** Cada quien lee su propio perfil aunque esté pendiente, y un miembro activo lee todos. Un miembro activo solo puede editar su `nombre` y su `responsable_id` (`grant update (nombre, responsable_id)`). El rol y el estado solo cambian con las funciones de administración, y nadie cambia los suyos.
 - **RLS en todas las tablas, según el estado y el rol de la cuenta** ([decisión 0021](decisiones/0021-usuarios-individuales.md)). El rol `anon` no tiene ningún permiso.
 
@@ -220,3 +220,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261025130000_autoria` | `creado_por`, `actualizado_por`, `archivada_por` y `archivado_por` con el trigger `poner_autoria()` |
 | `20261025140000_rls_cuentas_activas` | Reemplaza el acceso total por políticas según el estado y el rol de la cuenta, también en el bucket |
 | `20261025150000_bitacora` | `bitacora`, enum `accion_bitacora` y sus triggers |
+| `20261025160000_permisos_scripts_admin` | `select` y `update` sobre `perfiles` para `service_role` (scripts de administración) |
