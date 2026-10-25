@@ -183,6 +183,53 @@ export type Database = {
           },
         ]
       }
+      perfiles: {
+        Row: {
+          aprobado_en: string | null
+          aprobado_por: string | null
+          created_at: string
+          estado: Database["public"]["Enums"]["estado_cuenta"]
+          id: string
+          nombre: string
+          responsable_id: string | null
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          updated_at: string
+          usuario: string
+        }
+        Insert: {
+          aprobado_en?: string | null
+          aprobado_por?: string | null
+          created_at?: string
+          estado?: Database["public"]["Enums"]["estado_cuenta"]
+          id: string
+          nombre: string
+          responsable_id?: string | null
+          rol?: Database["public"]["Enums"]["rol_usuario"]
+          updated_at?: string
+          usuario: string
+        }
+        Update: {
+          aprobado_en?: string | null
+          aprobado_por?: string | null
+          created_at?: string
+          estado?: Database["public"]["Enums"]["estado_cuenta"]
+          id?: string
+          nombre?: string
+          responsable_id?: string | null
+          rol?: Database["public"]["Enums"]["rol_usuario"]
+          updated_at?: string
+          usuario?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "perfiles_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: true
+            referencedRelation: "responsables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       responsables: {
         Row: {
           avatar_semilla: string | null
@@ -271,6 +318,71 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aprobar_usuario: {
+        Args: { usuario_id: string }
+        Returns: {
+          aprobado_en: string | null
+          aprobado_por: string | null
+          created_at: string
+          estado: Database["public"]["Enums"]["estado_cuenta"]
+          id: string
+          nombre: string
+          responsable_id: string | null
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          updated_at: string
+          usuario: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "perfiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      cambiar_rol: {
+        Args: { rol: Database["public"]["Enums"]["rol_usuario"]; usuario_id: string }
+        Returns: {
+          aprobado_en: string | null
+          aprobado_por: string | null
+          created_at: string
+          estado: Database["public"]["Enums"]["estado_cuenta"]
+          id: string
+          nombre: string
+          responsable_id: string | null
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          updated_at: string
+          usuario: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "perfiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      desactivar_usuario: {
+        Args: { usuario_id: string }
+        Returns: {
+          aprobado_en: string | null
+          aprobado_por: string | null
+          created_at: string
+          estado: Database["public"]["Enums"]["estado_cuenta"]
+          id: string
+          nombre: string
+          responsable_id: string | null
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          updated_at: string
+          usuario: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "perfiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      es_admin: { Args: never; Returns: boolean }
+      es_miembro_activo: { Args: never; Returns: boolean }
       limite_manila: { Args: never; Returns: unknown }
       lugares_mapa: {
         Args: never
@@ -282,6 +394,48 @@ export type Database = {
           nombre: string
           tipo: Database["public"]["Enums"]["tipo_ubicacion"]
         }[]
+      }
+      reactivar_usuario: {
+        Args: { usuario_id: string }
+        Returns: {
+          aprobado_en: string | null
+          aprobado_por: string | null
+          created_at: string
+          estado: Database["public"]["Enums"]["estado_cuenta"]
+          id: string
+          nombre: string
+          responsable_id: string | null
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          updated_at: string
+          usuario: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "perfiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      rechazar_usuario: {
+        Args: { usuario_id: string }
+        Returns: {
+          aprobado_en: string | null
+          aprobado_por: string | null
+          created_at: string
+          estado: Database["public"]["Enums"]["estado_cuenta"]
+          id: string
+          nombre: string
+          responsable_id: string | null
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          updated_at: string
+          usuario: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "perfiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       ubicaciones_cercanas: {
         Args: { lat: number; lng: number; metros?: number }
@@ -317,10 +471,34 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      usuario_disponible: { Args: { usuario: string }; Returns: boolean }
+      validar_cambio_de_cuenta: {
+        Args: { usuario_id: string }
+        Returns: {
+          aprobado_en: string | null
+          aprobado_por: string | null
+          created_at: string
+          estado: Database["public"]["Enums"]["estado_cuenta"]
+          id: string
+          nombre: string
+          responsable_id: string | null
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          updated_at: string
+          usuario: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "perfiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
+      estado_cuenta: "pendiente" | "activo" | "rechazado" | "desactivado"
       estado_ubicacion: "activa" | "cerrada"
       proveedor_almacenamiento: "supabase" | "sharepoint" | "otro"
+      rol_usuario: "miembro" | "admin"
       tipo_evidencia: "foto" | "audio" | "documento" | "texto" | "video"
       tipo_ubicacion: "punto" | "zona"
     }
@@ -450,8 +628,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      estado_cuenta: ["pendiente", "activo", "rechazado", "desactivado"],
       estado_ubicacion: ["activa", "cerrada"],
       proveedor_almacenamiento: ["supabase", "sharepoint", "otro"],
+      rol_usuario: ["miembro", "admin"],
       tipo_evidencia: ["foto", "audio", "documento", "texto", "video"],
       tipo_ubicacion: ["punto", "zona"],
     },
