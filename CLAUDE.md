@@ -74,10 +74,10 @@ Hecho:
 - Documentación navegable en `/docs`, con diagramas hechos con diagram-design.
 
 Siguiente (en orden):
-1. **#20** visor de evidencias (fotos, audios y documentos)
+1. **Milestone *Usuarios individuales*** (#68 a #81): una cuenta por integrante con nombre de usuario (sin correo), aprobación de un admin, roles, permisos en RLS y autoría de cada registro (ver [`docs/decisiones/0021-usuarios-individuales.md`](docs/decisiones/0021-usuarios-individuales.md)). Va antes de lo que falta del MVP.
 2. **#19** evidencias de texto y videos por enlace (los videos esperan la prueba de SharePoint, #22)
 3. **#16** ficha del lugar (completar la ficha básica: datos, editar, cerrar y archivar el lugar)
 4. **#15** zonas (incluye elegir punto o zona en el "+")
 5. **#21** filtros
 
-Ver el milestone MVP en GitHub.
+Ver los milestones *Usuarios individuales* y *MVP* en GitHub.
