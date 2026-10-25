@@ -80,32 +80,32 @@ export type Database = {
         }
         Relationships: []
       }
-      estudio_responsables: {
+      estudio_participantes: {
         Row: {
           estudio_id: string
-          responsable_id: string
+          usuario_id: string
         }
         Insert: {
           estudio_id: string
-          responsable_id: string
+          usuario_id: string
         }
         Update: {
           estudio_id?: string
-          responsable_id?: string
+          usuario_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "estudio_responsables_estudio_id_fkey"
+            foreignKeyName: "estudio_participantes_estudio_id_fkey"
             columns: ["estudio_id"]
             isOneToOne: false
             referencedRelation: "estudios"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "estudio_responsables_responsable_id_fkey"
-            columns: ["responsable_id"]
+            foreignKeyName: "estudio_participantes_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: "responsables"
+            referencedRelation: "perfiles"
             referencedColumns: ["id"]
           },
         ]
@@ -123,6 +123,7 @@ export type Database = {
           hora_inicio: string
           id: string
           notas: string[]
+          participantes_anteriores: string[]
           titulo: string
           ubicacion_id: string
           updated_at: string
@@ -139,6 +140,7 @@ export type Database = {
           hora_inicio: string
           id?: string
           notas?: string[]
+          participantes_anteriores?: string[]
           titulo: string
           ubicacion_id: string
           updated_at?: string
@@ -155,6 +157,7 @@ export type Database = {
           hora_inicio?: string
           id?: string
           notas?: string[]
+          participantes_anteriores?: string[]
           titulo?: string
           ubicacion_id?: string
           updated_at?: string
@@ -241,11 +244,11 @@ export type Database = {
         Row: {
           aprobado_en: string | null
           aprobado_por: string | null
+          avatar_semilla: string | null
           created_at: string
           estado: Database["public"]["Enums"]["estado_cuenta"]
           id: string
           nombre: string
-          responsable_id: string | null
           rol: Database["public"]["Enums"]["rol_usuario"]
           updated_at: string
           usuario: string
@@ -253,11 +256,11 @@ export type Database = {
         Insert: {
           aprobado_en?: string | null
           aprobado_por?: string | null
+          avatar_semilla?: string | null
           created_at?: string
           estado?: Database["public"]["Enums"]["estado_cuenta"]
           id: string
           nombre: string
-          responsable_id?: string | null
           rol?: Database["public"]["Enums"]["rol_usuario"]
           updated_at?: string
           usuario: string
@@ -265,52 +268,14 @@ export type Database = {
         Update: {
           aprobado_en?: string | null
           aprobado_por?: string | null
+          avatar_semilla?: string | null
           created_at?: string
           estado?: Database["public"]["Enums"]["estado_cuenta"]
           id?: string
           nombre?: string
-          responsable_id?: string | null
           rol?: Database["public"]["Enums"]["rol_usuario"]
           updated_at?: string
           usuario?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "perfiles_responsable_id_fkey"
-            columns: ["responsable_id"]
-            isOneToOne: true
-            referencedRelation: "responsables"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      responsables: {
-        Row: {
-          actualizado_por: string | null
-          avatar_semilla: string | null
-          creado_por: string | null
-          created_at: string
-          id: string
-          nombre: string
-          updated_at: string
-        }
-        Insert: {
-          actualizado_por?: string | null
-          avatar_semilla?: string | null
-          creado_por?: string | null
-          created_at?: string
-          id?: string
-          nombre: string
-          updated_at?: string
-        }
-        Update: {
-          actualizado_por?: string | null
-          avatar_semilla?: string | null
-          creado_por?: string | null
-          created_at?: string
-          id?: string
-          nombre?: string
-          updated_at?: string
         }
         Relationships: []
       }
@@ -392,11 +357,11 @@ export type Database = {
         Returns: {
           aprobado_en: string | null
           aprobado_por: string | null
+          avatar_semilla: string | null
           created_at: string
           estado: Database["public"]["Enums"]["estado_cuenta"]
           id: string
           nombre: string
-          responsable_id: string | null
           rol: Database["public"]["Enums"]["rol_usuario"]
           updated_at: string
           usuario: string
@@ -413,11 +378,11 @@ export type Database = {
         Returns: {
           aprobado_en: string | null
           aprobado_por: string | null
+          avatar_semilla: string | null
           created_at: string
           estado: Database["public"]["Enums"]["estado_cuenta"]
           id: string
           nombre: string
-          responsable_id: string | null
           rol: Database["public"]["Enums"]["rol_usuario"]
           updated_at: string
           usuario: string
@@ -434,11 +399,11 @@ export type Database = {
         Returns: {
           aprobado_en: string | null
           aprobado_por: string | null
+          avatar_semilla: string | null
           created_at: string
           estado: Database["public"]["Enums"]["estado_cuenta"]
           id: string
           nombre: string
-          responsable_id: string | null
           rol: Database["public"]["Enums"]["rol_usuario"]
           updated_at: string
           usuario: string
@@ -470,11 +435,11 @@ export type Database = {
         Returns: {
           aprobado_en: string | null
           aprobado_por: string | null
+          avatar_semilla: string | null
           created_at: string
           estado: Database["public"]["Enums"]["estado_cuenta"]
           id: string
           nombre: string
-          responsable_id: string | null
           rol: Database["public"]["Enums"]["rol_usuario"]
           updated_at: string
           usuario: string
@@ -491,11 +456,11 @@ export type Database = {
         Returns: {
           aprobado_en: string | null
           aprobado_por: string | null
+          avatar_semilla: string | null
           created_at: string
           estado: Database["public"]["Enums"]["estado_cuenta"]
           id: string
           nombre: string
-          responsable_id: string | null
           rol: Database["public"]["Enums"]["rol_usuario"]
           updated_at: string
           usuario: string
@@ -550,11 +515,11 @@ export type Database = {
         Returns: {
           aprobado_en: string | null
           aprobado_por: string | null
+          avatar_semilla: string | null
           created_at: string
           estado: Database["public"]["Enums"]["estado_cuenta"]
           id: string
           nombre: string
-          responsable_id: string | null
           rol: Database["public"]["Enums"]["rol_usuario"]
           updated_at: string
           usuario: string

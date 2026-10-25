@@ -21,9 +21,8 @@ values ('00000000-0000-0000-0000-000000000011', 'punto', 'SRID=4326;POINT(-75.57
 insert into public.estudios (id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo)
 values ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000011',
         '2026-10-30', '14:00', '15:00', 'Entrevista');
-insert into public.responsables (id, nombre) values ('00000000-0000-0000-0000-000000000031', 'Ana');
-insert into public.estudio_responsables (estudio_id, responsable_id)
-values ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000031');
+insert into public.estudio_participantes (estudio_id, usuario_id)
+values ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-0000000000a1');
 update public.estudios set titulo = 'Entrevista al tendero' where id = '00000000-0000-0000-0000-000000000021';
 update public.estudios set archivado_en = now() where id = '00000000-0000-0000-0000-000000000021';
 update public.estudios set archivado_en = null where id = '00000000-0000-0000-0000-000000000021';
@@ -65,8 +64,8 @@ select is(
   (select usuario_id from public.bitacora where tabla = 'estudios' and accion = 'archivar'),
   '00000000-0000-0000-0000-0000000000a1'::uuid, 'guarda quién hizo la acción');
 select is(
-  (select registro_id from public.bitacora where tabla = 'estudio_responsables'),
-  '00000000-0000-0000-0000-000000000021'::uuid, 'los responsables de un estudio se registran con el id del estudio');
+  (select registro_id from public.bitacora where tabla = 'estudio_participantes'),
+  '00000000-0000-0000-0000-000000000021'::uuid, 'los participantes de un estudio se registran con el id del estudio');
 select is(
   (select registro_borrado ->> 'texto' from public.bitacora where tabla = 'evidencias' and accion = 'borrar'),
   'Nota equivocada', 'al borrar guarda una copia del registro');

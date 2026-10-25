@@ -42,7 +42,7 @@ set local storage.allow_delete_query = 'true';
 set local request.jwt.claims = '{"sub": "00000000-0000-0000-0000-0000000000c3", "role": "authenticated"}';
 select is_empty($$ select id from public.categorias $$, 'pendiente: no ve categorías');
 select is_empty($$ select id from public.ubicaciones $$, 'pendiente: no ve lugares');
-select is_empty($$ select estudio_id from public.estudio_responsables $$, 'pendiente: no ve responsables de estudios');
+select is_empty($$ select estudio_id from public.estudio_participantes $$, 'pendiente: no ve participantes de estudios');
 select is_empty($$ select id from public.evidencias $$, 'pendiente: no ve evidencias');
 select is_empty($$ select id from public.lugares_mapa() $$, 'pendiente: lugares_mapa() no devuelve nada');
 select is_empty($$ select id from public.ubicaciones_cercanas(-75.5740, 6.2130) $$, 'pendiente: ubicaciones_cercanas() no devuelve nada');
@@ -68,15 +68,15 @@ select isnt_empty(
   $$ update public.ubicaciones set archivada_en = now() where id = '00000000-0000-0000-0000-000000000011' returning id $$,
   'miembro: archiva lugares de otros');
 select isnt_empty(
-  $$ with r as (insert into public.responsables (nombre) values ('Beto') returning id)
-     insert into public.estudio_responsables (estudio_id, responsable_id)
-     select '00000000-0000-0000-0000-000000000021', r.id from r
+  $$ insert into public.estudio_participantes (estudio_id, usuario_id)
+     values ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-0000000000b2')
      returning estudio_id $$,
-  'miembro: crea responsables y los asigna');
+  'miembro: agrega participantes a un estudio');
 select is_empty(
   $$ delete from public.categorias returning id $$, 'miembro: no borra categorías');
 select is_empty(
-  $$ delete from public.responsables returning id $$, 'miembro: no borra responsables');
+  $$ update public.perfiles set avatar_semilla = 'otro' where usuario = 'ana' returning id $$,
+  'miembro: no cambia el avatar de otra cuenta');
 select is_empty(
   $$ delete from public.evidencias where id = '00000000-0000-0000-0000-000000000031' returning id $$,
   'miembro: no borra evidencias de otros');
@@ -110,7 +110,7 @@ select isnt_empty(
 select isnt_empty(
   $$ delete from public.categorias returning id $$, 'admin: borra categorías');
 select isnt_empty(
-  $$ delete from public.responsables returning id $$, 'admin: borra responsables');
+  $$ delete from public.estudio_participantes returning estudio_id $$, 'admin: quita participantes de un estudio');
 
 -- Al desactivar a Beto pierde el acceso de inmediato, con el mismo token.
 select public.desactivar_usuario('00000000-0000-0000-0000-0000000000b2');
