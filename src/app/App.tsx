@@ -15,6 +15,7 @@ import { BotonNuevoLugar } from '../features/lugares/BotonNuevoLugar'
 import { CrearPunto } from '../features/lugares/CrearPunto'
 import { EstudioPagina } from '../features/estudios/EstudioPagina'
 import { FichaLugar } from '../features/lugares/FichaLugar'
+import { MoverPunto } from '../features/lugares/MoverPunto'
 import { MapaProvider } from '../features/map/MapaProvider'
 import { MapView } from '../features/map/MapView'
 import { PerfilPage } from '../features/perfil/PerfilPage'
@@ -107,6 +108,7 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
               <Route path="/usuarios" element={esAdmin ? <UsuariosPage /> : <Navigate to="/" replace />} />
               <Route path="/lugares/nuevo" element={<CrearPunto />} />
               <Route path="/lugares/:id" element={<FichaLugar />} />
+              <Route path="/lugares/:id/mover" element={<MoverPunto />} />
               <Route path="/lugares/:id/estudios/:estudioId" element={<EstudioPagina />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

@@ -6,13 +6,13 @@ import { useMapa } from '../features/map/mapaContexto'
 
 /**
  * En computador, el panel de la derecha se cierra al tocar el mapa (un clic, no al arrastrarlo).
- * Tocar un lugar no lo cierra: abre su ficha. Crear un punto no es un panel: ahí el mapa se mueve.
+ * Tocar un lugar no lo cierra: abre su ficha. Crear o mover un punto no es un panel: ahí el mapa se mueve.
  */
 export function CerrarPanelAlTocarElMapa() {
   const mapa = useMapa()
   const navegar = useNavigate()
   const { pathname } = useLocation()
-  const hayPanel = pathname !== '/' && pathname !== '/lugares/nuevo'
+  const hayPanel = pathname !== '/' && pathname !== '/lugares/nuevo' && !pathname.endsWith('/mover')
 
   useEffect(() => {
     if (!mapa || !hayPanel) return

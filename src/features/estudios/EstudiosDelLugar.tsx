@@ -4,6 +4,7 @@ import { ErrorCarga, EstadoVacio, ListaCargando } from '../../components/Estados
 import { FlechaLista } from '../../components/FlechaLista'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
+import { plural } from '../../lib/texto'
 import { Avatar } from '../responsables/Avatar'
 import { semillaDe, useResponsables } from '../responsables/api'
 import { useArchivarEstudio, useEstudios, useGuardarEstudio, type CamposEstudio, type Estudio } from './api'
@@ -106,6 +107,7 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
                     <span className="lista-item-titulo">{estudio.titulo}</span>
                     <span className="lista-item-detalle">
                       {mostrarFecha(estudio.fecha)} · {mostrarHora(estudio.horaInicio)} – {mostrarHora(estudio.horaFin)}
+                      {` · ${estudio.evidencias === 0 ? 'Sin evidencias' : plural(estudio.evidencias, 'evidencia')}`}
                     </span>
                     {(estudio.entrevistado || personas.length > 0) && (
                       <span className="estudio-meta">
