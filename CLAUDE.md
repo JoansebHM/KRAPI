@@ -33,10 +33,11 @@ npm run db:types       # regenera src/types/database.ts desde el proyecto
 npm run db:config      # aplica supabase/config.toml
 npm run db:local       # Supabase local en Docker (para probar migraciones)
 npm run db:test        # recrea la base local y corre las pruebas pgTAP de supabase/tests/
-npm run usuario:crear  # crea o actualiza el usuario compartido
+npm run usuario:admin  # crea el primer admin o nombra admin una cuenta existente
+npm run usuario:clave  # pone una contraseña nueva a una cuenta
 ```
 
-Los comandos `db:*` (salvo `db:local` y `db:test`, que usan Supabase en Docker) y `usuario:crear` se conectan al proyecto real de Supabase (`ggrwybqiqffoxuoojopp`) y los corre una persona del equipo en su computador.
+Los comandos `db:*` (salvo `db:local` y `db:test`, que usan Supabase en Docker) y `usuario:*` se conectan al proyecto real de Supabase (`ggrwybqiqffoxuoojopp`) y los corre una persona del equipo en su computador.
 
 ## Reglas de trabajo
 

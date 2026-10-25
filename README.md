@@ -79,25 +79,27 @@ La base de datos se maneja como código: todo el esquema vive en `supabase/migra
 npx supabase login     # abre el navegador para iniciar sesión en Supabase
 npm run db:link        # enlaza con el proyecto; pide la contraseña de la base de datos
 npm run db:push        # aplica las migraciones que falten
-npm run db:config      # aplica supabase/config.toml (por ejemplo, registro público desactivado)
+npm run db:config      # aplica supabase/config.toml (por ejemplo, el registro de cuentas)
 npm run db:types       # genera src/types/database.ts a partir del esquema
 ```
 
 La contraseña de la base de datos y las claves del proyecto **nunca** se suben al repositorio.
 
-### Usuario compartido
+### Cuentas y admins
 
-KIRA no permite registrarse: hay un solo usuario para todo el equipo, que crea un administrador.
+Cada integrante crea su cuenta desde la app y un admin la aprueba en **Usuarios**. Para lo que no se puede hacer desde la app hay dos scripts. Necesitan `VITE_SUPABASE_URL` y `SUPABASE_SECRET_KEY` en `.env.local` (ver `.env.example`) y piden las contraseñas sin mostrarlas en pantalla.
 
-1. En `.env.local` completa `VITE_SUPABASE_URL`, `SUPABASE_SECRET_KEY` y `KIRA_USUARIO_EMAIL` (ver `.env.example`). Se acepta `KRAPI_USUARIO_EMAIL` como alias temporal para instalaciones existentes.
-2. Ejecuta `npm run usuario:crear`. Pide la contraseña sin mostrarla en pantalla. Si el usuario ya existe, le cambia la contraseña.
+- `npm run usuario:admin` crea una cuenta de admin activa o, si el nombre de usuario ya existe, la nombra admin y la activa. Sirve para el **primer admin**, que no tiene quién lo apruebe.
+- `npm run usuario:clave` pone una contraseña nueva a una cuenta. Como las cuentas no tienen correo, así se ayuda a quien olvidó la suya.
+
+Los dos aceptan el nombre de usuario como argumento (`npm run usuario:clave -- ana.gomez`) o lo preguntan.
 
 ### Sesión en la app
 
 - Cada integrante crea su cuenta en "Crear una cuenta" (nombre, nombre de usuario y contraseña, sin correo) y entra con su nombre de usuario cuando un admin la apruebe. El usuario compartido sigue entrando con su correo hasta que se haga el cambio (#81). En `.env.local` deben estar `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`.
 - El token de Supabase se renueva solo mientras la app esté abierta.
 - La sesión se cierra tras **2 horas sin usar la app** (con un aviso un minuto antes) y, en todo caso, a los **7 días**. Los tiempos están en `src/config/session.ts`.
-- Desde el menú de la cuenta se puede cerrar la sesión en **todos los dispositivos**: úsalo si cambia la contraseña o alguien deja el grupo. En los demás dispositivos tarda hasta una hora en aplicarse.
+- Desde el menú de la cuenta se puede cerrar la sesión propia en **todos los dispositivos**: úsalo si perdiste un celular o alguien más conoce tu contraseña. En los demás dispositivos tarda hasta una hora en aplicarse. Para sacar a alguien del equipo, un admin desactiva su cuenta.
 - El plan gratuito de Supabase no permite limitar sesiones desde el servidor, así que estos límites los aplica la app.
 
 ### Seguridad
@@ -153,7 +155,8 @@ Reglas principales:
 | `npm run db:config` | Aplica `supabase/config.toml` al proyecto |
 | `npm run db:local` | Levanta Supabase en Docker para probar migraciones |
 | `npm run db:test` | Recrea la base local y corre las pruebas de `supabase/tests/` |
-| `npm run usuario:crear` | Crea o actualiza el usuario compartido |
+| `npm run usuario:admin` | Crea el primer admin o nombra admin una cuenta existente |
+| `npm run usuario:clave` | Pone una contraseña nueva a una cuenta |
 
 ## Estructura
 

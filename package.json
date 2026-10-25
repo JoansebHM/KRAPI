@@ -16,7 +16,8 @@
     "db:config": "supabase config push",
     "db:local": "supabase start -x vector,logflare,studio,imgproxy,edge-runtime,realtime,mailpit,supavisor",
     "db:test": "supabase db reset && supabase test db",
-    "usuario:crear": "node --env-file=.env.local scripts/crear-usuario-compartido.mjs",
+    "usuario:admin": "node --env-file=.env.local scripts/cuentas/crear-admin.mjs",
+    "usuario:clave": "node --env-file=.env.local scripts/cuentas/restablecer-clave.mjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

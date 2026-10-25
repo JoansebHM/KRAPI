@@ -41,7 +41,8 @@ src/
   types/          database.ts (tipos generados del esquema)
 e2e/              Pruebas Playwright y Supabase simulado (e2e/soporte/)
 supabase/         config.toml, migraciones y pruebas de la base de datos (tests/)
-scripts/          crear-usuario-compartido.mjs
+scripts/
+  cuentas/        crear-admin.mjs y restablecer-clave.mjs (usuario:admin y usuario:clave), comun.mjs
   docs/           Generador de la documentación navegable (/docs)
 ```
 
@@ -133,8 +134,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 | `VITE_SUPABASE_URL` | `.env.local` | URL del proyecto |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | `.env.local` | Clave pública (segura en el navegador) |
 | `VITE_MAP_STYLE_URL_LIGHT` / `_DARK` | `.env.local` (opcional) | Estilos del mapa; por defecto OpenFreeMap |
-| `SUPABASE_SECRET_KEY` | `.env.local` | **Solo scripts**, nunca con prefijo `VITE_` |
-| `KIRA_USUARIO_EMAIL` | `.env.local` | Correo del usuario compartido para `usuario:crear`; admite `KRAPI_USUARIO_EMAIL` como alias temporal |
+| `SUPABASE_SECRET_KEY` | `.env.local` | **Solo scripts** (`usuario:admin`, `usuario:clave`), nunca con prefijo `VITE_` |
 
 `.env.e2e` (versionado y sin secretos) configura las pruebas con servicios simulados. Si falta una variable obligatoria, la app muestra cuál en lugar de fallar. El identificador del proyecto Supabase y las claves `krapi-*` de `localStorage` se mantienen por compatibilidad; no son nombres visibles de la app.
 
