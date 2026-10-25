@@ -1,28 +1,26 @@
 /**
- * Crea (o actualiza) el usuario compartido con el que el equipo de Kratos inicia sesión en KIRA.
+ * Lo que comparten los scripts de administración de cuentas (usuario:admin y usuario:clave).
  *
- * Uso:  npm run usuario:crear
- *
- * Lee de .env.local:
+ * Leen de .env.local:
  *   VITE_SUPABASE_URL      URL del proyecto (https://<id>.supabase.co)
  *   SUPABASE_SECRET_KEY    Clave secreta (Project Settings → API Keys). NUNCA con prefijo VITE_.
- *   KIRA_USUARIO_EMAIL     Correo del usuario compartido
  *
- * La contraseña se pide al correr el script y no se guarda en ningún archivo.
+ * Las contraseñas se piden al correr el script y no se guardan en ningún archivo.
  */
 import { createInterface } from 'node:readline'
 import { stdin, stdout, exit, env } from 'node:process'
 
-const MIN_PASSWORD = 10
+/** Debe coincidir con src/features/auth/nombreDeUsuario.ts y el trigger crear_perfil. */
+export const DOMINIO_CUENTAS = 'usuarios.kira.invalid'
+export const MINIMO_CLAVE = 10
+const FORMATO_USUARIO = /^[a-z0-9._-]{3,30}$/
 
 const url = env.VITE_SUPABASE_URL?.replace(/\/$/, '')
 const secretKey = env.SUPABASE_SECRET_KEY
-const email = env.KIRA_USUARIO_EMAIL ?? env.KRAPI_USUARIO_EMAIL
 
 const faltantes = [
   ['VITE_SUPABASE_URL', url],
   ['SUPABASE_SECRET_KEY', secretKey],
-  ['KIRA_USUARIO_EMAIL', email],
 ].filter(([, valor]) => !valor)
 
 if (faltantes.length > 0) {
@@ -31,8 +29,26 @@ if (faltantes.length > 0) {
   exit(1)
 }
 
+export function fallar(mensaje) {
+  console.error(mensaje)
+  exit(1)
+}
+
 /** Lee una línea. En una terminal no muestra lo que se escribe; si la entrada viene de otro lado, la lee tal cual. */
 const lineasEntrada = stdin.isTTY ? null : createInterface({ input: stdin, terminal: false })[Symbol.asyncIterator]()
+
+export async function preguntar(pregunta) {
+  if (lineasEntrada) {
+    stdout.write(pregunta)
+    const { value } = await lineasEntrada.next()
+    stdout.write('\n')
+    return (value ?? '').trim()
+  }
+  const lector = createInterface({ input: stdin, output: stdout })
+  const respuesta = await new Promise((resolve) => lector.question(pregunta, resolve))
+  lector.close()
+  return respuesta.trim()
+}
 
 async function preguntarOculto(pregunta) {
   if (lineasEntrada) {
@@ -74,49 +90,53 @@ async function preguntarOculto(pregunta) {
   })
 }
 
-const password = await preguntarOculto(`Contraseña para ${email} (mínimo ${MIN_PASSWORD} caracteres): `)
-if (password.length < MIN_PASSWORD) {
-  console.error(`La contraseña debe tener al menos ${MIN_PASSWORD} caracteres.`)
-  exit(1)
+/** Pide una contraseña nueva dos veces, sin mostrarla. */
+export async function pedirClaveNueva(paraQuien) {
+  const password = await preguntarOculto(`Contraseña para ${paraQuien} (mínimo ${MINIMO_CLAVE} caracteres): `)
+  if (password.length < MINIMO_CLAVE) fallar(`La contraseña debe tener al menos ${MINIMO_CLAVE} caracteres.`)
+  const confirmacion = await preguntarOculto('Repite la contraseña: ')
+  if (password !== confirmacion) fallar('Las contraseñas no coinciden.')
+  return password
 }
-const confirmacion = await preguntarOculto('Repite la contraseña: ')
-if (password !== confirmacion) {
-  console.error('Las contraseñas no coinciden.')
-  exit(1)
+
+/** El nombre de usuario del primer argumento o, si no se pasó, preguntado. Se valida como en la app. */
+export async function pedirUsuario() {
+  const usuario = (process.argv[2] ?? (await preguntar('Nombre de usuario: '))).trim().toLowerCase()
+  if (!FORMATO_USUARIO.test(usuario)) {
+    fallar('El nombre de usuario debe tener de 3 a 30 caracteres: minúsculas sin tildes, números, punto, guion o guion bajo.')
+  }
+  return usuario
 }
+
+export const correoInterno = (usuario) => `${usuario}@${DOMINIO_CUENTAS}`
 
 // Las claves nuevas (sb_secret_...) van solo en "apikey"; las antiguas (JWT) también en Authorization.
 const headers = { apikey: secretKey, 'Content-Type': 'application/json' }
 if (secretKey.startsWith('eyJ')) headers.Authorization = `Bearer ${secretKey}`
 
-async function admin(path, method, body) {
-  const res = await fetch(`${url}/auth/v1/admin${path}`, { method, headers, body: body && JSON.stringify(body) })
+async function pedir(ruta, method, body, extra = {}) {
+  const res = await fetch(`${url}${ruta}`, { method, headers: { ...headers, ...extra }, body: body && JSON.stringify(body) })
   const data = await res.json().catch(() => ({}))
   return { ok: res.ok, status: res.status, data }
 }
 
-const creado = await admin('/users', 'POST', { email, password, email_confirm: true })
-if (creado.ok) {
-  console.log(`Usuario ${email} creado. Ya puede iniciar sesión en KIRA.`)
-  exit(0)
+/** API de administración de Supabase Auth. */
+export const admin = (ruta, method, body) => pedir(`/auth/v1/admin${ruta}`, method, body)
+
+/** Perfil de la cuenta con ese nombre de usuario, o null si no existe. */
+export async function buscarPerfil(usuario) {
+  const { ok, status, data } = await pedir(`/rest/v1/perfiles?usuario=eq.${encodeURIComponent(usuario)}&select=*`, 'GET')
+  if (!ok) fallar(`No se pudo consultar las cuentas (HTTP ${status}): ${data.message ?? JSON.stringify(data)}`)
+  return data[0] ?? null
 }
 
-// Si ya existe, se actualiza su contraseña.
-const yaExiste = creado.status === 422 || /already/i.test(JSON.stringify(creado.data))
-if (!yaExiste) {
-  console.error(`No se pudo crear el usuario (HTTP ${creado.status}):`, creado.data.msg ?? creado.data.message ?? creado.data)
-  exit(1)
+/** Cambia el perfil con la clave secreta (por ejemplo, para nombrar al primer admin). */
+export async function actualizarPerfil(id, cambios) {
+  const { ok, status, data } = await pedir(`/rest/v1/perfiles?id=eq.${id}`, 'PATCH', cambios, { Prefer: 'return=representation' })
+  if (!ok) fallar(`No se pudo actualizar la cuenta (HTTP ${status}): ${data.message ?? JSON.stringify(data)}`)
+  return data[0]
 }
 
-const lista = await admin('/users?per_page=1000', 'GET')
-const usuario = lista.data.users?.find((u) => u.email?.toLowerCase() === email.toLowerCase())
-if (!usuario) {
-  console.error('El usuario ya existe pero no se pudo encontrar para actualizarlo.')
-  exit(1)
+export function mensajeDe(data) {
+  return data.msg ?? data.message ?? JSON.stringify(data)
 }
-const actualizado = await admin(`/users/${usuario.id}`, 'PUT', { password })
-if (!actualizado.ok) {
-  console.error(`No se pudo actualizar la contraseña (HTTP ${actualizado.status}).`)
-  exit(1)
-}
-console.log(`El usuario ${email} ya existía: se actualizó su contraseña.`)
