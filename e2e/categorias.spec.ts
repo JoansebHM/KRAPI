@@ -96,11 +96,13 @@ test.describe('Categorías', () => {
     expect(supabase.db.categorias).toEqual([expect.objectContaining({ id: 'c1', icono: 'tienda' })])
     expect(supabase.db.ubicaciones.every((u) => u.categoria_id === 'c1')).toBe(true)
   })
+})
 
-  test('si la cuenta no puede eliminarla, lo explica y la categoría sigue', async ({ page, supabase }) => {
+test.describe('Categorías: miembros', () => {
+  test('un miembro no puede eliminarlas: se explica y la categoría sigue', async ({ page, entrar, supabase }) => {
     supabase.db.categorias.push({ id: 'c1', nombre: 'Comercio', color: '#0478FB', icono: 'tienda' })
-    supabase.borradosNegados.add('categorias')
-    await page.reload()
+    await entrar('miembro')
+    await page.goto('/categorias')
     await page.locator('.lista-item', { hasText: 'Comercio' }).click()
     await page.getByRole('button', { name: 'Eliminar categoría' }).click()
     await page.getByRole('dialog', { name: '¿Eliminar «Comercio»?' }).getByRole('button', { name: 'Eliminar', exact: true }).click()
