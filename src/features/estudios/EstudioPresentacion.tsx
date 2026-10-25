@@ -5,8 +5,6 @@ import { ErrorCarga, ListaCargando } from '../../components/Estados'
 import { PantallaCompleta } from '../../components/PantallaCompleta'
 import { enlaceDescarga } from '../../lib/almacenamiento'
 import { notificar } from '../../lib/notificar'
-import { Avatar } from '../responsables/Avatar'
-import { semillaDe, type Responsable } from '../responsables/api'
 import { useEvidencias, type Evidencia } from '../evidencias/api'
 import { mostrarTamano, NOMBRE_TIPO } from '../evidencias/archivos'
 import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
@@ -14,12 +12,12 @@ import { useNombreDeCuenta } from '../usuarios/api'
 import type { Estudio } from './api'
 import { fueEditado, mostrarFecha, mostrarFechaDe, mostrarHora } from './campos'
 import { NotasDelEstudio } from './NotasDelEstudio'
+import { ParticipantesDelEstudio } from './ParticipantesDelEstudio'
 import './EstudioPresentacion.css'
 
 interface EstudioPresentacionProps {
   estudio: Estudio
   nombreLugar: string
-  responsables: Responsable[]
   onEditar: () => void
   onAgregarEvidencia: () => void
   onCerrar: () => void
@@ -28,7 +26,6 @@ interface EstudioPresentacionProps {
 export function EstudioPresentacion({
   estudio,
   nombreLugar,
-  responsables,
   onEditar,
   onAgregarEvidencia,
   onCerrar,
@@ -81,20 +78,9 @@ export function EstudioPresentacion({
               </div>
             )}
             <div>
-              <dt>Responsables</dt>
+              <dt>Participantes</dt>
               <dd>
-                {responsables.length === 0 ? (
-                  <span className="estudio-presentacion-sin-dato">Sin responsables</span>
-                ) : (
-                  <ul className="estudio-presentacion-personas">
-                    {responsables.map((responsable) => (
-                      <li key={responsable.id}>
-                        <Avatar semilla={semillaDe(responsable)} tamano={28} />
-                        {responsable.nombre}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <ParticipantesDelEstudio estudio={estudio} claseLista="estudio-presentacion-personas" claseVacio="estudio-presentacion-sin-dato" />
               </dd>
             </div>
           </dl>

@@ -5,8 +5,8 @@ import { FlechaLista } from '../../components/FlechaLista'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { plural } from '../../lib/texto'
-import { Avatar } from '../responsables/Avatar'
-import { semillaDe, useResponsables } from '../responsables/api'
+import { Avatar } from '../usuarios/Avatar'
+import { semillaDe, useUsuarios } from '../usuarios/api'
 import { useArchivarEstudio, useEstudios, useGuardarEstudio, type CamposEstudio, type Estudio } from './api'
 import { camposDe, mostrarFecha, mostrarHora } from './campos'
 import { FormularioEstudio } from './FormularioEstudio'
@@ -27,14 +27,14 @@ interface EstudiosDelLugarProps {
  */
 export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNuevo }: EstudiosDelLugarProps) {
   const { data: estudios, isPending, isError, refetch } = useEstudios(ubicacionId)
-  const { data: responsables } = useResponsables()
+  const { data: cuentas } = useUsuarios()
   const guardar = useGuardarEstudio()
   const archivar = useArchivarEstudio()
   const navigate = useNavigate()
   const [estudioAbierto, setEstudioAbierto] = useState<string | null>(null)
   const [editando, setEditando] = useState(false)
   const [edicion, setEdicion] = useState<CamposEstudio | null>(null)
-  const responsablePorId = new Map((responsables ?? []).map((r) => [r.id, r]))
+  const cuentaPorId = new Map((cuentas ?? []).map((cuenta) => [cuenta.id, cuenta]))
   const estudioSeleccionado = estudios?.find((estudio) => estudio.id === estudioAbierto)
 
   function editar(estudio: Estudio) {
@@ -94,12 +94,12 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
         <EstadoVacio
           icono={<IconoEstudio />}
           titulo="Aún no hay estudios"
-          descripcion="Cada visita a este lugar es un estudio: una entrevista o un levantamiento, con sus responsables."
+          descripcion="Cada visita a este lugar es un estudio: una entrevista o un levantamiento, con quiénes fueron."
         />
       ) : (
         <ul className="lista">
           {estudios.map((estudio) => {
-            const personas = estudio.responsableIds.map((id) => responsablePorId.get(id)).filter((r) => r !== undefined)
+            const personas = estudio.participanteIds.map((id) => cuentaPorId.get(id)).filter((cuenta) => cuenta !== undefined)
             return (
               <li key={estudio.id}>
                 <button type="button" className="lista-item" onClick={() => setEstudioAbierto(estudio.id)}>
@@ -117,7 +117,7 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
                               <Avatar key={r.id} semilla={semillaDe(r)} tamano={24} />
                             ))}
                             {personas.length > 4 && <span className="estudio-avatares-mas">+{personas.length - 4}</span>}
-                            <span className="solo-lector">Responsables: {personas.map((r) => r.nombre).join(', ')}</span>
+                            <span className="solo-lector">Participantes: {personas.map((r) => r.nombre).join(', ')}</span>
                           </span>
                         )}
                         {estudio.entrevistado && <span className="lista-item-detalle">Entrevista: {estudio.entrevistado}</span>}
@@ -176,7 +176,6 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, nuevo, onCambiarNue
             key={estudioSeleccionado.id}
             estudio={estudioSeleccionado}
             nombreLugar={nombreLugar}
-            responsables={estudioSeleccionado.responsableIds.map((id) => responsablePorId.get(id)).filter((r) => r !== undefined)}
             onEditar={() => editar(estudioSeleccionado)}
             onAgregarEvidencia={() => navigate(`/lugares/${ubicacionId}/estudios/${estudioSeleccionado.id}`)}
             onCerrar={() => setEstudioAbierto(null)}

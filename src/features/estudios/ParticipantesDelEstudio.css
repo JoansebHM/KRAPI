@@ -1,0 +1,6 @@
+/* Nombres de quienes participaron antes de las cuentas individuales y no tenían cuenta. */
+.estudio-participantes-anteriores {
+  margin: var(--space-2) 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}

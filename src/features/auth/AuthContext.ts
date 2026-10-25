@@ -29,6 +29,7 @@ export interface DatosRegistro {
   nombre: string
   usuario: string
   password: string
+  avatarSemilla: string
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

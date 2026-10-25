@@ -2,6 +2,8 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { notificar } from '../../lib/notificar'
 import { useValorDiferido } from '../../lib/useValorDiferido'
+import { semillaAleatoria } from '../usuarios/dibujoAvatar'
+import { SelectorAvatar } from '../usuarios/SelectorAvatar'
 import type { Theme } from '../theme/useTheme'
 import { useUsuarioDisponible } from './api'
 import { CampoContrasena } from './CampoContrasena'
@@ -23,6 +25,8 @@ export function RegistroPage({ theme, onToggleTheme }: RegistroPageProps) {
   const { registrarse } = useAuth()
   const [nombre, setNombre] = useState('')
   const [usuario, setUsuario] = useState('')
+  // Arranca con un avatar al azar, que se puede cambiar aquí o después en Mi perfil.
+  const [avatarSemilla, setAvatarSemilla] = useState(semillaAleatoria)
   const [password, setPassword] = useState('')
   const [confirmacion, setConfirmacion] = useState('')
   const [intentoEnviar, setIntentoEnviar] = useState(false)
@@ -66,7 +70,7 @@ export function RegistroPage({ theme, onToggleTheme }: RegistroPageProps) {
     if (Object.values(errores).some(Boolean)) return
 
     setEnviando(true)
-    const resultado = await registrarse({ nombre, usuario, password })
+    const resultado = await registrarse({ nombre, usuario, password, avatarSemilla })
     setEnviando(false)
     if (resultado.error) setError(resultado.error)
     else {
@@ -120,6 +124,11 @@ export function RegistroPage({ theme, onToggleTheme }: RegistroPageProps) {
             {visibles.usuario ?? ayudaUsuario}
           </p>
         </label>
+
+        <div className="field">
+          <span className="field-label">Tu avatar</span>
+          <SelectorAvatar valor={avatarSemilla} onCambiar={setAvatarSemilla} />
+        </div>
 
         <CampoContrasena
           id="registro-password"

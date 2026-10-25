@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../auth/useAuth'
-import { CLAVE_RESPONSABLES, useResponsables } from '../responsables/api'
-import { estudioNuevo, recordarResponsables } from './campos'
+import { CLAVE_USUARIOS, useUsuarios } from '../usuarios/api'
+import { estudioNuevo, recordarParticipantes } from './campos'
 
 export interface Estudio {
   id: string
@@ -16,7 +16,10 @@ export interface Estudio {
   /** Apuntes de la visita, en el orden en que se escribieron. */
   notas: string[]
   entrevistado: string | null
-  responsableIds: string[]
+  /** Cuentas que participaron. */
+  participanteIds: string[]
+  /** Nombres de quienes participaron antes de las cuentas individuales y no tenían cuenta. */
+  participantesAnteriores: string[]
   /** Cuántas evidencias tiene. */
   evidencias: number
   /** Quién lo registró y quién lo editó por última vez (NULL = antes de las cuentas individuales). */
@@ -32,7 +35,7 @@ export interface CamposEstudio {
   fecha: string
   horaInicio: string
   horaFin: string
-  responsableIds: string[]
+  participanteIds: string[]
   entrevistado: string
   /** Una entrada por nota. Las vacías no se guardan. */
   notas: string[]
@@ -54,7 +57,7 @@ export function useEstudios(ubicacionId: string | undefined) {
       const { data, error } = await supabase
         .from('estudios')
         .select(
-          'id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo, notas, entrevistado, created_at, updated_at, creado_por, actualizado_por, estudio_responsables(responsable_id), evidencias(count)',
+          'id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo, notas, entrevistado, created_at, updated_at, creado_por, actualizado_por, participantes_anteriores, estudio_participantes(usuario_id), evidencias(count)',
         )
         .eq('ubicacion_id', ubicacionId!)
         .is('archivado_en', null)
@@ -69,7 +72,8 @@ export function useEstudios(ubicacionId: string | undefined) {
           titulo: fila.titulo,
           notas: fila.notas,
           entrevistado: fila.entrevistado,
-          responsableIds: fila.estudio_responsables.map((r) => r.responsable_id),
+          participanteIds: fila.estudio_participantes.map((p) => p.usuario_id),
+          participantesAnteriores: fila.participantes_anteriores,
           evidencias: fila.evidencias[0]?.count ?? 0,
           creadoPor: fila.creado_por,
           actualizadoPor: fila.actualizado_por,
@@ -83,9 +87,10 @@ export function useEstudios(ubicacionId: string | undefined) {
 
 /** Prepara los campos de un estudio nuevo en el momento de abrir el formulario. */
 export function useCamposEstudioNuevo() {
-  const { data: responsables } = useResponsables()
+  const { data: cuentas } = useUsuarios()
   const { perfil } = useAuth()
-  return () => estudioNuevo(responsables?.map((r) => r.id), perfil?.responsable_id)
+  const activas = cuentas?.filter((cuenta) => cuenta.estado === 'activo').map((cuenta) => cuenta.id)
+  return () => estudioNuevo(activas, perfil?.id ?? null)
 }
 
 /** Las notas sin espacios en los extremos y sin las vacías. */
@@ -106,17 +111,17 @@ function filaEstudio(campos: CamposEstudio) {
   }
 }
 
-async function ponerResponsables(estudioId: string, responsableIds: string[]) {
-  if (responsableIds.length === 0) return
+async function ponerParticipantes(estudioId: string, participanteIds: string[]) {
+  if (participanteIds.length === 0) return
   const { error } = await supabase
-    .from('estudio_responsables')
-    .insert(responsableIds.map((responsableId) => ({ estudio_id: estudioId, responsable_id: responsableId })))
+    .from('estudio_participantes')
+    .insert(participanteIds.map((usuarioId) => ({ estudio_id: estudioId, usuario_id: usuarioId })))
   if (error) throw error
 }
 
 export type DatosEstudio = CamposEstudio & { ubicacionId: string; id?: string }
 
-/** Crea o actualiza un estudio con sus responsables. */
+/** Crea o actualiza un estudio con sus participantes. */
 export function useGuardarEstudio() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -129,41 +134,40 @@ export function useGuardarEstudio() {
           .single()
         if (error) throw error
         try {
-          await ponerResponsables(data.id, campos.responsableIds)
-        } catch (errorResponsables) {
+          await ponerParticipantes(data.id, campos.participanteIds)
+        } catch (errorParticipantes) {
           // Recién creado y sin evidencias: se puede borrar para no dejar un estudio a medias.
           await supabase.from('estudios').delete().eq('id', data.id)
-          throw errorResponsables
+          throw errorParticipantes
         }
         return data.id
       }
 
       const { data: anteriores, error: errorAnteriores } = await supabase
-        .from('estudio_responsables')
-        .select('responsable_id')
+        .from('estudio_participantes')
+        .select('usuario_id')
         .eq('estudio_id', id)
       if (errorAnteriores) throw errorAnteriores
 
       const { error } = await supabase.from('estudios').update(filaEstudio(campos)).eq('id', id)
       if (error) throw error
 
-      const { error: errorBorrar } = await supabase.from('estudio_responsables').delete().eq('estudio_id', id)
+      const { error: errorBorrar } = await supabase.from('estudio_participantes').delete().eq('estudio_id', id)
       if (errorBorrar) throw errorBorrar
       try {
-        await ponerResponsables(id, campos.responsableIds)
-      } catch (errorResponsables) {
-        // Deja los responsables como estaban.
-        await ponerResponsables(id, anteriores.map((r) => r.responsable_id))
-        throw errorResponsables
+        await ponerParticipantes(id, campos.participanteIds)
+      } catch (errorParticipantes) {
+        // Deja los participantes como estaban.
+        await ponerParticipantes(id, anteriores.map((p) => p.usuario_id))
+        throw errorParticipantes
       }
       return id
     },
-    onSuccess: (_id, { id, ubicacionId, responsableIds }) => {
-      // El próximo estudio nuevo de este dispositivo vendrá con los mismos responsables.
-      if (!id) recordarResponsables(responsableIds)
+    onSuccess: (_id, { id, ubicacionId, participanteIds }) => {
+      // El próximo estudio nuevo de este dispositivo vendrá con los mismos participantes.
+      if (!id) recordarParticipantes(participanteIds)
       void queryClient.invalidateQueries({ queryKey: claveEstudios(ubicacionId) })
-      // La lista de responsables muestra en cuántos estudios aparece cada uno.
-      void queryClient.invalidateQueries({ queryKey: CLAVE_RESPONSABLES })
+      void queryClient.invalidateQueries({ queryKey: CLAVE_USUARIOS })
     },
   })
 }

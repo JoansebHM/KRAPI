@@ -19,7 +19,6 @@ import { MoverPunto } from '../features/lugares/MoverPunto'
 import { MapaProvider } from '../features/map/MapaProvider'
 import { MapView } from '../features/map/MapView'
 import { PerfilPage } from '../features/perfil/PerfilPage'
-import { ResponsablesPage } from '../features/responsables/ResponsablesPage'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
 import { UsuariosPage } from '../features/usuarios/UsuariosPage'
 import { useTheme, type Theme } from '../features/theme/useTheme'
@@ -102,7 +101,6 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
             <Routes>
               <Route path="/" element={<BotonNuevoLugar />} />
               <Route path="/categorias" element={<CategoriasPage />} />
-              <Route path="/responsables" element={<ResponsablesPage />} />
               <Route path="/perfil" element={<PerfilPage />} />
               {/* Un miembro que entra por la URL vuelve al mapa. */}
               <Route path="/usuarios" element={esAdmin ? <UsuariosPage /> : <Navigate to="/" replace />} />

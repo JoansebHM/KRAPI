@@ -4,7 +4,7 @@ import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { MAX_ENTREVISTADO, type CamposEstudio } from './api'
 import { CampoNotas } from './CampoNotas'
-import { SelectorResponsables } from './SelectorResponsables'
+import { SelectorParticipantes } from './SelectorParticipantes'
 import './FormularioEstudio.css'
 
 const MAX_TITULO = 120
@@ -140,9 +140,9 @@ export function FormularioEstudio({ titulo, lugar, campos, onCambiar, onGuardar,
 
         <div className="field">
           <span className="field-label">
-            Responsables<span className="field-opcional"> (quiénes fueron)</span>
+            Participantes<span className="field-opcional"> (quiénes fueron)</span>
           </span>
-          <SelectorResponsables valor={campos.responsableIds} onCambiar={(ids) => cambiar('responsableIds', ids)} />
+          <SelectorParticipantes valor={campos.participanteIds} onCambiar={(ids) => cambiar('participanteIds', ids)} />
         </div>
 
         <label className="field">
