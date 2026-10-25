@@ -167,6 +167,32 @@ test.describe('Evidencias', () => {
     expect(supabase.db.evidencias).toHaveLength(0)
     expect(supabase.archivos.size).toBe(0)
   })
+
+  test('si la cuenta no puede borrar la evidencia, lo explica y no toca el archivo', async ({ page, entrar, supabase }) => {
+    supabase.archivos.set('e1/a1-informe.pdf', { tipo: 'application/pdf', bytes: 1000 })
+    supabase.db.evidencias.push({
+      id: 'v1',
+      estudio_id: 'e1',
+      tipo: 'documento',
+      titulo: null,
+      archivo_path: 'e1/a1-informe.pdf',
+      archivo_nombre: 'informe.pdf',
+      archivo_mime: 'application/pdf',
+      archivo_bytes: 1000,
+      proveedor: 'supabase',
+      created_at: '2026-10-20T15:00:00Z',
+    })
+    supabase.borradosNegados.add('evidencias')
+    await entrar()
+    await page.goto('/lugares/p1/estudios/e1')
+
+    await evidencias(page).getByRole('button', { name: 'Borrar «informe.pdf»' }).click()
+    await page.getByRole('dialog', { name: '¿Borrar esta evidencia?' }).getByRole('button', { name: 'Borrar' }).click()
+    await expect(toast(page, 'No se pudo borrar')).toContainText('Solo quien la subió o un admin puede borrarla.')
+    await expect(evidencias(page).getByRole('link', { name: /informe\.pdf/ })).toBeVisible()
+    expect(supabase.db.evidencias).toHaveLength(1)
+    expect(supabase.archivos.size).toBe(1)
+  })
 })
 
 test.describe('Evidencias: grabar audio', () => {

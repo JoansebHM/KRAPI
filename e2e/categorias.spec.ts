@@ -96,6 +96,19 @@ test.describe('Categorías', () => {
     expect(supabase.db.categorias).toEqual([expect.objectContaining({ id: 'c1', icono: 'tienda' })])
     expect(supabase.db.ubicaciones.every((u) => u.categoria_id === 'c1')).toBe(true)
   })
+
+  test('si la cuenta no puede eliminarla, lo explica y la categoría sigue', async ({ page, supabase }) => {
+    supabase.db.categorias.push({ id: 'c1', nombre: 'Comercio', color: '#0478FB', icono: 'tienda' })
+    supabase.borradosNegados.add('categorias')
+    await page.reload()
+    await page.locator('.lista-item', { hasText: 'Comercio' }).click()
+    await page.getByRole('button', { name: 'Eliminar categoría' }).click()
+    await page.getByRole('dialog', { name: '¿Eliminar «Comercio»?' }).getByRole('button', { name: 'Eliminar', exact: true }).click()
+
+    await expect(toast(page, 'No se pudo eliminar')).toContainText('Solo un admin puede eliminar categorías.')
+    await expect(toast(page, 'Categoría eliminada')).toHaveCount(0)
+    expect(supabase.db.categorias).toHaveLength(1)
+  })
 })
 
 test.describe('Íconos de categorías', () => {

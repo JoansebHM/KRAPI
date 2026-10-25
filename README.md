@@ -100,7 +100,7 @@ KIRA no permite registrarse: hay un solo usuario para todo el equipo, que crea u
 
 ### Seguridad
 
-- Sin sesión no se puede leer ni modificar nada: todas las tablas tienen Row Level Security y solo el rol `authenticated` tiene permisos.
+- Sin sesión no se puede leer ni modificar nada, y tampoco con una cuenta que no esté activa: todas las tablas tienen Row Level Security según el estado y el rol de la cuenta (ver [`docs/modelo-de-datos.md`](docs/modelo-de-datos.md#seguridad)).
 - Los archivos van en el bucket privado `evidencias` (máximo 50 MB por archivo, solo fotos, audios y documentos) y se leen con URLs firmadas.
 - Cada tabla nueva necesita sus permisos y su política en la misma migración que la crea.
 

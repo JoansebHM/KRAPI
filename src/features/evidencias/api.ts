@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { borrarArchivos, enlacesTemporales, PROVEEDOR } from '../../lib/almacenamiento'
+import { SIN_PERMISO } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
 import type { TipoArchivo, TipoEvidencia } from './archivos'
 
@@ -91,8 +92,9 @@ export function useBorrarEvidencia() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (evidencia: Evidencia) => {
-      const { error } = await supabase.from('evidencias').delete().eq('id', evidencia.id)
+      const { data: borradas, error } = await supabase.from('evidencias').delete().eq('id', evidencia.id).select('id')
       if (error) throw error
+      if (borradas.length === 0) throw SIN_PERMISO
       if (evidencia.archivo) await borrarArchivos([evidencia.archivo.ruta]).catch(() => {})
     },
     onSuccess: (_resultado, { estudioId }) => queryClient.invalidateQueries({ queryKey: claveEvidencias(estudioId) }),

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { SIN_PERMISO } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
 import { compararTexto } from '../../lib/texto'
 import type { Tables } from '../../types/database'
@@ -84,8 +85,9 @@ export function useEliminarResponsable() {
         .eq('responsable_id', responsable.id)
       if (errorRelaciones) throw errorRelaciones
 
-      const { error } = await supabase.from('responsables').delete().eq('id', responsable.id)
+      const { data: borrados, error } = await supabase.from('responsables').delete().eq('id', responsable.id).select('id')
       if (error) throw error
+      if (borrados.length === 0) throw SIN_PERMISO
       return { responsable, estudioIds: relaciones.map(({ estudio_id }) => estudio_id) }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CLAVE_RESPONSABLES }),

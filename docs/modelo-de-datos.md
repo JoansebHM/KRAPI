@@ -157,7 +157,20 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 
 - **Cuentas.** Hoy se entra con un usuario compartido creado con `npm run usuario:crear` y el **registro público está desactivado** (`[auth] enable_signup = false`). Se está pasando a cuentas individuales (milestone *Usuarios individuales*): la tabla `perfiles` ya existe y el usuario compartido quedó como admin activo, con el nombre "Cuenta compartida".
 - **`perfiles`.** Cada quien lee su propio perfil aunque esté pendiente, y un miembro activo lee todos. Un miembro activo solo puede editar su `nombre` y su `responsable_id` (`grant update (nombre, responsable_id)`). El rol y el estado solo cambian con las funciones de administración, y nadie cambia los suyos.
-- **RLS en todas las tablas.** El rol `authenticated` tiene acceso total y el rol `anon` no tiene ningún permiso. Lo mismo para el bucket.
+- **RLS en todas las tablas, según el estado y el rol de la cuenta** ([decisión 0021](decisiones/0021-usuarios-individuales.md)). El rol `anon` no tiene ningún permiso.
+
+  | Tabla | Leer, crear y editar | Borrar |
+  | --- | --- | --- |
+  | `categorias`, `responsables` | Cuenta activa | Solo admin |
+  | `ubicaciones` | Cuenta activa | Quien la creó o un admin, y solo si **no tiene estudios** |
+  | `estudios` | Cuenta activa | Quien lo creó o un admin (la app solo lo usa para deshacer un estudio recién creado) |
+  | `estudio_responsables` | Cuenta activa | Cuenta activa |
+  | `evidencias` | Cuenta activa | Quien la subió o un admin |
+  | Bucket `evidencias` | Cuenta activa | Quien subió el archivo (`owner_id`, lo llena Storage) o un admin |
+
+  Una cuenta pendiente, rechazada o desactivada recibe listas vacías y no puede crear nada, y las funciones del mapa no le devuelven nada. Como `es_miembro_activo()` se revisa en cada consulta, al desactivar a alguien pierde el acceso de inmediato, aunque su token siga vigente.
+- **Un borrado sin permiso no da error.** RLS simplemente borra 0 filas, así que la app pide las filas borradas (`.delete().select('id')`) y, si no vuelve ninguna, lanza `SIN_PERMISO` (`lib/errores.ts`).
+- **Las políticas llaman a las funciones como `(select es_miembro_activo())`**, para que Postgres las evalúe una vez por consulta y no una vez por fila.
 - **Permisos explícitos.** El proyecto tiene desactivado "Automatically expose new tables" y activado "automatic RLS": cada tabla nueva debe traer en su migración los `grant` a `authenticated`, `enable row level security` y su política.
 - **Claves.** La clave pública (`VITE_SUPABASE_PUBLISHABLE_KEY`) es segura en el navegador gracias a RLS. La clave secreta (`SUPABASE_SECRET_KEY`) **solo** va en `.env.local`, sin prefijo `VITE_`, y la usan los scripts de administración.
 
@@ -186,3 +199,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261024120000_lugares_mapa` | `lugares_mapa()` |
 | `20261025120000_perfiles` | `perfiles`, enums `rol_usuario` y `estado_cuenta`, triggers sobre `auth.users`, funciones de cuentas y backfill del usuario compartido |
 | `20261025130000_autoria` | `creado_por`, `actualizado_por`, `archivada_por` y `archivado_por` con el trigger `poner_autoria()` |
+| `20261025140000_rls_cuentas_activas` | Reemplaza el acceso total por políticas según el estado y el rol de la cuenta, también en el bucket |
