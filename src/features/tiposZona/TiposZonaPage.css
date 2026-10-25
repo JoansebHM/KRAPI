@@ -1,0 +1,21 @@
+/* Muestra del color de un tipo de zona: un cuadrado con las esquinas redondeadas, como una zona. */
+.tipo-zona-muestra {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  border-radius: var(--radius-sm);
+  opacity: 0.85;
+}
+
+.tipo-zona-muestra-grande {
+  width: 48px;
+  height: 48px;
+}
+
+.tipo-zona-muestra-chica {
+  width: 24px;
+  height: 24px;
+  margin-left: var(--space-1);
+}
