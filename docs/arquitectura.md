@@ -75,6 +75,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 ## Patrones a reutilizar
 
 **Datos (`features/<x>/api.ts`)**
+- **Autoría:** `creado_por` y `actualizado_por` los pone la base de datos. Para mostrar el nombre se usa `useNombreDeCuenta()` (`usuarios/api.ts`), que devuelve "Cuenta compartida" si no hay autor.
 - Un hook por consulta (`useCategorias`) y uno por mutación (`useCrearCategoria`…), con TanStack Query.
 - Clave de caché constante (`CLAVE_CATEGORIAS`). Las mutaciones la invalidan en `onSuccess`.
 - Las listas de catálogos usan `refetchOnMount: 'always'`: muestran la caché al instante y se actualizan en segundo plano.

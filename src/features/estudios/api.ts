@@ -16,6 +16,11 @@ export interface Estudio {
   descripcion: string | null
   entrevistado: string | null
   responsableIds: string[]
+  /** Quién lo registró y quién lo editó por última vez (NULL = antes de las cuentas individuales). */
+  creadoPor: string | null
+  actualizadoPor: string | null
+  creadoEn: string
+  actualizadoEn: string
 }
 
 /** Lo que se llena en el formulario de un estudio. */
@@ -44,7 +49,9 @@ export function useEstudios(ubicacionId: string | undefined) {
     queryFn: async (): Promise<Estudio[]> => {
       const { data, error } = await supabase
         .from('estudios')
-        .select('id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo, descripcion, entrevistado, estudio_responsables(responsable_id)')
+        .select(
+          'id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo, descripcion, entrevistado, created_at, updated_at, creado_por, actualizado_por, estudio_responsables(responsable_id)',
+        )
         .eq('ubicacion_id', ubicacionId!)
         .is('archivado_en', null)
       if (error) throw error
@@ -59,6 +66,10 @@ export function useEstudios(ubicacionId: string | undefined) {
           descripcion: fila.descripcion,
           entrevistado: fila.entrevistado,
           responsableIds: fila.estudio_responsables.map((r) => r.responsable_id),
+          creadoPor: fila.creado_por,
+          actualizadoPor: fila.actualizado_por,
+          creadoEn: fila.created_at,
+          actualizadoEn: fila.updated_at,
         }))
         .sort((a, b) => b.fecha.localeCompare(a.fecha) || b.horaInicio.localeCompare(a.horaInicio))
     },

@@ -4,6 +4,7 @@ import { Dialog } from '../../components/Dialog'
 import { ErrorCarga, EstadoVacio, ListaCargando } from '../../components/Estados'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
+import { useNombreDeCuenta } from '../usuarios/api'
 import { useBorrarEvidencia, useEvidencias, type Evidencia } from './api'
 import { mostrarTamano, NOMBRE_TIPO } from './archivos'
 import { IconoTipoEvidencia } from './IconoTipoEvidencia'
@@ -15,6 +16,7 @@ export function EvidenciasDelEstudio({ estudioId }: { estudioId: string }) {
   const { data: evidencias, isPending, isError, refetch } = useEvidencias(estudioId)
   const subidas = useSubidas(estudioId)
   const borrar = useBorrarEvidencia()
+  const nombreDeCuenta = useNombreDeCuenta()
   const [porBorrar, setPorBorrar] = useState<Evidencia | null>(null)
 
   async function confirmarBorrar(evidencia: Evidencia) {
@@ -73,6 +75,7 @@ export function EvidenciasDelEstudio({ estudioId }: { estudioId: string }) {
                   <span className="lista-item-detalle">
                     {NOMBRE_TIPO[evidencia.tipo]}
                     {evidencia.archivo && ` · ${mostrarTamano(evidencia.archivo.bytes)}`}
+                    {nombreDeCuenta(evidencia.creadaPor) && ` · ${nombreDeCuenta(evidencia.creadaPor)}`}
                   </span>
                 </span>
                 <ExternalLink className="lista-item-flecha" size={18} aria-hidden="true" />

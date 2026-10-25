@@ -10,8 +10,9 @@ import { semillaDe, type Responsable } from '../responsables/api'
 import { useEvidencias, type Evidencia } from '../evidencias/api'
 import { mostrarTamano, NOMBRE_TIPO } from '../evidencias/archivos'
 import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
+import { useNombreDeCuenta } from '../usuarios/api'
 import type { Estudio } from './api'
-import { mostrarFecha, mostrarHora } from './campos'
+import { fueEditado, mostrarFecha, mostrarFechaDe, mostrarHora } from './campos'
 import './EstudioPresentacion.css'
 
 interface EstudioPresentacionProps {
@@ -32,6 +33,11 @@ export function EstudioPresentacion({
   onCerrar,
 }: EstudioPresentacionProps) {
   const { data: evidencias, isPending, isError, refetch } = useEvidencias(estudio.id)
+  const nombreDe = useNombreDeCuenta()
+  const quienSubio = (evidencia: Evidencia) => {
+    const nombre = nombreDe(evidencia.creadaPor)
+    return nombre && `subida por ${nombre}`
+  }
   const fotos = (evidencias ?? []).filter((evidencia) => evidencia.tipo === 'foto')
   const tipos = ['audio', 'documento', 'texto', 'video'] as const
   const [fotoActual, setFotoActual] = useState(0)
@@ -97,6 +103,8 @@ export function EstudioPresentacion({
               </div>
             )}
           </dl>
+
+          <Autoria estudio={estudio} />
 
           <section className="estudio-presentacion-evidencias" aria-labelledby="estudio-fotos-titulo">
             <h3 id="estudio-fotos-titulo" className="estudio-evidencias-titulo">
@@ -177,7 +185,9 @@ export function EstudioPresentacion({
                       <li key={evidencia.id}>
                         <div className="estudio-evidencia-detalle">
                           <strong>{evidencia.titulo ?? evidencia.archivo?.nombre ?? NOMBRE_TIPO[evidencia.tipo]}</strong>
-                          {evidencia.archivo && <span>{mostrarTamano(evidencia.archivo.bytes)}</span>}
+                          <span>
+                            {[evidencia.archivo && mostrarTamano(evidencia.archivo.bytes), quienSubio(evidencia)].filter(Boolean).join(' · ')}
+                          </span>
                           {evidencia.texto && <p className="estudio-evidencia-texto">{evidencia.texto}</p>}
                           {evidencia.tipo === 'audio' && evidencia.enlace && (
                             <AudioConVelocidad
@@ -421,4 +431,24 @@ function mostrarTiempo(segundos: number) {
   const minutos = Math.floor(segundos / 60)
   const resto = Math.floor(segundos % 60)
   return `${minutos}:${String(resto).padStart(2, '0')}`
+}
+
+/** "Registrado por Ana · 30 oct 2026" y, si se editó después, "Editado por Beto · 31 oct 2026". */
+function Autoria({ estudio }: { estudio: Estudio }) {
+  const nombreDe = useNombreDeCuenta()
+  const registro = nombreDe(estudio.creadoPor)
+  if (!registro) return null
+  const edicion = fueEditado(estudio.creadoEn, estudio.actualizadoEn) ? nombreDe(estudio.actualizadoPor) : null
+  return (
+    <p className="estudio-presentacion-autoria">
+      <span>
+        Registrado por {registro} · {mostrarFechaDe(estudio.creadoEn)}
+      </span>
+      {edicion && (
+        <span>
+          Editado por {edicion} · {mostrarFechaDe(estudio.actualizadoEn)}
+        </span>
+      )}
+    </p>
+  )
 }
