@@ -54,7 +54,7 @@ export function VerAsignacion() {
         </span>
       </div>
       <Link to={`/salidas/${salida.id}`} className="btn btn-primary">
-        Volver a la salida
+        Ver historial de zona de salida
       </Link>
     </div>
   )
