@@ -69,7 +69,7 @@ export type Database = {
           actualizado_por?: string | null
           creado_por?: string | null
           created_at?: string
-          forma?: never
+          forma?: Json | null
           geom: unknown
           id?: string
           nombre: string
@@ -80,7 +80,7 @@ export type Database = {
           actualizado_por?: string | null
           creado_por?: string | null
           created_at?: string
-          forma?: never
+          forma?: Json | null
           geom?: unknown
           id?: string
           nombre?: string
@@ -571,7 +571,10 @@ export type Database = {
         }
       }
       cambiar_rol: {
-        Args: { rol: Database["public"]["Enums"]["rol_usuario"]; usuario_id: string }
+        Args: {
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          usuario_id: string
+        }
         Returns: {
           aprobado_en: string | null
           aprobado_por: string | null
@@ -591,6 +594,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      cerrar_sesiones: { Args: { usuario_id: string }; Returns: undefined }
       desactivar_usuario: {
         Args: { usuario_id: string }
         Returns: {
@@ -708,6 +712,7 @@ export type Database = {
           id: string
           nombre: string
           tipo: Database["public"]["Enums"]["tipo_ubicacion"]
+          tipo_zona_id: string | null
           updated_at: string
         }[]
         SetofOptions: {
