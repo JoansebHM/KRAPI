@@ -204,4 +204,92 @@ test.describe('Salidas y asignaciones', () => {
       await expect(page.getByRole('button', { name: 'Nueva salida' })).toHaveCount(0)
     })
   })
+
+  test.describe('la evidencia de la salida son los estudios, no un sistema aparte', () => {
+    test.beforeEach(async ({ supabase }) => {
+      supabase.db.categorias.push({ id: 'c1', nombre: 'Café', color: '#9E7AE1', icono: 'cafe' })
+      supabase.db.ubicaciones.push({
+        id: 'p1',
+        tipo: 'punto',
+        nombre: 'Café Central',
+        categoria_id: 'c1',
+        estado: 'activa',
+        geom: { type: 'Point', coordinates: [-75.576, 6.214] },
+      })
+    })
+
+    test('con una zona asignada hoy, el formulario del estudio trae la salida elegida y queda ligado', async ({ page, entrar, supabase }) => {
+      supabase.db.salidas.push({ id: 's1', nombre: 'Salida de octubre', fecha: '2026-10-30', hora_inicio: '14:00:00', cancelada_en: null })
+      supabase.db.asignaciones.push({ id: 'a1', salida_id: 's1', nombre: 'Cuadrante norte', forma: { type: 'Polygon', coordinates: [MANZANA] } })
+      supabase.db.asignacion_participantes.push({ asignacion_id: 'a1', usuario_id: 'u-ana', hora_fin: null, porcentaje: null })
+
+      await entrar('miembro')
+      await page.goto('/lugares/p1')
+      await page.getByRole('button', { name: 'Agregar estudio' }).click()
+
+      const formulario = page.getByRole('dialog', { name: 'Nuevo estudio' })
+      await expect(formulario.getByRole('button', { name: 'Salida de octubre' })).toHaveAttribute('aria-pressed', 'true')
+      await formulario.getByPlaceholder('Ej.: Entrevista al tendero').fill('Levantamiento')
+      await formulario.getByRole('button', { name: 'Guardar estudio' }).click()
+
+      await expect(toast(page, 'Estudio guardado')).toBeVisible()
+      expect(supabase.db.estudios.find((e) => e.titulo === 'Levantamiento')).toMatchObject({ salida_id: 's1' })
+
+      // Y aparece en la salida, con enlace a su página.
+      await page.goto('/salidas/s1')
+      const registrado = page.locator('.lista-item', { hasText: 'Levantamiento' })
+      await expect(registrado).toContainText('Punto · Café Central')
+      await registrado.click()
+      await expect(page).toHaveURL(/\/lugares\/p1\/estudios\//)
+      await expect(page.getByRole('link', { name: 'Salida de octubre' })).toBeVisible()
+    })
+
+    test('sin una zona asignada hoy, el formulario no muestra el campo de salida', async ({ page, entrar }) => {
+      await entrar('miembro')
+      await page.goto('/lugares/p1')
+      await page.getByRole('button', { name: 'Agregar estudio' }).click()
+      const formulario = page.getByRole('dialog', { name: 'Nuevo estudio' })
+      await expect(formulario.getByText('Salida')).toHaveCount(0)
+    })
+
+    test('se puede quitar la salida elegida, y se puede ligar un estudio ya existente al editarlo', async ({ page, entrar, supabase }) => {
+      supabase.db.salidas.push({ id: 's1', nombre: 'Salida de octubre', fecha: '2026-10-30', hora_inicio: '14:00:00', cancelada_en: null })
+      supabase.db.asignaciones.push({ id: 'a1', salida_id: 's1', nombre: 'Cuadrante norte', forma: { type: 'Polygon', coordinates: [MANZANA] } })
+      supabase.db.asignacion_participantes.push({ asignacion_id: 'a1', usuario_id: 'u-ana', hora_fin: null, porcentaje: null })
+      supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Visita anterior', archivado_en: null })
+
+      await entrar('miembro')
+      await page.goto('/lugares/p1')
+      await page.getByRole('button', { name: 'Agregar estudio' }).click()
+      const nuevo = page.getByRole('dialog', { name: 'Nuevo estudio' })
+      await nuevo.getByRole('button', { name: 'Ninguna' }).click()
+      await nuevo.getByPlaceholder('Ej.: Entrevista al tendero').fill('Visita sin salida')
+      await nuevo.getByRole('button', { name: 'Guardar estudio' }).click()
+      await expect(toast(page, 'Estudio guardado')).toBeVisible()
+      expect(supabase.db.estudios.find((e) => e.titulo === 'Visita sin salida')).toMatchObject({ salida_id: null })
+
+      // Guardar un estudio nuevo lleva a su propia página; se vuelve a la ficha del lugar.
+      await page.goto('/lugares/p1')
+      // La visita anterior no estaba ligada a nada: se le liga la salida al editarla.
+      await page.getByRole('button', { name: /Visita anterior/ }).click()
+      await page.getByRole('button', { name: 'Editar estudio' }).click()
+      const edicion = page.getByRole('dialog', { name: 'Editar estudio' })
+      await edicion.getByRole('button', { name: 'Salida de octubre' }).click()
+      await edicion.getByRole('button', { name: 'Guardar cambios' }).click()
+      await expect(toast(page, 'Cambios guardados')).toBeVisible()
+      expect(supabase.db.estudios.find((e) => e.id === 'e1')).toMatchObject({ salida_id: 's1' })
+    })
+
+    test('una salida cancelada no se ofrece para ligar un estudio nuevo', async ({ page, entrar, supabase }) => {
+      supabase.db.salidas.push({ id: 's1', nombre: 'Salida cancelada', fecha: '2026-10-30', hora_inicio: '14:00:00', cancelada_en: '2026-10-30T10:00:00Z' })
+      supabase.db.asignaciones.push({ id: 'a1', salida_id: 's1', nombre: 'Cuadrante norte', forma: { type: 'Polygon', coordinates: [MANZANA] } })
+      supabase.db.asignacion_participantes.push({ asignacion_id: 'a1', usuario_id: 'u-ana', hora_fin: null, porcentaje: null })
+
+      await entrar('miembro')
+      await page.goto('/lugares/p1')
+      await page.getByRole('button', { name: 'Agregar estudio' }).click()
+      const formulario = page.getByRole('dialog', { name: 'Nuevo estudio' })
+      await expect(formulario.getByText('Salida')).toHaveCount(0)
+    })
+  })
 })
