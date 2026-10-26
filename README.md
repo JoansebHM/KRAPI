@@ -129,7 +129,7 @@ Los dos aceptan el nombre de usuario como argumento (`npm run usuario:clave -- a
 | `ubicaciones` | Lugares dentro de Manila: puntos (locales, con estado activa/cerrada) y zonas (áreas, con su tipo) |
 | `comentarios_zona` | Comentarios del equipo sobre cada zona, con su autor |
 | `salidas` | Salidas de campo (solo admins): nombre, fecha, hora de inicio y si se canceló |
-| `asignaciones` | Zonas que se reparten en cada salida (no son zonas del mapa) |
+| `asignaciones` | Zonas que se reparten en cada salida (no son zonas del mapa, aunque pueden quedar ligadas a una) |
 | `asignacion_participantes` | A quién se asignó cada zona y su reporte: hora de fin y porcentaje cubierto |
 | `estudios` | Cada visita a un lugar: fecha, horas, a quién se entrevistó, título, sus notas (una lista) y, si aplica, en qué salida se hizo |
 | `estudio_participantes` | Qué cuentas participaron en cada estudio |

@@ -41,6 +41,7 @@ Reglas de negocio:
 - **Las salidas reparten el trabajo, no agrupan estudios.** Un admin crea una salida (fecha y hora de inicio), dibuja sus zonas de asignación y dice quién cubre cada una. Desde el día de la salida, cada persona reporta a qué hora terminó y qué porcentaje de su zona cubrió (0, 25, 50, 75 o 100 %). Los estudios siguen llevando su propia fecha y sus participantes, porque no todos van el mismo día (ver decisiones [0008](decisiones/0008-modelo-lugares-y-estudios.md) y [0025](decisiones/0025-salidas-y-asignaciones.md)).
 - **Las zonas de asignación no son zonas del mapa.** Cambian de una salida a otra. Si un recorrido merece quedar en el histórico, se registra como zona del mapa con la misma forma.
 - **La evidencia de una salida son los estudios de siempre, no un sistema aparte.** Casi todo lo que se hace en una salida es crear un punto o agregarle un estudio a uno existente: eso ya trae fotos, audios, documentos y notas. Un estudio puede decir en qué salida se hizo, y la página de la salida muestra todo lo que se registró en ella, con un enlace a cada lugar. El reporte (hora de fin y porcentaje) sigue siendo aparte: un resumen rápido de cuánto se cubrió.
+- **El mismo cuadrante se puede cubrir en varias salidas sin duplicar la zona.** Al crear una nueva asignación se puede usar la forma de una anterior en vez de redibujarla, y si esa anterior ya se había registrado como zona del mapa, la nueva lo hereda: el botón pasa de "Registrar el recorrido…" a "Agregar estudio a la zona del mapa", para que todo quede en el mismo histórico en vez de crear una zona repetida.
 - **Sin tipos de estudio ni equipos por ahora**, y sin datos medibles (conteos, cifras). La estructura de los locales se registra con fotos. Más adelante se puede agregar una tabla de mediciones sin romper el modelo.
 
 ## Cómo se usa en campo
@@ -71,7 +72,8 @@ Para una **salida**:
 3. Cada persona ve sus zonas en **Mis asignaciones** y en el mapa: las suyas en rosado con borde continuo, y las de los demás con borde punteado. "Ver en el mapa" encuadra la zona.
 4. Mientras recorre su zona, registra puntos y les agrega estudios como siempre; el formulario del estudio trae la salida ya elegida, para dejarlo ligado a ella (se puede cambiar o quitar).
 5. Al terminar, toca **"Reportar"**: a qué hora terminó y qué porcentaje cubrió (0, 25, 50, 75 o 100 %). Lo puede corregir después, y un admin también.
-6. En la página de la salida, **"Qué se registró"** lista los estudios ligados a ella. Si además lo que se encontró merece quedar como una zona informativa permanente, **"Registrar el recorrido como zona del mapa"** crea una zona del mapa con la misma forma y el mismo nombre.
+6. En la página de la salida, **"Qué se registró"** lista los estudios ligados a ella. Si además lo que se encontró merece quedar como una zona informativa permanente, **"Registrar el recorrido como zona del mapa"** crea una zona del mapa con la misma forma y el mismo nombre, y la asignación queda ligada a ella.
+7. Si otra salida (en otra fecha) vuelve a cubrir el mismo cuadrante, al crear su asignación se puede elegir "usar la forma de una anterior" en vez de redibujarla. Si esa anterior ya estaba ligada a una zona del mapa, el botón ya no ofrece crear una: ofrece **"Agregar estudio a la zona del mapa"**, directo sobre la zona que ya existe.
 
 Una salida se puede cancelar (las personas lo ven) y reactivar. Una zona de la salida se puede editar (nombre y personas) o quitar.
 
