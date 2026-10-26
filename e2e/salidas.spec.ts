@@ -292,4 +292,58 @@ test.describe('Salidas y asignaciones', () => {
       await expect(formulario.getByText('Salida')).toHaveCount(0)
     })
   })
+
+  test.describe('la misma zona cubierta en más de una salida', () => {
+    test('se registra como zona del mapa una vez; la siguiente salida reusa su forma y le agrega un estudio', async ({ page, entrar, supabase }) => {
+      // Dos salidas, en fechas distintas, con el mismo cuadrante asignado a la cuenta propia.
+      supabase.db.salidas.push(
+        { id: 's1', nombre: 'Salida del 1', fecha: '2026-10-01', hora_inicio: '14:00:00', cancelada_en: null },
+        { id: 's2', nombre: 'Salida del 2', fecha: '2026-11-01', hora_inicio: '14:00:00', cancelada_en: null },
+      )
+      supabase.db.asignaciones.push({ id: 'a1', salida_id: 's1', nombre: 'Cuadrante norte', forma: { type: 'Polygon', coordinates: [MANZANA] } })
+      supabase.db.asignacion_participantes.push({ asignacion_id: 'a1', usuario_id: 'u-admin', hora_fin: null, porcentaje: null })
+
+      await entrar()
+
+      // Primera vez: se registra el recorrido como zona del mapa.
+      await page.goto('/salidas/s1')
+      await page.getByRole('link', { name: 'Registrar el recorrido como zona del mapa' }).click()
+      await page.getByRole('dialog', { name: 'Nueva zona' }).getByRole('button', { name: 'Guardar zona' }).click()
+      await expect(toast(page, 'Zona guardada')).toBeVisible()
+      expect(supabase.db.ubicaciones.filter((u) => u.nombre === 'Cuadrante norte')).toHaveLength(1)
+      const zonaId = supabase.db.asignaciones.find((a) => a.id === 'a1')!.zona_id as string
+      expect(zonaId).toBeTruthy()
+
+      // Segunda salida: al crear su asignación, se ofrece usar la forma de la anterior.
+      await page.goto('/salidas/s2/zonas/nueva')
+      const elegir = page.getByRole('dialog', { name: '¿Ya se cubrió esta zona antes?' })
+      await elegir.getByRole('button', { name: /Cuadrante norte/ }).click()
+
+      const formulario = page.getByRole('dialog', { name: 'Zona asignada' })
+      await expect(formulario.getByPlaceholder('Ej.: Cuadrante norte')).toHaveValue('Cuadrante norte')
+      await formulario.getByRole('button', { name: 'Admin Kratos' }).click()
+      await formulario.getByRole('button', { name: 'Asignar zona' }).click()
+      await expect(toast(page, 'Zona asignada')).toBeVisible()
+
+      // La nueva asignación quedó ligada a la misma zona del mapa, no a una nueva.
+      const a2 = supabase.db.asignaciones.find((a) => a.salida_id === 's2')!
+      expect(a2.zona_id).toBe(zonaId)
+      expect(supabase.db.ubicaciones.filter((u) => u.nombre === 'Cuadrante norte')).toHaveLength(1)
+
+      // En la salida 2, el botón ya no ofrece crear una zona: agrega un estudio a la que existe.
+      await page.goto('/salidas/s2')
+      const enlace = page.getByRole('link', { name: /Agregar estudio a la zona del mapa/ })
+      await expect(enlace).toContainText('Cuadrante norte')
+      await enlace.click()
+
+      const estudio = page.getByRole('dialog', { name: 'Nuevo estudio' })
+      await expect(estudio.getByRole('button', { name: 'Salida del 2' })).toHaveAttribute('aria-pressed', 'true')
+      await estudio.getByPlaceholder('Ej.: Entrevista al tendero').fill('Recorrido de noviembre')
+      await estudio.getByRole('button', { name: 'Guardar estudio' }).click()
+      await expect(toast(page, 'Estudio guardado')).toBeVisible()
+
+      const nuevoEstudio = supabase.db.estudios.find((e) => e.titulo === 'Recorrido de noviembre')!
+      expect(nuevoEstudio).toMatchObject({ ubicacion_id: zonaId, salida_id: 's2' })
+    })
+  })
 })

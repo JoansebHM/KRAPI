@@ -126,8 +126,9 @@ Las arman los admins para repartir zonas ([decisión 0025](decisiones/0025-salid
 | `nombre` | text | De 1 a 120 caracteres |
 | `geom` | geometry(Polygon, 4326) | Válida, dentro de Manila y de al menos 20 m² |
 | `forma` | jsonb | **Calculada** (`generated always`): `geom` en GeoJSON, para leerla sin una función |
+| `zona_id` | uuid → `ubicaciones` | Opcional. La zona del mapa a la que corresponde este cuadrante, si ya se registró como tal. ON DELETE SET NULL. Debe apuntar a una zona (`tipo = 'zona'`), lo exige el trigger `validar_zona_de_asignacion()` |
 
-No son zonas del mapa (`ubicaciones`): cambian de una salida a otra.
+No son zonas del mapa (`ubicaciones`): cambian de una salida a otra. Si el mismo cuadrante se vuelve a asignar en otra salida, esa nueva asignación puede quedar ligada a la **misma** zona del mapa (`zona_id`), para no crear una duplicada ([decisión 0025](decisiones/0025-salidas-y-asignaciones.md)).
 
 ### `asignacion_participantes`: quién cubre cada zona y su reporte
 
@@ -281,3 +282,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261026140000_zonas` | `tipos_zona` (con cinco tipos), `ubicaciones.tipo_zona_id`, área mínima de 20 m², `comentarios_zona`, `lugares_mapa()` con el tipo y `locales_en_zona()` |
 | `20261026150000_salidas_y_asignaciones` | `salidas`, `asignaciones` (con `forma` calculada) y `asignacion_participantes`, con sus permisos; `registrar_bitacora()` ignora `forma` y registra las tablas de unión con el id de la asignación |
 | `20261026160000_estudios_de_una_salida` | `estudios.salida_id` (opcional, ON DELETE SET NULL) |
+| `20261026170000_zona_de_asignacion` | `asignaciones.zona_id` (opcional, ON DELETE SET NULL) y el trigger `validar_zona_de_asignacion()` |

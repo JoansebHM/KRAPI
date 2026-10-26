@@ -23,6 +23,8 @@ export interface Asignacion {
   salidaId: string
   nombre: string
   forma: Polygon
+  /** La zona del mapa a la que corresponde este cuadrante, si ya se registró como tal. */
+  zonaId: string | null
   participantes: Participacion[]
 }
 
@@ -51,7 +53,7 @@ export function useSalidas() {
     queryFn: async (): Promise<Salida[]> => {
       const [salidas, asignaciones, participantes] = await Promise.all([
         supabase.from('salidas').select('id, nombre, fecha, hora_inicio, cancelada_en'),
-        supabase.from('asignaciones').select('id, salida_id, nombre, forma'),
+        supabase.from('asignaciones').select('id, salida_id, nombre, forma, zona_id'),
         supabase.from('asignacion_participantes').select('asignacion_id, usuario_id, hora_fin, porcentaje'),
       ])
       if (salidas.error) throw salidas.error
@@ -67,7 +69,14 @@ export function useSalidas() {
       const porSalida = new Map<string, Asignacion[]>()
       for (const fila of asignaciones.data) {
         const lista = porSalida.get(fila.salida_id) ?? []
-        lista.push({ id: fila.id, salidaId: fila.salida_id, nombre: fila.nombre, forma: fila.forma as unknown as Polygon, participantes: porAsignacion.get(fila.id) ?? [] })
+        lista.push({
+          id: fila.id,
+          salidaId: fila.salida_id,
+          nombre: fila.nombre,
+          forma: fila.forma as unknown as Polygon,
+          zonaId: fila.zona_id,
+          participantes: porAsignacion.get(fila.id) ?? [],
+        })
         porSalida.set(fila.salida_id, lista)
       }
       return salidas.data
@@ -209,6 +218,14 @@ export interface DatosAsignacion {
   participanteIds: string[]
 }
 
+/** Forma que trae una asignación anterior (de otra salida), para reusarla sin redibujar. */
+export interface FormaAnterior {
+  esquinas: Esquina[]
+  nombre: string
+  /** Si esa asignación ya estaba ligada a una zona del mapa, esta también queda ligada. */
+  zonaId: string | null
+}
+
 /**
  * Crear una zona de asignación (con su forma) o editar su nombre y sus participantes. Al editar,
  * quienes siguen asignados conservan su reporte.
@@ -216,7 +233,15 @@ export interface DatosAsignacion {
 export function useGuardarAsignacion() {
   const onSuccess = useAlCambiar()
   return useMutation({
-    mutationFn: async ({ id, salidaId, nombre, participanteIds, esquinas, anteriores = [] }: DatosAsignacion & { id?: string; esquinas?: Esquina[]; anteriores?: string[] }) => {
+    mutationFn: async ({
+      id,
+      salidaId,
+      nombre,
+      participanteIds,
+      esquinas,
+      zonaId = null,
+      anteriores = [],
+    }: DatosAsignacion & { id?: string; esquinas?: Esquina[]; zonaId?: string | null; anteriores?: string[] }) => {
       const nombreLimpio = nombre.trim().replace(/\s+/g, ' ')
       let asignacionId = id
       if (asignacionId) {
@@ -225,7 +250,7 @@ export function useGuardarAsignacion() {
       } else {
         const { data, error } = await supabase
           .from('asignaciones')
-          .insert({ salida_id: salidaId, nombre: nombreLimpio, geom: ewktPoligono(esquinas!) })
+          .insert({ salida_id: salidaId, nombre: nombreLimpio, geom: ewktPoligono(esquinas!), zona_id: zonaId })
           .select('id')
           .single()
         if (error) throw error

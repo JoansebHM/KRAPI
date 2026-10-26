@@ -1,6 +1,6 @@
 import { MessageCircle, Phone } from 'lucide-react'
-import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { Dialog } from '../../components/Dialog'
 import { ErrorCarga, EstadoVacio, ListaCargando } from '../../components/Estados'
 import { Panel } from '../../components/Panel'
@@ -26,12 +26,23 @@ import './FichaLugar.css'
 /** Ficha de un lugar, que se abre al tocarlo en el mapa: sus datos, sus acciones y su histórico de estudios. */
 export function FichaLugar() {
   const { id } = useParams()
+  const [parametros] = useSearchParams()
   const { data: lugar, isPending, isError, refetch } = useLugar(id)
   const { data: categorias } = useCategorias()
   const { data: tiposZona } = useTiposZona()
   const { data: lugaresVisibles } = useLugares()
   const camposEstudioNuevo = useCamposEstudioNuevo()
   const [nuevoEstudio, setNuevoEstudio] = useState<CamposEstudio | null>(null)
+  const intentoAutoabrir = useRef(false)
+
+  // Al llegar con ?estudio=nuevo (desde una zona asignada), se abre el formulario solo, con la
+  // salida ya elegida (?salida=) si venía de ahí. No aplica a un lugar archivado.
+  useEffect(() => {
+    if (intentoAutoabrir.current || !lugar || lugar.archivadaEn !== null || parametros.get('estudio') !== 'nuevo') return
+    intentoAutoabrir.current = true
+    const salidaId = parametros.get('salida')
+    setNuevoEstudio(salidaId ? { ...camposEstudioNuevo(), salidaId } : camposEstudioNuevo())
+  }, [lugar, camposEstudioNuevo, parametros])
 
   if (isPending) {
     return (

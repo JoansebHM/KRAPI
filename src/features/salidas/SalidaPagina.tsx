@@ -9,6 +9,7 @@ import { notificar } from '../../lib/notificar'
 import { plural } from '../../lib/texto'
 import { useAuth } from '../auth/useAuth'
 import { mostrarFecha, mostrarHora } from '../estudios/campos'
+import { useLugares } from '../lugares/api'
 import { Avatar } from '../usuarios/Avatar'
 import { semillaDe, useUsuarios } from '../usuarios/api'
 import {
@@ -141,6 +142,7 @@ export function SalidaPagina() {
 function ZonaAsignada({ salida, asignacion }: { salida: Salida; asignacion: Asignacion }) {
   const { perfil, esAdmin } = useAuth()
   const { data: cuentas } = useUsuarios()
+  const { data: lugares } = useLugares()
   const quitar = useQuitarAsignacion()
   const guardar = useGuardarAsignacion()
   const [reportando, setReportando] = useState<Participacion | null>(null)
@@ -203,11 +205,16 @@ function ZonaAsignada({ salida, asignacion }: { salida: Salida; asignacion: Asig
         })}
       </ul>
       <div className="salida-zona-acciones">
-        {(mia || esAdmin) && (
-          <Link to={`/zonas/nueva?asignacion=${asignacion.id}`} className="btn-texto">
-            Registrar el recorrido como zona del mapa
-          </Link>
-        )}
+        {(mia || esAdmin) &&
+          (asignacion.zonaId ? (
+            <Link to={`/lugares/${asignacion.zonaId}?estudio=nuevo&salida=${salida.id}`} className="btn-texto">
+              Agregar estudio a la zona del mapa «{lugares?.find((lugar) => lugar.id === asignacion.zonaId)?.nombre ?? asignacion.nombre}»
+            </Link>
+          ) : (
+            <Link to={`/zonas/nueva?asignacion=${asignacion.id}`} className="btn-texto">
+              Registrar el recorrido como zona del mapa
+            </Link>
+          ))}
         {esAdmin && !salida.cancelada && (
           <>
             <button type="button" className="btn-texto" onClick={() => setEditando(true)}>

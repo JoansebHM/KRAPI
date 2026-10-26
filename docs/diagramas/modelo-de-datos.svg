@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 776 1000" width="776" height="1000" role="img" aria-labelledby="modelo-de-datos-title modelo-de-datos-desc">
   <title id="modelo-de-datos-title">Modelo de datos de KIRA</title>
-  <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional (los puntos) o un tipo de zona (las zonas) y acumula estudios; las zonas tienen comentarios; cada estudio tiene participantes, que son cuentas del equipo (perfiles), y evidencias, y los archivos de las evidencias se guardan en el bucket privado. Aparte, cada salida tiene sus zonas de asignación, y cada zona se asigna a cuentas que reportan su hora de fin y su porcentaje; un estudio puede ligarse, opcionalmente, a la salida en la que se hizo.</desc>
+  <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional (los puntos) o un tipo de zona (las zonas) y acumula estudios; las zonas tienen comentarios; cada estudio tiene participantes, que son cuentas del equipo (perfiles), y evidencias, y los archivos de las evidencias se guardan en el bucket privado. Aparte, cada salida tiene sus zonas de asignación, y cada zona se asigna a cuentas que reportan su hora de fin y su porcentaje; un estudio puede ligarse, opcionalmente, a la salida en la que se hizo, y una zona asignada puede ligarse a la zona del mapa que registra, para no duplicarla si otra salida vuelve a cubrir el mismo cuadrante.</desc>
   <defs>
     <style>
       /* Perfil "kratos" de diagram-design: tokens de src/styles/theme.css. Sigue el sistema y, dentro de /docs, el tema elegido. */
@@ -232,8 +232,8 @@
     <text x="56" y="904">cancelada_en</text><text class="muted" x="244" y="904" text-anchor="end">timestamptz</text>
   </g>
   <!-- asignaciones -->
-  <rect class="mascara" x="308" y="764" width="200" height="156" rx="6" />
-  <rect class="nodo" x="308" y="764" width="200" height="156" rx="6" />
+  <rect class="mascara" x="308" y="764" width="200" height="176" rx="6" />
+  <rect class="nodo" x="308" y="764" width="200" height="176" rx="6" />
   <path class="cabecera" d="M314 764.6 H502 A5.4 5.4 0 0 1 507.4 770 V804 H308.6 V770 A5.4 5.4 0 0 1 314 764.6 Z" />
   <line class="separador" x1="308" y1="804" x2="508" y2="804" />
   <text class="mono muted" x="324" y="780" font-size="8" letter-spacing="0.14em">TABLA · ZONAS ASIGNADAS</text>
@@ -244,6 +244,7 @@
     <text x="324" y="864">nombre</text><text class="muted" x="492" y="864" text-anchor="end">text</text>
     <text x="324" y="884">geom</text><text class="muted" x="492" y="884" text-anchor="end">polygon 4326</text>
     <text x="324" y="904">forma</text><text class="muted" x="492" y="904" text-anchor="end">geojson · calc.</text>
+    <text x="324" y="924">→ zona_id</text><text class="muted" x="492" y="924" text-anchor="end">uuid · null</text>
   </g>
   <!-- asignacion_participantes -->
   <rect class="mascara" x="556" y="764" width="180" height="136" rx="6" />
@@ -257,6 +258,11 @@
     <text x="572" y="864">hora_fin</text><text class="muted" x="720" y="864" text-anchor="end">time</text>
     <text x="572" y="884">porcentaje</text><text class="muted" x="720" y="884" text-anchor="end">0…100 · 25</text>
   </g>
+
+  <!-- asignaciones.zona_id → ubicaciones (opcional): va por el corredor vacío a la derecha de estudios -->
+  <path class="linea-retorno" d="M508 924 H530 V190 H508" marker-end="url(#modelo-de-datos-flecha)" />
+  <rect class="mascara" x="500" y="544" width="60" height="12" rx="2" />
+  <text class="mono soft" x="530" y="553" font-size="8" text-anchor="middle" letter-spacing="0.06em">OPCIONAL</text>
 
   <!-- Leyenda -->
   <line class="regla" x1="40" y1="948" x2="736" y2="948" />

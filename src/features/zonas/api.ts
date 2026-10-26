@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { SIN_PERMISO } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
 import { useAlCambiarLugar } from '../lugares/api'
+import { CLAVE_SALIDAS } from '../salidas/api'
 import { CLAVE_TIPOS_ZONA } from '../tiposZona/api'
 import { ewktPoligono, type Esquina } from './geometria'
 
@@ -23,21 +24,30 @@ const columnasDeZona = (campos: CamposZona) => ({
   descripcion: campos.descripcion.trim() || null,
 })
 
+/**
+ * Crea una zona. Si viene de una zona asignada (`asignacionId`), la liga a ella como su zona del
+ * mapa: así, si otra salida vuelve a cubrir el mismo cuadrante, ya no hace falta crear otra.
+ */
 export function useCrearZona() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ campos, esquinas }: { campos: CamposZona; esquinas: Esquina[] }) => {
+    mutationFn: async ({ campos, esquinas, asignacionId }: { campos: CamposZona; esquinas: Esquina[]; asignacionId?: string }) => {
       const { data, error } = await supabase
         .from('ubicaciones')
         .insert({ tipo: 'zona', geom: ewktPoligono(esquinas), ...columnasDeZona(campos) })
         .select('id')
         .single()
       if (error) throw error
+      if (asignacionId) {
+        const { error: errorAsignacion } = await supabase.from('asignaciones').update({ zona_id: data.id }).eq('id', asignacionId)
+        if (errorAsignacion) throw errorAsignacion
+      }
       return data.id
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['lugares'] })
       void queryClient.invalidateQueries({ queryKey: CLAVE_TIPOS_ZONA })
+      void queryClient.invalidateQueries({ queryKey: CLAVE_SALIDAS })
     },
   })
 }

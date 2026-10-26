@@ -64,6 +64,7 @@ export type Database = {
           nombre: string
           salida_id: string
           updated_at: string
+          zona_id: string | null
         }
         Insert: {
           actualizado_por?: string | null
@@ -75,6 +76,7 @@ export type Database = {
           nombre: string
           salida_id: string
           updated_at?: string
+          zona_id?: string | null
         }
         Update: {
           actualizado_por?: string | null
@@ -86,6 +88,7 @@ export type Database = {
           nombre?: string
           salida_id?: string
           updated_at?: string
+          zona_id?: string | null
         }
         Relationships: [
           {
@@ -93,6 +96,13 @@ export type Database = {
             columns: ["salida_id"]
             isOneToOne: false
             referencedRelation: "salidas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asignaciones_zona_id_fkey"
+            columns: ["zona_id"]
+            isOneToOne: false
+            referencedRelation: "ubicaciones"
             referencedColumns: ["id"]
           },
         ]
