@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Polygon } from 'geojson'
 import { SIN_PERMISO } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
+import { useAuth } from '../auth/useAuth'
 import { fechaLocal } from '../estudios/campos'
 import { ewktPoligono, type Esquina } from '../zonas/geometria'
 
@@ -94,6 +95,68 @@ export function estadoDe(salida: Salida, participacion: Participacion): EstadoPa
 
 /** Si la salida es hoy o ya pasó (desde ese momento se puede reportar). */
 export const yaEmpezo = (salida: Salida) => salida.fecha <= fechaLocal()
+
+/**
+ * Salidas donde la cuenta tiene una zona asignada, no canceladas y que ya empezaron: para ligar un
+ * estudio (el que se hace al crear o editar un punto o una zona). La más reciente primero.
+ */
+export function useSalidasElegibles() {
+  const { perfil } = useAuth()
+  const { data: salidas } = useSalidas()
+  return (salidas ?? []).filter(
+    (salida) => !salida.cancelada && yaEmpezo(salida) && salida.asignaciones.some((a) => a.participantes.some((p) => p.usuarioId === perfil?.id)),
+  )
+}
+
+/** Un estudio (de un punto o una zona) hecho durante una salida: la evidencia de lo que se hizo. */
+export interface EstudioDeSalida {
+  id: string
+  ubicacionId: string
+  ubicacionNombre: string
+  ubicacionTipo: 'punto' | 'zona'
+  titulo: string
+  fecha: string
+  horaInicio: string
+  horaFin: string
+  evidencias: number
+}
+
+export const CLAVE_ESTUDIOS_DE_SALIDA = ['estudios-de-salida'] as const
+export const claveEstudiosDeSalida = (salidaId: string) => [...CLAVE_ESTUDIOS_DE_SALIDA, salidaId] as const
+
+/** Los estudios que se hicieron durante una salida ("Qué se registró"), del más reciente al más antiguo. */
+export function useEstudiosDeSalida(salidaId: string | undefined) {
+  return useQuery({
+    queryKey: claveEstudiosDeSalida(salidaId ?? ''),
+    enabled: Boolean(salidaId),
+    queryFn: async (): Promise<EstudioDeSalida[]> => {
+      const { data: estudios, error } = await supabase
+        .from('estudios')
+        .select('id, ubicacion_id, titulo, fecha, hora_inicio, hora_fin, evidencias(count)')
+        .eq('salida_id', salidaId!)
+        .is('archivado_en', null)
+      if (error) throw error
+      const ubicacionIds = [...new Set(estudios.map((e) => e.ubicacion_id))]
+      const { data: ubicaciones, error: errorUbicaciones } = await supabase.from('ubicaciones').select('id, nombre, tipo').in('id', ubicacionIds)
+      if (errorUbicaciones) throw errorUbicaciones
+      const ubicacionPorId = new Map(ubicaciones.map((u) => [u.id, u]))
+      return estudios
+        .map((fila) => ({
+          id: fila.id,
+          ubicacionId: fila.ubicacion_id,
+          // Si se borró el lugar, el estudio se borró con él (ON DELETE CASCADE); esto es solo defensivo.
+          ubicacionNombre: ubicacionPorId.get(fila.ubicacion_id)?.nombre ?? '—',
+          ubicacionTipo: ubicacionPorId.get(fila.ubicacion_id)?.tipo ?? 'punto',
+          titulo: fila.titulo,
+          fecha: fila.fecha,
+          horaInicio: hora(fila.hora_inicio),
+          horaFin: hora(fila.hora_fin),
+          evidencias: fila.evidencias[0]?.count ?? 0,
+        }))
+        .sort((a, b) => b.fecha.localeCompare(a.fecha) || b.horaInicio.localeCompare(a.horaInicio))
+    },
+  })
+}
 
 function useAlCambiar() {
   const queryClient = useQueryClient()

@@ -32,7 +32,12 @@ export function fechaLocal(fecha = new Date()) {
  * participantes del último estudio de este dispositivo que siguen activos (si aún no se conocen las
  * cuentas activas, solo la propia).
  */
-export function estudioNuevo(cuentasActivas: string[] | undefined, cuentaPropia: string | null = null, ahora = new Date()): CamposEstudio {
+export function estudioNuevo(
+  cuentasActivas: string[] | undefined,
+  cuentaPropia: string | null = null,
+  ahora = new Date(),
+  salidaId: string | null = null,
+): CamposEstudio {
   const inicio = `${dosDigitos(ahora.getHours())}:${dosDigitos(ahora.getMinutes())}`
   // Si la hora siguiente pasa de la medianoche, el fin queda en 23:59 (el estudio es de un solo día).
   const fin = ahora.getHours() < 23 ? `${dosDigitos(ahora.getHours() + 1)}:${dosDigitos(ahora.getMinutes())}` : '23:59'
@@ -46,6 +51,7 @@ export function estudioNuevo(cuentasActivas: string[] | undefined, cuentaPropia:
     ),
     entrevistado: '',
     notas: [],
+    salidaId,
   }
 }
 
@@ -58,6 +64,7 @@ export function camposDe(estudio: Estudio): CamposEstudio {
     participanteIds: estudio.participanteIds,
     entrevistado: estudio.entrevistado ?? '',
     notas: [...estudio.notas],
+    salidaId: estudio.salidaId,
   }
 }
 
