@@ -176,6 +176,8 @@
   color: var(--color-on-primary);
   font: inherit;
   font-weight: 600;
+  /* También cuando es un enlace. */
+  text-decoration: none;
   box-shadow: 0 6px 20px rgba(13, 52, 233, 0.35);
   cursor: pointer;
   transition: transform 0.15s, background-color 0.15s;

@@ -1,0 +1,195 @@
+.salidas-grupo + .salidas-grupo {
+  margin-top: var(--space-6);
+}
+
+.salidas-grupo-titulo {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: 1.0625rem;
+}
+
+.salida-cancelada {
+  color: var(--color-danger);
+  font-weight: 500;
+}
+
+.salida-fecha-hora {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.salida-porcentajes {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.salida-porcentajes legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+}
+
+.salida-acciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.salida-acciones .btn {
+  min-width: 0;
+  padding: 0 var(--space-2);
+  text-decoration: none;
+}
+
+.salida-vacio {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+/* Cada zona de la salida: su nombre, quiénes la cubren y cómo van. */
+.salida-zonas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.salida-zona {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.salida-zona-encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.salida-zona-nombre {
+  /* En pantallas angostas, el botón "Ver en el mapa" baja en vez de partir el nombre. */
+  flex: 1 1 140px;
+  min-width: 0;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  overflow-wrap: break-word;
+}
+
+.salida-zona-ver,
+.salida-reportar {
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.salida-personas {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.salida-persona {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+}
+
+.salida-persona-textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.salida-persona-nombre {
+  font-weight: 600;
+}
+
+.salida-estado {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.salida-estado-completa {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.salida-estado-incompleta {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.salida-zona-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-3);
+}
+
+.salida-zona-acciones .btn-texto {
+  text-decoration: none;
+}
+
+/* Tarjeta abajo del mapa al ver una zona asignada. */
+.ver-asignacion {
+  position: absolute;
+  right: var(--space-3);
+  bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+  left: var(--space-3);
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-overlay);
+}
+
+.ver-asignacion-textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 200px;
+}
+
+.ver-asignacion-personas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin-top: var(--space-1);
+  font-size: 0.875rem;
+}
+
+.ver-asignacion-persona {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.ver-asignacion .btn {
+  text-decoration: none;
+}
+
+@media (min-width: 900px) {
+  .ver-asignacion {
+    right: auto;
+    width: 420px;
+  }
+}

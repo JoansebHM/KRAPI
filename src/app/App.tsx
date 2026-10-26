@@ -16,6 +16,11 @@ import { CrearPunto } from '../features/lugares/CrearPunto'
 import { EstudioPagina } from '../features/estudios/EstudioPagina'
 import { FichaLugar } from '../features/lugares/FichaLugar'
 import { MoverPunto } from '../features/lugares/MoverPunto'
+import { MisAsignacionesPage } from '../features/salidas/MisAsignacionesPage'
+import { NuevaAsignacion } from '../features/salidas/NuevaAsignacion'
+import { SalidaPagina } from '../features/salidas/SalidaPagina'
+import { SalidasPage } from '../features/salidas/SalidasPage'
+import { VerAsignacion } from '../features/salidas/VerAsignacion'
 import { TiposZonaPage } from '../features/tiposZona/TiposZonaPage'
 import { CrearZona } from '../features/zonas/CrearZona'
 import { RedibujarZona } from '../features/zonas/RedibujarZona'
@@ -113,6 +118,11 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
               <Route path="/lugares/:id/redibujar" element={<RedibujarZona />} />
               <Route path="/zonas/nueva" element={<CrearZona />} />
               <Route path="/tipos-de-zona" element={<TiposZonaPage />} />
+              <Route path="/salidas" element={<SalidasPage />} />
+              <Route path="/salidas/:id" element={<SalidaPagina />} />
+              <Route path="/salidas/:id/zonas/nueva" element={esAdmin ? <NuevaAsignacion /> : <Navigate to="/salidas" replace />} />
+              <Route path="/salidas/:salidaId/zonas/:asignacionId" element={<VerAsignacion />} />
+              <Route path="/mis-asignaciones" element={<MisAsignacionesPage />} />
               <Route path="/lugares/:id/estudios/:estudioId" element={<EstudioPagina />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
