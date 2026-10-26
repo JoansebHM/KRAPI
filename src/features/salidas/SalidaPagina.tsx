@@ -2,14 +2,28 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { Dialog } from '../../components/Dialog'
 import { ErrorCarga, EstadoVacio, ListaCargando } from '../../components/Estados'
+import { FlechaLista } from '../../components/FlechaLista'
 import { Panel } from '../../components/Panel'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { plural } from '../../lib/texto'
 import { useAuth } from '../auth/useAuth'
+import { mostrarFecha, mostrarHora } from '../estudios/campos'
 import { Avatar } from '../usuarios/Avatar'
 import { semillaDe, useUsuarios } from '../usuarios/api'
-import { estadoDe, useCancelarSalida, useGuardarAsignacion, useQuitarAsignacion, useSalidas, yaEmpezo, type Asignacion, type Participacion, type Salida } from './api'
+import {
+  estadoDe,
+  useCancelarSalida,
+  useEstudiosDeSalida,
+  useGuardarAsignacion,
+  useQuitarAsignacion,
+  useSalidas,
+  yaEmpezo,
+  type Asignacion,
+  type EstudioDeSalida,
+  type Participacion,
+  type Salida,
+} from './api'
 import { FormularioAsignacion } from './FormularioAsignacion'
 import { FormularioSalida } from './FormularioSalida'
 import { ReportarAsignacion } from './ReportarAsignacion'
@@ -98,6 +112,8 @@ export function SalidaPagina() {
           ))}
         </ul>
       )}
+
+      <QueSeRegistro salidaId={salida.id} />
 
       {editando && <FormularioSalida salida={salida} onCerrar={() => setEditando(false)} onGuardada={() => setEditando(false)} />}
       {confirmarCancelar && (
@@ -236,6 +252,56 @@ function ZonaAsignada({ salida, asignacion }: { salida: Salida; asignacion: Asig
           </p>
         </Dialog>
       )}
+    </li>
+  )
+}
+
+/**
+ * La evidencia de la salida: los estudios (de puntos o zonas) que se hicieron durante ella, cada uno
+ * con un enlace a su lugar. No es un sistema aparte: son los estudios de siempre, solo ligados a esta salida.
+ */
+function QueSeRegistro({ salidaId }: { salidaId: string }) {
+  const { data: estudios, isPending, isError, refetch } = useEstudiosDeSalida(salidaId)
+
+  return (
+    <>
+      <h2 className="salidas-grupo-titulo">
+        Qué se registró
+        {estudios && estudios.length > 0 && <span className="zona-seccion-cantidad"> · {estudios.length}</span>}
+      </h2>
+      {isPending ? (
+        <ListaCargando filas={2} />
+      ) : isError ? (
+        <ErrorCarga mensaje="No se pudo cargar lo que se registró." onReintentar={() => void refetch()} />
+      ) : estudios.length === 0 ? (
+        <p className="salida-vacio">Los estudios que se liguen a esta salida (al crear o editar un punto o una zona) aparecerán aquí.</p>
+      ) : (
+        <ul className="lista">
+          {estudios.map((estudio) => (
+            <EstudioDeSalidaItem key={estudio.id} estudio={estudio} />
+          ))}
+        </ul>
+      )}
+    </>
+  )
+}
+
+function EstudioDeSalidaItem({ estudio }: { estudio: EstudioDeSalida }) {
+  return (
+    <li>
+      <Link to={`/lugares/${estudio.ubicacionId}/estudios/${estudio.id}`} className="lista-item">
+        <span className="lista-item-textos">
+          <span className="lista-item-titulo">{estudio.titulo}</span>
+          <span className="lista-item-detalle">
+            {estudio.ubicacionTipo === 'zona' ? 'Zona' : 'Punto'} · {estudio.ubicacionNombre}
+          </span>
+          <span className="lista-item-detalle">
+            {mostrarFecha(estudio.fecha)} · {mostrarHora(estudio.horaInicio)} – {mostrarHora(estudio.horaFin)}
+            {` · ${estudio.evidencias === 0 ? 'Sin evidencias' : plural(estudio.evidencias, 'evidencia')}`}
+          </span>
+        </span>
+        <FlechaLista />
+      </Link>
     </li>
   )
 }

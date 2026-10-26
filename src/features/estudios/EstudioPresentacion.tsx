@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, Clipboard, Download, Ellipsis, Expand, ExternalLink, Pause, Play } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router'
 import { Dialog } from '../../components/Dialog'
 import { ErrorCarga, ListaCargando } from '../../components/Estados'
 import { PantallaCompleta } from '../../components/PantallaCompleta'
@@ -8,6 +9,7 @@ import { notificar } from '../../lib/notificar'
 import { useEvidencias, type Evidencia } from '../evidencias/api'
 import { mostrarTamano, NOMBRE_TIPO } from '../evidencias/archivos'
 import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
+import { useSalidas } from '../salidas/api'
 import { useNombreDeCuenta } from '../usuarios/api'
 import type { Estudio } from './api'
 import { fueEditado, mostrarFecha, mostrarFechaDe, mostrarHora } from './campos'
@@ -31,6 +33,8 @@ export function EstudioPresentacion({
   onCerrar,
 }: EstudioPresentacionProps) {
   const { data: evidencias, isPending, isError, refetch } = useEvidencias(estudio.id)
+  const { data: salidas } = useSalidas()
+  const salida = estudio.salidaId ? salidas?.find((s) => s.id === estudio.salidaId) : undefined
   const nombreDe = useNombreDeCuenta()
   const quienSubio = (evidencia: Evidencia) => {
     const nombre = nombreDe(evidencia.creadaPor)
@@ -83,6 +87,16 @@ export function EstudioPresentacion({
                 <ParticipantesDelEstudio estudio={estudio} claseLista="estudio-presentacion-personas" claseVacio="estudio-presentacion-sin-dato" />
               </dd>
             </div>
+            {salida && (
+              <div>
+                <dt>Salida</dt>
+                <dd>
+                  <Link to={`/salidas/${salida.id}`} onClick={onCerrar}>
+                    {salida.nombre}
+                  </Link>
+                </dd>
+              </div>
+            )}
           </dl>
 
           <Autoria estudio={estudio} />
