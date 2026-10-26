@@ -87,9 +87,12 @@ Las zonas no usan categoría, dirección ni contacto, y deben tener **al menos 2
 | `notas` | text[] | Apuntes de la visita, en orden. Lista vacía = sin notas. Hasta 50, cada una de 1 a 2000 caracteres (`notas_validas()`) |
 | `entrevistado` | text | A quién se entrevistó ("Tendero"…), opcional, máximo 120 caracteres |
 | `participantes_anteriores` | text[] | Nombres de quienes participaron antes de las cuentas individuales y no tenían cuenta ([decisión 0023](decisiones/0023-participantes-son-cuentas.md)). Solo histórico |
+| `salida_id` | uuid → `salidas` | Opcional. En qué salida se hizo ([decisión 0025](decisiones/0025-salidas-y-asignaciones.md)). ON DELETE SET NULL: si se borra la salida, el estudio no se pierde |
 | `archivado_en` | timestamptz | NULL = visible |
 
 La app guarda primero el estudio y después sus participantes (`estudio_participantes`). Si la segunda parte falla, borra el estudio recién creado, que todavía no tiene evidencias, para no dejarlo a medias.
+
+La evidencia de una salida no es un sistema aparte: es la de siempre. Si la cuenta tiene una zona asignada en una salida que ya empezó y no está cancelada, el formulario del estudio ofrece ligarlo a ella.
 
 ### `estudio_participantes`: quién participó
 
@@ -277,3 +280,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261026130000_participantes_son_cuentas` | `perfiles.avatar_semilla`, `estudio_participantes` y `estudios.participantes_anteriores`; pasa los responsables a sus cuentas y quita `responsables`, `estudio_responsables` y `perfiles.responsable_id` |
 | `20261026140000_zonas` | `tipos_zona` (con cinco tipos), `ubicaciones.tipo_zona_id`, área mínima de 20 m², `comentarios_zona`, `lugares_mapa()` con el tipo y `locales_en_zona()` |
 | `20261026150000_salidas_y_asignaciones` | `salidas`, `asignaciones` (con `forma` calculada) y `asignacion_participantes`, con sus permisos; `registrar_bitacora()` ignora `forma` y registra las tablas de unión con el id de la asignación |
+| `20261026160000_estudios_de_una_salida` | `estudios.salida_id` (opcional, ON DELETE SET NULL) |

@@ -27,7 +27,8 @@ src/
     auth/         Login, registro, AuthProvider, política de sesión, menú de la cuenta,
                   nombre de usuario → correo interno (nombreDeUsuario.ts)
     categorias/   CRUD de categorías, colores e íconos
-    estudios/     Estudios de un lugar: formulario, participantes, notas, histórico y página del estudio
+    estudios/     Estudios de un lugar: formulario, participantes, notas, a qué salida se ligan
+                  (SelectorSalida), histórico y página del estudio
     evidencias/   Subir, grabar, listar y borrar evidencias; cola de subidas y compresión de fotos;
                   videos de SharePoint por enlace (AgregarVideo, sharepoint.ts)
     perfil/       Mi perfil: nombre, avatar y cambiar la contraseña
@@ -39,8 +40,9 @@ src/
     theme/        Modo claro/oscuro
     tiposZona/    Tipos de zona: lista con color (TiposZonaPage)
     usuarios/     Cuentas: administración (solo admins), avatares (Avatar, SelectorAvatar) y useNombreDeCuenta
-    zonas/        Zonas: DibujarZona (mira + vista previa), CrearZona, RedibujarZona, ficha (LocalesEnZona,
-                  ComentariosZona, EditarZona) y geometria.ts (área, lados cruzados, EWKT)
+    zonas/        Zonas: DibujarZona (mira + vista previa), CrearZona (también desde una zona asignada,
+                  ?asignacion=), RedibujarZona, ficha (LocalesEnZona, ComentariosZona, EditarZona) y
+                  geometria.ts (área, lados cruzados, EWKT)
   lib/            supabase.ts, almacenamiento.ts (archivos), queryClient.ts, notificar.ts,
                   errores.ts, texto.ts, color.ts
   styles/         theme.css (tokens), ui.css (botones, campos, listas)

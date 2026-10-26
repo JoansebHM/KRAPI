@@ -110,6 +110,7 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, esZona = false, nue
                     <span className="lista-item-detalle">
                       {mostrarFecha(estudio.fecha)} · {mostrarHora(estudio.horaInicio)} – {mostrarHora(estudio.horaFin)}
                       {` · ${estudio.evidencias === 0 ? 'Sin evidencias' : plural(estudio.evidencias, 'evidencia')}`}
+                      {estudio.salidaId && ' · De una salida'}
                     </span>
                     {(estudio.entrevistado || personas.length > 0) && (
                       <span className="estudio-meta">

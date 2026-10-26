@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../auth/useAuth'
+import { CLAVE_ESTUDIOS_DE_SALIDA, useSalidasElegibles } from '../salidas/api'
 import { CLAVE_USUARIOS, useUsuarios } from '../usuarios/api'
 import { estudioNuevo, recordarParticipantes } from './campos'
 
@@ -18,6 +19,8 @@ export interface Estudio {
   entrevistado: string | null
   /** Cuentas que participaron. */
   participanteIds: string[]
+  /** En qué salida se hizo (si se hizo en una). */
+  salidaId: string | null
   /** Nombres de quienes participaron antes de las cuentas individuales y no tenían cuenta. */
   participantesAnteriores: string[]
   /** Cuántas evidencias tiene. */
@@ -39,6 +42,7 @@ export interface CamposEstudio {
   entrevistado: string
   /** Una entrada por nota. Las vacías no se guardan. */
   notas: string[]
+  salidaId: string | null
 }
 
 export const MAX_ENTREVISTADO = 120
@@ -57,7 +61,7 @@ export function useEstudios(ubicacionId: string | undefined) {
       const { data, error } = await supabase
         .from('estudios')
         .select(
-          'id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo, notas, entrevistado, created_at, updated_at, creado_por, actualizado_por, participantes_anteriores, estudio_participantes(usuario_id), evidencias(count)',
+          'id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo, notas, entrevistado, salida_id, created_at, updated_at, creado_por, actualizado_por, participantes_anteriores, estudio_participantes(usuario_id), evidencias(count)',
         )
         .eq('ubicacion_id', ubicacionId!)
         .is('archivado_en', null)
@@ -72,6 +76,7 @@ export function useEstudios(ubicacionId: string | undefined) {
           titulo: fila.titulo,
           notas: fila.notas,
           entrevistado: fila.entrevistado,
+          salidaId: fila.salida_id,
           participanteIds: fila.estudio_participantes.map((p) => p.usuario_id),
           participantesAnteriores: fila.participantes_anteriores,
           evidencias: fila.evidencias[0]?.count ?? 0,
@@ -90,7 +95,9 @@ export function useCamposEstudioNuevo() {
   const { data: cuentas } = useUsuarios()
   const { perfil } = useAuth()
   const activas = cuentas?.filter((cuenta) => cuenta.estado === 'activo').map((cuenta) => cuenta.id)
-  return () => estudioNuevo(activas, perfil?.id ?? null)
+  // Si la cuenta tiene una zona asignada en una salida de hoy (o de antes), viene ya elegida.
+  const elegibles = useSalidasElegibles()
+  return () => estudioNuevo(activas, perfil?.id ?? null, new Date(), elegibles[0]?.id ?? null)
 }
 
 /** Las notas sin espacios en los extremos y sin las vacías. */
@@ -108,6 +115,7 @@ function filaEstudio(campos: CamposEstudio) {
     entrevistado: opcional(campos.entrevistado),
     // Las notas conservan sus saltos de línea.
     notas: limpiarNotas(campos.notas),
+    salida_id: campos.salidaId,
   }
 }
 
@@ -168,6 +176,8 @@ export function useGuardarEstudio() {
       if (!id) recordarParticipantes(participanteIds)
       void queryClient.invalidateQueries({ queryKey: claveEstudios(ubicacionId) })
       void queryClient.invalidateQueries({ queryKey: CLAVE_USUARIOS })
+      // Puede haber quedado ligado a una salida (o haberse quitado de una): refresca "Qué se registró".
+      void queryClient.invalidateQueries({ queryKey: CLAVE_ESTUDIOS_DE_SALIDA })
     },
   })
 }

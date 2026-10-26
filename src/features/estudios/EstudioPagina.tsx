@@ -11,6 +11,7 @@ import { GrabadorAudio } from '../evidencias/GrabadorAudio'
 import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
 import { agregarArchivos } from '../evidencias/subidas'
 import { useLugares } from '../lugares/api'
+import { useSalidas } from '../salidas/api'
 import { useArchivarEstudio, useEstudios, useGuardarEstudio, type CamposEstudio, type Estudio } from './api'
 import { camposDe, mostrarFecha, mostrarHora } from './campos'
 import { FormularioEstudio } from './FormularioEstudio'
@@ -23,6 +24,7 @@ export function EstudioPagina() {
   const { id: lugarId = '', estudioId = '' } = useParams()
   const navigate = useNavigate()
   const { data: lugares } = useLugares()
+  const { data: salidas } = useSalidas()
   const { data: estudios, isPending, isError, refetch } = useEstudios(lugarId)
   const guardar = useGuardarEstudio()
   const archivar = useArchivarEstudio()
@@ -123,6 +125,14 @@ export function EstudioPagina() {
           <div>
             <dt>A quién se entrevistó</dt>
             <dd>{estudio.entrevistado}</dd>
+          </div>
+        )}
+        {estudio.salidaId && (
+          <div>
+            <dt>Salida</dt>
+            <dd>
+              <Link to={`/salidas/${estudio.salidaId}`}>{salidas?.find((s) => s.id === estudio.salidaId)?.nombre ?? 'Ver salida'}</Link>
+            </dd>
           </div>
         )}
       </dl>

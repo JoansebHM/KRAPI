@@ -5,6 +5,7 @@ import { notificar } from '../../lib/notificar'
 import { MAX_ENTREVISTADO, type CamposEstudio } from './api'
 import { CampoNotas } from './CampoNotas'
 import { SelectorParticipantes } from './SelectorParticipantes'
+import { SelectorSalida } from './SelectorSalida'
 import './FormularioEstudio.css'
 
 const MAX_TITULO = 120
@@ -164,6 +165,8 @@ export function FormularioEstudio({ titulo, lugar, campos, onCambiar, onGuardar,
             />
           </label>
         )}
+
+        <SelectorSalida valor={campos.salidaId} onCambiar={(salidaId) => cambiar('salidaId', salidaId)} />
 
         <CampoNotas notas={campos.notas} onCambiar={(notas) => cambiar('notas', notas)} />
       </div>

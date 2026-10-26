@@ -58,7 +58,7 @@ npx supabase stop  # apaga Supabase local
 - Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera. Al tocar un lugar del mapa se abre su ficha en `/lugares/<id>` (y "Mover" abre la mira en `/lugares/<id>/mover`), y "+ Nuevo lugar" abre la mira para registrar uno en `/lugares/nuevo`.
 - En el histórico de un lugar, tocar un estudio abre su presentación con el carrusel de fotos y el resto de evidencias. Desde el modal se puede editar o abrir la página del estudio para agregar evidencia.
 - "+ Nuevo lugar" pregunta si se registra un **punto** (`/lugares/nuevo`) o una **zona** (`/zonas/nueva`, se dibuja con la mira). La forma de una zona se cambia en `/lugares/<id>/redibujar`, y sus tipos se administran en **Tipos de zona** (`/tipos-de-zona`).
-- **Salidas** (`/salidas`) lista las próximas y las anteriores. En cada salida (`/salidas/<id>`) los admins dibujan zonas (`/salidas/<id>/zonas/nueva`) y las asignan, y cada quien reporta lo suyo. **Mis asignaciones** (`/mis-asignaciones`) muestra las zonas propias, con un contador en el menú de las que faltan por reportar. "Ver en el mapa" abre `/salidas/<id>/zonas/<zona>`.
+- **Salidas** (`/salidas`) lista las próximas y las anteriores. En cada salida (`/salidas/<id>`) los admins dibujan zonas (`/salidas/<id>/zonas/nueva`) y las asignan, y cada quien reporta lo suyo. Su sección "Qué se registró" lista los estudios ligados a ella. **Mis asignaciones** (`/mis-asignaciones`) muestra las zonas propias, con un contador en el menú de las que faltan por reportar. "Ver en el mapa" abre `/salidas/<id>/zonas/<zona>`.
 - Desde el menú de la cuenta, **Mi perfil** (`/perfil`) deja cambiar el nombre, el avatar y la contraseña.
 - Los admins ven además **Usuarios** (`/usuarios`), con un contador de las cuentas que esperan aprobación. Ahí aprueban, rechazan, desactivan y reactivan cuentas, y nombran o quitan admins. Si un miembro entra a `/usuarios` por la URL, vuelve al mapa.
 - Al desplegar (#24) el hosting debe redirigir todas las rutas a `index.html`, excepto `/docs`, que es un archivo propio (`dist/docs/index.html`).
@@ -131,7 +131,7 @@ Los dos aceptan el nombre de usuario como argumento (`npm run usuario:clave -- a
 | `salidas` | Salidas de campo (solo admins): nombre, fecha, hora de inicio y si se canceló |
 | `asignaciones` | Zonas que se reparten en cada salida (no son zonas del mapa) |
 | `asignacion_participantes` | A quién se asignó cada zona y su reporte: hora de fin y porcentaje cubierto |
-| `estudios` | Cada visita a un lugar: fecha, horas, a quién se entrevistó, título y sus notas (una lista) |
+| `estudios` | Cada visita a un lugar: fecha, horas, a quién se entrevistó, título, sus notas (una lista) y, si aplica, en qué salida se hizo |
 | `estudio_participantes` | Qué cuentas participaron en cada estudio |
 | `evidencias` | Archivos, textos o enlaces de video de cada estudio |
 | `bitacora` | Cada acción sobre los datos, con quién la hizo (solo la leen los admins) |
