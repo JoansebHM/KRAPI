@@ -27,7 +27,7 @@ export function AsignacionesEnMapa({ mapa }: { mapa: MapLibreMap }) {
   // Mientras se dibuja una zona nueva, tocar el mapa no debe navegar a otra parte.
   const dibujando = asignacionEnRuta === 'nueva'
   // Viendo una zona asignada en particular (no dibujando): tocar fuera de ella la deja de seleccionar.
-  const viendo = asignacionEnRuta && !dibujando ? { salidaId: salidaEnRuta!, asignacionId: asignacionEnRuta } : null
+  const viendo = Boolean(asignacionEnRuta) && !dibujando
 
   const datos = useMemo<FeatureCollection<Polygon>>(() => {
     const hoy = fechaLocal()
@@ -110,12 +110,11 @@ export function AsignacionesEnMapa({ mapa }: { mapa: MapLibreMap }) {
     const sinPuntero = () => (mapa.getCanvas().style.cursor = '')
 
     // Viendo una zona asignada: tocar el mapa fuera de ella (y fuera de un lugar, que abre su propia
-    // ficha) la deja de seleccionar, volviendo a la salida.
+    // ficha) la deja de seleccionar y cierra todo, igual que tocar el mapa cierra cualquier panel.
     function alTocarFuera(evento: MapLayerMouseEvent) {
-      const viendo = viendoActual.current
-      if (!viendo) return
+      if (!viendoActual.current) return
       const enLaCapa = mapa.queryRenderedFeatures(evento.point, { layers: [CAPA_RELLENO] }).length > 0
-      if (!enLaCapa) navigate(`/salidas/${viendo.salidaId}`)
+      if (!enLaCapa) navigate('/')
     }
 
     try {
