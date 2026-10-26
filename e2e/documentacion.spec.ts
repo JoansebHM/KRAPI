@@ -31,7 +31,7 @@ test.describe('Documentación (/docs)', () => {
 
   test('los enlaces entre documentos abren la página correspondiente', async ({ page }) => {
     await page.goto('/docs#/producto')
-    await page.locator('#pagina-producto').getByRole('link', { name: 'decisión 0008' }).click()
+    await page.locator('#pagina-producto').getByRole('link', { name: '0008', exact: true }).click()
     await expect(page.getByRole('heading', { level: 1, name: /0008 · Lugares/ })).toBeVisible()
   })
 
