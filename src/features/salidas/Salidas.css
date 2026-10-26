@@ -43,6 +43,12 @@
   text-decoration: none;
 }
 
+/* Si el segundo botón no aplica (por ejemplo, "Reportar" antes de que empiece la salida), el
+   primero ocupa todo el ancho en vez de dejar la otra columna en blanco. */
+.salida-acciones .btn:only-child {
+  grid-column: 1 / -1;
+}
+
 .salida-vacio {
   margin: 0;
   color: var(--color-text-muted);
@@ -82,6 +88,12 @@
   font-size: 1rem;
   font-weight: 700;
   overflow-wrap: break-word;
+}
+
+/* Dentro de una columna (Mis asignaciones), que no crezca para llenar el alto: eso dejaba un
+   espacio en blanco debajo del nombre. */
+.salida-persona-textos .salida-zona-nombre {
+  flex: none;
 }
 
 .salida-zona-ver,
