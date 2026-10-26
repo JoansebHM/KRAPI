@@ -154,9 +154,9 @@ test.describe('Salidas y asignaciones', () => {
       await expect(page.locator('.ver-asignacion')).toContainText('Cuadrante norte')
 
       // Tocar el mapa fuera de la zona (lejos del encabezado y de la tarjeta de abajo) la deja de
-      // seleccionar: vuelve a la salida.
+      // seleccionar y cierra todo: vuelve al mapa, no al panel de la salida.
       await page.mouse.click(mapa.x + mapa.width / 2, mapa.y + mapa.height * 0.2)
-      await expect(page).toHaveURL(/\/salidas\/s1$/)
+      await expect(page).toHaveURL(/\/$/)
       await expect(page.locator('.ver-asignacion')).toHaveCount(0)
     })
 
