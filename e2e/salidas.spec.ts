@@ -141,6 +141,18 @@ test.describe('Salidas y asignaciones', () => {
       await expect(tarjeta).toContainText('Beto Ruiz')
     })
 
+    test('tocar la zona asignada en el mapa abre su información', async ({ page, entrar }) => {
+      // Desde el mapa (sin un panel encima), se ven las zonas de las salidas de hoy.
+      await entrar('miembro')
+      const mapa = (await page.locator('.map-view').boundingBox())!
+      // La zona está en el centro del mapa. Se reintenta hasta que el mapa termine de dibujarla.
+      await expect(async () => {
+        await page.mouse.click(mapa.x + mapa.width / 2, mapa.y + mapa.height / 2)
+        await expect(page).toHaveURL(/\/salidas\/s1\/zonas\/a1$/, { timeout: 500 })
+      }).toPass()
+      await expect(page.locator('.ver-asignacion')).toContainText('Cuadrante norte')
+    })
+
     test('un admin cancela y reactiva la salida, y quita una zona con sus asignaciones', async ({ page, entrar, supabase }) => {
       await entrar()
       await page.goto('/salidas')
