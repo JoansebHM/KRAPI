@@ -26,6 +26,8 @@ export function AsignacionesEnMapa({ mapa }: { mapa: MapLibreMap }) {
   const [, salidaEnRuta, asignacionEnRuta] = pathname.match(/^\/salidas\/([^/]+)(?:\/zonas\/([^/]+))?/) ?? []
   // Mientras se dibuja una zona nueva, tocar el mapa no debe navegar a otra parte.
   const dibujando = asignacionEnRuta === 'nueva'
+  // Viendo una zona asignada en particular (no dibujando): tocar fuera de ella la deja de seleccionar.
+  const viendo = asignacionEnRuta && !dibujando ? { salidaId: salidaEnRuta!, asignacionId: asignacionEnRuta } : null
 
   const datos = useMemo<FeatureCollection<Polygon>>(() => {
     const hoy = fechaLocal()
@@ -57,6 +59,11 @@ export function AsignacionesEnMapa({ mapa }: { mapa: MapLibreMap }) {
   const dibujandoActual = useRef(dibujando)
   useEffect(() => {
     dibujandoActual.current = dibujando
+  })
+
+  const viendoActual = useRef(viendo)
+  useEffect(() => {
+    viendoActual.current = viendo
   })
 
   // Crea la fuente y las capas, también después de cambiar de tema (el mapa recarga su estilo).
@@ -102,6 +109,15 @@ export function AsignacionesEnMapa({ mapa }: { mapa: MapLibreMap }) {
     const conPuntero = () => (mapa.getCanvas().style.cursor = 'pointer')
     const sinPuntero = () => (mapa.getCanvas().style.cursor = '')
 
+    // Viendo una zona asignada: tocar el mapa fuera de ella (y fuera de un lugar, que abre su propia
+    // ficha) la deja de seleccionar, volviendo a la salida.
+    function alTocarFuera(evento: MapLayerMouseEvent) {
+      const viendo = viendoActual.current
+      if (!viendo) return
+      const enLaCapa = mapa.queryRenderedFeatures(evento.point, { layers: [CAPA_RELLENO] }).length > 0
+      if (!enLaCapa) navigate(`/salidas/${viendo.salidaId}`)
+    }
+
     try {
       asegurar()
     } catch {
@@ -109,11 +125,13 @@ export function AsignacionesEnMapa({ mapa }: { mapa: MapLibreMap }) {
     }
     mapa.on('style.load', asegurar)
     mapa.on('click', CAPA_RELLENO, alTocar)
+    mapa.on('click', alTocarFuera)
     mapa.on('mouseenter', CAPA_RELLENO, conPuntero)
     mapa.on('mouseleave', CAPA_RELLENO, sinPuntero)
     return () => {
       mapa.off('style.load', asegurar)
       mapa.off('click', CAPA_RELLENO, alTocar)
+      mapa.off('click', alTocarFuera)
       mapa.off('mouseenter', CAPA_RELLENO, conPuntero)
       mapa.off('mouseleave', CAPA_RELLENO, sinPuntero)
     }
