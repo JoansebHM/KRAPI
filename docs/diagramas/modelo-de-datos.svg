@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 776 820" width="776" height="820" role="img" aria-labelledby="modelo-de-datos-title modelo-de-datos-desc">
+<svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 776 1000" width="776" height="1000" role="img" aria-labelledby="modelo-de-datos-title modelo-de-datos-desc">
   <title id="modelo-de-datos-title">Modelo de datos de KIRA</title>
-  <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional (los puntos) o un tipo de zona (las zonas) y acumula estudios; las zonas tienen comentarios; cada estudio tiene participantes, que son cuentas del equipo (perfiles), y evidencias, y los archivos de las evidencias se guardan en el bucket privado.</desc>
+  <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional (los puntos) o un tipo de zona (las zonas) y acumula estudios; las zonas tienen comentarios; cada estudio tiene participantes, que son cuentas del equipo (perfiles), y evidencias, y los archivos de las evidencias se guardan en el bucket privado. Aparte, cada salida tiene sus zonas de asignación, y cada zona se asigna a cuentas que reportan su hora de fin y su porcentaje.</desc>
   <defs>
     <style>
       /* Perfil "kratos" de diagram-design: tokens de src/styles/theme.css. Sigue el sistema y, dentro de /docs, el tema elegido. */
@@ -198,12 +198,66 @@
   <text x="624" y="528" font-size="12" font-weight="600">evidencias</text>
   <text class="mono muted" x="572" y="556" font-size="9">privado · 50 MB</text>
 
+  <!-- Salidas (decisión 0025): aparte de los lugares -->
+  <line class="regla" x1="40" y1="736" x2="736" y2="736" />
+  <text class="mono muted" x="40" y="752" font-size="8" letter-spacing="0.18em">SALIDAS · REPARTIR ZONAS</text>
+  <line class="linea" x1="260" y1="844" x2="308" y2="844" />
+  <line class="linea" x1="508" y1="844" x2="556" y2="844" />
+  <rect class="mascara" x="266" y="830" width="12" height="12" rx="2" />
+  <text class="mono muted" x="272" y="840" font-size="10" font-weight="600" text-anchor="middle">1</text>
+  <rect class="mascara" x="290" y="830" width="12" height="12" rx="2" />
+  <text class="mono muted" x="296" y="840" font-size="10" font-weight="600" text-anchor="middle">N</text>
+  <rect class="mascara" x="514" y="830" width="12" height="12" rx="2" />
+  <text class="mono muted" x="520" y="840" font-size="10" font-weight="600" text-anchor="middle">1</text>
+  <rect class="mascara" x="538" y="830" width="12" height="12" rx="2" />
+  <text class="mono muted" x="544" y="840" font-size="10" font-weight="600" text-anchor="middle">N</text>
+  <!-- salidas -->
+  <rect class="mascara" x="40" y="764" width="220" height="156" rx="6" />
+  <rect class="nodo" x="40" y="764" width="220" height="156" rx="6" />
+  <path class="cabecera" d="M46 764.6 H254 A5.4 5.4 0 0 1 259.4 770 V804 H40.6 V770 A5.4 5.4 0 0 1 46 764.6 Z" />
+  <line class="separador" x1="40" y1="804" x2="260" y2="804" />
+  <text class="mono muted" x="56" y="780" font-size="8" letter-spacing="0.14em">TABLA · SALIDAS</text>
+  <text x="56" y="796" font-size="14" font-weight="600">salidas</text>
+  <g class="mono" font-size="10">
+    <text x="56" y="824"># id</text><text class="muted" x="244" y="824" text-anchor="end">uuid</text>
+    <text x="56" y="844">nombre</text><text class="muted" x="244" y="844" text-anchor="end">text</text>
+    <text x="56" y="864">fecha</text><text class="muted" x="244" y="864" text-anchor="end">date</text>
+    <text x="56" y="884">hora_inicio</text><text class="muted" x="244" y="884" text-anchor="end">time</text>
+    <text x="56" y="904">cancelada_en</text><text class="muted" x="244" y="904" text-anchor="end">timestamptz</text>
+  </g>
+  <!-- asignaciones -->
+  <rect class="mascara" x="308" y="764" width="200" height="156" rx="6" />
+  <rect class="nodo" x="308" y="764" width="200" height="156" rx="6" />
+  <path class="cabecera" d="M314 764.6 H502 A5.4 5.4 0 0 1 507.4 770 V804 H308.6 V770 A5.4 5.4 0 0 1 314 764.6 Z" />
+  <line class="separador" x1="308" y1="804" x2="508" y2="804" />
+  <text class="mono muted" x="324" y="780" font-size="8" letter-spacing="0.14em">TABLA · ZONAS ASIGNADAS</text>
+  <text x="324" y="796" font-size="14" font-weight="600">asignaciones</text>
+  <g class="mono" font-size="10">
+    <text x="324" y="824"># id</text><text class="muted" x="492" y="824" text-anchor="end">uuid</text>
+    <text x="324" y="844">→ salida_id</text><text class="muted" x="492" y="844" text-anchor="end">uuid</text>
+    <text x="324" y="864">nombre</text><text class="muted" x="492" y="864" text-anchor="end">text</text>
+    <text x="324" y="884">geom</text><text class="muted" x="492" y="884" text-anchor="end">polygon 4326</text>
+    <text x="324" y="904">forma</text><text class="muted" x="492" y="904" text-anchor="end">geojson · calc.</text>
+  </g>
+  <!-- asignacion_participantes -->
+  <rect class="mascara" x="556" y="764" width="180" height="136" rx="6" />
+  <rect class="union" x="556" y="764" width="180" height="136" rx="6" />
+  <line class="separador" x1="556" y1="804" x2="736" y2="804" />
+  <text class="mono muted" x="572" y="780" font-size="8" letter-spacing="0.14em">UNIÓN · REPORTE</text>
+  <text x="572" y="796" font-size="11" font-weight="600">asignacion_participantes</text>
+  <g class="mono" font-size="10">
+    <text x="572" y="824">→ asignacion_id</text><text class="muted" x="720" y="824" text-anchor="end">uuid</text>
+    <text x="572" y="844">→ usuario_id</text><text class="muted" x="720" y="844" text-anchor="end">perfiles</text>
+    <text x="572" y="864">hora_fin</text><text class="muted" x="720" y="864" text-anchor="end">time</text>
+    <text x="572" y="884">porcentaje</text><text class="muted" x="720" y="884" text-anchor="end">0…100 · 25</text>
+  </g>
+
   <!-- Leyenda -->
-  <line class="regla" x1="40" y1="768" x2="736" y2="768" />
-  <text class="mono muted" x="40" y="792" font-size="8" letter-spacing="0.18em">LEYENDA</text>
-  <rect class="foco" x="112" y="782" width="16" height="12" rx="2" />
-  <text class="muted" x="136" y="792" font-size="9">Lugar: se crea una vez y acumula estudios</text>
-  <rect class="union" x="356" y="782" width="16" height="12" rx="2" />
-  <text class="muted" x="380" y="792" font-size="9">Tabla de unión</text>
-  <text class="mono muted" x="736" y="792" font-size="9" text-anchor="end"># clave primaria · → clave foránea</text>
+  <line class="regla" x1="40" y1="948" x2="736" y2="948" />
+  <text class="mono muted" x="40" y="972" font-size="8" letter-spacing="0.18em">LEYENDA</text>
+  <rect class="foco" x="112" y="962" width="16" height="12" rx="2" />
+  <text class="muted" x="136" y="972" font-size="9">Lugar: se crea una vez y acumula estudios</text>
+  <rect class="union" x="356" y="962" width="16" height="12" rx="2" />
+  <text class="muted" x="380" y="972" font-size="9">Tabla de unión</text>
+  <text class="mono muted" x="736" y="972" font-size="9" text-anchor="end"># clave primaria · → clave foránea</text>
 </svg>

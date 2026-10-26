@@ -10,11 +10,11 @@ Para el *porqué* de cada decisión, ver [`decisiones/`](decisiones/).
 
 ## Tablas
 
-Todas tienen `id uuid` (generado), `created_at` y `updated_at`; el trigger `set_updated_at()` mantiene `updated_at` al día. La excepción es `estudio_participantes`, que es una tabla de unión.
+Todas tienen `id uuid` (generado), `created_at` y `updated_at`; el trigger `set_updated_at()` mantiene `updated_at` al día. Las excepciones son `estudio_participantes` y `asignacion_participantes`, que son tablas de unión.
 
 ### Autoría
 
-`categorias`, `tipos_zona`, `ubicaciones`, `estudios`, `evidencias` y `comentarios_zona` guardan quién hizo cada cosa. Todas son uuid → `auth.users` con **ON DELETE SET NULL**.
+`categorias`, `tipos_zona`, `ubicaciones`, `estudios`, `evidencias`, `comentarios_zona`, `salidas` y `asignaciones` guardan quién hizo cada cosa. Todas son uuid → `auth.users` con **ON DELETE SET NULL**.
 
 | Columna | Dónde | Qué guarda |
 | --- | --- | --- |
@@ -105,6 +105,38 @@ Las cuentas que participaron en cada estudio ([decisión 0023](decisiones/0023-p
 
 Lo lee y lo escribe cualquier cuenta activa; lo borra quien lo escribió o un admin.
 
+### `salidas`: salidas de campo
+
+Las arman los admins para repartir zonas ([decisión 0025](decisiones/0025-salidas-y-asignaciones.md)). No agrupan estudios.
+
+| Columna | Tipo | Reglas |
+| --- | --- | --- |
+| `nombre` | text | De 1 a 120 caracteres |
+| `fecha`, `hora_inicio` | date, time | Cuándo empieza |
+| `cancelada_en` | timestamptz | Si tiene fecha, la salida se canceló. Se puede reactivar (NULL) |
+
+### `asignaciones`: zonas de una salida
+
+| Columna | Tipo | Reglas |
+| --- | --- | --- |
+| `salida_id` | uuid → `salidas` | ON DELETE CASCADE |
+| `nombre` | text | De 1 a 120 caracteres |
+| `geom` | geometry(Polygon, 4326) | Válida, dentro de Manila y de al menos 20 m² |
+| `forma` | jsonb | **Calculada** (`generated always`): `geom` en GeoJSON, para leerla sin una función |
+
+No son zonas del mapa (`ubicaciones`): cambian de una salida a otra.
+
+### `asignacion_participantes`: quién cubre cada zona y su reporte
+
+| Columna | Tipo | Reglas |
+| --- | --- | --- |
+| `asignacion_id`, `usuario_id` | uuid → `asignaciones`, `perfiles` | Clave primaria. ON DELETE CASCADE |
+| `hora_fin` | time | A qué hora terminó |
+| `porcentaje` | smallint | Cuánto cubrió: 0, 25, 50, 75 o 100 |
+| `reportado_en` | timestamptz | Cuándo reportó |
+
+El reporte va completo: `hora_fin` y `porcentaje` los dos o ninguno.
+
 ### `evidencias`: material de cada estudio
 
 | Columna | Tipo | Reglas |
@@ -128,13 +160,13 @@ Las columnas de autoría solo dicen quién creó y quién editó por última vez
 | `id` | bigint | Consecutivo |
 | `ocurrio_en` | timestamptz | Cuándo |
 | `usuario_id` | uuid | Quién (`auth.uid()`). **Sin clave foránea**, para no perderlo si se borra la cuenta. NULL = script o sistema |
-| `tabla`, `registro_id` | text, uuid | Qué registro. En `estudio_participantes`, el id del estudio |
+| `tabla`, `registro_id` | text, uuid | Qué registro. En `estudio_participantes`, el id del estudio; en `asignacion_participantes`, el de la zona asignada |
 | `accion` | `accion_bitacora` | `crear`, `editar`, `archivar`, `recuperar` o `borrar` |
 | `cambios` | jsonb | Al crear, los campos del registro. Al editar, archivar o recuperar, solo los que cambiaron: `{"titulo": {"antes": "…", "despues": "…"}}` |
 | `registro_borrado` | jsonb | Al borrar, una copia completa del registro |
 
-- La llena el trigger `registrar_bitacora()` en `categorias`, `ubicaciones`, `estudios`, `estudio_participantes` y `evidencias`, y en los cambios de `rol` y `estado` de `perfiles`.
-- No registra las columnas que mantiene la base de datos (`created_at`, `updated_at`, `creado_por`, `actualizado_por`, `archivada_por`, `archivado_por`). Si solo cambió una de ellas, no se agrega nada.
+- La llena el trigger `registrar_bitacora()` en `categorias`, `tipos_zona`, `ubicaciones`, `estudios`, `estudio_participantes`, `evidencias`, `comentarios_zona`, `salidas`, `asignaciones` y `asignacion_participantes`, y en los cambios de `rol` y `estado` de `perfiles`. Cancelar o reactivar una salida queda como `archivar` o `recuperar`.
+- No registra las columnas que mantiene la base de datos (`created_at`, `updated_at`, `creado_por`, `actualizado_por`, `archivada_por`, `archivado_por`, y `forma`, que se calcula). Si solo cambió una de ellas, no se agrega nada.
 - **Solo se agregan filas:** nadie la edita, la borra ni la vacía, ni siquiera con la clave secreta (trigger `impedir_cambios_bitacora()`). Solo los admins la leen.
 - Índices por `registro_id` (con la fecha) y por `ocurrio_en`. La vista de la bitácora en la app queda para una issue posterior.
 
@@ -202,6 +234,8 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
   | `estudio_participantes` | Cuenta activa | Cuenta activa |
   | `evidencias` | Cuenta activa | Quien la subió o un admin |
   | `comentarios_zona` | Cuenta activa (editar: su autor o un admin) | Quien lo escribió o un admin |
+  | `salidas`, `asignaciones` | Leer: cuenta activa. Crear y editar: solo admin | Solo admin (las salidas se cancelan, no se borran) |
+  | `asignacion_participantes` | Leer: cuenta activa. Asignar: solo admin. Reportar (`hora_fin`, `porcentaje`, `reportado_en`): la persona asignada o un admin | Solo admin |
   | Bucket `evidencias` | Cuenta activa | Quien subió el archivo (`owner_id`, lo llena Storage) o un admin |
 
   Una cuenta pendiente, rechazada o desactivada recibe listas vacías y no puede crear nada, y las funciones del mapa no le devuelven nada. Como `es_miembro_activo()` se revisa en cada consulta, al desactivar a alguien pierde el acceso de inmediato, aunque su token siga vigente.
@@ -242,3 +276,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261026120000_notas_del_estudio` | `estudios.notas` (lista) reemplaza a `descripcion`; la nota que había pasa a ser la primera |
 | `20261026130000_participantes_son_cuentas` | `perfiles.avatar_semilla`, `estudio_participantes` y `estudios.participantes_anteriores`; pasa los responsables a sus cuentas y quita `responsables`, `estudio_responsables` y `perfiles.responsable_id` |
 | `20261026140000_zonas` | `tipos_zona` (con cinco tipos), `ubicaciones.tipo_zona_id`, área mínima de 20 m², `comentarios_zona`, `lugares_mapa()` con el tipo y `locales_en_zona()` |
+| `20261026150000_salidas_y_asignaciones` | `salidas`, `asignaciones` (con `forma` calculada) y `asignacion_participantes`, con sus permisos; `registrar_bitacora()` ignora `forma` y registra las tablas de unión con el id de la asignación |
