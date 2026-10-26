@@ -245,6 +245,7 @@ export type Database = {
           id: string
           notas: string[]
           participantes_anteriores: string[]
+          salida_id: string | null
           titulo: string
           ubicacion_id: string
           updated_at: string
@@ -262,6 +263,7 @@ export type Database = {
           id?: string
           notas?: string[]
           participantes_anteriores?: string[]
+          salida_id?: string | null
           titulo: string
           ubicacion_id: string
           updated_at?: string
@@ -279,11 +281,19 @@ export type Database = {
           id?: string
           notas?: string[]
           participantes_anteriores?: string[]
+          salida_id?: string | null
           titulo?: string
           ubicacion_id?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "estudios_salida_id_fkey"
+            columns: ["salida_id"]
+            isOneToOne: false
+            referencedRelation: "salidas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "estudios_ubicacion_id_fkey"
             columns: ["ubicacion_id"]
