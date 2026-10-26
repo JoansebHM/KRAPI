@@ -131,7 +131,7 @@ export function EstudioPagina() {
           <div>
             <dt>Salida</dt>
             <dd>
-              <Link to={`/salidas/${estudio.salidaId}`}>{salidas?.find((s) => s.id === estudio.salidaId)?.nombre ?? 'Ver salida'}</Link>
+              <Link to={`/salidas/${estudio.salidaId}`}>{salidas?.find((s) => s.id === estudio.salidaId)?.nombre ?? 'Ver historial de zona de salida'}</Link>
             </dd>
           </div>
         )}

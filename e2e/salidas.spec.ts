@@ -151,6 +151,12 @@ test.describe('Salidas y asignaciones', () => {
         await expect(page).toHaveURL(/\/salidas\/s1\/zonas\/a1$/, { timeout: 500 })
       }).toPass()
       await expect(page.locator('.ver-asignacion')).toContainText('Cuadrante norte')
+
+      // Tocar el mapa fuera de la zona (lejos del encabezado y de la tarjeta de abajo) la deja de
+      // seleccionar: vuelve a la salida.
+      await page.mouse.click(mapa.x + mapa.width / 2, mapa.y + mapa.height * 0.2)
+      await expect(page).toHaveURL(/\/salidas\/s1$/)
+      await expect(page.locator('.ver-asignacion')).toHaveCount(0)
     })
 
     test('un admin cancela y reactiva la salida, y quita una zona con sus asignaciones', async ({ page, entrar, supabase }) => {
@@ -290,6 +296,14 @@ test.describe('Salidas y asignaciones', () => {
       await edicion.getByRole('button', { name: 'Guardar cambios' }).click()
       await expect(toast(page, 'Cambios guardados')).toBeVisible()
       expect(supabase.db.estudios.find((e) => e.id === 'e1')).toMatchObject({ salida_id: 's1' })
+    })
+
+    test('si la salida ligada ya no está, el enlace dice "Ver historial de zona de salida"', async ({ page, entrar, supabase }) => {
+      supabase.db.estudios.push({ id: 'e2', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Visita', salida_id: 'borrada', archivado_en: null })
+
+      await entrar('miembro')
+      await page.goto('/lugares/p1/estudios/e2')
+      await expect(page.getByRole('link', { name: 'Ver historial de zona de salida' })).toHaveAttribute('href', '/salidas/borrada')
     })
 
     test('una salida cancelada no se ofrece para ligar un estudio nuevo', async ({ page, entrar, supabase }) => {
