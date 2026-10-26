@@ -37,7 +37,7 @@ export function LugaresEnMapa({ mapa, theme }: LugaresEnMapaProps) {
   const navigate = useNavigate()
   // Mientras se ubica o se dibuja un lugar, tocar el mapa no abre fichas.
   const { pathname } = useLocation()
-  const creando = /^\/(lugares\/nuevo|zonas\/nueva)$|\/(mover|redibujar)$/.test(pathname)
+  const creando = /^\/(lugares\/nuevo|zonas\/nueva)$|\/(mover|redibujar)$|^\/salidas\/[^/]+\/zonas\/nueva$/.test(pathname)
   const idEnRuta = useMatch('/lugares/:id')?.params.id
   const seleccionado = creando ? undefined : idEnRuta
 

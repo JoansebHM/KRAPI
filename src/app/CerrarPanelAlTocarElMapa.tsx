@@ -8,8 +8,8 @@ import { useMapa } from '../features/map/mapaContexto'
  * En computador, el panel de la derecha se cierra al tocar el mapa (un clic, no al arrastrarlo).
  * Tocar un lugar no lo cierra: abre su ficha. Crear, mover o dibujar no es un panel: ahí el mapa se mueve.
  */
-/** Pantallas donde se mueve el mapa bajo la mira (crear, mover o dibujar). */
-const RUTAS_CON_MIRA = [/^\/lugares\/nuevo$/, /^\/zonas\/nueva$/, /\/mover$/, /\/redibujar$/]
+/** Pantallas sin panel: donde se mueve el mapa bajo la mira (crear, mover o dibujar) o se ve una zona asignada. */
+const RUTAS_CON_MIRA = [/^\/lugares\/nuevo$/, /^\/zonas\/nueva$/, /\/mover$/, /\/redibujar$/, /^\/salidas\/[^/]+\/zonas\//]
 
 export function CerrarPanelAlTocarElMapa() {
   const mapa = useMapa()

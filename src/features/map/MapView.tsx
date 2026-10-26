@@ -3,6 +3,7 @@ import { AttributionControl, GeolocateControl, Map as MapLibreMap, NavigationCon
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { env } from '../../config/env'
 import { LugaresEnMapa } from '../lugares/LugaresEnMapa'
+import { AsignacionesEnMapa } from '../salidas/AsignacionesEnMapa'
 import type { Theme } from '../theme/useTheme'
 import { MANILA, MANILA_BOUNDS, MANILA_MAX_BOUNDS } from './manila'
 import { MapaContexto } from './mapaContexto'
@@ -80,6 +81,7 @@ export function MapView({ theme }: MapViewProps) {
   return (
     <>
       <div ref={containerRef} className="map-view" />
+      {mapa && <AsignacionesEnMapa mapa={mapa} />}
       {mapa && <LugaresEnMapa mapa={mapa} theme={theme} />}
     </>
   )

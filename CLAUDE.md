@@ -74,6 +74,7 @@ Hecho:
 - Categorías (color e ícono). Cada cuenta tiene su avatar dibujado (se elige al registrarse).
 - Lugares en el mapa (puntos con su categoría y zonas con el color de su tipo). Zonas (`/zonas/nueva`, decisión 0024): dibujarlas con la mira, tipo, comentarios, locales adentro, recorridos (estudios sin entrevistado), redibujarlas y archivarlas. Ficha completa del punto al tocarlo (`/lugares/:id`): datos, teléfono para llamar o WhatsApp, editar, mover con la mira (`/lugares/:id/mover`), cerrar, archivar o recuperar, y borrar si no tiene estudios.
 - Crear puntos con la mira central (`/lugares/nuevo`), con su primer estudio.
+- Salidas (`/salidas`, decisión 0025): los admins crean salidas, dibujan sus zonas de asignación y las asignan a cuentas; cada persona reporta su hora de fin y el porcentaje cubierto (Mis asignaciones, `/mis-asignaciones`, con contador en el menú). Las zonas de las salidas de hoy se ven en el mapa en rosado, y un recorrido se puede registrar como zona del mapa.
 - Estudios: crear, editar y archivar, con participantes (cuentas, decisión 0023) y varias notas (`estudios.notas`); histórico en la ficha. Al tocar un estudio se abre un modal de presentación con carrusel de fotos y otras evidencias; desde allí se edita o se abre su página (`/lugares/:id/estudios/:estudioId`) para agregar evidencia.
 - Evidencias de archivo: fotos (comprimidas), audios grabados en la app y documentos, con avance de subida y borrado. Videos de SharePoint por enlace (solo `*.sharepoint.com`; se abren en otra pestaña hasta #22).
 - Esquema completo en Supabase.
@@ -81,9 +82,8 @@ Hecho:
 - Documentación navegable en `/docs`, con diagramas hechos con diagram-design.
 
 Siguiente (en orden):
-1. **#106** salidas y asignaciones de zonas a cuentas (decisión 0025)
-2. **#5** revisión automática de build, lint y pruebas en cada PR
-3. **#21** filtros
-4. **#22** prueba de SharePoint, para ver los videos dentro de la app
+1. **#5** revisión automática de build, lint y pruebas en cada PR
+2. **#21** filtros
+3. **#22** prueba de SharePoint, para ver los videos dentro de la app
 
 Ver el milestone *MVP* en GitHub.

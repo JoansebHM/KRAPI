@@ -64,7 +64,14 @@ export const CUENTAS = {
 export type ComoQuien = keyof typeof CUENTAS
 
 type Fila = Record<string, unknown> & { id?: string }
-type Tabla = 'categorias' | 'tipos_zona' | 'ubicaciones' | 'estudios' | 'estudio_participantes' | 'evidencias' | 'comentarios_zona'
+type Tabla =
+  | 'categorias' | 'tipos_zona' | 'ubicaciones' | 'estudios' | 'estudio_participantes' | 'evidencias' | 'comentarios_zona'
+  | 'salidas' | 'asignaciones' | 'asignacion_participantes'
+
+/** Tablas que solo los admins escriben (salidas y zonas asignadas). */
+const SOLO_ADMINS: Tabla[] = ['salidas', 'asignaciones']
+/** Tablas sin autoría ni fechas (las de unión). */
+const SIN_AUTORIA: Tabla[] = ['estudio_participantes', 'asignacion_participantes']
 
 /** Error de PostgreSQL como lo devuelve PostgREST. */
 const errorPg = (code: string, message: string, status = 400) => ({ status, json: { code, message, details: null, hint: null } })
@@ -164,7 +171,18 @@ const perfilDe = ({ password: _password, ...perfil }: Cuenta) => perfil
 const FUNCIONES_ADMIN = ['aprobar_usuario', 'rechazar_usuario', 'desactivar_usuario', 'reactivar_usuario', 'cambiar_rol']
 
 export class SupabaseFalso {
-  db: Record<Tabla, Fila[]> = { categorias: [], tipos_zona: [], ubicaciones: [], estudios: [], estudio_participantes: [], evidencias: [], comentarios_zona: [] }
+  db: Record<Tabla, Fila[]> = {
+    categorias: [],
+    tipos_zona: [],
+    ubicaciones: [],
+    estudios: [],
+    estudio_participantes: [],
+    evidencias: [],
+    comentarios_zona: [],
+    salidas: [],
+    asignaciones: [],
+    asignacion_participantes: [],
+  }
   /** Cuentas de auth.users con su perfil. */
   cuentas: Cuenta[] = Object.values(CUENTAS).map((cuenta) => this.nuevaCuenta(cuenta))
   /** Archivos del bucket `evidencias`, por ruta. */
@@ -463,7 +481,7 @@ export class SupabaseFalso {
   /** Reglas de borrado de RLS. */
   private puedeBorrar(tabla: Tabla, fila: Fila, cuenta: Cuenta) {
     if (cuenta.rol === 'admin') return tabla !== 'ubicaciones' || !this.tieneEstudios(fila)
-    if (tabla === 'categorias' || tabla === 'tipos_zona') return false
+    if (tabla === 'categorias' || tabla === 'tipos_zona' || SOLO_ADMINS.includes(tabla) || tabla === 'asignacion_participantes') return false
     if (tabla === 'estudio_participantes') return true
     return fila.creado_por === cuenta.id && (tabla !== 'ubicaciones' || !this.tieneEstudios(fila))
   }
@@ -505,6 +523,7 @@ export class SupabaseFalso {
       }
       case 'POST': {
         if (!activa) return ruta.fulfill(SIN_PERMISO)
+        if ((SOLO_ADMINS.includes(tabla) || tabla === 'asignacion_participantes') && cuenta?.rol !== 'admin') return ruta.fulfill(SIN_PERMISO)
         const cuerpo = JSON.parse(peticion.postData() ?? '[]')
         const creadas: Fila[] = []
         for (const datos of Array.isArray(cuerpo) ? cuerpo : [cuerpo]) {
@@ -512,6 +531,7 @@ export class SupabaseFalso {
           if (tabla === 'estudios' && !(String(datos.hora_fin) > String(datos.hora_inicio))) return this.invalido(ruta)
           if (tabla === 'estudios' && !notasValidas(datos.notas)) return this.invalido(ruta)
           if (tabla === 'evidencias' && !this.evidenciaValida(datos)) return this.invalido(ruta)
+          if (tabla === 'asignaciones' && !String(datos.geom).includes('POLYGON')) return this.invalido(ruta)
           if (tabla === 'ubicaciones' && datos.contacto_telefono && !/^\+?[0-9 ()-]{7,20}$/.test(datos.contacto_telefono)) return this.invalido(ruta)
           const fila = {
             id: datos.id ?? crypto.randomUUID(),
@@ -519,8 +539,11 @@ export class SupabaseFalso {
             updated_at: new Date().toISOString(),
             ...datos,
             ...(tabla === 'ubicaciones' ? { geom: geometria(datos.geom) } : {}),
+            // La base de datos guarda la forma de una zona asignada y la devuelve en GeoJSON (forma).
+            ...(tabla === 'asignaciones' ? { geom: datos.geom, forma: geometria(datos.geom) } : {}),
+            ...(tabla === 'asignacion_participantes' ? { hora_fin: null, porcentaje: null, reportado_en: null } : {}),
             // Autoría: la pone la base de datos, no la app.
-            ...(tabla === 'estudio_participantes' ? {} : { creado_por: cuenta?.id, actualizado_por: cuenta?.id }),
+            ...(SIN_AUTORIA.includes(tabla) ? {} : { creado_por: cuenta?.id, actualizado_por: cuenta?.id }),
           }
           filas.push(fila)
           creadas.push(this.proyectar(tabla, fila, select))
@@ -530,18 +553,22 @@ export class SupabaseFalso {
       }
       case 'PATCH': {
         const cambios = JSON.parse(peticion.postData() ?? '{}')
+        if (SOLO_ADMINS.includes(tabla) && cuenta?.rol !== 'admin') return this.cambiadas(ruta, [], select)
+        if (tabla === 'asignacion_participantes' && cambios.porcentaje != null && ![0, 25, 50, 75, 100].includes(cambios.porcentaje)) return this.invalido(ruta)
         if (tabla === 'estudios' && cambios.hora_inicio && !(String(cambios.hora_fin) > String(cambios.hora_inicio))) return this.invalido(ruta)
         if (tabla === 'estudios' && !notasValidas(cambios.notas)) return this.invalido(ruta)
-        for (const fila of filas.filter(coincide)) {
+        // Cada quien reporta lo suyo; un admin corrige cualquier reporte.
+        const editables = filas.filter(coincide).filter((fila) => tabla !== 'asignacion_participantes' || cuenta?.rol === 'admin' || fila.usuario_id === cuenta?.id)
+        for (const fila of editables) {
           if (typeof cambios.nombre === 'string' && this.nombreRepetido(tabla, cambios.nombre, fila.id)) return this.duplicado(ruta)
           Object.assign(
             fila,
             cambios,
             tabla === 'ubicaciones' && 'geom' in cambios ? { geom: geometria(cambios.geom) } : {},
-            tabla === 'estudio_participantes' ? {} : { creado_por: fila.creado_por, actualizado_por: cuenta?.id, updated_at: new Date().toISOString() },
+            SIN_AUTORIA.includes(tabla) ? {} : { creado_por: fila.creado_por, actualizado_por: cuenta?.id, updated_at: new Date().toISOString() },
           )
         }
-        return ruta.fulfill({ status: 204, body: '' })
+        return this.cambiadas(ruta, editables, select, tabla)
       }
       case 'DELETE': {
         const borradas = filas.filter((fila) => coincide(fila) && cuenta && this.puedeBorrar(tabla, fila, cuenta))
@@ -552,6 +579,10 @@ export class SupabaseFalso {
           }
           if (tabla === 'tipos_zona') {
             for (const ubicacion of this.db.ubicaciones) if (ubicacion.tipo_zona_id === fila.id) ubicacion.tipo_zona_id = null
+          }
+          // on delete cascade: una zona asignada se lleva a sus participantes.
+          if (tabla === 'asignaciones') {
+            this.db.asignacion_participantes = this.db.asignacion_participantes.filter((p) => p.asignacion_id !== fila.id)
           }
         }
         if (!select) return ruta.fulfill({ status: 204, body: '' })
@@ -599,6 +630,12 @@ export class SupabaseFalso {
   private nombreRepetido(tabla: Tabla, nombre: string, excepto?: string) {
     if (tabla !== 'categorias' && tabla !== 'tipos_zona') return false
     return this.db[tabla].some((fila) => fila.id !== excepto && normalizar(String(fila.nombre)) === normalizar(nombre))
+  }
+
+  /** Respuesta de un PATCH: sin cuerpo, o las filas cambiadas si se pidió select. */
+  private cambiadas(ruta: Route, filas: Fila[], select: string | null, tabla?: Tabla) {
+    if (!select) return ruta.fulfill({ status: 204, body: '' })
+    return ruta.fulfill({ json: filas.map((fila) => this.proyectar(tabla!, fila, select)) })
   }
 
   private invalido(ruta: Route) {

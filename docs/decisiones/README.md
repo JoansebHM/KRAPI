@@ -30,3 +30,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0022 | [Edge Function para restablecer contraseñas](0022-edge-function-restablecer-clave.md) | Aceptada |
 | 0023 | [Los participantes de un estudio son cuentas](0023-participantes-son-cuentas.md) | Aceptada |
 | 0024 | [Zonas: tipo, comentarios y recorridos](0024-zonas.md) | Aceptada |
+| 0025 | [Salidas y asignaciones de zonas a cuentas](0025-salidas-y-asignaciones.md) | Aceptada |

@@ -1,6 +1,6 @@
 # 0008 · Lugares (puntos y zonas) con histórico de estudios, sin salidas
 
-**Estado:** aceptada · 2026-10
+**Estado:** aceptada · 2026-10 · Las salidas se agregaron después, solo para repartir zonas ([decisión 0025](0025-salidas-y-asignaciones.md))
 
 ## Contexto
 

@@ -38,7 +38,8 @@ Reglas de negocio:
 - **Estado del lugar:** activo o cerrado. Si un local cierra, se marca como cerrado y conserva su histórico. Si en el mismo sitio abre otro negocio, se crea un lugar nuevo.
 - **Archivar en vez de borrar.** Lugares y estudios se archivan: desaparecen del mapa pero se pueden recuperar. Solo se borra de verdad un lugar creado por error y sin estudios, o una evidencia equivocada.
 - **Una zona muestra los locales que tiene adentro**, calculado por la geometría (con un botón para ir a la ficha de cada uno), junto con sus comentarios y sus recorridos ("en la manzana no hay canecas", "la zona es muy oscura"). Los estudios de una zona no tienen "a quién se entrevistó".
-- **Sin salidas.** No existe el concepto de "salida" o jornada: no todos van el mismo día. Cada estudio lleva su propia fecha y participantes (ver [decisión 0008](decisiones/0008-modelo-lugares-y-estudios.md)).
+- **Las salidas reparten el trabajo, no agrupan estudios.** Un admin crea una salida (fecha y hora de inicio), dibuja sus zonas de asignación y dice quién cubre cada una. Desde el día de la salida, cada persona reporta a qué hora terminó y qué porcentaje de su zona cubrió (0, 25, 50, 75 o 100 %). Los estudios siguen llevando su propia fecha y sus participantes, porque no todos van el mismo día (ver decisiones [0008](decisiones/0008-modelo-lugares-y-estudios.md) y [0025](decisiones/0025-salidas-y-asignaciones.md)).
+- **Las zonas de asignación no son zonas del mapa.** Cambian de una salida a otra. Si un recorrido merece quedar en el histórico, se registra como zona del mapa con la misma forma.
 - **Sin tipos de estudio ni equipos por ahora**, y sin datos medibles (conteos, cifras). La estructura de los locales se registra con fotos. Más adelante se puede agregar una tabla de mediciones sin romper el modelo.
 
 ## Cómo se usa en campo
@@ -62,6 +63,16 @@ Reglas de negocio:
 
 Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo la forma y el área. No deja terminar si se sale de Manila, si sus lados se cruzan o si tiene menos de 20 m². Luego se llenan su nombre, su tipo y su descripción. En su ficha se ven el área, los locales de adentro, los comentarios y los recorridos; desde ahí se edita, se **redibuja**, se archiva o se borra (si no tiene estudios).
 
+Para una **salida**:
+
+1. Un admin la crea en **Salidas** (nombre, fecha y hora de inicio).
+2. En la salida toca **"Agregar zona"**, dibuja la zona con la mira y elige quiénes la cubren.
+3. Cada persona ve sus zonas en **Mis asignaciones** y en el mapa: las suyas en rosado con borde continuo, y las de los demás con borde punteado. "Ver en el mapa" encuadra la zona.
+4. Al terminar, toca **"Reportar"**: a qué hora terminó y qué porcentaje cubrió (0, 25, 50, 75 o 100 %). Lo puede corregir después, y un admin también.
+5. Si lo que se encontró merece quedar en el histórico, **"Registrar el recorrido como zona del mapa"** crea una zona del mapa con la misma forma y el mismo nombre.
+
+Una salida se puede cancelar (las personas lo ven) y reactivar. Una zona de la salida se puede editar (nombre y personas) o quitar.
+
 > **Ya funcionan** los pasos 2 a 6 para puntos y zonas. Los estudios ya tienen una presentación con carrusel de fotos, reproducción de audio y descarga de documentos. La mira central y el botón "+" son la propuesta acordada como punto de partida; se ajustarán al probarlos en campo.
 
 ## Estado
@@ -74,6 +85,7 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 - Administración de categorías (color e ícono). Cada cuenta tiene su avatar dibujado.
 - Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas con el color de su tipo (lila sin tipo), cerrados atenuados y archivados ocultos.
 - Zonas: dibujarlas con la mira, su tipo (lista administrable), comentarios, locales adentro, recorridos, editarlas, redibujarlas y archivarlas.
+- Salidas: los admins crean salidas, dibujan sus zonas y las asignan a personas. Cada persona ve sus zonas en "Mis asignaciones" (el menú cuenta las que faltan por reportar) y en el mapa, y reporta su hora de fin y el porcentaje que cubrió. Las salidas se pueden cancelar y reactivar.
 - Ficha del punto: todos sus datos (con el teléfono para llamar o abrir WhatsApp), editarlos, moverlo con la mira, marcarlo cerrado o activo, archivarlo y recuperarlo, y borrarlo si no tiene estudios. El histórico dice cuántas evidencias tiene cada estudio.
 - Crear puntos desde el mapa: botón "+ Nuevo lugar", mira fija en el centro, "Mi ubicación", bloqueo fuera de Manila, aviso de lugares a menos de 15 m y formulario del lugar.
 - Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con participantes (vienen marcadas la cuenta propia y las del último estudio del celular). La ficha muestra el histórico; al tocar un estudio se abre su presentación con fotos y otras evidencias, y desde ahí se puede editar o agregar evidencias.
@@ -96,7 +108,6 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 
 ## Fuera del alcance por ahora
 
-- Salidas o jornadas de campo.
 - Tipos de estudio, equipos (estrategia, desarrollo técnico…).
 - Datos medibles y reportes numéricos.
 - Subida de videos al bucket (se usan enlaces de SharePoint).

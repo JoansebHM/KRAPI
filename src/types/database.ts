@@ -14,6 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      asignacion_participantes: {
+        Row: {
+          asignacion_id: string
+          hora_fin: string | null
+          porcentaje: number | null
+          reportado_en: string | null
+          usuario_id: string
+        }
+        Insert: {
+          asignacion_id: string
+          hora_fin?: string | null
+          porcentaje?: number | null
+          reportado_en?: string | null
+          usuario_id: string
+        }
+        Update: {
+          asignacion_id?: string
+          hora_fin?: string | null
+          porcentaje?: number | null
+          reportado_en?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asignacion_participantes_asignacion_id_fkey"
+            columns: ["asignacion_id"]
+            isOneToOne: false
+            referencedRelation: "asignaciones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asignacion_participantes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asignaciones: {
+        Row: {
+          actualizado_por: string | null
+          creado_por: string | null
+          created_at: string
+          forma: Json | null
+          geom: unknown
+          id: string
+          nombre: string
+          salida_id: string
+          updated_at: string
+        }
+        Insert: {
+          actualizado_por?: string | null
+          creado_por?: string | null
+          created_at?: string
+          forma?: Json | null
+          geom: unknown
+          id?: string
+          nombre: string
+          salida_id: string
+          updated_at?: string
+        }
+        Update: {
+          actualizado_por?: string | null
+          creado_por?: string | null
+          created_at?: string
+          forma?: Json | null
+          geom?: unknown
+          id?: string
+          nombre?: string
+          salida_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asignaciones_salida_id_fkey"
+            columns: ["salida_id"]
+            isOneToOne: false
+            referencedRelation: "salidas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bitacora: {
         Row: {
           accion: Database["public"]["Enums"]["accion_bitacora"]
@@ -317,6 +400,42 @@ export type Database = {
         }
         Relationships: []
       }
+      salidas: {
+        Row: {
+          actualizado_por: string | null
+          cancelada_en: string | null
+          creado_por: string | null
+          created_at: string
+          fecha: string
+          hora_inicio: string
+          id: string
+          nombre: string
+          updated_at: string
+        }
+        Insert: {
+          actualizado_por?: string | null
+          cancelada_en?: string | null
+          creado_por?: string | null
+          created_at?: string
+          fecha: string
+          hora_inicio: string
+          id?: string
+          nombre: string
+          updated_at?: string
+        }
+        Update: {
+          actualizado_por?: string | null
+          cancelada_en?: string | null
+          creado_por?: string | null
+          created_at?: string
+          fecha?: string
+          hora_inicio?: string
+          id?: string
+          nombre?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tipos_zona: {
         Row: {
           actualizado_por: string | null
@@ -452,7 +571,10 @@ export type Database = {
         }
       }
       cambiar_rol: {
-        Args: { rol: Database["public"]["Enums"]["rol_usuario"]; usuario_id: string }
+        Args: {
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          usuario_id: string
+        }
         Returns: {
           aprobado_en: string | null
           aprobado_por: string | null
@@ -472,6 +594,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      cerrar_sesiones: { Args: { usuario_id: string }; Returns: undefined }
       desactivar_usuario: {
         Args: { usuario_id: string }
         Returns: {
@@ -589,6 +712,7 @@ export type Database = {
           id: string
           nombre: string
           tipo: Database["public"]["Enums"]["tipo_ubicacion"]
+          tipo_zona_id: string | null
           updated_at: string
         }[]
         SetofOptions: {

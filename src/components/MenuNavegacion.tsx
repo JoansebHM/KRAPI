@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router'
 import { useAuth } from '../features/auth/useAuth'
+import { estadoDe, useSalidas, yaEmpezo } from '../features/salidas/api'
 import { useUsuarios } from '../features/usuarios/api'
 import { PoweredBy } from './PoweredBy'
 import './MenuNavegacion.css'
@@ -14,6 +15,7 @@ const SECCIONES = [
   { ruta: '/', texto: 'Mapa', icono: <IconoMapa /> },
   { ruta: '/categorias', texto: 'Categorías', icono: <IconoEtiqueta /> },
   { ruta: '/tipos-de-zona', texto: 'Tipos de zona', icono: <IconoZona /> },
+  { ruta: '/salidas', texto: 'Salidas', icono: <IconoSalidas /> },
 ]
 
 /** Menú lateral con las secciones de la app. En celular se abre encima con ☰ y se cierra al elegir. */
@@ -57,9 +59,19 @@ export function MenuFijo() {
   )
 }
 
-/** Las secciones de la app: Mapa, Categorías, Tipos de zona, Usuarios (admins) y Documentación. */
+/** Las secciones de la app: Mapa, Categorías, Tipos de zona, Salidas, Mis asignaciones, Usuarios (admins) y Documentación. */
 function ListaSecciones() {
-  const { esAdmin } = useAuth()
+  const { esAdmin, perfil } = useAuth()
+  // Cuántas zonas asignadas a la cuenta faltan por reportar (de salidas de hoy o anteriores).
+  const { data: salidas } = useSalidas()
+  const porReportar = (salidas ?? []).reduce(
+    (total, salida) =>
+      total +
+      salida.asignaciones.filter((asignacion) =>
+        asignacion.participantes.some((p) => p.usuarioId === perfil?.id && estadoDe(salida, p) === 'sin-reportar' && yaEmpezo(salida)),
+      ).length,
+    0,
+  )
   // Solo un admin ve "Usuarios", con cuántas cuentas esperan aprobación.
   const { data: usuarios } = useUsuarios({ habilitado: esAdmin })
   const pendientes = usuarios?.filter((usuario) => usuario.estado === 'pendiente').length ?? 0
@@ -74,6 +86,17 @@ function ListaSecciones() {
           </NavLink>
         </li>
       ))}
+      <li>
+        <NavLink to="/mis-asignaciones" className={({ isActive }) => `menu-item${isActive ? ' menu-item-activo' : ''}`}>
+          <IconoMisAsignaciones />
+          <span>Mis asignaciones</span>
+          {porReportar > 0 && (
+            <span className="menu-contador" aria-label={`${porReportar} por reportar`}>
+              {porReportar}
+            </span>
+          )}
+        </NavLink>
+      </li>
       {esAdmin && (
         <li>
           <NavLink to="/usuarios" className={({ isActive }) => `menu-item${isActive ? ' menu-item-activo' : ''}`}>
@@ -156,6 +179,25 @@ function IconoZona() {
   return (
     <svg {...icono}>
       <path d="M4 7 10 4l10 4-2 11-12 1Z" />
+    </svg>
+  )
+}
+
+function IconoSalidas() {
+  return (
+    <svg {...icono}>
+      <path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5V4l-6 2.5L9 4Z" />
+      <path d="M9 4v13M15 6.5v13" />
+    </svg>
+  )
+}
+
+function IconoMisAsignaciones() {
+  return (
+    <svg {...icono}>
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5 20a7 7 0 0 1 9-6.7" />
+      <path d="m15 18 2 2 4-4" />
     </svg>
   )
 }

@@ -65,6 +65,9 @@ Se usa en la calle, con una mano y con sol:
 | `.dibujo-barra` | Barra de abajo al dibujar una zona: "Deshacer" y "Agregar esquina" arriba, "Cancelar" y "Terminar" abajo. La zona en curso se ve en naranja sobre el mapa |
 | `.tipo-zona-muestra` | Cuadrado con el color de un tipo de zona (lista, selector y ficha) |
 | `.zona-local`, `.zona-local-ver` | Local dentro de una zona: ícono, nombre, último estudio y botón "Ver" que lleva a su ficha |
+| `.salida-zona`, `.salida-persona`, `.salida-estado-*` | Zona de una salida: nombre, "Ver en el mapa", cada persona con su avatar, su estado (sin reportar, porcentaje o completa, en azul) y "Reportar" |
+| `.salida-porcentajes` | Chips de 0, 25, 50, 75 y 100 % para reportar |
+| `.ver-asignacion` | Tarjeta abajo del mapa al ver una zona asignada (flota a la izquierda en computador) |
 | `.zona-comentario` | Comentario de una zona: avatar, autor, fecha y texto; botón de borrar (44 px) solo para su autor o un admin |
 | `.estudio-evidencia-video` | Botón redondeado "Ver en SharePoint" (44 px, con ícono de play) en la tarjeta de un video; se abre en otra pestaña |
 | `.ficha-telefono-enlace` | Botones redondeados de 44 px con ícono (Lucide `Phone` y `MessageCircle`) para llamar al contacto y escribirle por WhatsApp |
@@ -97,6 +100,7 @@ Se usa en la calle, con una mano y con sol:
 
 - **Límite de Manila:** línea azul punteada con relleno muy suave.
 - **Zonas:** en **lila** (relleno semitransparente y borde morado; lila claro en oscuro), para no confundirlas con el límite azul. Las cerradas van más tenues y la seleccionada lleva un borde más grueso.
+- **Zonas de una salida:** en **rosado** (`#E93D82`), para no confundirlas con las zonas del mapa (lila o el color de su tipo) ni con el límite azul. Se ven las de las salidas de hoy (o la de la salida que se está viendo); las propias con borde continuo y las de los demás punteado.
 - **Crear un punto:** mira fija en el centro, en azul eléctrico, que se pone roja fuera de Manila. Arriba, un aviso dice qué hacer. Abajo, una barra con "Cancelar" y "Continuar", y encima de ella un botón redondo "Mi ubicación", todo al alcance del pulgar. En computador, la barra flota centrada.
 - **Puntos:** el color y el ícono de su categoría. **Sin categoría:** círculo blanco con borde gris, distinto de todos los colores de la paleta (incluido el gris). **Cerrados:** atenuados. **Archivados:** no se muestran.
 
