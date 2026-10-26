@@ -139,6 +139,7 @@ test.describe('Salidas y asignaciones', () => {
       await expect(tarjeta).toContainText('Cuadrante norte')
       await expect(tarjeta).toContainText('Ana Gómez')
       await expect(tarjeta).toContainText('Beto Ruiz')
+      await expect(tarjeta.getByRole('link', { name: 'Ver historial de zona de salida' })).toHaveAttribute('href', '/salidas/s1')
     })
 
     test('tocar la zona asignada en el mapa abre su información', async ({ page, entrar }) => {
