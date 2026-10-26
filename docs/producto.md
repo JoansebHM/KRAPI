@@ -69,7 +69,7 @@ Para una **salida**:
 
 1. Un admin la crea en **Salidas** (nombre, fecha y hora de inicio).
 2. En la salida toca **"Agregar zona"**, dibuja la zona con la mira y elige quiénes la cubren.
-3. Cada persona ve sus zonas en **Mis asignaciones** y en el mapa: las suyas en rosado con borde continuo, y las de los demás con borde punteado. "Ver en el mapa" encuadra la zona.
+3. Cada persona ve sus zonas en **Mis asignaciones** y en el mapa: las suyas en rosado con borde continuo, y las de los demás con borde punteado. "Ver en el mapa" encuadra la zona, y tocarla directamente en el mapa abre la misma información.
 4. Mientras recorre su zona, registra puntos y les agrega estudios como siempre; el formulario del estudio trae la salida ya elegida, para dejarlo ligado a ella (se puede cambiar o quitar).
 5. Al terminar, toca **"Reportar"**: a qué hora terminó y qué porcentaje cubrió (0, 25, 50, 75 o 100 %). Lo puede corregir después, y un admin también.
 6. En la página de la salida, **"Qué se registró"** lista los estudios ligados a ella. Si además lo que se encontró merece quedar como una zona informativa permanente, **"Registrar el recorrido como zona del mapa"** crea una zona del mapa con la misma forma y el mismo nombre, y la asignación queda ligada a ella.
