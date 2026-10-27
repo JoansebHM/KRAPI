@@ -20,8 +20,8 @@
 ```
 src/
   app/            Shell: barra superior, rutas, pantalla de configuración incompleta
-  components/     Piezas compartidas: Dialog, Panel, MenuNavegacion, Buscador, Estados,
-                  FlechaLista, Notificaciones, PoweredBy
+  components/     Piezas compartidas: Dialog, Panel, HojaInferior (como Dialog, pero no tapa el
+                  mapa), MenuNavegacion, Buscador, Estados, FlechaLista, Notificaciones, PoweredBy
   config/         env.ts (variables), session.ts (tiempos de sesión)
   features/       Una carpeta por funcionalidad
     auth/         Login, registro, AuthProvider, política de sesión, menú de la cuenta,
@@ -29,6 +29,8 @@ src/
     categorias/   CRUD de categorías, colores e íconos
     estudios/     Estudios de un lugar: formulario, participantes, notas, a qué salida se ligan
                   (SelectorSalida), histórico y página del estudio
+    filtros/      Filtros del mapa: FiltrosProvider (contexto), BotonFiltros, PanelFiltros y
+                  lugaresFiltrados() (api.ts), que cruza lugares y estudios del lado del cliente
     evidencias/   Subir, grabar, listar y borrar evidencias; cola de subidas y compresión de fotos;
                   videos de SharePoint por enlace (AgregarVideo, sharepoint.ts)
     perfil/       Mi perfil: nombre, avatar y cambiar la contraseña
