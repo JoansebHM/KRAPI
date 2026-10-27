@@ -256,7 +256,6 @@ export type Database = {
           notas: string[]
           participantes_anteriores: string[]
           salida_id: string | null
-          titulo: string
           ubicacion_id: string
           updated_at: string
         }
@@ -274,7 +273,6 @@ export type Database = {
           notas?: string[]
           participantes_anteriores?: string[]
           salida_id?: string | null
-          titulo: string
           ubicacion_id: string
           updated_at?: string
         }
@@ -292,7 +290,6 @@ export type Database = {
           notas?: string[]
           participantes_anteriores?: string[]
           salida_id?: string | null
-          titulo?: string
           ubicacion_id?: string
           updated_at?: string
         }
