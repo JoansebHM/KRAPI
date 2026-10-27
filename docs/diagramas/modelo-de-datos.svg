@@ -120,8 +120,8 @@
     <text x="56" y="364">→ usuario_id</text><text class="muted" x="244" y="364" text-anchor="end">uuid</text>
   </g>
   <!-- estudios -->
-  <rect class="mascara" x="308" y="284" width="200" height="216" rx="6" />
-  <rect class="nodo" x="308" y="284" width="200" height="216" rx="6" />
+  <rect class="mascara" x="308" y="284" width="200" height="196" rx="6" />
+  <rect class="nodo" x="308" y="284" width="200" height="196" rx="6" />
   <path class="cabecera" d="M314 284.6 H502 A5.4 5.4 0 0 1 507.4 290 V324 H308.6 V290 A5.4 5.4 0 0 1 314 284.6 Z" />
   <line class="separador" x1="308" y1="324" x2="508" y2="324" />
   <text class="mono muted" x="324" y="300" font-size="8" letter-spacing="0.14em">TABLA · VISITAS</text>
@@ -131,10 +131,9 @@
     <text x="324" y="364">→ ubicacion_id</text><text class="muted" x="492" y="364" text-anchor="end">uuid</text>
     <text x="324" y="384">fecha</text><text class="muted" x="492" y="384" text-anchor="end">date</text>
     <text x="324" y="404">hora_inicio, _fin</text><text class="muted" x="492" y="404" text-anchor="end">time</text>
-    <text x="324" y="424">titulo</text><text class="muted" x="492" y="424" text-anchor="end">text</text>
-    <text x="324" y="444">entrevistado</text><text class="muted" x="492" y="444" text-anchor="end">text · null</text>
-    <text x="324" y="464">→ salida_id</text><text class="muted" x="492" y="464" text-anchor="end">uuid · null</text>
-    <text x="324" y="484">archivado_en</text><text class="muted" x="492" y="484" text-anchor="end">timestamptz</text>
+    <text x="324" y="424">entrevistado</text><text class="muted" x="492" y="424" text-anchor="end">text · null</text>
+    <text x="324" y="444">→ salida_id</text><text class="muted" x="492" y="444" text-anchor="end">uuid · null</text>
+    <text x="324" y="464">archivado_en</text><text class="muted" x="492" y="464" text-anchor="end">timestamptz</text>
   </g>
   <!-- evidencias -->
   <rect class="mascara" x="556" y="284" width="180" height="176" rx="6" />
@@ -200,7 +199,7 @@
   <text class="mono muted" x="572" y="556" font-size="9">privado · 50 MB</text>
 
   <!-- estudios → salidas (opcional): conector punteado porque no todo estudio viene de una salida -->
-  <line class="linea-retorno" x1="408" y1="500" x2="408" y2="764" marker-end="url(#modelo-de-datos-flecha)" />
+  <line class="linea-retorno" x1="408" y1="480" x2="408" y2="764" marker-end="url(#modelo-de-datos-flecha)" />
   <rect class="mascara" x="388" y="612" width="60" height="12" rx="2" />
   <text class="mono soft" x="418" y="621" font-size="8" text-anchor="middle" letter-spacing="0.06em">OPCIONAL</text>
 
