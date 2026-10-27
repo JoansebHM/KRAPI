@@ -5,6 +5,8 @@ import { Notificaciones } from '../components/Notificaciones'
 import { PoweredBy } from '../components/PoweredBy'
 import { variablesFaltantes } from '../config/env'
 import { CuentaNoActiva } from '../features/auth/CuentaNoActiva'
+import { BotonFiltros } from '../features/filtros/BotonFiltros'
+import { FiltrosProvider } from '../features/filtros/FiltrosProvider'
 import { InactivityDialog } from '../features/auth/InactivityDialog'
 import { LoginPage } from '../features/auth/LoginPage'
 import { RegistroPage } from '../features/auth/RegistroPage'
@@ -104,29 +106,39 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
         {esEscritorio && menuFijoVisible && <MenuFijo />}
         <main className="app-main">
           <MapaProvider>
-            {/* El mapa siempre está montado; las secciones se abren encima. */}
-            <MapView theme={theme} />
-            <Routes>
-              <Route path="/" element={<BotonNuevoLugar />} />
-              <Route path="/categorias" element={<CategoriasPage />} />
-              <Route path="/perfil" element={<PerfilPage />} />
-              {/* Un miembro que entra por la URL vuelve al mapa. */}
-              <Route path="/usuarios" element={esAdmin ? <UsuariosPage /> : <Navigate to="/" replace />} />
-              <Route path="/lugares/nuevo" element={<CrearPunto />} />
-              <Route path="/lugares/:id" element={<FichaLugar />} />
-              <Route path="/lugares/:id/mover" element={<MoverPunto />} />
-              <Route path="/lugares/:id/redibujar" element={<RedibujarZona />} />
-              <Route path="/zonas/nueva" element={<CrearZona />} />
-              <Route path="/tipos-de-zona" element={<TiposZonaPage />} />
-              <Route path="/salidas" element={<SalidasPage />} />
-              <Route path="/salidas/:id" element={<SalidaPagina />} />
-              <Route path="/salidas/:id/zonas/nueva" element={esAdmin ? <NuevaAsignacion /> : <Navigate to="/salidas" replace />} />
-              <Route path="/salidas/:salidaId/zonas/:asignacionId" element={<VerAsignacion />} />
-              <Route path="/mis-asignaciones" element={<MisAsignacionesPage />} />
-              <Route path="/lugares/:id/estudios/:estudioId" element={<EstudioPagina />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-            {esEscritorio && <CerrarPanelAlTocarElMapa />}
+            <FiltrosProvider>
+              {/* El mapa siempre está montado; las secciones se abren encima. */}
+              <MapView theme={theme} />
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <>
+                      <BotonNuevoLugar />
+                      <BotonFiltros />
+                    </>
+                  }
+                />
+                <Route path="/categorias" element={<CategoriasPage />} />
+                <Route path="/perfil" element={<PerfilPage />} />
+                {/* Un miembro que entra por la URL vuelve al mapa. */}
+                <Route path="/usuarios" element={esAdmin ? <UsuariosPage /> : <Navigate to="/" replace />} />
+                <Route path="/lugares/nuevo" element={<CrearPunto />} />
+                <Route path="/lugares/:id" element={<FichaLugar />} />
+                <Route path="/lugares/:id/mover" element={<MoverPunto />} />
+                <Route path="/lugares/:id/redibujar" element={<RedibujarZona />} />
+                <Route path="/zonas/nueva" element={<CrearZona />} />
+                <Route path="/tipos-de-zona" element={<TiposZonaPage />} />
+                <Route path="/salidas" element={<SalidasPage />} />
+                <Route path="/salidas/:id" element={<SalidaPagina />} />
+                <Route path="/salidas/:id/zonas/nueva" element={esAdmin ? <NuevaAsignacion /> : <Navigate to="/salidas" replace />} />
+                <Route path="/salidas/:salidaId/zonas/:asignacionId" element={<VerAsignacion />} />
+                <Route path="/mis-asignaciones" element={<MisAsignacionesPage />} />
+                <Route path="/lugares/:id/estudios/:estudioId" element={<EstudioPagina />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+              {esEscritorio && <CerrarPanelAlTocarElMapa />}
+            </FiltrosProvider>
           </MapaProvider>
         </main>
       </div>

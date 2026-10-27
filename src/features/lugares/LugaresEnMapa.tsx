@@ -5,6 +5,8 @@ import type { FeatureCollection, Polygon } from 'geojson'
 import { useCategorias, type Categoria } from '../categorias/api'
 import { COLOR_SIN_CATEGORIA } from '../categorias/colores'
 import { IconoCategoria } from '../categorias/IconoCategoria'
+import { lugaresFiltrados, useEstudiosParaFiltro } from '../filtros/api'
+import { useFiltros } from '../filtros/filtrosContexto'
 import { Marker, type GeoJSONSource, type Map as MapLibreMap, type MapLayerMouseEvent } from '../map/maplibre'
 import type { Theme } from '../theme/useTheme'
 import { useTiposZona } from '../tiposZona/api'
@@ -31,7 +33,13 @@ interface LugaresEnMapaProps {
 
 /** Dibuja los lugares visibles: puntos como marcadores con su categoría y zonas como polígonos. */
 export function LugaresEnMapa({ mapa, theme }: LugaresEnMapaProps) {
-  const { data: lugares } = useLugares()
+  const { data: lugaresSinFiltrar } = useLugares()
+  const { data: estudiosParaFiltro } = useEstudiosParaFiltro()
+  const { filtros } = useFiltros()
+  const lugares = useMemo(
+    () => (lugaresSinFiltrar ? lugaresFiltrados(lugaresSinFiltrar, estudiosParaFiltro ?? [], filtros) : undefined),
+    [lugaresSinFiltrar, estudiosParaFiltro, filtros],
+  )
   const { data: categorias } = useCategorias()
   const { data: tiposZona } = useTiposZona()
   const navigate = useNavigate()
