@@ -83,7 +83,7 @@ test.describe('Zonas', () => {
         { id: 'p1', tipo: 'punto', nombre: 'Tienda adentro', categoria_id: null, estado: 'activa', archivada_en: null, geom: { type: 'Point', coordinates: CENTRO } },
         { id: 'p2', tipo: 'punto', nombre: 'Tienda afuera', categoria_id: null, estado: 'activa', archivada_en: null, geom: { type: 'Point', coordinates: [CENTRO[0] + 0.002, CENTRO[1]] } },
       )
-      supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-28', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Visita', archivado_en: null })
+      supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-28', hora_inicio: '09:00:00', hora_fin: '10:00:00', archivado_en: null })
     })
 
     test('la ficha muestra los locales de adentro y lleva a la ficha de cada uno', async ({ page, entrar }) => {

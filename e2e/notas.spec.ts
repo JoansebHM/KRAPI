@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 import { expect, test, toast } from './soporte/fixtures'
 
-const presentacion = (page: Page, titulo = 'Primera visita') => page.getByRole('dialog', { name: titulo })
+const presentacion = (page: Page, texto: string | RegExp = /20 oct 2026/) => page.getByRole('dialog', { name: texto })
 
 test.describe('Notas del estudio', () => {
   test.beforeEach(async ({ supabase }) => {
@@ -12,7 +12,6 @@ test.describe('Notas del estudio', () => {
       fecha: '2026-10-20',
       hora_inicio: '09:00:00',
       hora_fin: '10:00:00',
-      titulo: 'Primera visita',
       archivado_en: null,
       notas: ['El distribuidor pasa los martes.', 'La nevera está llena de la marca X.'],
     })
@@ -20,7 +19,7 @@ test.describe('Notas del estudio', () => {
 
   async function abrirPresentacion(page: Page) {
     await page.goto('/lugares/p1')
-    await page.getByRole('region', { name: /Estudios/ }).getByRole('button', { name: /Primera visita/ }).click()
+    await page.getByRole('region', { name: /Estudios/ }).getByRole('button', { name: /20 oct 2026/ }).click()
     return presentacion(page)
   }
 
@@ -76,13 +75,12 @@ test.describe('Notas del estudio', () => {
     await page.getByRole('button', { name: 'Agregar estudio' }).click()
     const formulario = page.getByRole('dialog', { name: 'Nuevo estudio' })
     await expect(formulario.getByText('Agrega todas las que necesites.')).toBeVisible()
-    await formulario.getByPlaceholder('Ej.: Entrevista al tendero').fill('Segunda visita')
     await formulario.getByRole('button', { name: 'Agregar nota' }).click()
     await formulario.getByLabel('Nota 1', { exact: true }).fill('Primera impresión.')
     await formulario.getByRole('button', { name: 'Guardar estudio' }).click()
 
     await expect(toast(page, 'Estudio guardado')).toBeVisible()
-    expect(supabase.db.estudios.find((e) => e.titulo === 'Segunda visita')?.notas).toEqual(['Primera impresión.'])
+    expect(supabase.db.estudios.find((e) => e.id !== 'e1')?.notas).toEqual(['Primera impresión.'])
     // La página del estudio también las muestra.
     await page.locator('.estudio-notas summary').click()
     await expect(page.locator('.estudio-notas')).toContainText('Primera impresión.')
