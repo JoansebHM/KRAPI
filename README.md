@@ -61,7 +61,7 @@ npx supabase stop  # apaga Supabase local
 - **Salidas** (`/salidas`) lista las próximas y las anteriores. En cada salida (`/salidas/<id>`) los admins dibujan zonas (`/salidas/<id>/zonas/nueva`) y las asignan, y cada quien reporta lo suyo. Su sección "Qué se registró" lista los estudios ligados a ella. **Mis asignaciones** (`/mis-asignaciones`) muestra las zonas propias, con un contador en el menú de las que faltan por reportar. "Ver en el mapa" (o tocar la zona directamente en el mapa) abre `/salidas/<id>/zonas/<zona>`.
 - Desde el menú de la cuenta, **Mi perfil** (`/perfil`) deja cambiar el nombre, el avatar y la contraseña.
 - Los admins ven además **Usuarios** (`/usuarios`), con un contador de las cuentas que esperan aprobación. Ahí aprueban, rechazan, desactivan y reactivan cuentas, y nombran o quitan admins. Si un miembro entra a `/usuarios` por la URL, vuelve al mapa.
-- Al desplegar (#24) el hosting debe redirigir todas las rutas a `index.html`, excepto `/docs`, que es un archivo propio (`dist/docs/index.html`).
+- El hosting redirige todas las rutas a `index.html`, excepto `/docs`, que es un archivo propio (`dist/docs/index.html`). En Vercel lo resuelve `vercel.json` (en la raíz); con otro proveedor hay que configurar el mismo redireccionamiento.
 
 ## Íconos de categorías
 
