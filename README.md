@@ -171,11 +171,12 @@ Reglas principales:
 ```
 src/
   app/          # Shell de la aplicación (layout, rutas)
-  components/   # Piezas compartidas: diálogos, panel, menú, buscador, notificaciones
+  components/   # Piezas compartidas: diálogos, panel, hoja inferior, menú, buscador, notificaciones
   config/       # Variables de entorno y configuración (sesión, mapa)
   features/     # Una carpeta por funcionalidad
     auth/       # Inicio de sesión, registro, política de sesión y menú de la cuenta
     categorias/ # Administración de categorías
+    filtros/      # Filtros del mapa (categoría, fechas, horas, evidencia, responsables)
     perfil/       # Mi perfil: nombre, avatar y contraseña
     salidas/      # Salidas, zonas asignadas, reportes y Mis asignaciones
     tiposZona/    # Tipos de zona (lista con color)

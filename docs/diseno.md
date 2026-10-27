@@ -95,6 +95,8 @@ Se usa en la calle, con una mano y con sol:
 | `IconoTipoEvidencia` | Círculo de 44 px con el ícono del tipo de evidencia (cámara, micrófono, documento, hoja de cálculo) sobre fondo azul suave |
 | `.evidencia`, `.evidencia-accion`, `.evidencia-progreso` | Fila de evidencia: abre el archivo en otra pestaña y a la derecha lleva botones de 44 px (borrar; o cancelar, reintentar y descartar mientras sube). La subida muestra "Subiendo… N %" y una barra de avance; el error va en rojo, debajo del nombre |
 | `.marcador-lugar` | Punto en el mapa: `IconoCategoria` de 32 px con borde blanco y sombra (se ve sobre el mapa claro y el oscuro) dentro de un botón de 44 px. `.marcador-sin-categoria` (círculo blanco con borde gris), `.marcador-cerrado` (atenuado) y `.marcador-seleccionado` (más grande, con anillo azul eléctrico) |
+| `HojaInferior`, `.hoja`, `.hoja-asa` | Como `Dialog`, pero sube desde abajo sin oscurecer la pantalla: el mapa se sigue viendo detrás (y se ve cómo cambia al ajustar algo, como los filtros). En computador flota abajo a la izquierda |
+| `.boton-filtros`, `.boton-filtros-contador` | Botón flotante "Filtros" (arriba a la izquierda del mapa, en la pantalla de inicio) con el número de grupos de filtro activos en una burbuja |
 
 ## Mapa
 
