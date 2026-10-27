@@ -2,9 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { SIN_PERMISO } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
 import { compararTexto } from '../../lib/texto'
-import type { Tables } from '../../types/database'
+import type { Enums, Tables } from '../../types/database'
 
-export type Categoria = Pick<Tables<'categorias'>, 'id' | 'nombre' | 'color' | 'icono'> & {
+export type UsoCategoria = Enums<'uso_categoria'>
+
+export type Categoria = Pick<Tables<'categorias'>, 'id' | 'nombre' | 'color' | 'icono' | 'aplica_a'> & {
   /** Cuántas ubicaciones usan esta categoría. */
   ubicaciones: number
 }
@@ -13,7 +15,19 @@ export interface DatosCategoria {
   nombre: string
   color: string
   icono: string
+  aplica_a: UsoCategoria
 }
+
+/** Dónde se puede elegir la categoría: en los lugares (locales), en los elementos o en los dos. */
+export const NOMBRE_USO: Record<UsoCategoria, string> = {
+  lugares: 'Lugares',
+  elementos: 'Elementos',
+  ambos: 'Lugares y elementos',
+}
+
+/** Si la categoría se puede elegir para un lugar (local) o para un elemento (caneca, poste…). */
+export const aplicaA = (categoria: Pick<Categoria, 'aplica_a'>, uso: Exclude<UsoCategoria, 'ambos'>) =>
+  categoria.aplica_a === uso || categoria.aplica_a === 'ambos'
 
 export const CLAVE_CATEGORIAS = ['categorias'] as const
 
@@ -23,7 +37,7 @@ export function useCategorias() {
     // Al abrir la pantalla se muestran los datos en caché al instante y se actualizan en segundo plano.
     refetchOnMount: 'always',
     queryFn: async (): Promise<Categoria[]> => {
-      const { data, error } = await supabase.from('categorias').select('id, nombre, color, icono, ubicaciones(count)')
+      const { data, error } = await supabase.from('categorias').select('id, nombre, color, icono, aplica_a, ubicaciones(count)')
       if (error) throw error
       return data
         .map(({ ubicaciones, ...categoria }) => ({ ...categoria, ubicaciones: ubicaciones[0]?.count ?? 0 }))
@@ -32,15 +46,15 @@ export function useCategorias() {
   })
 }
 
-function limpiar({ nombre, color, icono }: DatosCategoria): DatosCategoria {
-  return { nombre: nombre.trim().replace(/\s+/g, ' '), color: color.toUpperCase(), icono }
+function limpiar({ nombre, color, icono, aplica_a }: DatosCategoria): DatosCategoria {
+  return { nombre: nombre.trim().replace(/\s+/g, ' '), color: color.toUpperCase(), icono, aplica_a }
 }
 
 export function useCrearCategoria() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (datos: DatosCategoria) => {
-      const { data, error } = await supabase.from('categorias').insert(limpiar(datos)).select('id, nombre, color, icono').single()
+      const { data, error } = await supabase.from('categorias').insert(limpiar(datos)).select('id, nombre, color, icono, aplica_a').single()
       if (error) throw error
       return data
     },
@@ -91,7 +105,7 @@ export function useRestaurarCategoria() {
     mutationFn: async ({ categoria, ubicacionIds }: CategoriaEliminada) => {
       const { error } = await supabase
         .from('categorias')
-        .insert({ id: categoria.id, nombre: categoria.nombre, color: categoria.color, icono: categoria.icono })
+        .insert({ id: categoria.id, nombre: categoria.nombre, color: categoria.color, icono: categoria.icono, aplica_a: categoria.aplica_a })
       if (error) throw error
       if (ubicacionIds.length > 0) {
         const { error: errorUbicaciones } = await supabase

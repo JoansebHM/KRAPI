@@ -7,7 +7,7 @@ import { Panel } from '../../components/Panel'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { normalizar, plural } from '../../lib/texto'
-import { useCategorias, useEliminarCategoria, useRestaurarCategoria, type Categoria } from './api'
+import { NOMBRE_USO, useCategorias, useEliminarCategoria, useRestaurarCategoria, type Categoria } from './api'
 import { CategoriaFormulario } from './CategoriaFormulario'
 import { IconoCategoria } from './IconoCategoria'
 import './CategoriasPage.css'
@@ -80,7 +80,7 @@ export function CategoriasPage() {
         <EstadoVacio
           icono={<IconoEtiqueta />}
           titulo="Aún no hay categorías"
-          descripcion="Las categorías clasifican los lugares del barrio: comercio, café, hotelería… Cada una tiene un color en el mapa."
+          descripcion="Las categorías clasifican los lugares del barrio (comercio, café, hotelería…) y los elementos (canecas, postes, árboles…). Cada una tiene un color en el mapa."
           accion={
             <button type="button" className="btn btn-primary" onClick={() => setFormulario({ tipo: 'nueva' })}>
               Crear la primera
@@ -108,6 +108,7 @@ export function CategoriasPage() {
                     <span className="lista-item-textos">
                       <span className="lista-item-titulo">{categoria.nombre}</span>
                       <span className="lista-item-detalle">
+                        {NOMBRE_USO[categoria.aplica_a]} ·{' '}
                         {categoria.ubicaciones > 0
                           ? plural(categoria.ubicaciones, 'ubicación', 'ubicaciones')
                           : 'Sin ubicaciones'}

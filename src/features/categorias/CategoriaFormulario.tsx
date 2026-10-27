@@ -3,7 +3,7 @@ import { Dialog } from '../../components/Dialog'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { normalizar } from '../../lib/texto'
-import { useActualizarCategoria, useCrearCategoria, type Categoria } from './api'
+import { NOMBRE_USO, useActualizarCategoria, useCrearCategoria, type Categoria, type UsoCategoria } from './api'
 import { COLOR_POR_DEFECTO } from './colores'
 import { IconoCategoria } from './IconoCategoria'
 import { iconoDe, sugerirIcono } from './iconos'
@@ -11,6 +11,8 @@ import { SelectorColor } from './SelectorColor'
 import { SelectorIcono } from './SelectorIcono'
 
 const MAX_NOMBRE = 50
+
+const USOS: UsoCategoria[] = ['lugares', 'elementos', 'ambos']
 
 interface CategoriaFormularioProps {
   /** Si se pasa, se edita esa categoría; si no, se crea una nueva. */
@@ -24,6 +26,7 @@ interface CategoriaFormularioProps {
 export function CategoriaFormulario({ categoria, existentes, onCerrar, onEliminar }: CategoriaFormularioProps) {
   const [nombre, setNombre] = useState(categoria?.nombre ?? '')
   const [color, setColor] = useState(categoria?.color ?? COLOR_POR_DEFECTO)
+  const [uso, setUso] = useState<UsoCategoria>(categoria?.aplica_a ?? 'lugares')
   const [iconoElegido, setIconoElegido] = useState<string | null>(categoria ? iconoDe(categoria.icono).clave : null)
   const [intentoGuardar, setIntentoGuardar] = useState(false)
   const crear = useCrearCategoria()
@@ -44,11 +47,13 @@ export function CategoriaFormulario({ categoria, existentes, onCerrar, onElimina
     if (error) return
     try {
       if (categoria) {
-        await actualizar.mutateAsync({ id: categoria.id, nombre, color, icono })
+        await actualizar.mutateAsync({ id: categoria.id, nombre, color, icono, aplica_a: uso })
         notificar.exito('Cambios guardados', { descripcion: `La categoría «${nombreLimpio}» quedó actualizada.` })
       } else {
-        await crear.mutateAsync({ nombre, color, icono })
-        notificar.exito('Categoría creada', { descripcion: `«${nombreLimpio}» ya se puede usar en las ubicaciones.` })
+        await crear.mutateAsync({ nombre, color, icono, aplica_a: uso })
+        notificar.exito('Categoría creada', {
+          descripcion: `«${nombreLimpio}» ya se puede usar en ${uso === 'elementos' ? 'los elementos' : uso === 'ambos' ? 'los lugares y los elementos' : 'los lugares'}.`,
+        })
       }
       onCerrar()
     } catch (errorGuardar) {
@@ -106,6 +111,18 @@ export function CategoriaFormulario({ categoria, existentes, onCerrar, onElimina
             </p>
           )}
         </label>
+
+        <div className="field">
+          <span className="field-label">Se usa en</span>
+          <div className="chips">
+            {USOS.map((opcion) => (
+              <button key={opcion} type="button" className="chip chip-sin-icono" aria-pressed={uso === opcion} onClick={() => setUso(opcion)}>
+                <span>{NOMBRE_USO[opcion]}</span>
+              </button>
+            ))}
+          </div>
+          <p className="field-ayuda">Los lugares son locales que se estudian; los elementos, cosas como canecas, postes o árboles.</p>
+        </div>
 
         <div className="field">
           <span className="field-label">Ícono</span>
