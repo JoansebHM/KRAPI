@@ -13,8 +13,8 @@ set local request.jwt.claims = '{"sub": "00000000-0000-0000-0000-0000000000a1", 
 
 insert into public.ubicaciones (id, tipo, geom, nombre)
 values ('00000000-0000-0000-0000-000000000011', 'punto', 'SRID=4326;POINT(-75.5740 6.2130)', 'Tienda');
-insert into public.estudios (id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo)
-values ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000011', '2026-10-30', '14:00', '15:00', 'Visita');
+insert into public.estudios (id, ubicacion_id, fecha, hora_inicio, hora_fin)
+values ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000011', '2026-10-30', '14:00', '15:00');
 
 select is(
   (select notas from public.estudios where id = '00000000-0000-0000-0000-000000000021'),

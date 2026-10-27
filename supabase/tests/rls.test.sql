@@ -23,9 +23,9 @@ insert into public.categorias (id, nombre) values ('00000000-0000-0000-0000-0000
 insert into public.ubicaciones (id, tipo, geom, nombre) values
   ('00000000-0000-0000-0000-000000000011', 'punto', 'SRID=4326;POINT(-75.5740 6.2130)', 'Tienda'),
   ('00000000-0000-0000-0000-000000000012', 'punto', 'SRID=4326;POINT(-75.5745 6.2132)', 'Creado por error');
-insert into public.estudios (id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo)
+insert into public.estudios (id, ubicacion_id, fecha, hora_inicio, hora_fin)
 values ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000011',
-        '2026-10-30', '14:00', '15:00', 'Entrevista');
+        '2026-10-30', '14:00', '15:00');
 insert into public.evidencias (id, estudio_id, tipo, texto) values
   ('00000000-0000-0000-0000-000000000031', '00000000-0000-0000-0000-000000000021', 'texto', 'Nota de Ana'),
   ('00000000-0000-0000-0000-000000000032', '00000000-0000-0000-0000-000000000021', 'texto', 'Otra nota de Ana');
@@ -63,7 +63,7 @@ select is_empty(
 set local request.jwt.claims = '{"sub": "00000000-0000-0000-0000-0000000000b2", "role": "authenticated"}';
 select is((select count(*)::int from public.lugares_mapa()), 2, 'miembro: lugares_mapa() devuelve los lugares');
 select isnt_empty(
-  $$ update public.estudios set titulo = 'Entrevista al tendero' returning id $$, 'miembro: edita estudios de otros');
+  $$ update public.estudios set entrevistado = 'Tendero' returning id $$, 'miembro: edita estudios de otros');
 select isnt_empty(
   $$ update public.ubicaciones set archivada_en = now() where id = '00000000-0000-0000-0000-000000000011' returning id $$,
   'miembro: archiva lugares de otros');
@@ -117,7 +117,7 @@ select public.desactivar_usuario('00000000-0000-0000-0000-0000000000b2');
 set local request.jwt.claims = '{"sub": "00000000-0000-0000-0000-0000000000b2", "role": "authenticated"}';
 select is_empty($$ select id from public.ubicaciones $$, 'desactivado: deja de ver los datos de inmediato');
 select is_empty(
-  $$ update public.estudios set titulo = 'Cambio' returning id $$, 'desactivado: deja de editar de inmediato');
+  $$ update public.estudios set entrevistado = 'Cambio' returning id $$, 'desactivado: deja de editar de inmediato');
 
 select * from finish();
 rollback;
