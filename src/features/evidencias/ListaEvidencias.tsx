@@ -5,16 +5,16 @@ import { ErrorCarga, EstadoVacio, ListaCargando } from '../../components/Estados
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { useNombreDeCuenta } from '../usuarios/api'
-import { useBorrarEvidencia, useEvidencias, type Evidencia } from './api'
+import { useBorrarEvidencia, useEvidencias, type DuenoEvidencia, type Evidencia } from './api'
 import { mostrarTamano, NOMBRE_TIPO } from './archivos'
 import { IconoTipoEvidencia } from './IconoTipoEvidencia'
 import { quitar, reintentar, useSubidas, type Subida } from './subidas'
 import './Evidencias.css'
 
-/** Evidencias de un estudio: las que se están subiendo y las ya guardadas, con la opción de borrarlas. */
-export function EvidenciasDelEstudio({ estudioId }: { estudioId: string }) {
-  const { data: evidencias, isPending, isError, refetch } = useEvidencias(estudioId)
-  const subidas = useSubidas(estudioId)
+/** Evidencias de un estudio o de un elemento: las que se están subiendo y las ya guardadas, con la opción de borrarlas. */
+export function ListaEvidencias({ dueno }: { dueno: DuenoEvidencia }) {
+  const { data: evidencias, isPending, isError, refetch } = useEvidencias(dueno)
+  const subidas = useSubidas(dueno)
   const borrar = useBorrarEvidencia()
   const nombreDeCuenta = useNombreDeCuenta()
   const [porBorrar, setPorBorrar] = useState<Evidencia | null>(null)
@@ -55,7 +55,11 @@ export function EvidenciasDelEstudio({ estudioId }: { estudioId: string }) {
           <EstadoVacio
             icono={<IconoTipoEvidencia tipo="foto" />}
             titulo="Aún no hay evidencias"
-            descripcion="Agrega las fotos, los audios y los documentos de esta visita."
+            descripcion={
+              dueno.tipo === 'estudio'
+                ? 'Agrega las fotos, los audios y los documentos de esta visita.'
+                : 'Agrega las fotos, los audios y los documentos de este elemento.'
+            }
           />
         )
       ) : (
@@ -113,7 +117,7 @@ export function EvidenciasDelEstudio({ estudioId }: { estudioId: string }) {
           <p>
             {porBorrar.archivo
               ? `Se borra «${nombreDe(porBorrar)}» con su archivo, para siempre. `
-              : `Se quita «${nombreDe(porBorrar)}» de este estudio. El video sigue en SharePoint. `}
+              : `Se quita «${nombreDe(porBorrar)}» de ${dueno.tipo === 'estudio' ? 'este estudio' : 'este elemento'}. El video sigue en SharePoint. `}
             <strong>No se puede deshacer.</strong>
           </p>
         </Dialog>

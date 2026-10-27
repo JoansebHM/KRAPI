@@ -154,7 +154,8 @@ export function useEstudiosDeSalida(salidaId: string | undefined) {
           ubicacionId: fila.ubicacion_id,
           // Si se borró el lugar, el estudio se borró con él (ON DELETE CASCADE); esto es solo defensivo.
           ubicacionNombre: ubicacionPorId.get(fila.ubicacion_id)?.nombre ?? '—',
-          ubicacionTipo: ubicacionPorId.get(fila.ubicacion_id)?.tipo ?? 'punto',
+          // Un elemento no tiene estudios (lo impide la base de datos): solo llegan puntos y zonas.
+          ubicacionTipo: ubicacionPorId.get(fila.ubicacion_id)?.tipo === 'zona' ? ('zona' as const) : ('punto' as const),
           fecha: fila.fecha,
           horaInicio: hora(fila.hora_inicio),
           horaFin: hora(fila.hora_fin),

@@ -32,7 +32,7 @@ export function EstudioPresentacion({
   onAgregarEvidencia,
   onCerrar,
 }: EstudioPresentacionProps) {
-  const { data: evidencias, isPending, isError, refetch } = useEvidencias(estudio.id)
+  const { data: evidencias, isPending, isError, refetch } = useEvidencias({ tipo: 'estudio', id: estudio.id })
   const { data: salidas } = useSalidas()
   const salida = estudio.salidaId ? salidas?.find((s) => s.id === estudio.salidaId) : undefined
   const nombreDe = useNombreDeCuenta()

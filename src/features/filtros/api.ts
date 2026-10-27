@@ -68,7 +68,8 @@ export function useEstudiosParaFiltro() {
       const [estudios, participantes, evidencias] = await Promise.all([
         supabase.from('estudios').select('id, ubicacion_id, fecha, hora_inicio, hora_fin').is('archivado_en', null),
         supabase.from('estudio_participantes').select('estudio_id, usuario_id'),
-        supabase.from('evidencias').select('estudio_id, tipo'),
+        // Las evidencias de los elementos no cuentan: no son de un estudio.
+        supabase.from('evidencias').select('estudio_id, tipo').not('estudio_id', 'is', null),
       ])
       if (estudios.error) throw estudios.error
       if (participantes.error) throw participantes.error
@@ -82,6 +83,7 @@ export function useEstudiosParaFiltro() {
       }
       const tiposPorEstudio = new Map<string, TipoEvidencia[]>()
       for (const fila of evidencias.data) {
+        if (!fila.estudio_id) continue
         const lista = tiposPorEstudio.get(fila.estudio_id) ?? []
         lista.push(fila.tipo)
         tiposPorEstudio.set(fila.estudio_id, lista)

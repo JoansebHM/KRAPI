@@ -2,18 +2,18 @@ import { useState } from 'react'
 import { Dialog } from '../../components/Dialog'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
-import { useAgregarVideo } from './api'
+import { useAgregarVideo, type DuenoEvidencia } from './api'
 import { enlaceDeSharePoint } from './sharepoint'
 
 const MAX_TITULO = 120
 
 interface AgregarVideoProps {
-  estudioId: string
+  dueno: DuenoEvidencia
   onCerrar: () => void
 }
 
 /** Agregar un video de SharePoint pegando su enlace o el código para insertar. */
-export function AgregarVideo({ estudioId, onCerrar }: AgregarVideoProps) {
+export function AgregarVideo({ dueno, onCerrar }: AgregarVideoProps) {
   const [texto, setTexto] = useState('')
   const [titulo, setTitulo] = useState('')
   const [intentoGuardar, setIntentoGuardar] = useState(false)
@@ -30,7 +30,7 @@ export function AgregarVideo({ estudioId, onCerrar }: AgregarVideoProps) {
     setIntentoGuardar(true)
     if (!enlace) return
     try {
-      await agregar.mutateAsync({ estudioId, enlace, titulo })
+      await agregar.mutateAsync({ dueno, enlace, titulo })
       notificar.exito('Video agregado', { descripcion: 'Se abre en SharePoint al tocarlo.' })
       onCerrar()
     } catch (errorGuardar) {

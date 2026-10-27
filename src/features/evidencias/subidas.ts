@@ -3,7 +3,7 @@ import { ErrorAlmacenamiento, subirArchivo, type MotivoError } from '../../lib/a
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { queryClient } from '../../lib/queryClient'
-import { claveEvidencias, registrarArchivo } from './api'
+import { claveEvidencias, registrarArchivo, type DuenoEvidencia } from './api'
 import { clasificar, excedeTamano, MENSAJE_MUY_GRANDE, rutaArchivo, type TipoArchivo } from './archivos'
 import { comprimirFoto } from './comprimir'
 
@@ -15,7 +15,7 @@ import { comprimirFoto } from './comprimir'
 
 export interface Subida {
   id: string
-  estudioId: string
+  dueno: DuenoEvidencia
   nombre: string
   tipo: TipoArchivo | null
   estado: 'en-cola' | 'preparando' | 'subiendo' | 'error'
@@ -48,18 +48,18 @@ function suscribir(oyente: () => void) {
 
 const SIN_SUBIDAS: Subida[] = []
 
-/** Subidas de un estudio (en cola, en curso o con error). */
-export function useSubidas(estudioId: string): Subida[] {
+/** Subidas de un estudio o de un elemento (en cola, en curso o con error). */
+export function useSubidas(dueno: DuenoEvidencia): Subida[] {
   const todas = useSyncExternalStore(suscribir, () => subidas)
-  const delEstudio = todas.filter((s) => s.estudioId === estudioId)
-  return delEstudio.length > 0 ? delEstudio : SIN_SUBIDAS
+  const delDueno = todas.filter((s) => s.dueno.tipo === dueno.tipo && s.dueno.id === dueno.id)
+  return delDueno.length > 0 ? delDueno : SIN_SUBIDAS
 }
 
 /** Agrega archivos a la cola. Los que no se pueden subir quedan con su error a la vista. */
-export function agregarArchivos(estudioId: string, archivos: File[]) {
+export function agregarArchivos(dueno: DuenoEvidencia, archivos: File[]) {
   const nuevas = archivos.map((archivo): Subida => {
     const clasificacion = clasificar(archivo)
-    const base = { id: crypto.randomUUID(), estudioId, nombre: archivo.name, avance: 0, archivo }
+    const base = { id: crypto.randomUUID(), dueno, nombre: archivo.name, avance: 0, archivo }
     if ('error' in clasificacion) return { ...base, tipo: null, estado: 'error', error: clasificacion.error, reintentable: false }
     return { ...base, tipo: clasificacion.tipo, estado: 'en-cola', reintentable: true }
   })
@@ -91,7 +91,7 @@ async function procesar() {
   }
 }
 
-async function subir({ id, estudioId, archivo: original }: Subida) {
+async function subir({ id, dueno, archivo: original }: Subida) {
   const clasificacion = clasificar(original)
   if ('error' in clasificacion) return
   const cancelacion = new AbortController()
@@ -105,7 +105,7 @@ async function subir({ id, estudioId, archivo: original }: Subida) {
       return
     }
 
-    const ruta = rutaArchivo(estudioId, archivo.name)
+    const ruta = rutaArchivo(dueno, archivo.name)
     actualizar(id, { estado: 'subiendo' })
     let porcentaje = 0
     await subirArchivo(ruta, archivo, mime, {
@@ -118,10 +118,10 @@ async function subir({ id, estudioId, archivo: original }: Subida) {
       },
     })
     if (cancelacion.signal.aborted) return
-    await registrarArchivo({ estudioId, tipo: clasificacion.tipo, ruta, nombre: archivo.name, mime, bytes: archivo.size })
+    await registrarArchivo({ dueno, tipo: clasificacion.tipo, ruta, nombre: archivo.name, mime, bytes: archivo.size })
 
     // Primero se recarga la lista, para que la evidencia aparezca antes de quitar su subida.
-    await queryClient.invalidateQueries({ queryKey: claveEvidencias(estudioId) }).catch(() => {})
+    await queryClient.invalidateQueries({ queryKey: claveEvidencias(dueno) }).catch(() => {})
     cambiar(subidas.filter((s) => s.id !== id))
   } catch (error) {
     if (error instanceof ErrorAlmacenamiento && error.motivo === 'cancelado') return
