@@ -143,6 +143,7 @@ export type Database = {
       categorias: {
         Row: {
           actualizado_por: string | null
+          aplica_a: Database["public"]["Enums"]["uso_categoria"]
           color: string
           creado_por: string | null
           created_at: string
@@ -153,6 +154,7 @@ export type Database = {
         }
         Insert: {
           actualizado_por?: string | null
+          aplica_a?: Database["public"]["Enums"]["uso_categoria"]
           color?: string
           creado_por?: string | null
           created_at?: string
@@ -163,6 +165,7 @@ export type Database = {
         }
         Update: {
           actualizado_por?: string | null
+          aplica_a?: Database["public"]["Enums"]["uso_categoria"]
           color?: string
           creado_por?: string | null
           created_at?: string
@@ -319,7 +322,7 @@ export type Database = {
           archivo_path: string | null
           creado_por: string | null
           created_at: string
-          estudio_id: string
+          estudio_id: string | null
           id: string
           proveedor:
             | Database["public"]["Enums"]["proveedor_almacenamiento"]
@@ -327,6 +330,7 @@ export type Database = {
           texto: string | null
           tipo: Database["public"]["Enums"]["tipo_evidencia"]
           titulo: string | null
+          ubicacion_id: string | null
           updated_at: string
           url_externa: string | null
         }
@@ -338,7 +342,7 @@ export type Database = {
           archivo_path?: string | null
           creado_por?: string | null
           created_at?: string
-          estudio_id: string
+          estudio_id?: string | null
           id?: string
           proveedor?:
             | Database["public"]["Enums"]["proveedor_almacenamiento"]
@@ -346,6 +350,7 @@ export type Database = {
           texto?: string | null
           tipo: Database["public"]["Enums"]["tipo_evidencia"]
           titulo?: string | null
+          ubicacion_id?: string | null
           updated_at?: string
           url_externa?: string | null
         }
@@ -357,7 +362,7 @@ export type Database = {
           archivo_path?: string | null
           creado_por?: string | null
           created_at?: string
-          estudio_id?: string
+          estudio_id?: string | null
           id?: string
           proveedor?:
             | Database["public"]["Enums"]["proveedor_almacenamiento"]
@@ -365,6 +370,7 @@ export type Database = {
           texto?: string | null
           tipo?: Database["public"]["Enums"]["tipo_evidencia"]
           titulo?: string | null
+          ubicacion_id?: string | null
           updated_at?: string
           url_externa?: string | null
         }
@@ -374,6 +380,13 @@ export type Database = {
             columns: ["estudio_id"]
             isOneToOne: false
             referencedRelation: "estudios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidencias_ubicacion_id_fkey"
+            columns: ["ubicacion_id"]
+            isOneToOne: false
+            referencedRelation: "ubicaciones"
             referencedColumns: ["id"]
           },
         ]
@@ -633,6 +646,19 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      elementos_cercanos: {
+        Args: {
+          categoria_id: string
+          lat: number
+          lng: number
+          metros?: number
+        }
+        Returns: {
+          distancia_m: number
+          id: string
+          nombre: string
+        }[]
+      }
       es_admin: { Args: never; Returns: boolean }
       es_miembro_activo: { Args: never; Returns: boolean }
       limite_manila: { Args: never; Returns: unknown }
@@ -769,7 +795,8 @@ export type Database = {
       proveedor_almacenamiento: "supabase" | "sharepoint" | "otro"
       rol_usuario: "miembro" | "admin"
       tipo_evidencia: "foto" | "audio" | "documento" | "texto" | "video"
-      tipo_ubicacion: "punto" | "zona"
+      tipo_ubicacion: "punto" | "zona" | "elemento"
+      uso_categoria: "lugares" | "elementos" | "ambos"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -903,7 +930,8 @@ export const Constants = {
       proveedor_almacenamiento: ["supabase", "sharepoint", "otro"],
       rol_usuario: ["miembro", "admin"],
       tipo_evidencia: ["foto", "audio", "documento", "texto", "video"],
-      tipo_ubicacion: ["punto", "zona"],
+      tipo_ubicacion: ["punto", "zona", "elemento"],
+      uso_categoria: ["lugares", "elementos", "ambos"],
     },
   },
 } as const
