@@ -8,8 +8,6 @@ import { SelectorParticipantes } from './SelectorParticipantes'
 import { SelectorSalida } from './SelectorSalida'
 import './FormularioEstudio.css'
 
-const MAX_TITULO = 120
-
 interface FormularioEstudioProps {
   titulo: string
   /** Nombre del lugar, para recordar a qué lugar se agrega el estudio. */
@@ -35,7 +33,6 @@ export function FormularioEstudio({ titulo, lugar, campos, onCambiar, onGuardar,
   const cambiar = <K extends keyof CamposEstudio>(campo: K, valor: CamposEstudio[K]) => onCambiar({ ...campos, [campo]: valor })
 
   const errores = {
-    titulo: campos.titulo.trim() ? null : 'Escribe un título, por ejemplo "Entrevista al tendero".',
     fecha: campos.fecha ? null : 'Elige la fecha.',
     horas:
       !campos.horaInicio || !campos.horaFin
@@ -78,27 +75,6 @@ export function FormularioEstudio({ titulo, lugar, campos, onCambiar, onGuardar,
         <p className="estudio-lugar">
           En <strong>{lugar}</strong>
         </p>
-
-        <label className="field">
-          <span className="field-label">Título</span>
-          <input
-            className="field-input"
-            type="text"
-            placeholder="Ej.: Entrevista al tendero"
-            maxLength={MAX_TITULO}
-            autoCapitalize="sentences"
-            enterKeyHint="next"
-            value={campos.titulo}
-            aria-invalid={Boolean(ver(errores.titulo))}
-            aria-describedby={ver(errores.titulo) ? 'estudio-titulo-error' : undefined}
-            onChange={(evento) => cambiar('titulo', evento.target.value)}
-          />
-          {ver(errores.titulo) && (
-            <p id="estudio-titulo-error" className="field-error">
-              {errores.titulo}
-            </p>
-          )}
-        </label>
 
         <label className="field">
           <span className="field-label">Fecha</span>

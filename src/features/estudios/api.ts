@@ -13,7 +13,6 @@ export interface Estudio {
   /** 'HH:MM' */
   horaInicio: string
   horaFin: string
-  titulo: string
   /** Apuntes de la visita, en el orden en que se escribieron. */
   notas: string[]
   entrevistado: string | null
@@ -34,7 +33,6 @@ export interface Estudio {
 
 /** Lo que se llena en el formulario de un estudio. */
 export interface CamposEstudio {
-  titulo: string
   fecha: string
   horaInicio: string
   horaFin: string
@@ -61,7 +59,7 @@ export function useEstudios(ubicacionId: string | undefined) {
       const { data, error } = await supabase
         .from('estudios')
         .select(
-          'id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo, notas, entrevistado, salida_id, created_at, updated_at, creado_por, actualizado_por, participantes_anteriores, estudio_participantes(usuario_id), evidencias(count)',
+          'id, ubicacion_id, fecha, hora_inicio, hora_fin, notas, entrevistado, salida_id, created_at, updated_at, creado_por, actualizado_por, participantes_anteriores, estudio_participantes(usuario_id), evidencias(count)',
         )
         .eq('ubicacion_id', ubicacionId!)
         .is('archivado_en', null)
@@ -73,7 +71,6 @@ export function useEstudios(ubicacionId: string | undefined) {
           fecha: fila.fecha,
           horaInicio: hora(fila.hora_inicio),
           horaFin: hora(fila.hora_fin),
-          titulo: fila.titulo,
           notas: fila.notas,
           entrevistado: fila.entrevistado,
           salidaId: fila.salida_id,
@@ -108,7 +105,6 @@ const opcional = (texto: string) => texto.trim().replace(/\s+/g, ' ') || null
 
 function filaEstudio(campos: CamposEstudio) {
   return {
-    titulo: campos.titulo.trim().replace(/\s+/g, ' '),
     fecha: campos.fecha,
     hora_inicio: campos.horaInicio,
     hora_fin: campos.horaFin,

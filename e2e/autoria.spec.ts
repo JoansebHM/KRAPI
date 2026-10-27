@@ -1,14 +1,17 @@
 import type { Page } from '@playwright/test'
 import { expect, test } from './soporte/fixtures'
 
-async function abrirPresentacion(page: Page, titulo: string) {
+/** Un estudio ya no tiene título: se identifica por su fecha, como se ve en la lista y en el diálogo. */
+async function abrirPresentacion(page: Page, fecha: string) {
   await page.goto('/lugares/p1')
-  await page.getByRole('region', { name: /Estudios/ }).getByRole('button', { name: new RegExp(titulo) }).click()
-  return page.getByRole('dialog', { name: titulo })
+  await page.getByRole('region', { name: /Estudios/ }).getByRole('button', { name: new RegExp(fecha) }).click()
+  return page.getByRole('dialog', { name: new RegExp(fecha) })
 }
 
 test.describe('Quién registró cada cosa', () => {
-  test.beforeEach(async ({ supabase }) => {
+  test.beforeEach(async ({ page, supabase }) => {
+    // "Hoy" es el 31 de octubre, distinto a las fechas de los estudios ya guardados.
+    await page.clock.setFixedTime(new Date('2026-10-31T10:00:00-05:00'))
     supabase.db.ubicaciones.push({ id: 'p1', tipo: 'punto', nombre: 'Café Central', categoria_id: null, estado: 'activa', geom: { type: 'Point', coordinates: [-75.576, 6.214] } })
     supabase.db.estudios.push(
       {
@@ -17,7 +20,6 @@ test.describe('Quién registró cada cosa', () => {
         fecha: '2026-10-30',
         hora_inicio: '09:00:00',
         hora_fin: '10:00:00',
-        titulo: 'Entrevista al tendero',
         archivado_en: null,
         creado_por: 'u-ana',
         actualizado_por: 'u-admin',
@@ -30,7 +32,6 @@ test.describe('Quién registró cada cosa', () => {
         fecha: '2026-10-20',
         hora_inicio: '09:00:00',
         hora_fin: '10:00:00',
-        titulo: 'Visita antigua',
         archivado_en: null,
         creado_por: null,
         actualizado_por: null,
@@ -42,7 +43,7 @@ test.describe('Quién registró cada cosa', () => {
 
   test('la presentación del estudio dice quién lo registró y quién lo editó', async ({ page, entrar }) => {
     await entrar('miembro')
-    const presentacion = await abrirPresentacion(page, 'Entrevista al tendero')
+    const presentacion = await abrirPresentacion(page, '30 oct 2026')
     const autoria = presentacion.locator('.estudio-presentacion-autoria')
     await expect(autoria).toContainText('Registrado por Ana Gómez · 30 oct 2026')
     await expect(autoria).toContainText('Editado por Admin Kratos · 31 oct 2026')
@@ -50,7 +51,7 @@ test.describe('Quién registró cada cosa', () => {
 
   test('los registros de antes de las cuentas individuales dicen "Cuenta compartida"', async ({ page, entrar }) => {
     await entrar('miembro')
-    const presentacion = await abrirPresentacion(page, 'Visita antigua')
+    const presentacion = await abrirPresentacion(page, '20 oct 2026')
     const autoria = presentacion.locator('.estudio-presentacion-autoria')
     await expect(autoria).toHaveText('Registrado por Cuenta compartida · 20 oct 2026')
   })
@@ -64,7 +65,7 @@ test.describe('Quién registró cada cosa', () => {
     supabase.archivos.set('e1/b-acta.pdf', { tipo: 'application/pdf', bytes: 1000 })
     await entrar('miembro')
 
-    const presentacion = await abrirPresentacion(page, 'Entrevista al tendero')
+    const presentacion = await abrirPresentacion(page, '30 oct 2026')
     await expect(presentacion.locator('li', { hasText: 'informe.pdf' })).toContainText('subida por Ana Gómez')
     await expect(presentacion.locator('li', { hasText: 'acta.pdf' })).toContainText('subida por Cuenta compartida')
 
@@ -78,11 +79,10 @@ test.describe('Quién registró cada cosa', () => {
     await page.goto('/lugares/p1')
     await page.getByRole('button', { name: 'Agregar estudio' }).click()
     const formulario = page.getByRole('dialog', { name: 'Nuevo estudio' })
-    await formulario.getByLabel('Título').fill('Visita de hoy')
     await formulario.getByRole('button', { name: 'Guardar estudio' }).click()
     await expect(page).toHaveURL(/\/estudios\//)
 
-    const presentacion = await abrirPresentacion(page, 'Visita de hoy')
+    const presentacion = await abrirPresentacion(page, '31 oct 2026')
     await expect(presentacion.locator('.estudio-presentacion-autoria')).toContainText('Registrado por Ana Gómez')
     await expect(presentacion.locator('.estudio-presentacion-autoria')).not.toContainText('Editado por')
   })

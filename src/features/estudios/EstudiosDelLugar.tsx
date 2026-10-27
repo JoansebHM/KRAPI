@@ -8,7 +8,7 @@ import { plural } from '../../lib/texto'
 import { Avatar } from '../usuarios/Avatar'
 import { semillaDe, useUsuarios } from '../usuarios/api'
 import { useArchivarEstudio, useEstudios, useGuardarEstudio, type CamposEstudio, type Estudio } from './api'
-import { camposDe, mostrarFecha, mostrarHora } from './campos'
+import { camposDe, cuandoFue, mostrarFecha, mostrarHora } from './campos'
 import { FormularioEstudio } from './FormularioEstudio'
 import { EstudioPresentacion } from './EstudioPresentacion'
 import './EstudiosDelLugar.css'
@@ -47,7 +47,7 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, esZona = false, nue
   async function guardarCambios() {
     if (!estudioSeleccionado || !edicion) return
     await guardar.mutateAsync({ ...edicion, ubicacionId, id: estudioSeleccionado.id })
-    notificar.exito('Cambios guardados', { descripcion: `«${edicion.titulo.trim()}» quedó actualizado.` })
+    notificar.exito('Cambios guardados', { descripcion: `El estudio del ${cuandoFue(edicion)} quedó actualizado.` })
     setEditando(false)
   }
 
@@ -58,7 +58,7 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, esZona = false, nue
       setEditando(false)
       setEdicion(null)
       notificar.exito('Estudio archivado', {
-        descripcion: `«${estudio.titulo}» ya no aparece en el histórico.`,
+        descripcion: `El estudio del ${cuandoFue(estudio)} ya no aparece en el histórico.`,
         accion: {
           texto: 'Deshacer',
           alHacer: () =>
@@ -76,7 +76,7 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, esZona = false, nue
   async function guardarNuevo() {
     if (!nuevo) return
     const id = await guardar.mutateAsync({ ...nuevo, ubicacionId })
-    notificar.exito('Estudio guardado', { descripcion: `«${nuevo.titulo.trim()}» quedó en el histórico. Ahora agrégale las evidencias.` })
+    notificar.exito('Estudio guardado', { descripcion: `El estudio del ${cuandoFue(nuevo)} quedó en el histórico. Ahora agrégale las evidencias.` })
     onCambiarNuevo(null)
     navigate(`/lugares/${ubicacionId}/estudios/${id}`)
   }
@@ -106,9 +106,9 @@ export function EstudiosDelLugar({ ubicacionId, nombreLugar, esZona = false, nue
               <li key={estudio.id}>
                 <button type="button" className="lista-item" onClick={() => setEstudioAbierto(estudio.id)}>
                   <span className="lista-item-textos">
-                    <span className="lista-item-titulo">{estudio.titulo}</span>
+                    <span className="lista-item-titulo">{mostrarFecha(estudio.fecha)}</span>
                     <span className="lista-item-detalle">
-                      {mostrarFecha(estudio.fecha)} · {mostrarHora(estudio.horaInicio)} – {mostrarHora(estudio.horaFin)}
+                      {mostrarHora(estudio.horaInicio)} – {mostrarHora(estudio.horaFin)}
                       {` · ${estudio.evidencias === 0 ? 'Sin evidencias' : plural(estudio.evidencias, 'evidencia')}`}
                       {estudio.salidaId && ' · De una salida'}
                     </span>

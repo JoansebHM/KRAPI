@@ -123,7 +123,6 @@ export interface EstudioDeSalida {
   ubicacionId: string
   ubicacionNombre: string
   ubicacionTipo: 'punto' | 'zona'
-  titulo: string
   fecha: string
   horaInicio: string
   horaFin: string
@@ -141,7 +140,7 @@ export function useEstudiosDeSalida(salidaId: string | undefined) {
     queryFn: async (): Promise<EstudioDeSalida[]> => {
       const { data: estudios, error } = await supabase
         .from('estudios')
-        .select('id, ubicacion_id, titulo, fecha, hora_inicio, hora_fin, evidencias(count)')
+        .select('id, ubicacion_id, fecha, hora_inicio, hora_fin, evidencias(count)')
         .eq('salida_id', salidaId!)
         .is('archivado_en', null)
       if (error) throw error
@@ -156,7 +155,6 @@ export function useEstudiosDeSalida(salidaId: string | undefined) {
           // Si se borró el lugar, el estudio se borró con él (ON DELETE CASCADE); esto es solo defensivo.
           ubicacionNombre: ubicacionPorId.get(fila.ubicacion_id)?.nombre ?? '—',
           ubicacionTipo: ubicacionPorId.get(fila.ubicacion_id)?.tipo ?? 'punto',
-          titulo: fila.titulo,
           fecha: fila.fecha,
           horaInicio: hora(fila.hora_inicio),
           horaFin: hora(fila.hora_fin),

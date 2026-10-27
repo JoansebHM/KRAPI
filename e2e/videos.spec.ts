@@ -6,7 +6,7 @@ const ENLACE = 'https://kratos.sharepoint.com/:v:/s/estudio/EaBcD123?e=xyz'
 test.describe('Videos de SharePoint', () => {
   test.beforeEach(async ({ supabase }) => {
     supabase.db.ubicaciones.push({ id: 'p1', tipo: 'punto', nombre: 'Café Central', categoria_id: null, estado: 'activa', geom: { type: 'Point', coordinates: [-75.576, 6.214] } })
-    supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Primera visita', archivado_en: null })
+    supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', archivado_en: null })
   })
 
   async function abrirVideo(page: Page) {
@@ -61,8 +61,8 @@ test.describe('Videos de SharePoint', () => {
     supabase.db.evidencias.push({ id: 'v1', estudio_id: 'e1', tipo: 'video', titulo: null, url_externa: ENLACE, proveedor: 'sharepoint' })
     await entrar()
     await page.goto('/lugares/p1')
-    await page.getByRole('region', { name: /Estudios/ }).getByRole('button', { name: /Primera visita/ }).click()
-    const presentacion = page.getByRole('dialog', { name: 'Primera visita' })
+    await page.getByRole('region', { name: /Estudios/ }).getByRole('button', { name: /20 oct 2026/ }).click()
+    const presentacion = page.getByRole('dialog', { name: /20 oct 2026/ })
     const enlace = presentacion.getByRole('link', { name: 'Ver en SharePoint' })
     await expect(enlace).toHaveAttribute('href', ENLACE)
     await expect(enlace).toHaveAttribute('target', '_blank')

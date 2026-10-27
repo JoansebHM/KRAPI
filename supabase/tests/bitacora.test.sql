@@ -18,12 +18,12 @@ set local request.jwt.claims = '{"sub": "00000000-0000-0000-0000-0000000000a1", 
 
 insert into public.ubicaciones (id, tipo, geom, nombre)
 values ('00000000-0000-0000-0000-000000000011', 'punto', 'SRID=4326;POINT(-75.5740 6.2130)', 'Tienda');
-insert into public.estudios (id, ubicacion_id, fecha, hora_inicio, hora_fin, titulo)
+insert into public.estudios (id, ubicacion_id, fecha, hora_inicio, hora_fin, entrevistado)
 values ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000011',
-        '2026-10-30', '14:00', '15:00', 'Entrevista');
+        '2026-10-30', '14:00', '15:00', 'Tendero');
 insert into public.estudio_participantes (estudio_id, usuario_id)
 values ('00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-0000000000a1');
-update public.estudios set titulo = 'Entrevista al tendero' where id = '00000000-0000-0000-0000-000000000021';
+update public.estudios set entrevistado = 'Tendero y administradora' where id = '00000000-0000-0000-0000-000000000021';
 update public.estudios set archivado_en = now() where id = '00000000-0000-0000-0000-000000000021';
 update public.estudios set archivado_en = null where id = '00000000-0000-0000-0000-000000000021';
 insert into public.evidencias (id, estudio_id, tipo, texto)
@@ -46,17 +46,17 @@ select results_eq(
   $$ values ('crear'), ('editar'), ('archivar'), ('recuperar') $$,
   'registra crear, editar, archivar y recuperar un estudio');
 select is(
-  (select cambios -> 'titulo' from public.bitacora
+  (select cambios -> 'entrevistado' from public.bitacora
     where tabla = 'estudios' and accion = 'editar'),
-  '{"antes": "Entrevista", "despues": "Entrevista al tendero"}'::jsonb,
+  '{"antes": "Tendero", "despues": "Tendero y administradora"}'::jsonb,
   'al editar guarda el valor de antes y el de después');
 select is(
   (select array_agg(campo order by campo) from public.bitacora, jsonb_object_keys(cambios) campo
     where tabla = 'estudios' and accion = 'editar'),
-  array['titulo'], 'al editar solo guarda los campos que cambiaron');
+  array['entrevistado'], 'al editar solo guarda los campos que cambiaron');
 select is(
-  (select cambios ->> 'titulo' from public.bitacora where tabla = 'estudios' and accion = 'crear'),
-  'Entrevista', 'al crear guarda los campos del registro');
+  (select cambios ->> 'entrevistado' from public.bitacora where tabla = 'estudios' and accion = 'crear'),
+  'Tendero', 'al crear guarda los campos del registro');
 select ok(
   not exists (select 1 from public.bitacora where tabla = 'estudios' and accion = 'crear' and cambios ? 'creado_por'),
   'no guarda las columnas que mantiene la base de datos');

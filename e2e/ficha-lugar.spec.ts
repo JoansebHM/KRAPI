@@ -46,15 +46,15 @@ test.describe('Ficha del lugar', () => {
 
   test('el histórico dice cuántas evidencias tiene cada estudio', async ({ page, entrar, supabase }) => {
     supabase.db.estudios.push(
-      { id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Primera visita', archivado_en: null },
-      { id: 'e2', ubicacion_id: 'p1', fecha: '2026-10-22', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Segunda visita', archivado_en: null },
+      { id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', archivado_en: null },
+      { id: 'e2', ubicacion_id: 'p1', fecha: '2026-10-22', hora_inicio: '09:00:00', hora_fin: '10:00:00', archivado_en: null },
     )
     supabase.db.evidencias.push({ id: 'v1', estudio_id: 'e1', tipo: 'texto', texto: 'a' }, { id: 'v2', estudio_id: 'e1', tipo: 'texto', texto: 'b' })
     await entrar()
     await page.goto('/lugares/p1')
     const historico = page.getByRole('region', { name: /Estudios/ })
-    await expect(historico.getByRole('button', { name: /Primera visita/ })).toContainText('2 evidencias')
-    await expect(historico.getByRole('button', { name: /Segunda visita/ })).toContainText('Sin evidencias')
+    await expect(historico.getByRole('button', { name: /20 oct 2026/ })).toContainText('2 evidencias')
+    await expect(historico.getByRole('button', { name: /22 oct 2026/ })).toContainText('Sin evidencias')
   })
 
   test('editar los datos, incluida la descripción', async ({ page, entrar, supabase }) => {
@@ -154,7 +154,7 @@ test.describe('Ficha del lugar', () => {
     await expect(ficha(page).getByRole('button', { name: 'Borrar lugar' })).toHaveCount(0)
 
     supabase.db.ubicaciones[0].creado_por = 'u-ana'
-    supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Visita', archivado_en: null })
+    supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', archivado_en: null })
     await page.reload()
     await expect(ficha(page).getByRole('button', { name: 'Archivar' })).toBeVisible()
     await expect(ficha(page).getByRole('button', { name: 'Borrar lugar' })).toHaveCount(0)

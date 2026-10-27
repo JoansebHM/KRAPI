@@ -248,16 +248,15 @@ test.describe('Salidas y asignaciones', () => {
 
       const formulario = page.getByRole('dialog', { name: 'Nuevo estudio' })
       await expect(formulario.getByRole('button', { name: 'Salida de octubre' })).toHaveAttribute('aria-pressed', 'true')
-      await formulario.getByPlaceholder('Ej.: Entrevista al tendero').fill('Levantamiento')
       await formulario.getByRole('button', { name: 'Guardar estudio' }).click()
 
       await expect(toast(page, 'Estudio guardado')).toBeVisible()
-      expect(supabase.db.estudios.find((e) => e.titulo === 'Levantamiento')).toMatchObject({ salida_id: 's1' })
+      expect(supabase.db.estudios.find((e) => e.ubicacion_id === 'p1')).toMatchObject({ salida_id: 's1' })
 
       // Y aparece en la salida, con enlace a su página.
       await page.goto('/salidas/s1')
-      const registrado = page.locator('.lista-item', { hasText: 'Levantamiento' })
-      await expect(registrado).toContainText('Punto · Café Central')
+      const registrado = page.locator('.lista-item', { hasText: 'Café Central' })
+      await expect(registrado).toContainText('Punto')
       await registrado.click()
       await expect(page).toHaveURL(/\/lugares\/p1\/estudios\//)
       await expect(page.getByRole('link', { name: 'Salida de octubre' })).toBeVisible()
@@ -275,22 +274,21 @@ test.describe('Salidas y asignaciones', () => {
       supabase.db.salidas.push({ id: 's1', nombre: 'Salida de octubre', fecha: '2026-10-30', hora_inicio: '14:00:00', cancelada_en: null })
       supabase.db.asignaciones.push({ id: 'a1', salida_id: 's1', nombre: 'Cuadrante norte', forma: { type: 'Polygon', coordinates: [MANZANA] } })
       supabase.db.asignacion_participantes.push({ asignacion_id: 'a1', usuario_id: 'u-ana', hora_fin: null, porcentaje: null })
-      supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Visita anterior', archivado_en: null })
+      supabase.db.estudios.push({ id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', archivado_en: null })
 
       await entrar('miembro')
       await page.goto('/lugares/p1')
       await page.getByRole('button', { name: 'Agregar estudio' }).click()
       const nuevo = page.getByRole('dialog', { name: 'Nuevo estudio' })
       await nuevo.getByRole('button', { name: 'Ninguna' }).click()
-      await nuevo.getByPlaceholder('Ej.: Entrevista al tendero').fill('Visita sin salida')
       await nuevo.getByRole('button', { name: 'Guardar estudio' }).click()
       await expect(toast(page, 'Estudio guardado')).toBeVisible()
-      expect(supabase.db.estudios.find((e) => e.titulo === 'Visita sin salida')).toMatchObject({ salida_id: null })
+      expect(supabase.db.estudios.find((e) => e.id !== 'e1')).toMatchObject({ salida_id: null })
 
       // Guardar un estudio nuevo lleva a su propia página; se vuelve a la ficha del lugar.
       await page.goto('/lugares/p1')
       // La visita anterior no estaba ligada a nada: se le liga la salida al editarla.
-      await page.getByRole('button', { name: /Visita anterior/ }).click()
+      await page.getByRole('button', { name: /20 oct 2026/ }).click()
       await page.getByRole('button', { name: 'Editar estudio' }).click()
       const edicion = page.getByRole('dialog', { name: 'Editar estudio' })
       await edicion.getByRole('button', { name: 'Salida de octubre' }).click()
@@ -300,7 +298,7 @@ test.describe('Salidas y asignaciones', () => {
     })
 
     test('si la salida ligada ya no está, el enlace dice "Ver historial de zona de salida"', async ({ page, entrar, supabase }) => {
-      supabase.db.estudios.push({ id: 'e2', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', titulo: 'Visita', salida_id: 'borrada', archivado_en: null })
+      supabase.db.estudios.push({ id: 'e2', ubicacion_id: 'p1', fecha: '2026-10-20', hora_inicio: '09:00:00', hora_fin: '10:00:00', salida_id: 'borrada', archivado_en: null })
 
       await entrar('miembro')
       await page.goto('/lugares/p1/estudios/e2')
@@ -365,11 +363,10 @@ test.describe('Salidas y asignaciones', () => {
 
       const estudio = page.getByRole('dialog', { name: 'Nuevo estudio' })
       await expect(estudio.getByRole('button', { name: 'Salida del 2' })).toHaveAttribute('aria-pressed', 'true')
-      await estudio.getByPlaceholder('Ej.: Entrevista al tendero').fill('Recorrido de noviembre')
       await estudio.getByRole('button', { name: 'Guardar estudio' }).click()
       await expect(toast(page, 'Estudio guardado')).toBeVisible()
 
-      const nuevoEstudio = supabase.db.estudios.find((e) => e.titulo === 'Recorrido de noviembre')!
+      const nuevoEstudio = supabase.db.estudios.find((e) => e.ubicacion_id === zonaId)!
       expect(nuevoEstudio).toMatchObject({ ubicacion_id: zonaId, salida_id: 's2' })
     })
   })

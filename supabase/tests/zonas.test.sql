@@ -27,9 +27,9 @@ insert into public.ubicaciones (id, tipo, geom, nombre, tipo_zona_id) values
 insert into public.ubicaciones (id, tipo, geom, nombre) values
   ('00000000-0000-0000-0000-000000000012', 'punto', 'SRID=4326;POINT(-75.5742 6.2131)', 'Tienda adentro'),
   ('00000000-0000-0000-0000-000000000013', 'punto', 'SRID=4326;POINT(-75.5760 6.2140)', 'Tienda afuera');
-insert into public.estudios (ubicacion_id, fecha, hora_inicio, hora_fin, titulo) values
-  ('00000000-0000-0000-0000-000000000012', '2026-10-20', '09:00', '10:00', 'Primera'),
-  ('00000000-0000-0000-0000-000000000012', '2026-10-28', '09:00', '10:00', 'Segunda');
+insert into public.estudios (ubicacion_id, fecha, hora_inicio, hora_fin) values
+  ('00000000-0000-0000-0000-000000000012', '2026-10-20', '09:00', '10:00'),
+  ('00000000-0000-0000-0000-000000000012', '2026-10-28', '09:00', '10:00');
 
 select results_eq(
   $$ select nombre, ultimo_estudio from public.locales_en_zona('00000000-0000-0000-0000-000000000011') $$,

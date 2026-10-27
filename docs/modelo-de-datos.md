@@ -83,12 +83,13 @@ Las zonas no usan categoría, dirección ni contacto, y deben tener **al menos 2
 | `ubicacion_id` | uuid → `ubicaciones` | Obligatorio. ON DELETE CASCADE |
 | `fecha` | date | Obligatoria |
 | `hora_inicio`, `hora_fin` | time | Obligatorias; `hora_fin > hora_inicio` (mismo día) |
-| `titulo` | text | Obligatorio |
 | `notas` | text[] | Apuntes de la visita, en orden. Lista vacía = sin notas. Hasta 50, cada una de 1 a 2000 caracteres (`notas_validas()`) |
 | `entrevistado` | text | A quién se entrevistó ("Tendero"…), opcional, máximo 120 caracteres |
 | `participantes_anteriores` | text[] | Nombres de quienes participaron antes de las cuentas individuales y no tenían cuenta ([decisión 0023](decisiones/0023-participantes-son-cuentas.md)). Solo histórico |
 | `salida_id` | uuid → `salidas` | Opcional. En qué salida se hizo ([decisión 0025](decisiones/0025-salidas-y-asignaciones.md)). ON DELETE SET NULL: si se borra la salida, el estudio no se pierde |
 | `archivado_en` | timestamptz | NULL = visible |
+
+Sin título: un estudio se identifica por su fecha y hora ("30 oct 2026 · 2:00 p. m."), no por un nombre que alguien tendría que inventar (decisión 0027).
 
 La app guarda primero el estudio y después sus participantes (`estudio_participantes`). Si la segunda parte falla, borra el estudio recién creado, que todavía no tiene evidencias, para no dejarlo a medias.
 
@@ -166,7 +167,7 @@ Las columnas de autoría solo dicen quién creó y quién editó por última vez
 | `usuario_id` | uuid | Quién (`auth.uid()`). **Sin clave foránea**, para no perderlo si se borra la cuenta. NULL = script o sistema |
 | `tabla`, `registro_id` | text, uuid | Qué registro. En `estudio_participantes`, el id del estudio; en `asignacion_participantes`, el de la zona asignada |
 | `accion` | `accion_bitacora` | `crear`, `editar`, `archivar`, `recuperar` o `borrar` |
-| `cambios` | jsonb | Al crear, los campos del registro. Al editar, archivar o recuperar, solo los que cambiaron: `{"titulo": {"antes": "…", "despues": "…"}}` |
+| `cambios` | jsonb | Al crear, los campos del registro. Al editar, archivar o recuperar, solo los que cambiaron: `{"nombre": {"antes": "…", "despues": "…"}}` |
 | `registro_borrado` | jsonb | Al borrar, una copia completa del registro |
 
 - La llena el trigger `registrar_bitacora()` en `categorias`, `tipos_zona`, `ubicaciones`, `estudios`, `estudio_participantes`, `evidencias`, `comentarios_zona`, `salidas`, `asignaciones` y `asignacion_participantes`, y en los cambios de `rol` y `estado` de `perfiles`. Cancelar o reactivar una salida queda como `archivar` o `recuperar`.
@@ -283,3 +284,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261026150000_salidas_y_asignaciones` | `salidas`, `asignaciones` (con `forma` calculada) y `asignacion_participantes`, con sus permisos; `registrar_bitacora()` ignora `forma` y registra las tablas de unión con el id de la asignación |
 | `20261026160000_estudios_de_una_salida` | `estudios.salida_id` (opcional, ON DELETE SET NULL) |
 | `20261026170000_zona_de_asignacion` | `asignaciones.zona_id` (opcional, ON DELETE SET NULL) y el trigger `validar_zona_de_asignacion()` |
+| `20261026180000_quitar_titulo_estudio` | Quita `estudios.titulo` ([decisión 0027](decisiones/0027-quitar-titulo-del-estudio.md)) |

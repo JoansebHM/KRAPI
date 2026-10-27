@@ -22,8 +22,8 @@ test.describe('Filtros del mapa', () => {
       { id: 'z1', tipo: 'zona', nombre: 'Manzana del parque', estado: 'activa', geom: { type: 'Polygon', coordinates: [MANZANA] } },
     )
     supabase.db.estudios.push(
-      { id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-05', hora_inicio: '08:00:00', hora_fin: '09:00:00', titulo: 'Visita a Café Central', archivado_en: null },
-      { id: 'e2', ubicacion_id: 'p2', fecha: '2026-10-20', hora_inicio: '15:00:00', hora_fin: '16:00:00', titulo: 'Visita a Tienda Don Pepe', archivado_en: null },
+      { id: 'e1', ubicacion_id: 'p1', fecha: '2026-10-05', hora_inicio: '08:00:00', hora_fin: '09:00:00', archivado_en: null },
+      { id: 'e2', ubicacion_id: 'p2', fecha: '2026-10-20', hora_inicio: '15:00:00', hora_fin: '16:00:00', archivado_en: null },
     )
     supabase.db.estudio_participantes.push({ estudio_id: 'e1', usuario_id: 'u-ana' }, { estudio_id: 'e2', usuario_id: 'u-beto' })
     supabase.db.evidencias.push(
