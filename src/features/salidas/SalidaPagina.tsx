@@ -298,10 +298,8 @@ function EstudioDeSalidaItem({ estudio }: { estudio: EstudioDeSalida }) {
     <li>
       <Link to={`/lugares/${estudio.ubicacionId}/estudios/${estudio.id}`} className="lista-item">
         <span className="lista-item-textos">
-          <span className="lista-item-titulo">{estudio.titulo}</span>
-          <span className="lista-item-detalle">
-            {estudio.ubicacionTipo === 'zona' ? 'Zona' : 'Punto'} · {estudio.ubicacionNombre}
-          </span>
+          <span className="lista-item-titulo">{estudio.ubicacionNombre}</span>
+          <span className="lista-item-detalle">{estudio.ubicacionTipo === 'zona' ? 'Zona' : 'Punto'}</span>
           <span className="lista-item-detalle">
             {mostrarFecha(estudio.fecha)} · {mostrarHora(estudio.horaInicio)} – {mostrarHora(estudio.horaFin)}
             {` · ${estudio.evidencias === 0 ? 'Sin evidencias' : plural(estudio.evidencias, 'evidencia')}`}

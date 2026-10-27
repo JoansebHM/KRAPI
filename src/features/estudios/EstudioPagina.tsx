@@ -13,7 +13,7 @@ import { agregarArchivos } from '../evidencias/subidas'
 import { useLugares } from '../lugares/api'
 import { useSalidas } from '../salidas/api'
 import { useArchivarEstudio, useEstudios, useGuardarEstudio, type CamposEstudio, type Estudio } from './api'
-import { camposDe, mostrarFecha, mostrarHora } from './campos'
+import { camposDe, cuandoFue, mostrarFecha, mostrarHora } from './campos'
 import { FormularioEstudio } from './FormularioEstudio'
 import { NotasDelEstudio } from './NotasDelEstudio'
 import { ParticipantesDelEstudio } from './ParticipantesDelEstudio'
@@ -64,7 +64,7 @@ export function EstudioPagina() {
 
   async function guardarCambios(actual: Estudio) {
     await guardar.mutateAsync({ ...edicion!, ubicacionId: lugarId, id: actual.id })
-    notificar.exito('Cambios guardados', { descripcion: `«${edicion!.titulo.trim()}» quedó actualizado.` })
+    notificar.exito('Cambios guardados', { descripcion: `El estudio del ${cuandoFue(edicion!)} quedó actualizado.` })
     setEdicion(null)
   }
 
@@ -74,7 +74,7 @@ export function EstudioPagina() {
       setEdicion(null)
       navigate(volver.a)
       notificar.exito('Estudio archivado', {
-        descripcion: `«${actual.titulo}» ya no aparece en el histórico.`,
+        descripcion: `El estudio del ${cuandoFue(actual)} ya no aparece en el histórico.`,
         accion: {
           texto: 'Deshacer',
           alHacer: () =>
@@ -96,7 +96,7 @@ export function EstudioPagina() {
 
   return (
     <Panel
-      titulo={estudio.titulo}
+      titulo={cuandoFue(estudio)}
       subtitulo={nombreLugar}
       volver={volver}
       pie={

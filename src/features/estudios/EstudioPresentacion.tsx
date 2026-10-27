@@ -12,7 +12,7 @@ import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
 import { useSalidas } from '../salidas/api'
 import { useNombreDeCuenta } from '../usuarios/api'
 import type { Estudio } from './api'
-import { fueEditado, mostrarFecha, mostrarFechaDe, mostrarHora } from './campos'
+import { cuandoFue, fueEditado, mostrarFecha, mostrarFechaDe, mostrarHora } from './campos'
 import { NotasDelEstudio } from './NotasDelEstudio'
 import { ParticipantesDelEstudio } from './ParticipantesDelEstudio'
 import './EstudioPresentacion.css'
@@ -49,7 +49,7 @@ export function EstudioPresentacion({
   return (
     <>
       <Dialog
-        titulo={estudio.titulo}
+        titulo={cuandoFue(estudio)}
         clase="dialog-presentacion"
         onCerrar={onCerrar}
         acciones={

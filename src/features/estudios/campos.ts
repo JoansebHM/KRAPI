@@ -42,7 +42,6 @@ export function estudioNuevo(
   // Si la hora siguiente pasa de la medianoche, el fin queda en 23:59 (el estudio es de un solo día).
   const fin = ahora.getHours() < 23 ? `${dosDigitos(ahora.getHours() + 1)}:${dosDigitos(ahora.getMinutes())}` : '23:59'
   return {
-    titulo: '',
     fecha: fechaLocal(ahora),
     horaInicio: inicio,
     horaFin: fin,
@@ -57,7 +56,6 @@ export function estudioNuevo(
 
 export function camposDe(estudio: Estudio): CamposEstudio {
   return {
-    titulo: estudio.titulo,
     fecha: estudio.fecha,
     horaInicio: estudio.horaInicio,
     horaFin: estudio.horaFin,
@@ -81,6 +79,11 @@ export function mostrarFecha(fecha: string) {
 /** Fecha y hora guardadas por la base de datos (ISO, en UTC) → '30 oct 2026' en la hora local. */
 export function mostrarFechaDe(momento: string) {
   return mostrarFecha(fechaLocal(new Date(momento)))
+}
+
+/** Cómo se identifica un estudio, ya que no tiene título: "30 oct 2026 · 2:00 p. m.". */
+export function cuandoFue(estudio: Pick<Estudio, 'fecha' | 'horaInicio'>) {
+  return `${mostrarFecha(estudio.fecha)} · ${mostrarHora(estudio.horaInicio)}`
 }
 
 /** Si un registro se editó después de crearlo (no cuenta el primer minuto, cuando se guardan sus partes). */
