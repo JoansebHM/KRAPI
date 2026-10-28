@@ -49,6 +49,15 @@ test.describe('Quién registró cada cosa', () => {
     await expect(autoria).toContainText('Editado por Admin Kratos · 31 oct 2026')
   })
 
+  test('la línea de quién lo registró no queda pegada a los participantes', async ({ page, entrar }) => {
+    await entrar('miembro')
+    const presentacion = await abrirPresentacion(page, '30 oct 2026')
+    const datos = (await presentacion.locator('.estudio-presentacion-datos').boundingBox())!
+    const autoria = (await presentacion.locator('.estudio-presentacion-autoria').boundingBox())!
+    // Al menos 16 px (--space-4) entre el último dato y la línea.
+    expect(autoria.y - (datos.y + datos.height)).toBeGreaterThanOrEqual(15.5)
+  })
+
   test('los registros de antes de las cuentas individuales dicen "Cuenta compartida"', async ({ page, entrar }) => {
     await entrar('miembro')
     const presentacion = await abrirPresentacion(page, '20 oct 2026')
