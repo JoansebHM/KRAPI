@@ -4,18 +4,18 @@ import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { dentroDeManila } from '../map/manila'
 import { useMapa } from '../map/mapaContexto'
-import { useLugares, useMoverPunto, type Punto } from './api'
+import { useLugares, useMoverPunto, type Elemento, type Punto } from './api'
 import { MiraCentral } from './MiraCentral'
 import './CrearPunto.css'
 
-/** Mover un punto: el mapa arranca sobre su posición y se mueve por debajo de la mira. */
+/** Mover un punto o un elemento: el mapa arranca sobre su posición y se mueve por debajo de la mira. */
 export function MoverPunto() {
   const { id } = useParams()
   const mapa = useMapa()
   const navigate = useNavigate()
   const { data: lugares, isPending } = useLugares()
   const mover = useMoverPunto()
-  const punto = lugares?.find((lugar): lugar is Punto => lugar.id === id && lugar.tipo === 'punto')
+  const punto = lugares?.find((lugar): lugar is Punto | Elemento => lugar.id === id && (lugar.tipo === 'punto' || lugar.tipo === 'elemento'))
   const centrado = useRef(false)
 
   // Al abrir, el mapa se centra en la posición actual del punto (una sola vez).
@@ -34,7 +34,7 @@ export function MoverPunto() {
     if (!centro || !dentroDeManila(centro[0], centro[1])) return
     try {
       await mover.mutateAsync({ id: punto!.id, lng: centro[0], lat: centro[1] })
-      notificar.exito('Punto movido', { descripcion: `«${punto!.nombre}» quedó en su nueva posición.` })
+      notificar.exito(punto!.tipo === 'elemento' ? 'Elemento movido' : 'Punto movido', { descripcion: `«${punto!.nombre}» quedó en su nueva posición.` })
       navigate(`/lugares/${punto!.id}`)
     } catch (error) {
       notificar.error('No se pudo mover', { descripcion: mensajeErrorDatos(error) })

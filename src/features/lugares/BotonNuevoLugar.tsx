@@ -4,7 +4,7 @@ import { Dialog } from '../../components/Dialog'
 import { FlechaLista } from '../../components/FlechaLista'
 import './CrearPunto.css'
 
-/** Botón flotante "+" del mapa: pregunta si se registra un punto (un local) o una zona. */
+/** Botón flotante "+" del mapa: pregunta si se registra un punto (un local), una zona o un elemento. */
 export function BotonNuevoLugar() {
   const [eligiendo, setEligiendo] = useState(false)
 
@@ -53,6 +53,20 @@ export function BotonNuevoLugar() {
                 <span className="lista-item-textos">
                   <span className="lista-item-titulo">Zona</span>
                   <span className="lista-item-detalle">Un área: una manzana, una cuadra, un parque…</span>
+                </span>
+                <FlechaLista />
+              </Link>
+            </li>
+            <li>
+              <Link to="/elementos/nuevo" className="lista-item">
+                <span className="nuevo-lugar-icono" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 21 6.3 14.7a7 7 0 1 1 11.4 0Z" />
+                  </svg>
+                </span>
+                <span className="lista-item-textos">
+                  <span className="lista-item-titulo">Elemento</span>
+                  <span className="lista-item-detalle">Algo que no se estudia: caneca, poste, árbol, parqueadero…</span>
                 </span>
                 <FlechaLista />
               </Link>
