@@ -4,7 +4,7 @@ import { mensajeErrorDatos, SIN_PERMISO } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
 import type { Json } from '../../types/database'
 import type { Captura } from './capturar'
-import { trazosAGeoJSON, type Trazo } from './trazos'
+import { elementosAGeoJSON, type Elemento } from './trazos'
 
 export interface Boceto {
   id: string
@@ -67,7 +67,8 @@ export function useEnlaceDeImagen(ruta: string) {
 export interface DatosBoceto {
   titulo: string
   descripcion: string
-  trazos: Trazo[]
+  /** Lo dibujado: trazos y textos, en el orden en que se hicieron. */
+  elementos: Elemento[]
   captura: Captura
 }
 
@@ -78,7 +79,7 @@ export interface DatosBoceto {
 export function useGuardarBoceto() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ titulo, descripcion, trazos, captura }: DatosBoceto) => {
+    mutationFn: async ({ titulo, descripcion, elementos, captura }: DatosBoceto) => {
       const id = crypto.randomUUID()
       const imagenPath = `bocetos/${id}/imagen.png`
       const miniaturaPath = `bocetos/${id}/miniatura.jpg`
@@ -93,8 +94,8 @@ export function useGuardarBoceto() {
         id,
         titulo: titulo.trim().replace(/\s+/g, ' '),
         descripcion: descripcion.trim() || null,
-        // Es un FeatureCollection de GeoJSON: la columna es jsonb.
-        trazos: trazosAGeoJSON(trazos) as unknown as Json,
+        // Es un FeatureCollection de GeoJSON (líneas y puntos de texto): la columna es jsonb.
+        trazos: elementosAGeoJSON(elementos) as unknown as Json,
         imagen_path: imagenPath,
         miniatura_path: miniaturaPath,
         ancho: captura.ancho,

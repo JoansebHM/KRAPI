@@ -19,9 +19,105 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Con la mano, los toques pasan al mapa. */
-.pizarra-lienzo-mano {
+/* Con la mano y con el texto, los toques pasan al mapa. */
+.pizarra-lienzo-pasa {
   pointer-events: none;
+}
+
+/*
+ * Textos: cajas HTML pegadas a una posición del mapa (TextosEnPizarra). Por debajo del lienzo del
+ * lápiz (4), para poder dibujar encima, y por encima de los controles del mapa (2).
+ */
+.pizarra-textos {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pizarra-texto {
+  position: absolute;
+  padding: 6px 10px;
+  /* Misma tipografía, interlineado y borde que usa dibujarTextos() al guardar: ver trazos.ts. */
+  font-family: var(--font-sans);
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  white-space: pre;
+  user-select: none;
+  touch-action: none;
+  pointer-events: none;
+}
+
+/* Solo con la herramienta Texto se pueden elegir y mover; con las otras no estorban. */
+.pizarra-textos-activo .pizarra-texto {
+  cursor: move;
+  pointer-events: auto;
+}
+
+.pizarra-texto-contenido {
+  position: relative;
+  display: block;
+  isolation: isolate;
+}
+
+/* El borde blanco va detrás de las letras: así cualquier color se lee sobre el mapa claro y el oscuro. */
+.pizarra-texto-contenido::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  color: #ffffff;
+  content: attr(data-texto);
+  -webkit-text-stroke: 5px #ffffff;
+}
+
+.pizarra-texto:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.pizarra-texto-seleccionado {
+  z-index: 1;
+  border-radius: 6px;
+  outline: 2px dashed var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Manija para girar: un círculo arriba del texto, con área de toque de 44 px. */
+.pizarra-texto-giro {
+  position: absolute;
+  top: -58px;
+  left: 50%;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  margin-left: -22px;
+  place-items: center;
+  cursor: grab;
+  touch-action: none;
+}
+
+.pizarra-texto-giro::before {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--color-accent);
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: var(--shadow-overlay);
+  content: '';
+}
+
+/* El palito que une la manija con el texto. */
+.pizarra-texto-giro::after {
+  position: absolute;
+  top: calc(50% + 11px);
+  left: 50%;
+  width: 2px;
+  height: 25px;
+  background: var(--color-accent);
+  content: '';
+  translate: -50% 0;
 }
 
 /* Cancelar y Guardar, arriba a la izquierda (los controles del mapa van a la derecha). */
@@ -126,8 +222,15 @@
     0 0 0 5px var(--color-accent);
 }
 
-.pizarra-ajustes {
+.pizarra-ajustes,
+.pizarra-texto-acciones {
   justify-content: space-between;
+}
+
+/* La "A" de los botones de tamaño del texto. */
+.pizarra-letra {
+  font-weight: 700;
+  line-height: 1;
 }
 
 .pizarra-grosores {
