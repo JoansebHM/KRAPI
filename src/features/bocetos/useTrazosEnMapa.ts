@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { GeoJSONSource, Map as MapLibreMap } from '../map/maplibre'
 import { trazosAGeoJSON, type Trazo } from './trazos'
 
@@ -37,7 +37,7 @@ function asegurarCapas(mapa: MapLibreMap, datos: ReturnType<typeof trazosAGeoJSO
  * después de cambiar el tema (el mapa recarga su estilo) y se quitan al salir de la pizarra.
  */
 export function useTrazosEnMapa(mapa: MapLibreMap | null, trazos: Trazo[]) {
-  const datos = trazosAGeoJSON(trazos)
+  const datos = useMemo(() => trazosAGeoJSON(trazos), [trazos])
   const actual = useRef(datos)
   useEffect(() => {
     actual.current = datos

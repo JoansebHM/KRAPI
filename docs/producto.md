@@ -73,9 +73,11 @@ Para un **elemento**: con la misma mira se ubica y se llenan su nombre, su categ
 Para un **boceto**:
 
 1. En el menú, **Pizarra**. El mapa arranca en **Mano**: se ubica donde se quiere explicar algo.
-2. Se toca **Lápiz**: el mapa queda quieto y el dedo (o el mouse, en computador) dibuja. Hay cinco colores (por ejemplo, rojo para la ruta del bus y azul para las personas), dos grosores, **Deshacer** (el último trazo) y **Borrar todo** (con confirmación). Con **Mano** se vuelve a mover el mapa y los trazos se quedan pegados a él.
-3. **Guardar** (se activa con el primer trazo) pide un título y, si se quiere, una descripción. Se guarda el pantallazo del mapa con los trazos. Los marcadores de los lugares no salen: se ocultan en la pizarra; el mapa base (calles y nombres), las zonas y el límite de Manila sí.
-4. En **Bocetos** están todos, del más reciente al más antiguo, con miniatura, quién lo hizo y cuándo. Al tocar uno se ve entero en pantalla completa, con su descripción, y se puede **descargar** o **borrar** (solo su autor o un admin, con confirmación). Sirve para proyectarlo en las reuniones.
+2. Se toca **Lápiz**: el mapa queda quieto y el dedo (o el mouse, en computador) dibuja. Hay cinco colores (por ejemplo, rojo para la ruta del bus y azul para las personas), dos grosores, **Deshacer** y **Borrar todo** (con confirmación). Con **Mano** se vuelve a mover el mapa y los trazos se quedan pegados a él.
+3. Con **Texto**, tocar el mapa abre un cuadro para escribir (varias líneas, hasta 160 caracteres) y pone el texto ahí; el mapa se sigue moviendo arrastrando. Tocar un texto lo elige: se **arrastra** para moverlo, se **gira** con su manija (o con los botones de girar, de a 15°) y se puede **editar**, cambiarle el **color** y el **tamaño** (normal o grande) y **borrar**. Los textos también se pegan al mapa.
+4. **Deshacer** revierte la última acción de cualquier tipo (un trazo, un texto, mover, girar, editar, borrar), también después de **Borrar todo**.
+5. **Guardar** (se activa con el primer trazo o texto) pide un título y, si se quiere, una descripción. Se guarda el pantallazo del mapa con los trazos. Los marcadores de los lugares no salen: se ocultan en la pizarra; el mapa base (calles y nombres), las zonas y el límite de Manila sí.
+6. En **Bocetos** están todos, del más reciente al más antiguo, con miniatura, quién lo hizo y cuándo. Al tocar uno se ve entero en pantalla completa, con su descripción, y se puede **descargar** o **borrar** (solo su autor o un admin, con confirmación). Sirve para proyectarlo en las reuniones.
 
 Para una **salida**:
 
@@ -100,7 +102,7 @@ Una salida se puede cancelar (las personas lo ven) y reactivar. Una zona de la s
 - Notificaciones.
 - Administración de categorías (color e ícono). Cada cuenta tiene su avatar dibujado.
 - Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas con el color de su tipo (lila sin tipo), cerrados atenuados y archivados ocultos.
-- Pizarra y bocetos (decisión 0029): dibujar a mano alzada sobre el mapa (Mano y Lápiz, colores, grosores, deshacer, borrar todo) y guardarlo como pantallazo con título y descripción. El registro tiene miniatura, autor y fecha; cada boceto se ve entero, se descarga y se borra. No se editan.
+- Pizarra y bocetos (decisiones 0029 y 0030): dibujar a mano alzada y escribir textos sobre el mapa (Mano, Lápiz y Texto; colores, grosores; los textos se mueven, se giran y se editan; deshacer cualquier acción, borrar todo) y guardarlo como pantallazo con título y descripción. El registro tiene miniatura, autor y fecha; cada boceto se ve entero, se descarga y se borra. No se editan.
 - Elementos (decisión 0028): canecas, postes, árboles… con nombre, categoría y descripción, como gotas invertidas en el mapa. Sus evidencias van directo en su ficha, sin estudios. Las categorías dicen si se usan en lugares, en elementos o en ambos.
 - Zonas: dibujarlas con la mira, su tipo (lista administrable), comentarios, locales adentro, recorridos, editarlas, redibujarlas y archivarlas.
 - Salidas: los admins crean salidas, dibujan sus zonas y las asignan a personas. Cada persona ve sus zonas en "Mis asignaciones" (el menú cuenta las que faltan por reportar) y en el mapa, y reporta su hora de fin y el porcentaje que cubrió. Las salidas se pueden cancelar y reactivar.

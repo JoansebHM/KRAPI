@@ -24,7 +24,7 @@ En las reuniones el equipo necesita explicar cosas sobre el mapa: la ruta que si
 - **Un lienzo HTML encima del mapa:** los trazos no se quedarían pegados al mapa al moverlo y habría que fusionar dos imágenes al guardar.
 - **Terra Draw (o una librería de dibujo):** trae edición de puntos y formas, que no hace falta para el MVP. A mano alzada bastan pointer events, `map.unproject()` y una función de 30 líneas.
 - **Una segunda captura con los marcadores de los lugares:** son elementos HTML, no salen en la captura del lienzo del mapa. Se ocultan en la pizarra para que lo que se ve sea lo que se guarda; el mapa base (calles y nombres), las zonas y el límite de Manila sí salen.
-- **Ligar los bocetos a salidas o zonas, texto y flechas:** quedan para después.
+- **Ligar los bocetos a salidas o zonas y las flechas:** quedan para después. Los textos llegaron después ([decisión 0030](0030-textos-en-la-pizarra.md)).
 
 ## Consecuencias
 

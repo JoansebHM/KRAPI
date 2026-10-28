@@ -26,7 +26,8 @@ src/
   features/       Una carpeta por funcionalidad
     auth/         Login, registro, AuthProvider, política de sesión, menú de la cuenta,
                   nombre de usuario → correo interno (nombreDeUsuario.ts)
-    bocetos/      Pizarra (PizarraPagina, trazos.ts, useTrazosEnMapa), captura del mapa (capturar.ts),
+    bocetos/      Pizarra (PizarraPagina, TextosEnPizarra, EditarTexto, trazos.ts, useTrazosEnMapa),
+                  captura del mapa y dibujo de los textos sobre la imagen (capturar.ts, dibujarTextos.ts),
                   registro de bocetos (BocetosPage, VerBoceto) y api.ts
     categorias/   CRUD de categorías, colores, íconos y si se usan en lugares, elementos o ambos
     elementos/    Elementos (decisión 0028): crearlos con la mira (CrearElemento), su ficha
@@ -144,6 +145,9 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Los trazos son capas del mapa (`useTrazosEnMapa`: fuente `pizarra-trazos`, con una capa de borde blanco y otra de color, que se vuelven a agregar en `style.load`). Por eso salen en la captura y siguen pegados al mapa.
 - `capturarMapa()` copia el lienzo del mapa dentro del evento `render` (`toBlob`), sin `preserveDrawingBuffer`, y genera la miniatura con `createImageBitmap`. Solo sale lo que dibuja el lienzo: los marcadores son HTML, así que `.app-main:has(.pizarra)` los oculta.
 - `useGuardarBoceto()` sube la imagen y la miniatura con `subirArchivo()` (`bocetos/<id>/…`) y después crea la fila; `useBorrarBoceto()` borra la fila y luego los archivos, como las evidencias.
+- **Textos** ([decisión 0030](decisiones/0030-textos-en-la-pizarra.md)): `TextosEnPizarra` los dibuja como cajas HTML (`.pizarra-texto`) dentro de `.pizarra-textos`, posicionadas con `map.project()` y vueltas a calcular en el evento `move` (con `requestAnimationFrame`). Con la herramienta Texto reciben el puntero: arrastrar mueve (`map.unproject()`), la manija gira (el ángulo del puntero respecto al centro, acomodado a múltiplos de 15°, más el rumbo del mapa) y las flechas del teclado mueven. Lo que se está moviendo o girando es un estado local (`vivo`) y solo se guarda al soltar. Tocar el mapa vacío es el evento `click` del mapa (no se dispara si se arrastró).
+- **Estado y Deshacer:** `PizarraPagina` guarda una lista de `Elemento` (`{ tipo: 'trazo' | 'texto' }`, en orden) y una pila de versiones anteriores (`cambiar()`, hasta 50): cada acción confirmada guarda la versión anterior. `elementosAGeoJSON()` los pasa a GeoJSON al guardar.
+- **Captura con textos:** `capturarMapa(mapa, textos)` copia el lienzo y dibuja encima cada texto con `dibujarTextos()` (lienzo 2D): `translate` a la posición proyectada, `rotate(giro − rumbo)`, `strokeText` blanco y `fillText` del color, con la misma tipografía, interlineado y borde que el CSS (constantes en `trazos.ts`). La escala es `lienzo.width / lienzo.clientWidth`, por las pantallas de alta densidad.
 - Mientras se está en `/pizarra`, `LugaresEnMapa` (`creando`), `AsignacionesEnMapa` (`dibujando`) y `CerrarPanelAlTocarElMapa` no navegan al tocar un lugar o una zona.
 
 **Evidencias y archivos** (ver [decisión 0019](decisiones/0019-subida-de-evidencias.md))

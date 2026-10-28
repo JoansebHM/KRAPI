@@ -110,7 +110,7 @@ Lo que se dibuja en la pizarra, guardado como pantallazo ([decisión 0029](decis
 | --- | --- | --- |
 | `titulo` | text | Obligatorio, de 1 a 120 caracteres sin contar los espacios de los extremos |
 | `descripcion` | text | Opcional, hasta 1000 caracteres |
-| `trazos` | jsonb | FeatureCollection de GeoJSON: un LineString por trazo, con sus propiedades `color` y `grosor` (px) y coordenadas reales. Hasta 1 MB. Hoy la app no la lee: sirve para editar los dibujos más adelante |
+| `trazos` | jsonb | FeatureCollection de GeoJSON con lo dibujado, en el orden en que se hizo: un LineString por trazo (propiedades `color` y `grosor` en px) y un Point por texto (`texto`, `color`, `tamano` en px y `giro` en grados respecto al norte), todo con coordenadas reales ([decisión 0030](decisiones/0030-textos-en-la-pizarra.md)). Hasta 1 MB. Hoy la app no la lee: sirve para editar los dibujos más adelante |
 | `imagen_path` | text | El pantallazo (PNG) en el bucket `evidencias`, en `bocetos/<id>/imagen.png`. Único |
 | `miniatura_path` | text | La miniatura (JPEG de 480 px) para las listas, en `bocetos/<id>/miniatura.jpg`. Único |
 | `ancho`, `alto` | integer | Medidas de la imagen en píxeles, mayores que 0 |
