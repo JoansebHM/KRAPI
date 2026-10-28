@@ -19,6 +19,8 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - elementos: no admiten estudios (P0001), sus evidencias van con ubicacion_id, no se borran si tienen
  *   evidencias, y elementos_cercanos() devuelve los de la misma categoría a menos de N metros
  * - las categorías aplican a lugares por defecto (aplica_a)
+ * - bocetos: título de 1 a 120 caracteres, trazos como FeatureCollection e imagen con medidas → 23514;
+ *   no se editan (PATCH → 42501) y los borra su autor o un admin
  * - locales_en_zona() devuelve los puntos dentro de una zona, con su último estudio
  * - tipos de zona: los borra un admin y sus zonas quedan sin tipo; comentarios: los borra su autor o un admin
  * - ubicaciones_cercanas() devuelve hasta 5 puntos no archivados a menos de N metros
@@ -69,7 +71,7 @@ export type ComoQuien = keyof typeof CUENTAS
 type Fila = Record<string, unknown> & { id?: string }
 type Tabla =
   | 'categorias' | 'tipos_zona' | 'ubicaciones' | 'estudios' | 'estudio_participantes' | 'evidencias' | 'comentarios_zona'
-  | 'salidas' | 'asignaciones' | 'asignacion_participantes'
+  | 'salidas' | 'asignaciones' | 'asignacion_participantes' | 'bocetos'
 
 /** Tablas que solo los admins escriben (salidas y zonas asignadas). */
 const SOLO_ADMINS: Tabla[] = ['salidas', 'asignaciones']
@@ -185,6 +187,7 @@ export class SupabaseFalso {
     salidas: [],
     asignaciones: [],
     asignacion_participantes: [],
+    bocetos: [],
   }
   /** Cuentas de auth.users con su perfil. */
   cuentas: Cuenta[] = Object.values(CUENTAS).map((cuenta) => this.nuevaCuenta(cuenta))
@@ -550,6 +553,7 @@ export class SupabaseFalso {
           }
           if (tabla === 'evidencias' && !this.evidenciaValida(datos)) return this.invalido(ruta)
           if (tabla === 'asignaciones' && !String(datos.geom).includes('POLYGON')) return this.invalido(ruta)
+          if (tabla === 'bocetos' && !this.bocetoValido(datos)) return this.invalido(ruta)
           if (tabla === 'ubicaciones' && datos.contacto_telefono && !/^\+?[0-9 ()-]{7,20}$/.test(datos.contacto_telefono)) return this.invalido(ruta)
           const fila = {
             id: datos.id ?? crypto.randomUUID(),
@@ -571,6 +575,8 @@ export class SupabaseFalso {
       }
       case 'PATCH': {
         const cambios = JSON.parse(peticion.postData() ?? '{}')
+        // Un boceto no se edita: la tabla no tiene permiso de update.
+        if (tabla === 'bocetos') return ruta.fulfill(errorPg('42501', 'permission denied for table bocetos', 403))
         if (SOLO_ADMINS.includes(tabla) && cuenta?.rol !== 'admin') return this.cambiadas(ruta, [], select)
         if (tabla === 'asignacion_participantes' && cambios.porcentaje != null && ![0, 25, 50, 75, 100].includes(cambios.porcentaje)) return this.invalido(ruta)
         if (tabla === 'estudios' && cambios.hora_inicio && !(String(cambios.hora_fin) > String(cambios.hora_inicio))) return this.invalido(ruta)
@@ -645,6 +651,21 @@ export class SupabaseFalso {
   private evidenciaValida(datos: Fila) {
     if (!['foto', 'audio', 'documento'].includes(String(datos.tipo))) return true
     return Boolean(datos.archivo_path && datos.archivo_nombre && datos.archivo_mime && Number(datos.archivo_bytes) > 0 && datos.proveedor)
+  }
+
+  /** Reglas de `bocetos`: título, trazos y medidas de la imagen. */
+  private bocetoValido(datos: Fila) {
+    const titulo = String(datos.titulo ?? '').trim()
+    const trazos = datos.trazos as { type?: string; features?: unknown } | undefined
+    return (
+      titulo.length >= 1 &&
+      titulo.length <= 120 &&
+      trazos?.type === 'FeatureCollection' &&
+      Array.isArray(trazos.features) &&
+      Boolean(datos.imagen_path && datos.miniatura_path) &&
+      Number(datos.ancho) > 0 &&
+      Number(datos.alto) > 0
+    )
   }
 
   private nombreRepetido(tabla: Tabla, nombre: string, excepto?: string) {
