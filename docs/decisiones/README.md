@@ -34,3 +34,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0026 | [Filtros del mapa](0026-filtros-del-mapa.md) | Aceptada |
 | 0027 | [Quitar el título del estudio](0027-quitar-titulo-del-estudio.md) | Aceptada |
 | 0028 | [Elementos: puntos sin estudios que reciben evidencias](0028-elementos.md) | Aceptada |
+| 0029 | [Pizarra y bocetos: dibujar sobre el mapa y guardar el pantallazo](0029-pizarra-y-bocetos.md) | Aceptada |

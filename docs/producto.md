@@ -29,6 +29,7 @@ El foco está en los **locales fijos** (tiendas, cafés, restaurantes…): no en
 | **Comentario** | Lo que alguien del equipo dice de una zona, con quién lo escribió y cuándo. | "Mucho comercio informal en las tardes" |
 | **Estudio** | **Una visita** a un lugar: una entrevista o un levantamiento. Tiene fecha, hora de inicio y de fin, **participantes** (cuentas del equipo), **a quién se entrevistó** (texto corto), **notas** (varios apuntes sueltos) y evidencias. No tiene título: se identifica por su fecha y hora. Los estudios de puntos y de zonas tienen **la misma estructura**. | "30 oct 2026 · 2:00 p. m., con Ana y Beto" |
 | **Evidencia** | Material de un estudio (o de un elemento): fotos, audios, documentos (Word, PDF, Excel) o videos (por enlace de SharePoint). Los apuntes escritos van en las notas del estudio. Un estudio puede tener todas las evidencias que haga falta. | Foto de la fachada |
+| **Boceto** | Un dibujo hecho a mano alzada sobre el mapa para explicar algo en una reunión (la ruta de un bus, por dónde se mueve la gente). Se guarda como **pantallazo** del mapa con los trazos, con título, descripción, autor y fecha. **No se edita**: si algo cambia, se hace otro ([decisión 0029](decisiones/0029-pizarra-y-bocetos.md)). | "Ruta del bus 133 por la 10" |
 | **Histórico** | La lista de estudios de un lugar, del más reciente al más antiguo. **Volver a un lugar es agregarle un estudio nuevo**, nunca reemplazar el anterior. | Tres visitas a la misma tienda en noviembre |
 | **Categoría** | Tipo de local (comercio, café, hotelería…) o de elemento (caneca, poste…), con un **color** y un **ícono** que se usan en el mapa. Cada una dice si se usa en lugares, en elementos o en ambos. Administrable. | Café · lila · taza |
 | **Participante** | Cuenta del equipo que participó en un estudio, con su **avatar dibujado** (se elige al registrarse) | Ana |
@@ -69,6 +70,13 @@ Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esqu
 
 Para un **elemento**: con la misma mira se ubica y se llenan su nombre, su categoría (solo salen las de elementos) y una descripción opcional. Antes de guardar, si ya hay otro **de la misma categoría a menos de 3 m**, pregunta si es el mismo (dos canecas o dos postes seguidos no son un aviso: solo cuenta la misma categoría). Al guardar se abre su **ficha**, con "Agregar evidencia" (las mismas opciones de un estudio), un carrusel con sus fotos y la lista de evidencias. Desde ahí se edita, se mueve, se archiva o, si no tiene evidencias, se borra.
 
+Para un **boceto**:
+
+1. En el menú, **Pizarra**. El mapa arranca en **Mano**: se ubica donde se quiere explicar algo.
+2. Se toca **Lápiz**: el mapa queda quieto y el dedo (o el mouse, en computador) dibuja. Hay cinco colores (por ejemplo, rojo para la ruta del bus y azul para las personas), dos grosores, **Deshacer** (el último trazo) y **Borrar todo** (con confirmación). Con **Mano** se vuelve a mover el mapa y los trazos se quedan pegados a él.
+3. **Guardar** (se activa con el primer trazo) pide un título y, si se quiere, una descripción. Se guarda el pantallazo del mapa con los trazos. Los marcadores de los lugares no salen: se ocultan en la pizarra; el mapa base (calles y nombres), las zonas y el límite de Manila sí.
+4. En **Bocetos** están todos, del más reciente al más antiguo, con miniatura, quién lo hizo y cuándo. Al tocar uno se ve entero en pantalla completa, con su descripción, y se puede **descargar** o **borrar** (solo su autor o un admin, con confirmación). Sirve para proyectarlo en las reuniones.
+
 Para una **salida**:
 
 1. Un admin la crea en **Salidas** (nombre, fecha y hora de inicio).
@@ -92,6 +100,7 @@ Una salida se puede cancelar (las personas lo ven) y reactivar. Una zona de la s
 - Notificaciones.
 - Administración de categorías (color e ícono). Cada cuenta tiene su avatar dibujado.
 - Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas con el color de su tipo (lila sin tipo), cerrados atenuados y archivados ocultos.
+- Pizarra y bocetos (decisión 0029): dibujar a mano alzada sobre el mapa (Mano y Lápiz, colores, grosores, deshacer, borrar todo) y guardarlo como pantallazo con título y descripción. El registro tiene miniatura, autor y fecha; cada boceto se ve entero, se descarga y se borra. No se editan.
 - Elementos (decisión 0028): canecas, postes, árboles… con nombre, categoría y descripción, como gotas invertidas en el mapa. Sus evidencias van directo en su ficha, sin estudios. Las categorías dicen si se usan en lugares, en elementos o en ambos.
 - Zonas: dibujarlas con la mira, su tipo (lista administrable), comentarios, locales adentro, recorridos, editarlas, redibujarlas y archivarlas.
 - Salidas: los admins crean salidas, dibujan sus zonas y las asignan a personas. Cada persona ve sus zonas en "Mis asignaciones" (el menú cuenta las que faltan por reportar) y en el mapa, y reporta su hora de fin y el porcentaje que cubrió. Las salidas se pueden cancelar y reactivar.

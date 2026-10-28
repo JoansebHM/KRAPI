@@ -1,0 +1,172 @@
+/* La pizarra se dibuja sobre el mapa: lo que se ve en el mapa es lo que se guarda en el boceto. */
+
+/*
+ * Los marcadores de los lugares son HTML y no salen en la captura del mapa; se ocultan para que lo
+ * que se ve sea lo que se guarda.
+ */
+.app-main:has(.pizarra) .maplibregl-marker {
+  display: none;
+}
+
+/* Cubre el mapa, por encima de sus controles (z-index 2) y por debajo de las barras (5). */
+.pizarra-lienzo {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  cursor: crosshair;
+  /* Sin esto, el dedo desplazaría o ampliaría la página en vez de dibujar. */
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Con la mano, los toques pasan al mapa. */
+.pizarra-lienzo-mano {
+  pointer-events: none;
+}
+
+/* Cancelar y Guardar, arriba a la izquierda (los controles del mapa van a la derecha). */
+.pizarra-acciones {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 5;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.pizarra-acciones .btn {
+  min-width: 0;
+  padding: 0 var(--space-4);
+  box-shadow: var(--shadow-overlay);
+}
+
+.pizarra-barra {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-overlay);
+}
+
+.pizarra-fila {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pizarra-modos > * {
+  flex: 1;
+}
+
+.pizarra-modo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pizarra-modo[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-info-bg);
+  color: var(--color-accent);
+}
+
+.pizarra-modo:focus-visible,
+.pizarra-color:focus-visible,
+.pizarra-icono:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.pizarra-colores {
+  justify-content: space-between;
+}
+
+/* Área de toque de 44 px alrededor del círculo de color. */
+.pizarra-color {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.pizarra-color span {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  /* El borde blanco y la sombra hacen que el negro y los demás colores se vean sobre cualquier fondo. */
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 3px rgba(0, 0, 0, 0.25);
+}
+
+.pizarra-color[aria-pressed='true'] span {
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 5px var(--color-accent);
+}
+
+.pizarra-ajustes {
+  justify-content: space-between;
+}
+
+.pizarra-grosores {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.pizarra-icono {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.pizarra-icono[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-info-bg);
+  color: var(--color-accent);
+}
+
+.pizarra-icono:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (min-width: 900px) {
+  .pizarra-barra {
+    right: auto;
+    bottom: var(--space-6);
+    left: 50%;
+    translate: -50% 0;
+    width: 400px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+}

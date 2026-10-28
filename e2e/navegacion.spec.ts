@@ -18,7 +18,7 @@ test('el menú lleva a cada sección y "atrás" vuelve al mapa', async ({ page, 
   await entrar('miembro')
   await page.getByRole('button', { name: 'Abrir menú' }).click()
   const menu = page.getByRole('navigation', { name: 'Secciones' })
-  await expect(menu.getByRole('link')).toHaveText(['Mapa', 'Categorías', 'Tipos de zona', 'Salidas', 'Mis asignaciones', 'Documentación'])
+  await expect(menu.getByRole('link')).toHaveText(['Mapa', 'Categorías', 'Tipos de zona', 'Salidas', 'Pizarra', 'Bocetos', 'Mis asignaciones', 'Documentación'])
 
   await menu.getByRole('link', { name: 'Categorías' }).click()
   await expect(page).toHaveURL(/\/categorias$/)

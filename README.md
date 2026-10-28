@@ -58,6 +58,7 @@ npx supabase stop  # apaga Supabase local
 - Cada sección tiene su propia dirección (`/categorias`), así que el botón "atrás" del celular funciona como se espera. Al tocar un lugar del mapa se abre su ficha en `/lugares/<id>` (y "Mover" abre la mira en `/lugares/<id>/mover`), y "+ Nuevo lugar" abre la mira para registrar uno en `/lugares/nuevo`.
 - En el histórico de un lugar, tocar un estudio abre su presentación con el carrusel de fotos y el resto de evidencias. Desde el modal se puede editar o abrir la página del estudio para agregar evidencia.
 - "+ Nuevo lugar" pregunta si se registra un **punto** (`/lugares/nuevo`), una **zona** (`/zonas/nueva`, se dibuja con la mira) o un **elemento** (`/elementos/nuevo`: una caneca, un poste… que no se estudia, pero recibe evidencias en su ficha). La forma de una zona se cambia en `/lugares/<id>/redibujar`, y sus tipos se administran en **Tipos de zona** (`/tipos-de-zona`).
+- **Pizarra** (`/pizarra`) deja dibujar a mano alzada sobre el mapa y guardarlo como boceto; **Bocetos** (`/bocetos`) es el registro, con miniatura, autor y fecha ([decisión 0029](docs/decisiones/0029-pizarra-y-bocetos.md)).
 - **Salidas** (`/salidas`) lista las próximas y las anteriores. En cada salida (`/salidas/<id>`) los admins dibujan zonas (`/salidas/<id>/zonas/nueva`) y las asignan, y cada quien reporta lo suyo. Su sección "Qué se registró" lista los estudios ligados a ella. **Mis asignaciones** (`/mis-asignaciones`) muestra las zonas propias, con un contador en el menú de las que faltan por reportar. "Ver en el mapa" (o tocar la zona directamente en el mapa) abre `/salidas/<id>/zonas/<zona>`.
 - Desde el menú de la cuenta, **Mi perfil** (`/perfil`) deja cambiar el nombre, el avatar y la contraseña.
 - Los admins ven además **Usuarios** (`/usuarios`), con un contador de las cuentas que esperan aprobación. Ahí aprueban, rechazan, desactivan y reactivan cuentas, y nombran o quitan admins. Si un miembro entra a `/usuarios` por la URL, vuelve al mapa.
@@ -134,6 +135,7 @@ Los dos aceptan el nombre de usuario como argumento (`npm run usuario:clave -- a
 | `estudios` | Cada visita a un lugar: fecha, horas, a quién se entrevistó, sus notas (una lista) y, si aplica, en qué salida se hizo. Sin título: se identifica por su fecha y hora |
 | `estudio_participantes` | Qué cuentas participaron en cada estudio |
 | `evidencias` | Archivos, textos o enlaces de video de cada estudio (o de cada elemento, que no tiene estudios) |
+| `bocetos` | Dibujos hechos sobre el mapa en la pizarra: título, descripción, trazos (GeoJSON) y la imagen guardada (no se editan) |
 | `bitacora` | Cada acción sobre los datos, con quién la hizo (solo la leen los admins) |
 
 **Cómo se usa:** un lugar se crea una sola vez y acumula su histórico. Cada vez que alguien vuelve a ese lugar, se le **agrega un estudio nuevo**. Los estudios de zonas y de puntos tienen la misma estructura. La ficha de una zona muestra los locales que caen dentro (calculado por la geometría con `locales_en_zona`), y al crear un punto se avisa si hay otro a menos de 15 m (`ubicaciones_cercanas`) para no duplicarlo.
@@ -175,6 +177,7 @@ src/
   config/       # Variables de entorno y configuración (sesión, mapa)
   features/     # Una carpeta por funcionalidad
     auth/       # Inicio de sesión, registro, política de sesión y menú de la cuenta
+    bocetos/      # Pizarra (dibujar sobre el mapa), captura del mapa y registro de bocetos
     categorias/ # Administración de categorías
     elementos/    # Elementos (canecas, postes…): crearlos, su ficha y editarlos
     filtros/      # Filtros del mapa (elementos, categoría, fechas, horas, evidencia, responsables)

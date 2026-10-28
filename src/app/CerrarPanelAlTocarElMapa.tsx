@@ -9,7 +9,7 @@ import { useMapa } from '../features/map/mapaContexto'
  * Tocar un lugar no lo cierra: abre su ficha. Crear, mover o dibujar no es un panel: ahí el mapa se mueve.
  */
 /** Pantallas sin panel: donde se mueve el mapa bajo la mira (crear, mover o dibujar) o se ve una zona asignada. */
-const RUTAS_CON_MIRA = [/^\/lugares\/nuevo$/, /^\/zonas\/nueva$/, /^\/elementos\/nuevo$/, /\/mover$/, /\/redibujar$/, /^\/salidas\/[^/]+\/zonas\//]
+const RUTAS_CON_MIRA = [/^\/lugares\/nuevo$/, /^\/zonas\/nueva$/, /^\/elementos\/nuevo$/, /^\/pizarra$/, /\/mover$/, /\/redibujar$/, /^\/salidas\/[^/]+\/zonas\//]
 
 export function CerrarPanelAlTocarElMapa() {
   const mapa = useMapa()
