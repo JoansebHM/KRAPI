@@ -1,7 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { borrarArchivos, enlacesTemporales, PROVEEDOR } from '../../lib/almacenamiento'
 import { SIN_PERMISO } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
+import { claveLugar } from '../lugares/api'
 import type { TipoArchivo, TipoEvidencia } from './archivos'
 
 /** De quién es una evidencia: de un estudio o de un elemento del mapa, que no tiene estudios (decisión 0028). */
@@ -29,6 +30,17 @@ export interface Evidencia {
 }
 
 export const claveEvidencias = ({ tipo, id }: DuenoEvidencia) => ['evidencias', tipo, id] as const
+
+/**
+ * Recarga las evidencias de su dueño. Si es un elemento, también su ficha: cuántas evidencias tiene
+ * decide si se puede borrar.
+ */
+export async function alCambiarEvidencias(queryClient: QueryClient, dueno: DuenoEvidencia) {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: claveEvidencias(dueno) }),
+    dueno.tipo === 'elemento' && queryClient.invalidateQueries({ queryKey: claveLugar(dueno.id) }),
+  ])
+}
 
 /** Los enlaces temporales duran una hora: se renuevan antes de que expiren. */
 const VIGENCIA_ENLACES_MS = 50 * 60 * 1000
@@ -89,7 +101,7 @@ export function useAgregarVideo() {
       })
       if (error) throw error
     },
-    onSuccess: (_resultado, { dueno }) => queryClient.invalidateQueries({ queryKey: claveEvidencias(dueno) }),
+    onSuccess: (_resultado, { dueno }) => alCambiarEvidencias(queryClient, dueno),
   })
 }
 
@@ -126,6 +138,6 @@ export function useBorrarEvidencia() {
       if (borradas.length === 0) throw SIN_PERMISO
       if (evidencia.archivo) await borrarArchivos([evidencia.archivo.ruta]).catch(() => {})
     },
-    onSuccess: (_resultado, { dueno }) => queryClient.invalidateQueries({ queryKey: claveEvidencias(dueno) }),
+    onSuccess: (_resultado, { dueno }) => alCambiarEvidencias(queryClient, dueno),
   })
 }

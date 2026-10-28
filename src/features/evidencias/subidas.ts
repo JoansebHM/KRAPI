@@ -3,7 +3,7 @@ import { ErrorAlmacenamiento, subirArchivo, type MotivoError } from '../../lib/a
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { queryClient } from '../../lib/queryClient'
-import { claveEvidencias, registrarArchivo, type DuenoEvidencia } from './api'
+import { alCambiarEvidencias, registrarArchivo, type DuenoEvidencia } from './api'
 import { clasificar, excedeTamano, MENSAJE_MUY_GRANDE, rutaArchivo, type TipoArchivo } from './archivos'
 import { comprimirFoto } from './comprimir'
 
@@ -121,7 +121,7 @@ async function subir({ id, dueno, archivo: original }: Subida) {
     await registrarArchivo({ dueno, tipo: clasificacion.tipo, ruta, nombre: archivo.name, mime, bytes: archivo.size })
 
     // Primero se recarga la lista, para que la evidencia aparezca antes de quitar su subida.
-    await queryClient.invalidateQueries({ queryKey: claveEvidencias(dueno) }).catch(() => {})
+    await alCambiarEvidencias(queryClient, dueno).catch(() => {})
     cambiar(subidas.filter((s) => s.id !== id))
   } catch (error) {
     if (error instanceof ErrorAlmacenamiento && error.motivo === 'cancelado') return
