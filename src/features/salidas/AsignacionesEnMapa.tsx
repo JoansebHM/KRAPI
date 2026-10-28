@@ -24,8 +24,8 @@ export function AsignacionesEnMapa({ mapa }: { mapa: MapLibreMap }) {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const [, salidaEnRuta, asignacionEnRuta] = pathname.match(/^\/salidas\/([^/]+)(?:\/zonas\/([^/]+))?/) ?? []
-  // Mientras se dibuja una zona nueva, tocar el mapa no debe navegar a otra parte.
-  const dibujando = asignacionEnRuta === 'nueva'
+  // Mientras se dibuja una zona nueva (o en la pizarra), tocar el mapa no debe navegar a otra parte.
+  const dibujando = asignacionEnRuta === 'nueva' || pathname === '/pizarra'
   // Viendo una zona asignada en particular (no dibujando): tocar fuera de ella la deja de seleccionar.
   const viendo = Boolean(asignacionEnRuta) && !dibujando
 

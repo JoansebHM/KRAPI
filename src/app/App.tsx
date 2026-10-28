@@ -12,6 +12,8 @@ import { LoginPage } from '../features/auth/LoginPage'
 import { RegistroPage } from '../features/auth/RegistroPage'
 import { UserMenu } from '../features/auth/UserMenu'
 import { useAuth } from '../features/auth/useAuth'
+import { BocetosPage } from '../features/bocetos/BocetosPage'
+import { PizarraPagina } from '../features/bocetos/PizarraPagina'
 import { CategoriasPage } from '../features/categorias/CategoriasPage'
 import { CrearElemento } from '../features/elementos/CrearElemento'
 import { BotonNuevoLugar } from '../features/lugares/BotonNuevoLugar'
@@ -130,6 +132,8 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
                 <Route path="/lugares/:id/redibujar" element={<RedibujarZona />} />
                 <Route path="/zonas/nueva" element={<CrearZona />} />
                 <Route path="/elementos/nuevo" element={<CrearElemento />} />
+                <Route path="/pizarra" element={<PizarraPagina />} />
+                <Route path="/bocetos" element={<BocetosPage />} />
                 <Route path="/tipos-de-zona" element={<TiposZonaPage />} />
                 <Route path="/salidas" element={<SalidasPage />} />
                 <Route path="/salidas/:id" element={<SalidaPagina />} />
