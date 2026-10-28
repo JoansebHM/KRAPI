@@ -9,7 +9,7 @@ Con el barrio ya registrado, hace falta ver solo una parte del mapa: por ejemplo
 ## Decisión
 
 - **Un lugar se muestra si al menos uno de sus estudios cumple *todos* los filtros a la vez** (fecha, día, hora, tipo de evidencia y responsable del mismo estudio, no de estudios distintos). La **categoría es aparte**, porque es del lugar, no del estudio: un punto además debe estar en una de las categorías elegidas.
-- **Las zonas no tienen categoría y nunca se ocultan por ese filtro.** El resto de filtros sí les aplica igual que a los puntos, sobre sus propios estudios (recorridos).
+- **Las zonas no tienen categoría y nunca se ocultan por ese filtro.** (Los elementos, que llegaron después, sí se filtran por categoría, pero no por los filtros de los estudios: ver la [decisión 0028](0028-elementos.md).) El resto de filtros sí les aplica igual que a los puntos, sobre sus propios estudios (recorridos).
 - **Responsables son cuentas**, no el catálogo viejo de responsables (ya no existe, decisión 0023).
 - **Rango de horas:** un estudio cumple si su franja se cruza con el rango elegido (no que quede completamente adentro). Por defecto es todo el día, así que no filtra nada.
 - **Los filtros se calculan en el cliente**, igual que las salidas (decisión 0025): se traen los lugares (`lugares_mapa()`, como siempre) y, aparte, los estudios visibles con su fecha, horas, participantes y tipos de evidencia, y se cruzan en el navegador. No hace falta una función nueva en la base de datos ni ninguna migración.

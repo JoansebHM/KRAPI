@@ -26,19 +26,23 @@ src/
   features/       Una carpeta por funcionalidad
     auth/         Login, registro, AuthProvider, política de sesión, menú de la cuenta,
                   nombre de usuario → correo interno (nombreDeUsuario.ts)
-    categorias/   CRUD de categorías, colores e íconos
+    categorias/   CRUD de categorías, colores, íconos y si se usan en lugares, elementos o ambos
+    elementos/    Elementos (decisión 0028): crearlos con la mira (CrearElemento), su ficha
+                  (FichaElemento) y editarlos (EditarElemento, CamposDelElemento)
     estudios/     Estudios de un lugar: formulario, participantes, notas, a qué salida se ligan
                   (SelectorSalida), histórico y página del estudio
     filtros/      Filtros del mapa: FiltrosProvider (contexto), BotonFiltros, PanelFiltros y
                   lugaresFiltrados() (api.ts), que cruza lugares y estudios del lado del cliente
-    evidencias/   Subir, grabar, listar y borrar evidencias; cola de subidas y compresión de fotos;
+    evidencias/   Subir, grabar, listar (ListaEvidencias) y borrar evidencias de un estudio o de un
+                  elemento; cola de subidas y compresión de fotos; carrusel de fotos (CarruselFotos);
                   videos de SharePoint por enlace (AgregarVideo, sharepoint.ts)
     perfil/       Mi perfil: nombre, avatar y cambiar la contraseña
     salidas/      Salidas y zonas asignadas: SalidasPage, SalidaPagina, NuevaAsignacion (usa DibujarZona,
                   y deja reusar la forma de una asignación anterior), ReportarAsignacion, MisAsignacionesPage,
                   VerAsignacion y AsignacionesEnMapa (capas del mapa)
-    lugares/      Lugares en el mapa (marcadores y zonas), su ficha (FichaLugar, EditarPunto) y crear y
-                  mover puntos con la mira (MiraCentral, CrearPunto, MoverPunto)
+    lugares/      Lugares en el mapa (marcadores y zonas), su ficha (FichaLugar, AccionesDelLugar,
+                  EditarPunto) y crear y mover puntos y elementos con la mira (MiraCentral, CrearPunto,
+                  MoverPunto)
     map/          Mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
     theme/        Modo claro/oscuro
     tiposZona/    Tipos de zona: lista con color (TiposZonaPage)
@@ -109,7 +113,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Dentro del diálogo, los campos van en `.formulario` (`ui.css`). Los opcionales llevan `.field-opcional` en la etiqueta.
 - Si un flujo tiene varios pasos (por ejemplo, ubicar → duplicados → lugar → estudio), los datos viven en la pantalla del flujo y no en cada diálogo, para no perderlos al volver atrás. Por eso `FormularioPunto` y `FormularioEstudio` son controlados (`campos` y `onCambiar`).
 - **Dibujar zonas:** `DibujarZona` usa la misma `MiraCentral` que crear un punto, con "Agregar esquina", "Deshacer" y "Terminar", y una vista previa en el mapa (fuente `dibujo-zona`, en naranja). `problemaDeZona()` revisa antes de guardar: 3 esquinas o más, dentro de Manila, sin lados cruzados y al menos 20 m² (la base de datos lo exige también). La reutilizan crear y redibujar una zona.
-- **Ficha del lugar:** `useLugar(id)` trae todo el lugar de `ubicaciones` (también si está archivado, a diferencia de `lugares_mapa()`), con `estudios(count)` para saber si se puede borrar. `CamposDelPunto` son los campos del punto, que comparten crear (`FormularioPunto`) y editar (`EditarPunto`).
+- **Ficha del lugar:** `useLugar(id)` trae todo el lugar de `ubicaciones` (también si está archivado, a diferencia de `lugares_mapa()`), con `estudios(count)` y `evidencias(count)` para saber si se puede borrar. `CamposDelPunto` son los campos del punto, que comparten crear (`FormularioPunto`) y editar (`EditarPunto`). Si el lugar es un elemento, `FichaLugar` muestra `FichaElemento`; las dos usan `AccionesDelLugar` (editar, mover, cerrar, archivar y borrar).
 - Para elegir uno o varios elementos con ícono o avatar (categoría, participantes) se usan botones `.chip` con `aria-pressed` dentro de `.chips`.
 - `Panel` acepta `volver` para que el botón de atrás lleve a otra pantalla, por ejemplo de un estudio a la ficha de su lugar.
 - **Estudios:** tocar uno del histórico abre `EstudioPresentacion`, un diálogo con sus datos, carrusel de fotos y otras evidencias (audio, documentos, texto y enlaces externos). Desde allí se edita con el mismo `FormularioEstudio`; "Agregar evidencia" abre la página `EstudioPagina` (`/lugares/:id/estudios/:estudioId`). Al guardar un estudio nuevo se navega a esa página. `useCamposEstudioNuevo()` prepara uno nuevo al abrir el formulario: hoy, de ahora a una hora después, con la cuenta propia y los participantes del último estudio de ese dispositivo (`krapi-ultimos-participantes` en `localStorage`, filtrados a las cuentas activas). Los estudios se archivan (`archivado_en`) con "Deshacer", nunca se borran.
@@ -124,19 +128,22 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Los créditos del mapa van abajo a la izquierda, porque abajo a la derecha está el botón flotante.
 - `MapView` pasa la instancia del mapa a `LugaresEnMapa` (`features/lugares/`), que dibuja:
   - **puntos** como `Marker` de MapLibre con un elemento HTML propio, donde React dibuja `IconoCategoria` con un portal. Así se ven igual que en las listas, tienen área de toque de 44 px y no hay que volver a crearlos al cambiar de tema;
+  - **elementos** con el mismo marcador (`.marcador-elemento`), pero como una gota invertida de 26 px: el círculo se gira con la propiedad `rotate` y el `Marker` se sube con `offset` para que la punta, y no el centro, quede sobre la coordenada;
   - **zonas** como capas `fill` y `line` de una fuente GeoJSON, que se vuelven a agregar en `style.load`. Si hay zonas superpuestas, al tocar se abre la más pequeña.
 - Los datos salen de `useLugares()` (función `lugares_mapa()`), y el color y el ícono, de `useCategorias()`. Por eso, al editar una categoría, el mapa se actualiza solo.
-- Tocar un lugar navega a `/lugares/:id` (`FichaLugar`). En `/lugares/nuevo` (`CrearPunto`), los lugares existentes no se pueden tocar.
+- Tocar un lugar navega a `/lugares/:id` (`FichaLugar`). En `/lugares/nuevo` (`CrearPunto`) y `/elementos/nuevo` (`CrearElemento`), los lugares existentes no se pueden tocar.
 - **Crear un punto** (`CrearPunto`): una mira fija sobre el centro del mapa (se actualiza con el evento `move`), "Mi ubicación" con `navigator.geolocation`, `buscarCercanos()` (`ubicaciones_cercanas`, 15 m) y `FormularioPunto`. La geometría se envía como texto EWKT (`SRID=4326;POINT(lng lat)`) y PostGIS la convierte. Ver [decisión 0018](decisiones/0018-lugares-en-el-mapa.md).
+- **Crear un elemento** (`CrearElemento`): la misma mira, sin aviso de 15 m. Primero se llenan los datos y, al guardar, `buscarElementosCercanos()` (`elementos_cercanos`, 3 m, misma categoría) pregunta si es el mismo. Al guardar se abre su ficha.
 - Sin `VITE_MAP_STYLE_URL_DARK`, el modo oscuro se genera con `toNightStyle` (`nightStyle.ts`) a partir de Liberty, para conservar los nombres de los locales.
 - La navegación está limitada a 1 km alrededor de Manila (`MANILA_MAX_BOUNDS`).
 
 **Evidencias y archivos** (ver [decisión 0019](decisiones/0019-subida-de-evidencias.md))
 - Todo acceso a archivos pasa por `lib/almacenamiento.ts`: `subirArchivo` (con avance, por `XMLHttpRequest`), `borrarArchivos` y `enlacesTemporales`. Para cambiar de proveedor solo se toca ese archivo.
-- `features/evidencias/archivos.ts` decide el tipo de evidencia por el tipo MIME o, si falta, por la extensión, valida los 50 MB y arma la ruta `<estudio_id>/<uuid>-<nombre-seguro>`.
-- `subidas.ts` es una cola fuera de React (`useSyncExternalStore`): sube de a uno, permite cancelar, reintentar y descartar, y sigue aunque se cierre la página. Al terminar, recarga `claveEvidencias(estudioId)`.
+- **Dueño de una evidencia:** un estudio o un elemento (`DuenoEvidencia`, `{ tipo: 'estudio' | 'elemento', id }`). `useEvidencias`, la cola de subidas, `ListaEvidencias` y `AgregarVideo` lo reciben en vez de un `estudioId`, y la base de datos guarda `estudio_id` o `ubicacion_id` según el caso ([decisión 0028](decisiones/0028-elementos.md)).
+- `features/evidencias/archivos.ts` decide el tipo de evidencia por el tipo MIME o, si falta, por la extensión, valida los 50 MB y arma la ruta `<estudio_id>/<uuid>-<nombre-seguro>` (o `elementos/<ubicacion_id>/…`).
+- `subidas.ts` es una cola fuera de React (`useSyncExternalStore`): sube de a uno, permite cancelar, reintentar y descartar, y sigue aunque se cierre la página. Al terminar, `alCambiarEvidencias()` recarga las evidencias de su dueño y, si es un elemento, su ficha.
 - Las fotos pasan por `comprimirFoto()` antes de subir. Los audios se graban con `GrabadorAudio` (`MediaRecorder`).
-- `EstudioPresentacion` agrupa las evidencias por tipo y pone el ícono en el encabezado, no en cada tarjeta. El menú de acciones de cada evidencia permite descargar archivos, copiar enlaces (los firmados duran una hora) o copiar notas. Las fotos conservan el carrusel y ofrecen acciones para la foto seleccionada. El audio usa controles propios (play/pausa, barra de avance táctil de 44 px, tiempos y velocidades 1×, 2× y 3×). Para medios que deban manipularse en móvil, evita `controls` nativos: su distribución varía entre navegadores y dispositivos. Las URLs firmadas se renuevan desde `useEvidencias()` cada 50 minutos.
+- `EstudioPresentacion` agrupa las evidencias por tipo y pone el ícono en el encabezado, no en cada tarjeta. El menú de acciones de cada evidencia (`AccionesEvidencia`) permite descargar archivos, copiar enlaces (los firmados duran una hora) o copiar notas. Las fotos van en `CarruselFotos`, con acciones para la foto seleccionada; la ficha de un elemento usa el mismo carrusel. El audio usa controles propios (play/pausa, barra de avance táctil de 44 px, tiempos y velocidades 1×, 2× y 3×). Para medios que deban manipularse en móvil, evita `controls` nativos: su distribución varía entre navegadores y dispositivos. Las URLs firmadas se renuevan desde `useEvidencias()` cada 50 minutos.
 
 **Sesión**
 - `AuthProvider` aplica `evaluarSesion()` (`politicaSesion.ts`, una función pura) cada segundo y al volver a la pestaña. Los tiempos están en `config/session.ts`.
@@ -157,7 +164,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - `npm run test:e2e` corre Playwright en tamaño de celular contra un **Supabase simulado** (`e2e/soporte/supabase-falso.ts`): cuentas, inicio de sesión y PostgREST en memoria, con las reglas del esquema real.
 - Cada prueba arranca con la base vacía y prepara sus datos con el fixture `supabase.db`.
 - **Cuentas:** cada prueba trae las de `CUENTAS`: `admin` (admin activo), `miembro` (Ana, miembro activo) y `pendiente` (Pepe). Todas usan la contraseña `CLAVE`. Para iniciar sesión se usa `entrar()` (como admin) o `entrar('miembro')` / `entrar('pendiente')`. Con `supabase.agregarCuenta({ usuario, estado, rol… })` se crean otras, y con `supabase.cuenta('ana')` se revisa o cambia una (por ejemplo, su `estado`).
-- **Permisos:** el simulador aplica las reglas de RLS según la cuenta del token. Una cuenta que no está activa recibe listas vacías y no puede crear. Categorías solo las borra un admin; lugares, estudios, evidencias y archivos, quien los creó (`creado_por`, o `dueno` en `supabase.archivos`) o un admin. Un borrado sin permiso no da error y borra 0 filas, igual que en Supabase. También pone `creado_por` y `actualizado_por` y responde `usuario_disponible` y las funciones de admin.
+- **Permisos:** el simulador aplica las reglas de RLS según la cuenta del token. Una cuenta que no está activa recibe listas vacías y no puede crear. Categorías solo las borra un admin; lugares (sin estudios ni evidencias), estudios, evidencias y archivos, quien los creó (`creado_por`, o `dueno` en `supabase.archivos`) o un admin. Un borrado sin permiso no da error y borra 0 filas, igual que en Supabase. También pone `creado_por` y `actualizado_por` y responde `usuario_disponible` y las funciones de admin.
 - Si agregas tablas o funciones que la app consulta, **amplía el Supabase simulado** para que responda igual que el real.
 - El Supabase simulado también imita Storage (`supabase.archivos`): subir con las reglas del bucket, borrar y firmar enlaces. Con `supabase.fallarSubidas = true` las subidas fallan.
 - `npm run db:test` corre las **pruebas de la base de datos** (`supabase/tests/*.test.sql`, pgTAP) sobre Supabase local en Docker (`npm run db:local`). Cubren lo que el simulador no puede probar: RLS, triggers y funciones. Para actuar como una cuenta se usa `set local role authenticated` y `set local request.jwt.claims = '{"sub": "<id>"}'`. Cada archivo corre dentro de una transacción que se deshace al final.

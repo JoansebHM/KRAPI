@@ -21,33 +21,35 @@ El foco está en los **locales fijos** (tiendas, cafés, restaurantes…): no en
 
 | Concepto | Qué es | Ejemplo |
 | --- | --- | --- |
-| **Lugar** (ubicación) | Algo en el mapa que se visita. Se crea **una sola vez** y existe siempre. Puede ser un **punto** o una **zona**. | "Tienda Don Pepe" |
+| **Lugar** (ubicación) | Algo en el mapa que se visita. Se crea **una sola vez** y existe siempre. Puede ser un **punto** o una **zona** (y, aparte, un **elemento**, que no se visita). | "Tienda Don Pepe" |
 | **Punto** | Un local. Tiene nombre, categoría, dirección, complemento, contacto (nombre y teléfono del administrador) y estado. | Un café en una esquina |
 | **Zona** | Un área del barrio (una manzana, una cuadra, un parque). Tiene nombre, **tipo** (de qué es: comercial, residencial…, con su color en el mapa), descripción, **comentarios** del equipo y su histórico de **recorridos** (estudios de la zona). Las zonas pueden superponerse. | "Cuadra de los cafés" |
+| **Elemento** | Algo del barrio que se ubica y se documenta pero **no se estudia**. Tiene nombre, categoría y descripción, y sus **evidencias van directo en su ficha**, sin estudios ([decisión 0028](decisiones/0028-elementos.md)). En el mapa es una **gota invertida**, para distinguirlo de los locales (círculos). | Una caneca, un poste, un árbol, una alcantarilla, un parqueadero |
 | **Tipo de zona** | De qué es una zona, con un color. Administrable. | Comercial · azul |
 | **Comentario** | Lo que alguien del equipo dice de una zona, con quién lo escribió y cuándo. | "Mucho comercio informal en las tardes" |
 | **Estudio** | **Una visita** a un lugar: una entrevista o un levantamiento. Tiene fecha, hora de inicio y de fin, **participantes** (cuentas del equipo), **a quién se entrevistó** (texto corto), **notas** (varios apuntes sueltos) y evidencias. No tiene título: se identifica por su fecha y hora. Los estudios de puntos y de zonas tienen **la misma estructura**. | "30 oct 2026 · 2:00 p. m., con Ana y Beto" |
-| **Evidencia** | Material de un estudio: fotos, audios, documentos (Word, PDF, Excel) o videos (por enlace de SharePoint). Los apuntes escritos van en las notas del estudio. Un estudio puede tener todas las evidencias que haga falta. | Foto de la fachada |
+| **Evidencia** | Material de un estudio (o de un elemento): fotos, audios, documentos (Word, PDF, Excel) o videos (por enlace de SharePoint). Los apuntes escritos van en las notas del estudio. Un estudio puede tener todas las evidencias que haga falta. | Foto de la fachada |
 | **Histórico** | La lista de estudios de un lugar, del más reciente al más antiguo. **Volver a un lugar es agregarle un estudio nuevo**, nunca reemplazar el anterior. | Tres visitas a la misma tienda en noviembre |
-| **Categoría** | Tipo de local (comercio, café, hotelería…), con un **color** y un **ícono** que se usan en el mapa. Administrable. | Café · lila · taza |
+| **Categoría** | Tipo de local (comercio, café, hotelería…) o de elemento (caneca, poste…), con un **color** y un **ícono** que se usan en el mapa. Cada una dice si se usa en lugares, en elementos o en ambos. Administrable. | Café · lila · taza |
 | **Participante** | Cuenta del equipo que participó en un estudio, con su **avatar dibujado** (se elige al registrarse) | Ana |
 
 Reglas de negocio:
 
 - **Nada puede quedar fuera de Manila.** La app avisa y no deja continuar; la base de datos también lo impide.
 - **Estado del lugar:** activo o cerrado. Si un local cierra, se marca como cerrado y conserva su histórico. Si en el mismo sitio abre otro negocio, se crea un lugar nuevo.
-- **Archivar en vez de borrar.** Lugares y estudios se archivan: desaparecen del mapa pero se pueden recuperar. Solo se borra de verdad un lugar creado por error y sin estudios, o una evidencia equivocada.
+- **Archivar en vez de borrar.** Lugares y estudios se archivan: desaparecen del mapa pero se pueden recuperar. Solo se borra de verdad un lugar creado por error y sin estudios (o un elemento sin evidencias), o una evidencia equivocada.
 - **Una zona muestra los locales que tiene adentro**, calculado por la geometría (con un botón para ir a la ficha de cada uno), junto con sus comentarios y sus recorridos ("en la manzana no hay canecas", "la zona es muy oscura"). Los estudios de una zona no tienen "a quién se entrevistó".
 - **Las salidas reparten el trabajo, no agrupan estudios.** Un admin crea una salida (fecha y hora de inicio), dibuja sus zonas de asignación y dice quién cubre cada una. Desde el día de la salida, cada persona reporta a qué hora terminó y qué porcentaje de su zona cubrió (0, 25, 50, 75 o 100 %). Los estudios siguen llevando su propia fecha y sus participantes, porque no todos van el mismo día (ver decisiones [0008](decisiones/0008-modelo-lugares-y-estudios.md) y [0025](decisiones/0025-salidas-y-asignaciones.md)).
 - **Las zonas de asignación no son zonas del mapa.** Cambian de una salida a otra. Si un recorrido merece quedar en el histórico, se registra como zona del mapa con la misma forma.
 - **La evidencia de una salida son los estudios de siempre, no un sistema aparte.** Casi todo lo que se hace en una salida es crear un punto o agregarle un estudio a uno existente: eso ya trae fotos, audios, documentos y notas. Un estudio puede decir en qué salida se hizo, y la página de la salida muestra todo lo que se registró en ella, con un enlace a cada lugar. El reporte (hora de fin y porcentaje) sigue siendo aparte: un resumen rápido de cuánto se cubrió.
 - **El mismo cuadrante se puede cubrir en varias salidas sin duplicar la zona.** Al crear una nueva asignación se puede usar la forma de una anterior en vez de redibujarla, y si esa anterior ya se había registrado como zona del mapa, la nueva lo hereda: el botón pasa de "Registrar el recorrido…" a "Agregar estudio a la zona del mapa", para que todo quede en el mismo histórico en vez de crear una zona repetida.
+- **Un elemento no es un lugar de estudio, ni se convierte en uno.** No tiene estudios, ni estado (abierto o cerrado), ni dirección o contacto. Si en campo algo resulta digno de estudiarse, se crea como punto.
 - **Sin tipos de estudio ni equipos por ahora**, y sin datos medibles (conteos, cifras). La estructura de los locales se registra con fotos. Más adelante se puede agregar una tabla de mediciones sin romper el modelo.
 
 ## Cómo se usa en campo
 
 1. La persona entra con su **nombre de usuario** y su contraseña. Si no tiene cuenta, la crea en "Crear una cuenta" (nombre, nombre de usuario y contraseña, sin correo) y espera a que un admin la apruebe: mientras tanto ve una pantalla de espera y entra al mapa sola apenas la aprueban. La sesión dura hasta 7 días y se cierra tras 2 horas sin uso.
-2. En el mapa toca **"+ Nuevo lugar"** y elige **Punto** (un local) o **Zona** (un área).
+2. En el mapa toca **"+ Nuevo lugar"** y elige **Punto** (un local), **Zona** (un área) o **Elemento** (algo que no se estudia, como una caneca).
 3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, o con "Mi ubicación".
    - Si el punto queda fuera de Manila, no deja continuar.
    - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo. Si lo es, se toca y se le **agrega el estudio** ahí mismo, sin duplicar el lugar.
@@ -64,6 +66,8 @@ Reglas de negocio:
    En la ficha también está el histórico: los estudios del más reciente al más antiguo, con "Agregar estudio" para una visita nueva. Al tocar un estudio se abre una presentación con sus datos (y quién lo registró y quién lo editó por última vez), sus **notas** en una sección desplegable, un carrusel de fotos y las demás evidencias agrupadas por tipo. Cada grupo muestra su ícono en el título y cada tarjeta tiene un menú para descargar archivos, copiar enlaces o copiar notas. Los enlaces de archivos son temporales y duran una hora. Los audios usan controles compactos propios (reproducir/pausar, avance y tiempos) y se pueden escuchar a velocidad normal, doble o triple; desde el modal también se puede editar con el formulario existente o ir a la página del estudio para agregar evidencias. Todos los modales incluyen una X arriba a la derecha para cerrar cuando el flujo lo permite. El formulario permite archivarlo (con "Deshacer").
 
 Para una **zona**: con la misma mira se van marcando las esquinas ("Agregar esquina", "Deshacer", "Terminar"), viendo la forma y el área. No deja terminar si se sale de Manila, si sus lados se cruzan o si tiene menos de 20 m². Luego se llenan su nombre, su tipo y su descripción. En su ficha se ven el área, los locales de adentro, los comentarios y los recorridos; desde ahí se edita, se **redibuja**, se archiva o se borra (si no tiene estudios).
+
+Para un **elemento**: con la misma mira se ubica y se llenan su nombre, su categoría (solo salen las de elementos) y una descripción opcional. Antes de guardar, si ya hay otro **de la misma categoría a menos de 3 m**, pregunta si es el mismo (dos canecas o dos postes seguidos no son un aviso: solo cuenta la misma categoría). Al guardar se abre su **ficha**, con "Agregar evidencia" (las mismas opciones de un estudio), un carrusel con sus fotos y la lista de evidencias. Desde ahí se edita, se mueve, se archiva o, si no tiene evidencias, se borra.
 
 Para una **salida**:
 
@@ -88,6 +92,7 @@ Una salida se puede cancelar (las personas lo ven) y reactivar. Una zona de la s
 - Notificaciones.
 - Administración de categorías (color e ícono). Cada cuenta tiene su avatar dibujado.
 - Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas con el color de su tipo (lila sin tipo), cerrados atenuados y archivados ocultos.
+- Elementos (decisión 0028): canecas, postes, árboles… con nombre, categoría y descripción, como gotas invertidas en el mapa. Sus evidencias van directo en su ficha, sin estudios. Las categorías dicen si se usan en lugares, en elementos o en ambos.
 - Zonas: dibujarlas con la mira, su tipo (lista administrable), comentarios, locales adentro, recorridos, editarlas, redibujarlas y archivarlas.
 - Salidas: los admins crean salidas, dibujan sus zonas y las asignan a personas. Cada persona ve sus zonas en "Mis asignaciones" (el menú cuenta las que faltan por reportar) y en el mapa, y reporta su hora de fin y el porcentaje que cubrió. Las salidas se pueden cancelar y reactivar.
 - Ficha del punto: todos sus datos (con el teléfono para llamar o abrir WhatsApp), editarlos, moverlo con la mira, marcarlo cerrado o activo, archivarlo y recuperarlo, y borrarlo si no tiene estudios. El histórico dice cuántas evidencias tiene cada estudio.
@@ -95,7 +100,7 @@ Una salida se puede cancelar (las personas lo ven) y reactivar. Una zona de la s
 - Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con participantes (vienen marcadas la cuenta propia y las del último estudio del celular). La ficha muestra el histórico; al tocar un estudio se abre su presentación con fotos y otras evidencias, y desde ahí se puede editar o agregar evidencias.
 - Evidencias de archivo: tomar fotos (comprimidas antes de subir), grabar audios en la app y subir documentos, con avance, reintento y borrado con confirmación.
 - Videos de SharePoint por enlace (se abren en otra pestaña).
-- Filtros del mapa (decisión 0026): categoría (de los puntos), rango de fechas, días de la semana, rango de horas, tipo de evidencia y responsables. Un lugar se muestra si al menos uno de sus estudios cumple todos a la vez. El panel ("Filtros", en el mapa) no tapa el mapa: se ve cómo cambia al ajustar algo.
+- Filtros del mapa (decisión 0026): mostrar u ocultar los elementos, categoría (de los puntos y los elementos), rango de fechas, días de la semana, rango de horas, tipo de evidencia y responsables. Un lugar se muestra si al menos uno de sus estudios cumple todos a la vez; los elementos solo los filtra la categoría. El panel ("Filtros", en el mapa) no tapa el mapa: se ve cómo cambia al ajustar algo.
 - Esquema completo en Supabase con seguridad (RLS) y bucket privado de evidencias.
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`.
