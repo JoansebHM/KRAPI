@@ -26,6 +26,8 @@ src/
   features/       Una carpeta por funcionalidad
     auth/         Login, registro, AuthProvider, política de sesión, menú de la cuenta,
                   nombre de usuario → correo interno (nombreDeUsuario.ts)
+    bocetos/      Pizarra (PizarraPagina, trazos.ts, useTrazosEnMapa), captura del mapa (capturar.ts),
+                  registro de bocetos (BocetosPage, VerBoceto) y api.ts
     categorias/   CRUD de categorías, colores, íconos y si se usan en lugares, elementos o ambos
     elementos/    Elementos (decisión 0028): crearlos con la mira (CrearElemento), su ficha
                   (FichaElemento) y editarlos (EditarElemento, CamposDelElemento)
@@ -136,6 +138,13 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - **Crear un elemento** (`CrearElemento`): la misma mira, sin aviso de 15 m. Primero se llenan los datos y, al guardar, `buscarElementosCercanos()` (`elementos_cercanos`, 3 m, misma categoría) pregunta si es el mismo. Al guardar se abre su ficha.
 - Sin `VITE_MAP_STYLE_URL_DARK`, el modo oscuro se genera con `toNightStyle` (`nightStyle.ts`) a partir de Liberty, para conservar los nombres de los locales.
 - La navegación está limitada a 1 km alrededor de Manila (`MANILA_MAX_BOUNDS`).
+
+**Pizarra y bocetos** (ver [decisión 0029](decisiones/0029-pizarra-y-bocetos.md))
+- `PizarraPagina` pone una capa transparente (`.pizarra-lienzo`, `touch-action: none`) sobre el mapa. Con **Lápiz** recibe los toques (pointer events, un solo puntero) y el mapa no se entera; con **Mano** tiene `pointer-events: none` y el mapa se mueve. Cada trazo se guarda en píxeles mientras se dibuja, se simplifica al soltar (`simplificar()`, Douglas-Peucker) y se pasa a coordenadas con `map.unproject()`.
+- Los trazos son capas del mapa (`useTrazosEnMapa`: fuente `pizarra-trazos`, con una capa de borde blanco y otra de color, que se vuelven a agregar en `style.load`). Por eso salen en la captura y siguen pegados al mapa.
+- `capturarMapa()` copia el lienzo del mapa dentro del evento `render` (`toBlob`), sin `preserveDrawingBuffer`, y genera la miniatura con `createImageBitmap`. Solo sale lo que dibuja el lienzo: los marcadores son HTML, así que `.app-main:has(.pizarra)` los oculta.
+- `useGuardarBoceto()` sube la imagen y la miniatura con `subirArchivo()` (`bocetos/<id>/…`) y después crea la fila; `useBorrarBoceto()` borra la fila y luego los archivos, como las evidencias.
+- Mientras se está en `/pizarra`, `LugaresEnMapa` (`creando`), `AsignacionesEnMapa` (`dibujando`) y `CerrarPanelAlTocarElMapa` no navegan al tocar un lugar o una zona.
 
 **Evidencias y archivos** (ver [decisión 0019](decisiones/0019-subida-de-evidencias.md))
 - Todo acceso a archivos pasa por `lib/almacenamiento.ts`: `subirArchivo` (con avance, por `XMLHttpRequest`), `borrarArchivos` y `enlacesTemporales`. Para cambiar de proveedor solo se toca ese archivo.

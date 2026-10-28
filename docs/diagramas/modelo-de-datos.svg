@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 776 1000" width="776" height="1000" role="img" aria-labelledby="modelo-de-datos-title modelo-de-datos-desc">
   <title id="modelo-de-datos-title">Modelo de datos de KIRA</title>
-  <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional (los puntos y los elementos) o un tipo de zona (las zonas) y acumula estudios; las zonas tienen comentarios; cada estudio tiene participantes, que son cuentas del equipo (perfiles), y evidencias; un elemento no tiene estudios y sus evidencias cuelgan de él directamente; los archivos de las evidencias se guardan en el bucket privado. Aparte, cada salida tiene sus zonas de asignación, y cada zona se asigna a cuentas que reportan su hora de fin y su porcentaje; un estudio puede ligarse, opcionalmente, a la salida en la que se hizo, y una zona asignada puede ligarse a la zona del mapa que registra, para no duplicarla si otra salida vuelve a cubrir el mismo cuadrante.</desc>
+  <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional (los puntos y los elementos) o un tipo de zona (las zonas) y acumula estudios; las zonas tienen comentarios; cada estudio tiene participantes, que son cuentas del equipo (perfiles), y evidencias; un elemento no tiene estudios y sus evidencias cuelgan de él directamente; los archivos de las evidencias se guardan en el bucket privado; los bocetos (dibujos sobre el mapa, que no se editan) guardan su imagen en el mismo bucket. Aparte, cada salida tiene sus zonas de asignación, y cada zona se asigna a cuentas que reportan su hora de fin y su porcentaje; un estudio puede ligarse, opcionalmente, a la salida en la que se hizo, y una zona asignada puede ligarse a la zona del mapa que registra, para no duplicarla si otra salida vuelve a cubrir el mismo cuadrante.</desc>
   <defs>
     <style>
       /* Perfil "kratos" de diagram-design: tokens de src/styles/theme.css. Sigue el sistema y, dentro de /docs, el tema elegido. */
@@ -53,6 +53,9 @@
 
   <line class="linea" x1="508" y1="108" x2="556" y2="108" />
 
+  <!-- bocetos → bucket: pasa por debajo de estudios, entre sus dos conectores punteados -->
+  <path class="linea" d="M260 650 H440 V540 H556" marker-end="url(#modelo-de-datos-flecha)" />
+
   <!-- Cardinalidad: 1 junto a la tabla referida y N junto a la que guarda la clave foránea -->
   <rect class="mascara" x="514" y="88" width="12" height="12" rx="2" />
   <text class="mono muted" x="520" y="98" font-size="10" font-weight="600" text-anchor="middle">N</text>
@@ -78,6 +81,8 @@
   <text class="mono muted" x="520" y="362" font-size="10" font-weight="600" text-anchor="middle">1</text>
   <rect class="mascara" x="538" y="352" width="12" height="12" rx="2" />
   <text class="mono muted" x="544" y="362" font-size="10" font-weight="600" text-anchor="middle">N</text>
+  <rect class="mascara" x="296" y="644" width="52" height="12" rx="2" />
+  <text class="mono soft" x="322" y="653" font-size="8" text-anchor="middle" letter-spacing="0.06em">ARCHIVOS</text>
   <rect class="mascara" x="654" y="488" width="52" height="12" rx="2" />
   <text class="mono soft" x="680" y="497" font-size="8" text-anchor="middle" letter-spacing="0.06em">ARCHIVOS</text>
   <rect class="mascara" x="514" y="148" width="12" height="12" rx="2" />
@@ -198,6 +203,20 @@
     <text x="572" y="664"># id</text><text class="muted" x="720" y="664" text-anchor="end">uuid</text>
     <text x="572" y="684">→ ubicacion_id</text><text class="muted" x="720" y="684" text-anchor="end">la zona</text>
     <text x="572" y="704">texto · creado_por</text><text class="muted" x="720" y="704" text-anchor="end">autor</text>
+  </g>
+
+  <!-- bocetos (no se editan) -->
+  <rect class="mascara" x="40" y="604" width="220" height="136" rx="6" />
+  <rect class="nodo" x="40" y="604" width="220" height="136" rx="6" />
+  <path class="cabecera" d="M46 604.6 H254 A5.4 5.4 0 0 1 259.4 610 V644 H40.6 V610 A5.4 5.4 0 0 1 46 604.6 Z" />
+  <line class="separador" x1="40" y1="644" x2="260" y2="644" />
+  <text class="mono muted" x="56" y="620" font-size="8" letter-spacing="0.14em">TABLA · PIZARRA</text>
+  <text x="56" y="636" font-size="14" font-weight="600">bocetos</text>
+  <g class="mono" font-size="10">
+    <text x="56" y="664"># id</text><text class="muted" x="244" y="664" text-anchor="end">uuid</text>
+    <text x="56" y="684">titulo</text><text class="muted" x="244" y="684" text-anchor="end">text</text>
+    <text x="56" y="704">trazos</text><text class="muted" x="244" y="704" text-anchor="end">geojson</text>
+    <text x="56" y="724">imagen · miniatura</text><text class="muted" x="244" y="724" text-anchor="end">path</text>
   </g>
 
   <!-- Bucket de Storage -->

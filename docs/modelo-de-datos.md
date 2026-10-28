@@ -14,7 +14,7 @@ Todas tienen `id uuid` (generado), `created_at` y `updated_at`; el trigger `set_
 
 ### Autoría
 
-`categorias`, `tipos_zona`, `ubicaciones`, `estudios`, `evidencias`, `comentarios_zona`, `salidas` y `asignaciones` guardan quién hizo cada cosa. Todas son uuid → `auth.users` con **ON DELETE SET NULL**.
+`categorias`, `tipos_zona`, `ubicaciones`, `estudios`, `evidencias`, `comentarios_zona`, `bocetos`, `salidas` y `asignaciones` guardan quién hizo cada cosa. Todas son uuid → `auth.users` con **ON DELETE SET NULL**.
 
 | Columna | Dónde | Qué guarda |
 | --- | --- | --- |
@@ -102,6 +102,21 @@ La evidencia de una salida no es un sistema aparte: es la de siempre. Si la cuen
 
 Las cuentas que participaron en cada estudio ([decisión 0023](decisiones/0023-participantes-son-cuentas.md)). `(estudio_id, usuario_id)` es la clave primaria; `usuario_id` → `perfiles`. Ambas columnas tienen **ON DELETE CASCADE**. La app solo deja elegir cuentas activas.
 
+### `bocetos`: dibujos sobre el mapa
+
+Lo que se dibuja en la pizarra, guardado como pantallazo ([decisión 0029](decisiones/0029-pizarra-y-bocetos.md)).
+
+| Columna | Tipo | Reglas |
+| --- | --- | --- |
+| `titulo` | text | Obligatorio, de 1 a 120 caracteres sin contar los espacios de los extremos |
+| `descripcion` | text | Opcional, hasta 1000 caracteres |
+| `trazos` | jsonb | FeatureCollection de GeoJSON: un LineString por trazo, con sus propiedades `color` y `grosor` (px) y coordenadas reales. Hasta 1 MB. Hoy la app no la lee: sirve para editar los dibujos más adelante |
+| `imagen_path` | text | El pantallazo (PNG) en el bucket `evidencias`, en `bocetos/<id>/imagen.png`. Único |
+| `miniatura_path` | text | La miniatura (JPEG de 480 px) para las listas, en `bocetos/<id>/miniatura.jpg`. Único |
+| `ancho`, `alto` | integer | Medidas de la imagen en píxeles, mayores que 0 |
+
+Un boceto **no se edita**: la tabla no tiene permiso de `update`. Se crea, se consulta y se borra. Al borrar la fila, la app borra sus dos archivos del bucket.
+
 ### `comentarios_zona`: lo que el equipo dice de una zona
 
 | Columna | Tipo | Reglas |
@@ -174,7 +189,7 @@ Las columnas de autoría solo dicen quién creó y quién editó por última vez
 | `cambios` | jsonb | Al crear, los campos del registro. Al editar, archivar o recuperar, solo los que cambiaron: `{"nombre": {"antes": "…", "despues": "…"}}` |
 | `registro_borrado` | jsonb | Al borrar, una copia completa del registro |
 
-- La llena el trigger `registrar_bitacora()` en `categorias`, `tipos_zona`, `ubicaciones`, `estudios`, `estudio_participantes`, `evidencias`, `comentarios_zona`, `salidas`, `asignaciones` y `asignacion_participantes`, y en los cambios de `rol` y `estado` de `perfiles`. Cancelar o reactivar una salida queda como `archivar` o `recuperar`.
+- La llena el trigger `registrar_bitacora()` en `categorias`, `tipos_zona`, `ubicaciones`, `estudios`, `estudio_participantes`, `evidencias`, `comentarios_zona`, `bocetos`, `salidas`, `asignaciones` y `asignacion_participantes`, y en los cambios de `rol` y `estado` de `perfiles`. Cancelar o reactivar una salida queda como `archivar` o `recuperar`.
 - No registra las columnas que mantiene la base de datos (`created_at`, `updated_at`, `creado_por`, `actualizado_por`, `archivada_por`, `archivado_por`, y `forma`, que se calcula). Si solo cambió una de ellas, no se agrega nada.
 - **Solo se agregan filas:** nadie la edita, la borra ni la vacía, ni siquiera con la clave secreta (trigger `impedir_cambios_bitacora()`). Solo los admins la leen.
 - Índices por `registro_id` (con la fecha) y por `ocurrio_en`. La vista de la bitácora en la app queda para una issue posterior.
@@ -225,7 +240,7 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
   - fotos: JPEG, PNG, WebP, HEIC/HEIF
   - audios: MP3, M4A/MP4, AAC, WAV, WebM, OGG
   - documentos: PDF, Word, Excel, texto plano
-- **Ruta:** `<estudio_id>/<uuid>-<nombre>`, o `elementos/<ubicacion_id>/<uuid>-<nombre>` para un elemento, con el nombre sin tildes, espacios ni símbolos (`Fachada día 1.jpg` → `Fachada-dia-1.jpg`). El nombre original queda en `archivo_nombre`.
+- **Ruta:** `<estudio_id>/<uuid>-<nombre>`, `elementos/<ubicacion_id>/<uuid>-<nombre>` para un elemento, o `bocetos/<id>/imagen.png` y `bocetos/<id>/miniatura.jpg` para un boceto, con el nombre sin tildes, espacios ni símbolos (`Fachada día 1.jpg` → `Fachada-dia-1.jpg`). El nombre original queda en `archivo_nombre`.
 - **Orden al guardar:** primero se sube el archivo y después se crea la fila en `evidencias` (con `proveedor = 'supabase'`). Si la fila falla, la app borra el archivo.
 - **Orden al borrar:** primero la fila y después el archivo. Si falla el archivo, queda un archivo sin uso, pero nunca una evidencia sin su archivo.
 - Las fotos llegan ya reducidas a 2048 px y en JPEG. Los audios grabados en la app son WebM (Chrome, Android) o MP4 (iPhone).
@@ -244,6 +259,7 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
   | `estudio_participantes` | Cuenta activa | Cuenta activa |
   | `evidencias` | Cuenta activa | Quien la subió o un admin |
   | `comentarios_zona` | Cuenta activa (editar: su autor o un admin) | Quien lo escribió o un admin |
+  | `bocetos` | Leer y crear: cuenta activa. **No se edita** | Quien lo hizo o un admin |
   | `salidas`, `asignaciones` | Leer: cuenta activa. Crear y editar: solo admin | Solo admin (las salidas se cancelan, no se borran) |
   | `asignacion_participantes` | Leer: cuenta activa. Asignar: solo admin. Reportar (`hora_fin`, `porcentaje`, `reportado_en`): la persona asignada o un admin | Solo admin |
   | Bucket `evidencias` | Cuenta activa | Quien subió el archivo (`owner_id`, lo llena Storage) o un admin |
@@ -292,3 +308,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261026180000_quitar_titulo_estudio` | Quita `estudios.titulo` ([decisión 0027](decisiones/0027-quitar-titulo-del-estudio.md)) |
 | `20261027120000_tipo_elemento` | Valor `elemento` en `tipo_ubicacion` (va solo: un valor nuevo de un enum no se usa en la misma transacción) |
 | `20261027120100_elementos` | Elementos ([decisión 0028](decisiones/0028-elementos.md)): `categorias.aplica_a` (enum `uso_categoria`), reglas de los elementos, `evidencias.ubicacion_id`, borrar sin evidencias, `lugares_mapa()` ordenada y `elementos_cercanos()` |
+| `20261027130000_bocetos` | `bocetos` ([decisión 0029](decisiones/0029-pizarra-y-bocetos.md)): sin permiso de editar, con autoría y bitácora; sus archivos van en el bucket `evidencias` |
