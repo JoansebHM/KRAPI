@@ -140,6 +140,51 @@ export type Database = {
         }
         Relationships: []
       }
+      bocetos: {
+        Row: {
+          actualizado_por: string | null
+          alto: number
+          ancho: number
+          creado_por: string | null
+          created_at: string
+          descripcion: string | null
+          id: string
+          imagen_path: string
+          miniatura_path: string
+          titulo: string
+          trazos: Json
+          updated_at: string
+        }
+        Insert: {
+          actualizado_por?: string | null
+          alto: number
+          ancho: number
+          creado_por?: string | null
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          imagen_path: string
+          miniatura_path: string
+          titulo: string
+          trazos?: Json
+          updated_at?: string
+        }
+        Update: {
+          actualizado_por?: string | null
+          alto?: number
+          ancho?: number
+          creado_por?: string | null
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          imagen_path?: string
+          miniatura_path?: string
+          titulo?: string
+          trazos?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categorias: {
         Row: {
           actualizado_por: string | null
