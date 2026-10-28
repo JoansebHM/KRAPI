@@ -10,7 +10,7 @@ import { useFiltros } from './filtrosContexto'
 const DIAS_SEMANA = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const TIPOS_EVIDENCIA: TipoEvidencia[] = ['foto', 'audio', 'documento', 'texto', 'video']
 
-/** Los 6 filtros del mapa, en una hoja que no tapa el mapa: se ve el resultado al ajustarlos. */
+/** Los filtros del mapa, en una hoja que no tapa el mapa: se ve el resultado al ajustarlos. */
 export function PanelFiltros({ onCerrar }: { onCerrar: () => void }) {
   const { filtros, setFiltros } = useFiltros()
   const { data: categorias } = useCategorias()
@@ -40,8 +40,18 @@ export function PanelFiltros({ onCerrar }: { onCerrar: () => void }) {
     >
       <div className="formulario">
         <div className="field">
+          <span className="field-label">Elementos</span>
+          <div className="chips">
+            <button type="button" className="chip chip-sin-icono" aria-pressed={filtros.mostrarElementos} onClick={() => cambiar('mostrarElementos', !filtros.mostrarElementos)}>
+              <span>Mostrar elementos</span>
+            </button>
+          </div>
+          <p className="chips-nota">Canecas, postes, árboles… Como no tienen estudios, solo los filtra la categoría.</p>
+        </div>
+
+        <div className="field">
           <span className="field-label">
-            Categoría<span className="field-opcional"> (de los puntos; las zonas no se ven afectadas)</span>
+            Categoría<span className="field-opcional"> (de los puntos y los elementos; las zonas no se ven afectadas)</span>
           </span>
           {!categorias || categorias.length === 0 ? (
             <p className="chips-nota">No hay categorías para filtrar.</p>

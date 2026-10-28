@@ -5,7 +5,9 @@ import type { Lugar } from '../lugares/api'
 
 /** Qué lugares se ven en el mapa, según sus estudios (issue #21). */
 export interface FiltrosMapa {
-  /** Solo afecta a los puntos: las zonas no tienen categoría y nunca se ocultan por esto. */
+  /** Los elementos (canecas, postes…) se pueden ocultar para ver solo los lugares de estudio. */
+  mostrarElementos: boolean
+  /** Afecta a los puntos y a los elementos: las zonas no tienen categoría y nunca se ocultan por esto. */
   categoriaIds: string[]
   /** 'AAAA-MM-DD' o null (sin tope). */
   fechaDesde: string | null
@@ -24,6 +26,7 @@ export const HORA_DESDE_VACIA = '00:00'
 export const HORA_HASTA_VACIA = '23:59'
 
 export const FILTROS_VACIOS: FiltrosMapa = {
+  mostrarElementos: true,
   categoriaIds: [],
   fechaDesde: null,
   fechaHasta: null,
@@ -34,9 +37,10 @@ export const FILTROS_VACIOS: FiltrosMapa = {
   participanteIds: [],
 }
 
-/** Cuántos de los 6 grupos de filtro están puestos (no cuántas opciones se eligieron en cada uno). */
+/** Cuántos de los 7 grupos de filtro están puestos (no cuántas opciones se eligieron en cada uno). */
 export function contarFiltrosActivos(filtros: FiltrosMapa): number {
   return [
+    !filtros.mostrarElementos,
     filtros.categoriaIds.length > 0,
     filtros.fechaDesde !== null || filtros.fechaHasta !== null,
     filtros.diasSemana.length > 0,
@@ -127,12 +131,13 @@ const hayFiltrosDeEstudio = (filtros: FiltrosMapa) =>
   filtros.participanteIds.length > 0
 
 /**
- * Los lugares que quedan después de filtrar. Un punto además debe estar en una de las categorías
- * elegidas (las zonas no tienen categoría y no se ven afectadas por ese filtro). Si hay algún otro
- * filtro activo, el lugar se muestra si al menos uno de sus estudios cumple todos a la vez.
+ * Los lugares que quedan después de filtrar. Un punto o un elemento además debe estar en una de las
+ * categorías elegidas (las zonas no tienen categoría y no se ven afectadas por ese filtro). Si hay algún
+ * otro filtro activo, el lugar se muestra si al menos uno de sus estudios cumple todos a la vez. Esos
+ * filtros no afectan a los elementos, que no tienen estudios: se ocultan solo con mostrarElementos.
  */
 export function lugaresFiltrados(lugares: Lugar[], estudios: EstudioParaFiltro[], filtros: FiltrosMapa): Lugar[] {
-  if (filtros.categoriaIds.length === 0 && !hayFiltrosDeEstudio(filtros)) return lugares
+  if (filtros.mostrarElementos && filtros.categoriaIds.length === 0 && !hayFiltrosDeEstudio(filtros)) return lugares
 
   const estudiosPorLugar = new Map<string, EstudioParaFiltro[]>()
   for (const estudio of estudios) {
@@ -142,10 +147,11 @@ export function lugaresFiltrados(lugares: Lugar[], estudios: EstudioParaFiltro[]
   }
 
   return lugares.filter((lugar) => {
-    if (filtros.categoriaIds.length > 0 && lugar.tipo === 'punto') {
+    if (lugar.tipo === 'elemento' && !filtros.mostrarElementos) return false
+    if (filtros.categoriaIds.length > 0 && lugar.tipo !== 'zona') {
       if (!lugar.categoriaId || !filtros.categoriaIds.includes(lugar.categoriaId)) return false
     }
-    if (!hayFiltrosDeEstudio(filtros)) return true
+    if (lugar.tipo === 'elemento' || !hayFiltrosDeEstudio(filtros)) return true
     return (estudiosPorLugar.get(lugar.id) ?? []).some((estudio) => estudioCumple(estudio, filtros))
   })
 }
