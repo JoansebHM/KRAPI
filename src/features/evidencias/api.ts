@@ -1,12 +1,22 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { borrarArchivos, enlacesTemporales, PROVEEDOR } from '../../lib/almacenamiento'
 import { SIN_PERMISO } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
+import { claveLugar } from '../lugares/api'
 import type { TipoArchivo, TipoEvidencia } from './archivos'
+
+/** De quién es una evidencia: de un estudio o de un elemento del mapa, que no tiene estudios (decisión 0028). */
+export interface DuenoEvidencia {
+  tipo: 'estudio' | 'elemento'
+  id: string
+}
+
+/** La columna de evidencias que apunta al dueño. */
+const columnaDe = ({ tipo, id }: DuenoEvidencia) => (tipo === 'estudio' ? { estudio_id: id } : { ubicacion_id: id })
 
 export interface Evidencia {
   id: string
-  estudioId: string
+  dueno: DuenoEvidencia
   tipo: TipoEvidencia
   titulo: string | null
   texto: string | null
@@ -19,30 +29,40 @@ export interface Evidencia {
   creadaPor: string | null
 }
 
-export const claveEvidencias = (estudioId: string) => ['evidencias', estudioId] as const
+export const claveEvidencias = ({ tipo, id }: DuenoEvidencia) => ['evidencias', tipo, id] as const
+
+/**
+ * Recarga las evidencias de su dueño. Si es un elemento, también su ficha: cuántas evidencias tiene
+ * decide si se puede borrar.
+ */
+export async function alCambiarEvidencias(queryClient: QueryClient, dueno: DuenoEvidencia) {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: claveEvidencias(dueno) }),
+    dueno.tipo === 'elemento' && queryClient.invalidateQueries({ queryKey: claveLugar(dueno.id) }),
+  ])
+}
 
 /** Los enlaces temporales duran una hora: se renuevan antes de que expiren. */
 const VIGENCIA_ENLACES_MS = 50 * 60 * 1000
 
-/** Evidencias de un estudio, de la más reciente a la más antigua, con un enlace para abrir cada archivo. */
-export function useEvidencias(estudioId: string | undefined) {
+/** Evidencias de un estudio o de un elemento, de la más reciente a la más antigua, con un enlace para abrir cada archivo. */
+export function useEvidencias(dueno: DuenoEvidencia) {
   return useQuery({
-    queryKey: claveEvidencias(estudioId ?? ''),
-    enabled: Boolean(estudioId),
+    queryKey: claveEvidencias(dueno),
     staleTime: VIGENCIA_ENLACES_MS,
     refetchInterval: VIGENCIA_ENLACES_MS,
     queryFn: async (): Promise<Evidencia[]> => {
       const { data, error } = await supabase
         .from('evidencias')
-        .select('id, estudio_id, tipo, titulo, texto, url_externa, archivo_path, archivo_nombre, archivo_mime, archivo_bytes, created_at, creado_por')
-        .eq('estudio_id', estudioId!)
+        .select('id, tipo, titulo, texto, url_externa, archivo_path, archivo_nombre, archivo_mime, archivo_bytes, created_at, creado_por')
+        .match(columnaDe(dueno))
         .order('created_at', { ascending: false })
       if (error) throw error
       const rutas = data.map((fila) => fila.archivo_path).filter((ruta) => ruta !== null)
       const enlaces = await enlacesTemporales(rutas)
       return data.map((fila) => ({
         id: fila.id,
-        estudioId: fila.estudio_id,
+        dueno,
         tipo: fila.tipo,
         titulo: fila.titulo,
         texto: fila.texto,
@@ -59,7 +79,7 @@ export function useEvidencias(estudioId: string | undefined) {
 }
 
 export interface ArchivoSubido {
-  estudioId: string
+  dueno: DuenoEvidencia
   tipo: TipoArchivo
   ruta: string
   nombre: string
@@ -67,17 +87,13 @@ export interface ArchivoSubido {
   bytes: number
 }
 
-/**
- * Registra en la tabla un archivo ya subido. Si no se puede, borra el archivo
- * para no dejarlo huérfano en el bucket.
- */
 /** Agrega un video de SharePoint como evidencia: se guarda el enlace, no el archivo (decisión 0010). */
 export function useAgregarVideo() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ estudioId, enlace, titulo }: { estudioId: string; enlace: string; titulo: string }) => {
+    mutationFn: async ({ dueno, enlace, titulo }: { dueno: DuenoEvidencia; enlace: string; titulo: string }) => {
       const { error } = await supabase.from('evidencias').insert({
-        estudio_id: estudioId,
+        ...columnaDe(dueno),
         tipo: 'video',
         titulo: titulo.trim().replace(/\s+/g, ' ') || null,
         url_externa: enlace,
@@ -85,13 +101,17 @@ export function useAgregarVideo() {
       })
       if (error) throw error
     },
-    onSuccess: (_resultado, { estudioId }) => queryClient.invalidateQueries({ queryKey: claveEvidencias(estudioId) }),
+    onSuccess: (_resultado, { dueno }) => alCambiarEvidencias(queryClient, dueno),
   })
 }
 
-export async function registrarArchivo({ estudioId, tipo, ruta, nombre, mime, bytes }: ArchivoSubido) {
+/**
+ * Registra en la tabla un archivo ya subido. Si no se puede, borra el archivo
+ * para no dejarlo huérfano en el bucket.
+ */
+export async function registrarArchivo({ dueno, tipo, ruta, nombre, mime, bytes }: ArchivoSubido) {
   const { error } = await supabase.from('evidencias').insert({
-    estudio_id: estudioId,
+    ...columnaDe(dueno),
     tipo,
     archivo_path: ruta,
     archivo_nombre: nombre,
@@ -118,6 +138,6 @@ export function useBorrarEvidencia() {
       if (borradas.length === 0) throw SIN_PERMISO
       if (evidencia.archivo) await borrarArchivos([evidencia.archivo.ruta]).catch(() => {})
     },
-    onSuccess: (_resultado, { estudioId }) => queryClient.invalidateQueries({ queryKey: claveEvidencias(estudioId) }),
+    onSuccess: (_resultado, { dueno }) => alCambiarEvidencias(queryClient, dueno),
   })
 }

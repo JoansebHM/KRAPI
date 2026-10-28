@@ -6,9 +6,9 @@ import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { AgregarEvidencia } from '../evidencias/AgregarEvidencia'
 import { AgregarVideo } from '../evidencias/AgregarVideo'
-import { EvidenciasDelEstudio } from '../evidencias/EvidenciasDelEstudio'
 import { GrabadorAudio } from '../evidencias/GrabadorAudio'
 import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
+import { ListaEvidencias } from '../evidencias/ListaEvidencias'
 import { agregarArchivos } from '../evidencias/subidas'
 import { useLugares } from '../lugares/api'
 import { useSalidas } from '../salidas/api'
@@ -91,7 +91,7 @@ export function EstudioPagina() {
 
   function subir(archivos: File[]) {
     setAgregando(null)
-    agregarArchivos(estudio!.id, archivos)
+    agregarArchivos({ tipo: 'estudio', id: estudio!.id }, archivos)
   }
 
   return (
@@ -143,7 +143,7 @@ export function EstudioPagina() {
         Editar estudio
       </button>
 
-      <EvidenciasDelEstudio estudioId={estudio.id} />
+      <ListaEvidencias dueno={{ tipo: 'estudio', id: estudio.id }} />
 
       {agregando === 'opciones' && (
         <AgregarEvidencia
@@ -154,7 +154,7 @@ export function EstudioPagina() {
         />
       )}
       {agregando === 'audio' && <GrabadorAudio onUsar={(audio) => subir([audio])} onCerrar={() => setAgregando(null)} />}
-      {agregando === 'video' && <AgregarVideo estudioId={estudio.id} onCerrar={() => setAgregando(null)} />}
+      {agregando === 'video' && <AgregarVideo dueno={{ tipo: 'estudio', id: estudio.id }} onCerrar={() => setAgregando(null)} />}
 
       {edicion && (
         <FormularioEstudio

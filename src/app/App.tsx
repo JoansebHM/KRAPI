@@ -13,6 +13,7 @@ import { RegistroPage } from '../features/auth/RegistroPage'
 import { UserMenu } from '../features/auth/UserMenu'
 import { useAuth } from '../features/auth/useAuth'
 import { CategoriasPage } from '../features/categorias/CategoriasPage'
+import { CrearElemento } from '../features/elementos/CrearElemento'
 import { BotonNuevoLugar } from '../features/lugares/BotonNuevoLugar'
 import { CrearPunto } from '../features/lugares/CrearPunto'
 import { EstudioPagina } from '../features/estudios/EstudioPagina'
@@ -128,6 +129,7 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
                 <Route path="/lugares/:id/mover" element={<MoverPunto />} />
                 <Route path="/lugares/:id/redibujar" element={<RedibujarZona />} />
                 <Route path="/zonas/nueva" element={<CrearZona />} />
+                <Route path="/elementos/nuevo" element={<CrearElemento />} />
                 <Route path="/tipos-de-zona" element={<TiposZonaPage />} />
                 <Route path="/salidas" element={<SalidasPage />} />
                 <Route path="/salidas/:id" element={<SalidaPagina />} />

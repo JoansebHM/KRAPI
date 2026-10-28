@@ -16,6 +16,9 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - nombres únicos (sin importar mayúsculas ni espacios) en categorías → 23505
  * - borrar una categoría deja sus ubicaciones sin categoría (ON DELETE SET NULL)
  * - lugares_mapa() devuelve los lugares no archivados, zonas primero (con su tipo)
+ * - elementos: no admiten estudios (P0001), sus evidencias van con ubicacion_id, no se borran si tienen
+ *   evidencias, y elementos_cercanos() devuelve los de la misma categoría a menos de N metros
+ * - las categorías aplican a lugares por defecto (aplica_a)
  * - locales_en_zona() devuelve los puntos dentro de una zona, con su último estudio
  * - tipos de zona: los borra un admin y sus zonas quedan sin tipo; comentarios: los borra su autor o un admin
  * - ubicaciones_cercanas() devuelve hasta 5 puntos no archivados a menos de N metros
@@ -382,10 +385,20 @@ export class SupabaseFalso {
         .slice(0, 5)
       return ruta.fulfill({ json: cercanos })
     }
+    if (funcion === 'elementos_cercanos') {
+      const { lng, lat, categoria_id = null, metros = 3 } = argumentos
+      const cercanos = this.db.ubicaciones
+        .filter((u) => u.tipo === 'elemento' && u.archivada_en == null && (u.categoria_id ?? null) === categoria_id)
+        .map((u) => ({ id: u.id, nombre: u.nombre, distancia_m: metrosEntre((u.geom as { coordinates: number[] }).coordinates, [lng, lat]) }))
+        .filter((u) => u.distancia_m <= metros)
+        .sort((a, b) => a.distancia_m - b.distancia_m)
+        .slice(0, 5)
+      return ruta.fulfill({ json: cercanos })
+    }
     if (funcion === 'lugares_mapa') {
       const lugares = this.db.ubicaciones
         .filter((u) => u.archivada_en == null)
-        .sort((a, b) => String(b.tipo).localeCompare(String(a.tipo)) || String(a.nombre).localeCompare(String(b.nombre)))
+        .sort((a, b) => Number(b.tipo === 'zona') - Number(a.tipo === 'zona') || String(a.nombre).localeCompare(String(b.nombre)))
         .map((u) => ({
           id: u.id,
           tipo: u.tipo,
@@ -480,14 +493,15 @@ export class SupabaseFalso {
 
   /** Reglas de borrado de RLS. */
   private puedeBorrar(tabla: Tabla, fila: Fila, cuenta: Cuenta) {
-    if (cuenta.rol === 'admin') return tabla !== 'ubicaciones' || !this.tieneEstudios(fila)
+    if (cuenta.rol === 'admin') return tabla !== 'ubicaciones' || !this.tieneHistorico(fila)
     if (tabla === 'categorias' || tabla === 'tipos_zona' || SOLO_ADMINS.includes(tabla) || tabla === 'asignacion_participantes') return false
     if (tabla === 'estudio_participantes') return true
-    return fila.creado_por === cuenta.id && (tabla !== 'ubicaciones' || !this.tieneEstudios(fila))
+    return fila.creado_por === cuenta.id && (tabla !== 'ubicaciones' || !this.tieneHistorico(fila))
   }
 
-  private tieneEstudios(ubicacion: Fila) {
-    return this.db.estudios.some((e) => e.ubicacion_id === ubicacion.id)
+  /** Un lugar con estudios, o un elemento con evidencias, no se borra. */
+  private tieneHistorico(ubicacion: Fila) {
+    return this.db.estudios.some((e) => e.ubicacion_id === ubicacion.id) || this.db.evidencias.some((e) => e.ubicacion_id === ubicacion.id)
   }
 
   private async rest(ruta: Route, url: URL) {
@@ -507,6 +521,7 @@ export class SupabaseFalso {
         const dato = resto.join('.')
         if (operador === 'eq') return String(fila[columna]) === dato
         if (operador === 'is' && dato === 'null') return fila[columna] == null
+        if (operador === 'not' && dato === 'is.null') return fila[columna] != null
         if (operador === 'in') return dato.replace(/[()]/g, '').split(',').map((id) => id.replace(/"/g, '')).includes(String(fila[columna]))
         return true
       })
@@ -530,6 +545,9 @@ export class SupabaseFalso {
           if (typeof datos.nombre === 'string' && this.nombreRepetido(tabla, datos.nombre)) return this.duplicado(ruta)
           if (tabla === 'estudios' && !(String(datos.hora_fin) > String(datos.hora_inicio))) return this.invalido(ruta)
           if (tabla === 'estudios' && !notasValidas(datos.notas)) return this.invalido(ruta)
+          if (tabla === 'estudios' && this.db.ubicaciones.some((u) => u.id === datos.ubicacion_id && u.tipo === 'elemento')) {
+            return ruta.fulfill(errorPg('P0001', 'Un elemento no tiene estudios: sus evidencias se agregan directamente'))
+          }
           if (tabla === 'evidencias' && !this.evidenciaValida(datos)) return this.invalido(ruta)
           if (tabla === 'asignaciones' && !String(datos.geom).includes('POLYGON')) return this.invalido(ruta)
           if (tabla === 'ubicaciones' && datos.contacto_telefono && !/^\+?[0-9 ()-]{7,20}$/.test(datos.contacto_telefono)) return this.invalido(ruta)
@@ -599,7 +617,7 @@ export class SupabaseFalso {
     for (const campo of select.split(',')) {
       const conteo = campo.match(/^(\w+)\(count\)$/)
       const embebida = campo.match(/^(\w+)\((\w+)\)$/)
-      if (conteo) resultado[conteo[1]] = [{ count: this.contar(tabla, fila) }]
+      if (conteo) resultado[conteo[1]] = [{ count: this.contar(tabla, fila, conteo[1]) }]
       else if (tabla === 'estudios' && embebida?.[1] === 'estudio_participantes') {
         resultado.estudio_participantes = this.db.estudio_participantes
           .filter((r) => r.estudio_id === fila.id)
@@ -608,14 +626,16 @@ export class SupabaseFalso {
       // Las filas que preparan las pruebas pueden no traer fechas; en la base real siempre las tienen.
       else if ((campo === 'created_at' || campo === 'updated_at') && fila[campo] == null) resultado[campo] = FECHA_PREPARADA
       else if (tabla === 'estudios' && (campo === 'notas' || campo === 'participantes_anteriores') && fila[campo] == null) resultado[campo] = []
+      else if (tabla === 'categorias' && campo === 'aplica_a' && fila[campo] == null) resultado[campo] = 'lugares'
       else resultado[campo] = fila[campo] ?? null
     }
     return resultado
   }
 
-  private contar(tabla: Tabla, fila: Fila) {
+  private contar(tabla: Tabla, fila: Fila, relacion: string) {
     if (tabla === 'categorias') return this.db.ubicaciones.filter((u) => u.categoria_id === fila.id).length
     if (tabla === 'tipos_zona') return this.db.ubicaciones.filter((u) => u.tipo_zona_id === fila.id).length
+    if (tabla === 'ubicaciones' && relacion === 'evidencias') return this.db.evidencias.filter((e) => e.ubicacion_id === fila.id).length
     if (tabla === 'ubicaciones') return this.db.estudios.filter((e) => e.ubicacion_id === fila.id).length
     if (tabla === 'estudios') return this.db.evidencias.filter((e) => e.estudio_id === fila.id).length
     return 0

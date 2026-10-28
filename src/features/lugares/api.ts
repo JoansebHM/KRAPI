@@ -9,14 +9,16 @@ interface LugarBase {
   id: string
   nombre: string
   estado: Enums<'estado_ubicacion'>
-  /** Solo los puntos tienen categoría; NULL = sin categoría (marcador neutro). */
+  /** Solo los puntos y los elementos tienen categoría; NULL = sin categoría (marcador neutro). */
   categoriaId: string | null
 }
 
 export type Punto = LugarBase & { tipo: 'punto'; geometria: Point }
 /** Una zona puede tener un tipo (comercial, residencial…) que le da su color en el mapa. */
 export type Zona = LugarBase & { tipo: 'zona'; geometria: Polygon; tipoZonaId: string | null }
-export type Lugar = Punto | Zona
+/** Algo del barrio que se ubica y se documenta pero no se estudia: una caneca, un poste… (decisión 0028). */
+export type Elemento = LugarBase & { tipo: 'elemento'; geometria: Point }
+export type Lugar = Punto | Zona | Elemento
 
 export const CLAVE_LUGARES = ['lugares'] as const
 
@@ -27,7 +29,7 @@ export function useLugares() {
     queryFn: async (): Promise<Lugar[]> => {
       const { data, error } = await supabase.rpc('lugares_mapa')
       if (error) throw error
-      // La función devuelve POINT para los puntos y POLYGON para las zonas (lo exige la base de datos).
+      // La función devuelve POINT para los puntos y los elementos, y POLYGON para las zonas (lo exige la base de datos).
       return data.map(
         ({ id, tipo, nombre, estado, categoria_id, tipo_zona_id, geojson }) =>
           ({
@@ -144,6 +146,8 @@ export interface DetalleLugar {
   creadoPor: string | null
   /** Cuántos estudios tiene, contando los archivados: solo se borra de verdad un lugar sin estudios. */
   estudios: number
+  /** Solo elementos: cuántas evidencias tiene. Un elemento con evidencias no se borra, se archiva. */
+  evidencias: number
 }
 
 export const claveLugar = (id: string) => ['lugar', id] as const
@@ -156,7 +160,7 @@ export function useLugar(id: string | undefined) {
       const { data, error } = await supabase
         .from('ubicaciones')
         .select(
-          'id, tipo, nombre, descripcion, direccion, complemento, contacto_nombre, contacto_telefono, categoria_id, tipo_zona_id, estado, archivada_en, creado_por, estudios(count)',
+          'id, tipo, nombre, descripcion, direccion, complemento, contacto_nombre, contacto_telefono, categoria_id, tipo_zona_id, estado, archivada_en, creado_por, estudios(count), evidencias(count)',
         )
         .eq('id', id!)
         .maybeSingle()
@@ -177,6 +181,7 @@ export function useLugar(id: string | undefined) {
         archivadaEn: data.archivada_en,
         creadoPor: data.creado_por,
         estudios: data.estudios[0]?.count ?? 0,
+        evidencias: data.evidencias[0]?.count ?? 0,
       }
     },
   })
@@ -253,7 +258,10 @@ export function useArchivarLugar() {
   })
 }
 
-/** Borra de verdad un lugar creado por error. RLS solo lo deja si no tiene estudios y es de quien lo creó (o un admin). */
+/**
+ * Borra de verdad un lugar creado por error. RLS solo lo deja si no tiene estudios (ni evidencias, si es un
+ * elemento) y es de quien lo creó (o un admin).
+ */
 export function useBorrarLugar() {
   const onSuccess = useAlCambiarLugar()
   return useMutation({

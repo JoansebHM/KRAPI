@@ -1,4 +1,5 @@
 import type { Database } from '../../types/database'
+import type { DuenoEvidencia } from './api'
 
 export type TipoEvidencia = Database['public']['Enums']['tipo_evidencia']
 export type TipoArchivo = Extract<TipoEvidencia, 'foto' | 'audio' | 'documento'>
@@ -77,9 +78,10 @@ export function nombreSeguro(nombre: string) {
   return limpio.slice(-80) || 'archivo'
 }
 
-/** Ruta del archivo en el bucket: `<estudio_id>/<uuid>-<nombre>`. */
-export function rutaArchivo(estudioId: string, nombre: string) {
-  return `${estudioId}/${crypto.randomUUID()}-${nombreSeguro(nombre)}`
+/** Ruta del archivo en el bucket: `<estudio_id>/<uuid>-<nombre>`, o `elementos/<ubicacion_id>/<uuid>-<nombre>` para un elemento. */
+export function rutaArchivo({ tipo, id }: DuenoEvidencia, nombre: string) {
+  const carpeta = tipo === 'estudio' ? id : `elementos/${id}`
+  return `${carpeta}/${crypto.randomUUID()}-${nombreSeguro(nombre)}`
 }
 
 const formatoMB = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 1 })

@@ -43,13 +43,14 @@ Una fila por cada cuenta de `auth.users` ([decisión 0021](decisiones/0021-usuar
 - **El perfil lo crea la base de datos.** El trigger `crear_perfil_al_registrarse` (sobre `auth.users`) crea el perfil en `pendiente`. Toma el nombre de usuario del correo interno y el nombre y el avatar de los metadatos del registro (`nombre`, `avatar_semilla`). Rechaza las cuentas con un correo que no sea interno.
 - **El correo interno no cambia** (trigger `impedir_cambio_correo`), porque el nombre de usuario no cambia.
 
-### `categorias`: tipos de local
+### `categorias`: tipos de local y de elemento
 
 | Columna | Tipo | Reglas |
 | --- | --- | --- |
 | `nombre` | text | Obligatorio, no vacío, **único** sin importar mayúsculas ni espacios (`categorias_nombre_unico`) |
 | `color` | text | `#RRGGBB`. Por defecto `#0478FB` |
 | `icono` | text | Clave del catálogo `src/features/categorias/iconos.tsx` (`cafe`, `hotel`…). Solo `[a-z0-9-]`. NULL = ícono genérico |
+| `aplica_a` | `uso_categoria` | `lugares` (por defecto), `elementos` o `ambos` ([decisión 0028](decisiones/0028-elementos.md)). Solo filtra el selector de la app: no se valida contra el tipo de la ubicación |
 
 ### `tipos_zona`: de qué es una zona
 
@@ -60,21 +61,23 @@ Una fila por cada cuenta de `auth.users` ([decisión 0021](decisiones/0021-usuar
 
 Vienen cinco para empezar (Comercial, Residencial, Mixta, Parque o zona verde, Institucional). Los crea y edita cualquier cuenta activa; solo un admin los borra ([decisión 0024](decisiones/0024-zonas.md)).
 
-### `ubicaciones`: lugares (puntos y zonas)
+### `ubicaciones`: lugares (puntos, zonas y elementos)
 
 | Columna | Tipo | Reglas |
 | --- | --- | --- |
-| `tipo` | `tipo_ubicacion` | `punto` o `zona` |
-| `geom` | `geometry(Geometry, 4326)` | POINT si es punto, POLYGON válido si es zona. **Debe quedar dentro de Manila** |
+| `tipo` | `tipo_ubicacion` | `punto`, `zona` o `elemento`. **No cambia** después de crear el lugar (trigger `tipo_de_ubicacion_fijo()`) |
+| `geom` | `geometry(Geometry, 4326)` | POINT si es punto o elemento, POLYGON válido si es zona. **Debe quedar dentro de Manila** |
 | `nombre` | text | Obligatorio |
 | `descripcion`, `direccion`, `complemento` | text | Opcionales |
 | `contacto_nombre`, `contacto_telefono` | text | Opcionales; el teléfono, si se escribe, debe tener formato de teléfono |
-| `categoria_id` | uuid → `categorias` | Opcional (puntos). **ON DELETE SET NULL** |
+| `categoria_id` | uuid → `categorias` | Opcional (puntos y elementos). **ON DELETE SET NULL** |
 | `tipo_zona_id` | uuid → `tipos_zona` | Opcional y **solo para zonas**. ON DELETE SET NULL |
 | `estado` | `estado_ubicacion` | `activa` (por defecto) o `cerrada` |
 | `archivada_en` | timestamptz | NULL = visible. Con fecha = archivada |
 
-Las zonas no usan categoría, dirección ni contacto, y deben tener **al menos 20 m²** (`ubicaciones_zona_area_minima`). Desde la app, la geometría se envía como texto EWKT (`SRID=4326;POINT(-75.574 6.213)`) y se lee en GeoJSON con `lugares_mapa()`. Índices: GiST sobre `geom`, sobre `categoria_id` y uno parcial para lo no archivado.
+Las zonas no usan categoría, dirección ni contacto, y deben tener **al menos 20 m²** (`ubicaciones_zona_area_minima`).
+
+Un **elemento** ([decisión 0028](decisiones/0028-elementos.md)) es algo del barrio que se ubica y se documenta pero no se estudia: una caneca, un poste, un árbol. No tiene dirección ni contacto (`ubicaciones_elemento_sin_datos_de_local`), **no tiene estudios** (trigger `validar_ubicacion_de_estudio()` en `estudios`) y sus evidencias cuelgan de él (`evidencias.ubicacion_id`). Desde la app, la geometría se envía como texto EWKT (`SRID=4326;POINT(-75.574 6.213)`) y se lee en GeoJSON con `lugares_mapa()`. Índices: GiST sobre `geom`, sobre `categoria_id` y uno parcial para lo no archivado.
 
 ### `estudios`: visitas
 
@@ -142,11 +145,12 @@ No son zonas del mapa (`ubicaciones`): cambian de una salida a otra. Si el mismo
 
 El reporte va completo: `hora_fin` y `porcentaje` los dos o ninguno.
 
-### `evidencias`: material de cada estudio
+### `evidencias`: material de cada estudio o elemento
 
 | Columna | Tipo | Reglas |
 | --- | --- | --- |
-| `estudio_id` | uuid → `estudios` | ON DELETE CASCADE |
+| `estudio_id` | uuid → `estudios` | El estudio de la evidencia. ON DELETE CASCADE |
+| `ubicacion_id` | uuid → `ubicaciones` | Solo para **elementos**, que no tienen estudios. Debe apuntar a un elemento (trigger `validar_elemento_de_evidencia()`). ON DELETE CASCADE |
 | `tipo` | `tipo_evidencia` | `foto`, `audio`, `documento`, `texto`, `video` |
 | `titulo` | text | Opcional |
 | `archivo_path`, `archivo_nombre`, `archivo_mime`, `archivo_bytes` | | Archivo en el bucket (ruta única) |
@@ -154,7 +158,7 @@ El reporte va completo: `hora_fin` y `porcentaje` los dos o ninguno.
 | `url_externa` | text | Enlace (`http(s)://`). Hoy la app solo acepta videos de SharePoint (`https://*.sharepoint.com`), con `proveedor = 'sharepoint'` |
 | `proveedor` | `proveedor_almacenamiento` | `supabase`, `sharepoint`, `otro`. NULL solo para textos |
 
-Reglas: cada evidencia es **exactamente una** de archivo, texto o enlace. Si es archivo, lleva nombre, tipo MIME y tamaño. Foto, audio y documento siempre son archivo. Un texto puede ser nota escrita o archivo. Un video puede ser enlace o archivo.
+Reglas: cada evidencia es de **exactamente uno** de estudio o elemento (`evidencias_de_estudio_o_elemento`), y es **exactamente una** de archivo, texto o enlace. Si es archivo, lleva nombre, tipo MIME y tamaño. Foto, audio y documento siempre son archivo. Un texto puede ser nota escrita o archivo. Un video puede ser enlace o archivo.
 
 ### `bitacora`: todo lo que pasó
 
@@ -180,10 +184,11 @@ Las columnas de autoría solo dicen quién creó y quién editó por última vez
 | Función | Qué devuelve | Uso |
 | --- | --- | --- |
 | `limite_manila()` | El polígono del barrio (SRID 4326). **Copia** de `src/features/map/manila.ts` | Regla `ubicaciones_dentro_de_manila` |
-| `lugares_mapa()` | Lugares no archivados (`id`, `tipo`, `nombre`, `estado`, `categoria_id`, `tipo_zona_id`) con su forma en GeoJSON (`geojson`); zonas primero | Dibujar los lugares en el mapa. PostgREST devuelve `geom` en binario (WKB), que el mapa no entiende |
+| `lugares_mapa()` | Lugares no archivados (`id`, `tipo`, `nombre`, `estado`, `categoria_id`, `tipo_zona_id`) con su forma en GeoJSON (`geojson`); zonas primero y luego puntos y elementos por nombre | Dibujar los lugares en el mapa. PostgREST devuelve `geom` en binario (WKB), que el mapa no entiende |
 | `ubicaciones_en_zona(zona_id)` | Puntos no archivados dentro de la zona | (Reemplazada en la app por `locales_en_zona`) |
 | `locales_en_zona(zona_id)` | Puntos no archivados dentro de la zona o sobre su borde (`id`, `nombre`, `categoria_id`, `estado`) con la fecha de su último estudio (`ultimo_estudio`) | Ficha de la zona |
 | `ubicaciones_cercanas(lng, lat, metros = 15)` | Hasta 5 puntos no archivados a menos de N metros, con su distancia | Aviso de posible duplicado al crear un punto |
+| `elementos_cercanos(lng, lat, categoria_id, metros = 3)` | Hasta 5 elementos no archivados **de la misma categoría** (NULL = sin categoría) a menos de N metros, con su distancia | Aviso de posible duplicado al crear un elemento |
 
 Se llaman desde la app con `supabase.rpc('nombre', { ... })`. Corren con los permisos de quien llama, así que RLS aplica.
 
@@ -208,7 +213,7 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 ## Archivar en vez de borrar
 
 - La app **archiva** lugares y estudios (`archivada_en` / `archivado_en = now()`) y los filtra con `archivada_en is null`. Recuperar es volver a poner NULL.
-- Borrar de verdad está permitido solo para **un lugar sin estudios** creado por error, y para **evidencias** equivocadas.
+- Borrar de verdad está permitido solo para **un lugar sin estudios** (o **un elemento sin evidencias**) creado por error, y para **evidencias** equivocadas.
 - Las cascadas (`ON DELETE CASCADE`) existen como red de seguridad, pero la app no debería usarlas para lugares o estudios con histórico.
 - **Los archivos del bucket no se borran solos** al borrar una evidencia, porque Supabase no permite borrarlos desde SQL. La app debe borrar el archivo con la API de Storage.
 
@@ -220,7 +225,7 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
   - fotos: JPEG, PNG, WebP, HEIC/HEIF
   - audios: MP3, M4A/MP4, AAC, WAV, WebM, OGG
   - documentos: PDF, Word, Excel, texto plano
-- **Ruta:** `<estudio_id>/<uuid>-<nombre>`, con el nombre sin tildes, espacios ni símbolos (`Fachada día 1.jpg` → `Fachada-dia-1.jpg`). El nombre original queda en `archivo_nombre`.
+- **Ruta:** `<estudio_id>/<uuid>-<nombre>`, o `elementos/<ubicacion_id>/<uuid>-<nombre>` para un elemento, con el nombre sin tildes, espacios ni símbolos (`Fachada día 1.jpg` → `Fachada-dia-1.jpg`). El nombre original queda en `archivo_nombre`.
 - **Orden al guardar:** primero se sube el archivo y después se crea la fila en `evidencias` (con `proveedor = 'supabase'`). Si la fila falla, la app borra el archivo.
 - **Orden al borrar:** primero la fila y después el archivo. Si falla el archivo, queda un archivo sin uso, pero nunca una evidencia sin su archivo.
 - Las fotos llegan ya reducidas a 2048 px y en JPEG. Los audios grabados en la app son WebM (Chrome, Android) o MP4 (iPhone).
@@ -234,7 +239,7 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
   | Tabla | Leer, crear y editar | Borrar |
   | --- | --- | --- |
   | `categorias`, `tipos_zona` | Cuenta activa | Solo admin |
-  | `ubicaciones` | Cuenta activa | Quien la creó o un admin, y solo si **no tiene estudios** |
+  | `ubicaciones` | Cuenta activa | Quien la creó o un admin, y solo si **no tiene estudios ni evidencias** (las de un elemento) |
   | `estudios` | Cuenta activa | Quien lo creó o un admin (la app solo lo usa para deshacer un estudio recién creado) |
   | `estudio_participantes` | Cuenta activa | Cuenta activa |
   | `evidencias` | Cuenta activa | Quien la subió o un admin |
@@ -285,3 +290,5 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261026160000_estudios_de_una_salida` | `estudios.salida_id` (opcional, ON DELETE SET NULL) |
 | `20261026170000_zona_de_asignacion` | `asignaciones.zona_id` (opcional, ON DELETE SET NULL) y el trigger `validar_zona_de_asignacion()` |
 | `20261026180000_quitar_titulo_estudio` | Quita `estudios.titulo` ([decisión 0027](decisiones/0027-quitar-titulo-del-estudio.md)) |
+| `20261027120000_tipo_elemento` | Valor `elemento` en `tipo_ubicacion` (va solo: un valor nuevo de un enum no se usa en la misma transacción) |
+| `20261027120100_elementos` | Elementos ([decisión 0028](decisiones/0028-elementos.md)): `categorias.aplica_a` (enum `uso_categoria`), reglas de los elementos, `evidencias.ubicacion_id`, borrar sin evidencias, `lugares_mapa()` ordenada y `elementos_cercanos()` |
