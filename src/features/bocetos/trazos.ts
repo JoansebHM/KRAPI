@@ -1,4 +1,4 @@
-import type { FeatureCollection, LineString } from 'geojson'
+import type { Feature, FeatureCollection, LineString, Point as PuntoGeoJSON } from 'geojson'
 
 /** [x, y] en píxeles de pantalla, o [lng, lat] en el mapa, según dónde se use. */
 export type Punto = [number, number]
@@ -11,8 +11,25 @@ export interface Trazo {
   grosor: number
 }
 
+/** Una caja de texto, anclada a una posición del mapa para que se quede pegada a él. */
+export interface Texto {
+  id: string
+  /** [lng, lat] del centro del texto. */
+  posicion: Punto
+  /** Lo escrito, con saltos de línea. */
+  texto: string
+  color: string
+  /** Tamaño de la letra, en píxeles. */
+  tamano: number
+  /** Giro en grados, de -180 a 180, respecto al norte del mapa (el positivo va a la derecha). */
+  giro: number
+}
+
+/** Todo lo que se puede dibujar en la pizarra, en el orden en que se hizo. */
+export type Elemento = ({ tipo: 'trazo' } & Trazo) | ({ tipo: 'texto' } & Texto)
+
 /**
- * Colores del lápiz. Todos llevan un borde blanco (ver la capa de la pizarra), así que se ven igual
+ * Colores del lápiz y de los textos. Todos llevan un borde blanco (ver la capa de la pizarra), así que se ven igual
  * de bien sobre el mapa claro y sobre el oscuro, incluido el negro.
  */
 export const COLORES_TRAZO = [
@@ -22,6 +39,25 @@ export const COLORES_TRAZO = [
   { valor: '#0478FB', nombre: 'Azul' },
   { valor: '#0A0A0C', nombre: 'Negro' },
 ] as const
+
+export const TAMANOS_TEXTO = [
+  { valor: 20, nombre: 'Normal' },
+  { valor: 32, nombre: 'Grande' },
+] as const
+
+/** Cuántos caracteres puede tener un texto: más taparía el mapa. */
+export const MAX_CARACTERES_TEXTO = 160
+
+/** De cuánto en cuánto giran los botones de girar, y a qué múltiplos se acomoda la manija. */
+export const PASO_GIRO = 15
+
+/** La manija de girar se acomoda al múltiplo más cercano cuando está a menos de estos grados. */
+const IMAN_GIRO = 4
+
+/** Tipografía, interlineado y borde de los textos. Los usan el HTML de la pizarra (Pizarra.css) y el dibujo sobre la imagen. */
+export const FAMILIA_TEXTO = "Poppins, system-ui, -apple-system, 'Segoe UI', sans-serif"
+export const INTERLINEADO_TEXTO = 1.25
+export const BORDE_TEXTO_PX = 5
 
 export const GROSORES_TRAZO = [
   { valor: 4, nombre: 'Fino' },
@@ -75,7 +111,19 @@ export function simplificar(puntos: Punto[], tolerancia: number): Punto[] {
 /** 6 decimales ≈ 10 cm: suficiente precisión y trazos más livianos. */
 export const redondear = ([lng, lat]: Punto): Punto => [Math.round(lng * 1e6) / 1e6, Math.round(lat * 1e6) / 1e6]
 
-/** Los trazos como GeoJSON: es lo que dibuja el mapa y lo que se guarda en `bocetos.trazos`. */
+/** Lleva un giro cualquiera a (-180, 180]. */
+export function normalizarGiro(grados: number) {
+  const resto = ((((grados + 180) % 360) + 360) % 360) - 180
+  return resto === -180 ? 180 : resto
+}
+
+/** Acomoda un giro al múltiplo de PASO_GIRO más cercano si está muy cerca, para que 0° y 90° sean fáciles de acertar. */
+export function acomodarGiro(grados: number) {
+  const cercano = Math.round(grados / PASO_GIRO) * PASO_GIRO
+  return Math.abs(grados - cercano) < IMAN_GIRO ? normalizarGiro(cercano) : Math.round(grados)
+}
+
+/** Los trazos como GeoJSON: es lo que dibuja el mapa. */
 export function trazosAGeoJSON(trazos: Trazo[]): FeatureCollection<LineString, { color: string; grosor: number }> {
   return {
     type: 'FeatureCollection',
@@ -87,4 +135,24 @@ export function trazosAGeoJSON(trazos: Trazo[]): FeatureCollection<LineString, {
         geometry: { type: 'LineString' as const, coordinates: puntos },
       })),
   }
+}
+
+/**
+ * Todo el dibujo como GeoJSON, que es lo que se guarda en `bocetos.trazos`: una línea por trazo y un punto
+ * por texto, en el orden en que se hicieron.
+ */
+export function elementosAGeoJSON(
+  elementos: Elemento[],
+): FeatureCollection<LineString | PuntoGeoJSON, { color: string; grosor: number } | { texto: string; color: string; tamano: number; giro: number }> {
+  const features: Feature<LineString | PuntoGeoJSON, { color: string; grosor: number } | { texto: string; color: string; tamano: number; giro: number }>[] = []
+  for (const elemento of elementos) {
+    if (elemento.tipo === 'texto') {
+      const { posicion, texto, color, tamano, giro } = elemento
+      features.push({ type: 'Feature', properties: { texto, color, tamano, giro }, geometry: { type: 'Point', coordinates: posicion } })
+    } else if (elemento.puntos.length >= 2) {
+      const { puntos, color, grosor } = elemento
+      features.push({ type: 'Feature', properties: { color, grosor }, geometry: { type: 'LineString', coordinates: puntos } })
+    }
+  }
+  return { type: 'FeatureCollection', features }
 }
