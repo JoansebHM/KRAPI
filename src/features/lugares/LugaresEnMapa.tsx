@@ -10,11 +10,17 @@ import { useFiltros } from '../filtros/filtrosContexto'
 import { Marker, type GeoJSONSource, type Map as MapLibreMap, type MapLayerMouseEvent } from '../map/maplibre'
 import type { Theme } from '../theme/useTheme'
 import { useTiposZona } from '../tiposZona/api'
-import { useLugares, type Punto, type Zona } from './api'
+import { useLugares, type Elemento, type Punto, type Zona } from './api'
 import { CAPA_RELLENO, tocoUnMarcador } from './tocarLugar'
 import './LugaresEnMapa.css'
 
 const FUENTE_ZONAS = 'lugares-zonas'
+
+/** Tamaño de los marcadores: los elementos son más pequeños, para que muchos no tapen los locales. */
+const TAMANO_PUNTO = 32
+const TAMANO_ELEMENTO = 26
+/** La gota del elemento es un cuadrado girado: su punta queda a medio diagonal del centro. */
+const PUNTA_ELEMENTO = Math.round(TAMANO_ELEMENTO / Math.SQRT2)
 const CAPA_BORDE = 'lugares-zonas-borde'
 
 /**
@@ -31,7 +37,10 @@ interface LugaresEnMapaProps {
   theme: Theme
 }
 
-/** Dibuja los lugares visibles: puntos como marcadores con su categoría y zonas como polígonos. */
+/**
+ * Dibuja los lugares visibles: puntos como círculos con su categoría, elementos como gotas invertidas
+ * (la punta marca el lugar exacto) y zonas como polígonos.
+ */
 export function LugaresEnMapa({ mapa, theme }: LugaresEnMapaProps) {
   const { data: lugaresSinFiltrar } = useLugares()
   const { data: estudiosParaFiltro } = useEstudiosParaFiltro()
@@ -45,11 +54,11 @@ export function LugaresEnMapa({ mapa, theme }: LugaresEnMapaProps) {
   const navigate = useNavigate()
   // Mientras se ubica o se dibuja un lugar, tocar el mapa no abre fichas.
   const { pathname } = useLocation()
-  const creando = /^\/(lugares\/nuevo|zonas\/nueva)$|\/(mover|redibujar)$|^\/salidas\/[^/]+\/zonas\/nueva$/.test(pathname)
+  const creando = /^\/(lugares\/nuevo|zonas\/nueva|elementos\/nuevo)$|\/(mover|redibujar)$|^\/salidas\/[^/]+\/zonas\/nueva$/.test(pathname)
   const idEnRuta = useMatch('/lugares/:id')?.params.id
   const seleccionado = creando ? undefined : idEnRuta
 
-  const puntos = useMemo(() => (lugares ?? []).filter((lugar): lugar is Punto => lugar.tipo === 'punto'), [lugares])
+  const puntos = useMemo(() => (lugares ?? []).filter((lugar): lugar is Punto | Elemento => lugar.tipo === 'punto' || lugar.tipo === 'elemento'), [lugares])
   const zonas = useMemo(() => (lugares ?? []).filter((lugar): lugar is Zona => lugar.tipo === 'zona'), [lugares])
   const categoriaPorId = useMemo(() => new Map((categorias ?? []).map((categoria) => [categoria.id, categoria])), [categorias])
 
@@ -73,7 +82,7 @@ export function LugaresEnMapa({ mapa, theme }: LugaresEnMapaProps) {
 
 interface MarcadorPuntoProps {
   mapa: MapLibreMap
-  punto: Punto
+  punto: Punto | Elemento
   categoria: Categoria | undefined
   seleccionado: boolean
   onAbrir: (id: string) => void
@@ -84,15 +93,19 @@ function MarcadorPunto({ mapa, punto, categoria, seleccionado, onAbrir }: Marcad
   const [lng, lat] = punto.geometria.coordinates
 
   const marcadorRef = useRef<Marker | null>(null)
+  const esElemento = punto.tipo === 'elemento'
 
   useEffect(() => {
-    const marcador = new Marker({ element: elemento, anchor: 'center' }).setLngLat([lng, lat]).addTo(mapa)
+    // La gota se sube para que su punta, y no su centro, quede sobre la coordenada.
+    const marcador = new Marker({ element: elemento, anchor: 'center', offset: [0, esElemento ? -PUNTA_ELEMENTO : 0] })
+      .setLngLat([lng, lat])
+      .addTo(mapa)
     marcadorRef.current = marcador
     return () => {
       marcador.remove()
       marcadorRef.current = null
     }
-  }, [mapa, elemento, lng, lat])
+  }, [mapa, elemento, lng, lat, esElemento])
 
   // El seleccionado queda encima de los marcadores vecinos.
   useEffect(() => {
@@ -103,17 +116,17 @@ function MarcadorPunto({ mapa, punto, categoria, seleccionado, onAbrir }: Marcad
   }, [seleccionado, mapa, lng, lat])
 
   const cerrado = punto.estado === 'cerrada'
-  const descripcion = [categoria?.nombre ?? 'Sin categoría', cerrado && 'cerrado'].filter(Boolean).join(', ')
+  const descripcion = [esElemento && 'elemento', categoria?.nombre ?? 'Sin categoría', cerrado && 'cerrado'].filter(Boolean).join(', ')
 
   return createPortal(
     <button
       type="button"
-      className={`marcador-lugar${categoria ? '' : ' marcador-sin-categoria'}${cerrado ? ' marcador-cerrado' : ''}${seleccionado ? ' marcador-seleccionado' : ''}`}
+      className={`marcador-lugar${esElemento ? ' marcador-elemento' : ''}${categoria ? '' : ' marcador-sin-categoria'}${cerrado ? ' marcador-cerrado' : ''}${seleccionado ? ' marcador-seleccionado' : ''}`}
       aria-label={`${punto.nombre} (${descripcion})`}
       aria-pressed={seleccionado}
       onClick={() => onAbrir(punto.id)}
     >
-      <IconoCategoria icono={categoria?.icono} color={categoria?.color ?? COLOR_SIN_CATEGORIA} tamano={32} />
+      <IconoCategoria icono={categoria?.icono} color={categoria?.color ?? COLOR_SIN_CATEGORIA} tamano={esElemento ? TAMANO_ELEMENTO : TAMANO_PUNTO} />
     </button>,
     elemento,
   )

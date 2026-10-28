@@ -42,6 +42,20 @@
   filter: grayscale(0.6);
 }
 
+/*
+ * Elemento: gota invertida, para distinguirlo de los locales (círculos). Es un cuadrado con una esquina
+ * en punta, girado para que la punta quede abajo; el ícono se gira al revés para que quede derecho.
+ * Se usa la propiedad rotate (no transform) para que se sume a la escala al pasar el mouse o al seleccionarlo.
+ */
+.marcador-elemento .icono-categoria {
+  border-radius: 50% 50% 50% 0;
+  rotate: -45deg;
+}
+
+.marcador-elemento .icono-categoria svg {
+  rotate: 45deg;
+}
+
 .maplibregl-marker.marcador-encima {
   z-index: 1;
 }
