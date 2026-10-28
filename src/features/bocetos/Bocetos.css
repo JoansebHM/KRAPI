@@ -1,0 +1,54 @@
+/* Fila del registro: miniatura, título y quién lo hizo. */
+.boceto-item {
+  gap: var(--space-3);
+}
+
+.boceto-miniatura {
+  flex-shrink: 0;
+  width: 72px;
+  height: 56px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  object-fit: cover;
+}
+
+/* Visor: la imagen entera y, debajo, la descripción. */
+.boceto-visor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* La imagen se acomoda al espacio que queda (entera, sin recortarse), sea alta o ancha. */
+.boceto-visor-imagen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: var(--space-2);
+}
+
+.boceto-visor-imagen img {
+  position: absolute;
+  inset: var(--space-2);
+  width: calc(100% - 2 * var(--space-2));
+  height: calc(100% - 2 * var(--space-2));
+  object-fit: contain;
+}
+
+.boceto-visor-imagen p {
+  display: grid;
+  height: 100%;
+  margin: 0;
+  place-items: center;
+}
+
+.boceto-visor-descripcion {
+  max-height: 30%;
+  margin: 0;
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  white-space: pre-line;
+}
