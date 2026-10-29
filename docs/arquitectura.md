@@ -29,6 +29,9 @@ src/
     bocetos/      Pizarra (PizarraPagina, TextosEnPizarra, EditarTexto, trazos.ts, useTrazosEnMapa),
                   captura del mapa y dibujo de los textos sobre la imagen (capturar.ts, dibujarTextos.ts),
                   registro de bocetos (BocetosPage, VerBoceto) y api.ts
+    preguntas/    Guías de entrevista (decisión 0031): contenido estático (guias.ts), orden de las
+                  preguntas (ordenar.ts), PreguntasPage (diálogo y pestañas), ListaPreguntas,
+                  PreguntaDesplegable, EjercicioTarjetas y VistaAutorizacion
     categorias/   CRUD de categorías, colores, íconos y si se usan en lugares, elementos o ambos
     elementos/    Elementos (decisión 0028): crearlos con la mira (CrearElemento), su ficha
                   (FichaElemento) y editarlos (EditarElemento, CamposDelElemento)
@@ -149,6 +152,11 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - **Estado y Deshacer:** `PizarraPagina` guarda una lista de `Elemento` (`{ tipo: 'trazo' | 'texto' }`, en orden) y una pila de versiones anteriores (`cambiar()`, hasta 50): cada acción confirmada guarda la versión anterior. `elementosAGeoJSON()` los pasa a GeoJSON al guardar.
 - **Captura con textos:** `capturarMapa(mapa, textos)` copia el lienzo y dibuja encima cada texto con `dibujarTextos()` (lienzo 2D): `translate` a la posición proyectada, `rotate(giro − rumbo)`, `strokeText` blanco y `fillText` del color, con la misma tipografía, interlineado y borde que el CSS (constantes en `trazos.ts`). La escala es `lienzo.width / lienzo.clientWidth`, por las pantallas de alta densidad.
 - Mientras se está en `/pizarra`, `LugaresEnMapa` (`creando`), `AsignacionesEnMapa` (`dibujando`) y `CerrarPanelAlTocarElMapa` no navegan al tocar un lugar o una zona.
+
+**Preguntas de entrevista** (ver [decisión 0031](decisiones/0031-guias-de-preguntas.md))
+- El contenido es estático y versionado en `features/preguntas/guias.ts`; no hay tabla ni migración. `ordenarPreguntas(guia, moduloId)` (pura) devuelve las imprescindibles y las complementarias, con el tronco antes que el módulo.
+- `PreguntasPage` usa `Dialog` y lee la guía, el módulo y la vista de `useSearchParams` (`?guia=&modulo=&vista=autorizacion`): pestaña y módulo con `replace`; la vista de autorización con `push` (y `state.vistaPropia`, para que cerrar sepa cuántos pasos volver). Es una vista interna del mismo diálogo, no un diálogo encima de otro. Se recuerdan en `localStorage` `krapi-preguntas-guia` y `krapi-preguntas-modulo-<guia>`.
+- Las pestañas (`.pestanas`, ahora en `ui.css`) tienen la variante `.pestanas-desplazables` para filas que no caben.
 
 **Evidencias y archivos** (ver [decisión 0019](decisiones/0019-subida-de-evidencias.md))
 - Todo acceso a archivos pasa por `lib/almacenamiento.ts`: `subirArchivo` (con avance, por `XMLHttpRequest`), `borrarArchivos` y `enlacesTemporales`. Para cambiar de proveedor solo se toca ese archivo.

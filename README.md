@@ -59,6 +59,7 @@ npx supabase stop  # apaga Supabase local
 - En el histórico de un lugar, tocar un estudio abre su presentación con el carrusel de fotos y el resto de evidencias. Desde el modal se puede editar o abrir la página del estudio para agregar evidencia.
 - "+ Nuevo lugar" pregunta si se registra un **punto** (`/lugares/nuevo`), una **zona** (`/zonas/nueva`, se dibuja con la mira) o un **elemento** (`/elementos/nuevo`: una caneca, un poste… que no se estudia, pero recibe evidencias en su ficha). La forma de una zona se cambia en `/lugares/<id>/redibujar`, y sus tipos se administran en **Tipos de zona** (`/tipos-de-zona`).
 - **Pizarra** (`/pizarra`) deja dibujar a mano alzada y escribir textos (que se mueven y se giran) sobre el mapa, y guardarlo como boceto; **Bocetos** (`/bocetos`) es el registro, con miniatura, autor y fecha ([decisión 0029](docs/decisiones/0029-pizarra-y-bocetos.md)).
+- **Preguntas** (`/preguntas`) abre las guías de entrevista, una pestaña por tipo de actor, con las preguntas imprescindibles primero y el guion de autorización para grabar ([decisión 0031](docs/decisiones/0031-guias-de-preguntas.md)).
 - **Salidas** (`/salidas`) lista las próximas y las anteriores. En cada salida (`/salidas/<id>`) los admins dibujan zonas (`/salidas/<id>/zonas/nueva`) y las asignan, y cada quien reporta lo suyo. Su sección "Qué se registró" lista los estudios ligados a ella. **Mis asignaciones** (`/mis-asignaciones`) muestra las zonas propias, con un contador en el menú de las que faltan por reportar. "Ver en el mapa" (o tocar la zona directamente en el mapa) abre `/salidas/<id>/zonas/<zona>`.
 - Desde el menú de la cuenta, **Mi perfil** (`/perfil`) deja cambiar el nombre, el avatar y la contraseña.
 - Los admins ven además **Usuarios** (`/usuarios`), con un contador de las cuentas que esperan aprobación. Ahí aprueban, rechazan, desactivan y reactivan cuentas, y nombran o quitan admins. Si un miembro entra a `/usuarios` por la URL, vuelve al mapa.
@@ -181,6 +182,7 @@ src/
     categorias/ # Administración de categorías
     elementos/    # Elementos (canecas, postes…): crearlos, su ficha y editarlos
     filtros/      # Filtros del mapa (elementos, categoría, fechas, horas, evidencia, responsables)
+    preguntas/    # Guías de preguntas para las entrevistas (contenido estático)
     perfil/       # Mi perfil: nombre, avatar y contraseña
     salidas/      # Salidas, zonas asignadas, reportes y Mis asignaciones
     tiposZona/    # Tipos de zona (lista con color)

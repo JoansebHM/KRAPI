@@ -18,6 +18,7 @@ const SECCIONES = [
   { ruta: '/salidas', texto: 'Salidas', icono: <IconoSalidas /> },
   { ruta: '/pizarra', texto: 'Pizarra', icono: <IconoPizarra /> },
   { ruta: '/bocetos', texto: 'Bocetos', icono: <IconoBocetos /> },
+  { ruta: '/preguntas', texto: 'Preguntas', icono: <IconoPreguntas /> },
 ]
 
 /** Menú lateral con las secciones de la app. En celular se abre encima con ☰ y se cierra al elegir. */
@@ -61,7 +62,7 @@ export function MenuFijo() {
   )
 }
 
-/** Las secciones de la app: Mapa, Categorías, Tipos de zona, Salidas, Pizarra, Bocetos, Mis asignaciones, Usuarios (admins) y Documentación. */
+/** Las secciones de la app: Mapa, Categorías, Tipos de zona, Salidas, Pizarra, Bocetos, Preguntas, Mis asignaciones, Usuarios (admins) y Documentación. */
 function ListaSecciones() {
   const { esAdmin, perfil } = useAuth()
   // Cuántas zonas asignadas a la cuenta faltan por reportar (de salidas de hoy o anteriores).
@@ -209,6 +210,15 @@ function IconoBocetos() {
       <rect x="3" y="4" width="18" height="16" rx="2" />
       <circle cx="9" cy="10" r="1.5" />
       <path d="m21 16-5-5-8 9" />
+    </svg>
+  )
+}
+
+function IconoPreguntas() {
+  return (
+    <svg {...icono}>
+      <path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5Z" />
+      <path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1" />
     </svg>
   )
 }
