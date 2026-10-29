@@ -51,7 +51,7 @@ Reglas de negocio:
 
 1. La persona entra con su **nombre de usuario** y su contraseña. Si no tiene cuenta, la crea en "Crear una cuenta" (nombre, nombre de usuario y contraseña, sin correo) y espera a que un admin la apruebe: mientras tanto ve una pantalla de espera y entra al mapa sola apenas la aprueban. La sesión dura hasta 7 días y se cierra tras 2 horas sin uso.
 2. En el mapa toca **"+ Nuevo lugar"** y elige **Punto** (un local), **Zona** (un área) o **Elemento** (algo que no se estudia, como una caneca).
-3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, o con "Mi ubicación".
+3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, con "Mi ubicación" (que lleva el mapa hasta donde se está) o, solo al crear un punto, con **"Usar mi ubicación"**: el navegador pide permiso para ubicarte y, si estás dentro de Manila, el punto queda ahí y se sigue con los datos. Si estás fuera, avisa y no lo crea.
    - Si el punto queda fuera de Manila, no deja continuar.
    - Si hay otro lugar a menos de ~15 m, pregunta si es el mismo. Si lo es, se toca y se le **agrega el estudio** ahí mismo, sin duplicar el lugar.
 4. Llena el lugar (nombre, categoría, dirección, complemento, contacto y descripción) y, en el siguiente paso, el **estudio**. En el estudio puede ir sumando **notas** sueltas con "Agregar nota" y borrar las que sobren. La fecha (hoy) y la hora de inicio (ahora) vienen prellenadas, la de fin una hora después, y los participantes vienen marcados: la cuenta propia y las del último estudio hecho desde ese celular. También puede elegir "Solo guardar el lugar".
@@ -116,7 +116,7 @@ Una salida se puede cancelar (las personas lo ven) y reactivar. Una zona de la s
 - Zonas: dibujarlas con la mira, su tipo (lista administrable), comentarios, locales adentro, recorridos, editarlas, redibujarlas y archivarlas.
 - Salidas: los admins crean salidas, dibujan sus zonas y las asignan a personas. Cada persona ve sus zonas en "Mis asignaciones" (el menú cuenta las que faltan por reportar) y en el mapa, y reporta su hora de fin y el porcentaje que cubrió. Las salidas se pueden cancelar y reactivar.
 - Ficha del punto: todos sus datos (con el teléfono para llamar o abrir WhatsApp), editarlos, moverlo con la mira, marcarlo cerrado o activo, archivarlo y recuperarlo, y borrarlo si no tiene estudios. El histórico dice cuántas evidencias tiene cada estudio.
-- Crear puntos desde el mapa: botón "+ Nuevo lugar", mira fija en el centro, "Mi ubicación", bloqueo fuera de Manila, aviso de lugares a menos de 15 m y formulario del lugar.
+- Crear puntos desde el mapa: botón "+ Nuevo lugar", mira fija en el centro, "Mi ubicación", "Usar mi ubicación" (pone el punto donde estás), bloqueo fuera de Manila, aviso de lugares a menos de 15 m y formulario del lugar.
 - Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con participantes (vienen marcadas la cuenta propia y las del último estudio del celular). La ficha muestra el histórico; al tocar un estudio se abre su presentación con fotos y otras evidencias, y desde ahí se puede editar o agregar evidencias.
 - Evidencias de archivo: tomar fotos (comprimidas antes de subir), grabar audios en la app y subir documentos, con avance, reintento y borrado con confirmación.
 - Videos de SharePoint por enlace (se abren en otra pestaña).

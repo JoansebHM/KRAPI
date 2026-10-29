@@ -105,7 +105,7 @@ export function CrearPunto() {
 
   return (
     <div className="crear-punto">
-      <MiraCentral mensaje="Mueve el mapa hasta que la mira quede sobre el local.">
+      <MiraCentral mensaje="Mueve el mapa hasta que la mira quede sobre el local." onUsarUbicacion={(ubicacion) => void continuar(ubicacion)}>
         {({ centro, dentro }) => (
           <div className="crear-barra">
             <Link to="/" className="btn btn-secondary">
