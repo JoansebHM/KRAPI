@@ -12,6 +12,11 @@ export interface PosicionMira {
 interface MiraCentralProps {
   /** Qué hacer, mientras la mira está dentro de Manila. */
   mensaje: string
+  /**
+   * Si se pasa, aparece el botón "Usar mi ubicación": pide la ubicación al navegador y, si está dentro
+   * de Manila, deja el punto ahí y llama a esta función con ella. Solo crear un punto lo usa.
+   */
+  onUsarUbicacion?: (posicion: [number, number]) => void
   /** La barra de abajo con sus botones, que reciben la posición de la mira. */
   children: (posicion: PosicionMira) => ReactNode
 }
@@ -20,7 +25,7 @@ interface MiraCentralProps {
  * Mira fija en el centro del mapa: se mueve el mapa por debajo para elegir una posición. Avisa si
  * queda fuera de Manila y trae el botón "Mi ubicación". La usan crear y mover un punto.
  */
-export function MiraCentral({ mensaje, children }: MiraCentralProps) {
+export function MiraCentral({ mensaje, onUsarUbicacion, children }: MiraCentralProps) {
   const mapa = useMapa()
   const [centro, setCentro] = useState<[number, number] | null>(() => mapa?.getCenter().toArray() ?? null)
   const [localizando, setLocalizando] = useState(false)
@@ -37,7 +42,8 @@ export function MiraCentral({ mensaje, children }: MiraCentralProps) {
 
   const dentro = centro ? dentroDeManila(centro[0], centro[1]) : false
 
-  function irAMiUbicacion() {
+  /** Pide la ubicación al navegador (que pregunta si se permite) y lleva el mapa hasta ella. */
+  function irAMiUbicacion(usarla = false) {
     if (!mapa) return
     if (!('geolocation' in navigator)) {
       notificar.error('No se puede usar tu ubicación', { descripcion: 'Este navegador no lo permite.' })
@@ -51,6 +57,7 @@ export function MiraCentral({ mensaje, children }: MiraCentralProps) {
           notificar.aviso('Estás fuera de Manila', { descripcion: 'Mueve el mapa hasta el lugar que quieres registrar.' })
         }
         mapa.flyTo({ center: [coords.longitude, coords.latitude], zoom: Math.max(mapa.getZoom(), 18) })
+        if (usarla && dentroDeManila(coords.longitude, coords.latitude)) onUsarUbicacion?.([coords.longitude, coords.latitude])
       },
       () => {
         setLocalizando(false)
@@ -77,7 +84,7 @@ export function MiraCentral({ mensaje, children }: MiraCentralProps) {
       <button
         type="button"
         className="crear-mi-ubicacion"
-        onClick={irAMiUbicacion}
+        onClick={() => irAMiUbicacion()}
         disabled={localizando || !mapa}
         aria-label="Mi ubicación"
         title="Mi ubicación"
@@ -89,6 +96,17 @@ export function MiraCentral({ mensaje, children }: MiraCentralProps) {
           <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
         </svg>
       </button>
+
+      {onUsarUbicacion && (
+        <button type="button" className="btn btn-secondary crear-usar-ubicacion" onClick={() => irAMiUbicacion(true)} disabled={localizando || !mapa} aria-busy={localizando}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="7" />
+            <circle cx="12" cy="12" r="2.5" fill="currentColor" />
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+          </svg>
+          {localizando ? 'Buscando…' : 'Usar mi ubicación'}
+        </button>
+      )}
 
       {children({ centro, dentro })}
     </>

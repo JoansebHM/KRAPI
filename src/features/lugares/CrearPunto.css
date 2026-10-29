@@ -112,6 +112,20 @@
   cursor: pointer;
 }
 
+/* "Usar mi ubicación": a la izquierda de "Mi ubicación", sobre la barra. */
+.crear-usar-ubicacion {
+  position: absolute;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  left: var(--space-4);
+  z-index: 5;
+  min-height: 52px;
+  padding: 0 var(--space-4);
+  border-radius: 999px;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-overlay);
+  color: var(--color-accent);
+}
+
 .crear-mi-ubicacion:disabled {
   opacity: 0.6;
   cursor: progress;
@@ -123,7 +137,8 @@
 }
 
 @media (min-width: 900px) {
-  .crear-mi-ubicacion {
+  .crear-mi-ubicacion,
+  .crear-usar-ubicacion {
     bottom: var(--space-6);
   }
 
