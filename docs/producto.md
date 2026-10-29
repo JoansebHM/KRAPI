@@ -79,6 +79,14 @@ Para un **boceto**:
 5. **Guardar** (se activa con el primer trazo o texto) pide un título y, si se quiere, una descripción. Se guarda el pantallazo del mapa con los trazos. Los marcadores de los lugares no salen: se ocultan en la pizarra; el mapa base (calles y nombres), las zonas y el límite de Manila sí.
 6. En **Bocetos** están todos, del más reciente al más antiguo, con miniatura, quién lo hizo y cuándo. Al tocar uno se ve entero en pantalla completa, con su descripción, y se puede **descargar** o **borrar** (solo su autor o un admin, con confirmación). Sirve para proyectarlo en las reuniones.
 
+Para **preguntas de entrevista**:
+
+1. En el menú, **Preguntas**. Se abre un diálogo sobre el mapa, en la última guía que se usó (la primera vez, *Centro de distribución*). Hay una pestaña por tipo de actor: Centro de distribución, JAC, Instituciones, Tenderos, Residentes y Visitantes.
+2. Antes de empezar, **Autorización para grabar** muestra el guion de presentación de la guía activa, con el nombre de la cuenta ya puesto, los siete elementos que deben quedar claros y las notas para ese actor. "Volver a las preguntas" (o el botón atrás) regresa a la lista.
+3. La lista muestra primero las **imprescindibles ★** (con solo estas se hace la versión de 40 minutos) y luego las complementarias. Al tocar una pregunta se ve por qué se hace, qué evidencia se busca, las repreguntas, el registro técnico, el ejercicio con sus tarjetas (JAC, Tenderos, Residentes y Visitantes) y las lentes.
+4. En **Instituciones** (Policía, Hospital o clínica, Centro comercial) y **Visitantes** (Turistas, Población flotante, Consumidores) se elige el módulo que corresponde; las preguntas del tronco común se hacen siempre.
+5. Al final de la lista está el **cierre de la entrevista**.
+
 Para una **salida**:
 
 1. Un admin la crea en **Salidas** (nombre, fecha y hora de inicio).
@@ -103,6 +111,7 @@ Una salida se puede cancelar (las personas lo ven) y reactivar. Una zona de la s
 - Administración de categorías (color e ícono). Cada cuenta tiene su avatar dibujado.
 - Lugares en el mapa: puntos con el color y el ícono de su categoría (blancos si no tienen), zonas con el color de su tipo (lila sin tipo), cerrados atenuados y archivados ocultos.
 - Pizarra y bocetos (decisiones 0029 y 0030): dibujar a mano alzada y escribir textos sobre el mapa (Mano, Lápiz y Texto; colores, grosores; los textos se mueven, se giran y se editan; deshacer cualquier acción, borrar todo) y guardarlo como pantallazo con título y descripción. El registro tiene miniatura, autor y fecha; cada boceto se ve entero, se descarga y se borra. No se editan.
+- Preguntas de entrevista (decisión 0031): seis guías con las imprescindibles primero, desplegables con la razón de cada pregunta, módulos, ejercicios con tarjetas, guion de autorización con el nombre de la cuenta y cierre. Solo lectura: no se guardan respuestas.
 - Elementos (decisión 0028): canecas, postes, árboles… con nombre, categoría y descripción, como gotas invertidas en el mapa. Sus evidencias van directo en su ficha, sin estudios. Las categorías dicen si se usan en lugares, en elementos o en ambos.
 - Zonas: dibujarlas con la mira, su tipo (lista administrable), comentarios, locales adentro, recorridos, editarlas, redibujarlas y archivarlas.
 - Salidas: los admins crean salidas, dibujan sus zonas y las asignan a personas. Cada persona ve sus zonas en "Mis asignaciones" (el menú cuenta las que faltan por reportar) y en el mapa, y reporta su hora de fin y el porcentaje que cubrió. Las salidas se pueden cancelar y reactivar.
