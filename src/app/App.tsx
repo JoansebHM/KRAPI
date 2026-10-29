@@ -31,6 +31,7 @@ import { CrearZona } from '../features/zonas/CrearZona'
 import { RedibujarZona } from '../features/zonas/RedibujarZona'
 import { MapaProvider } from '../features/map/MapaProvider'
 import { MapView } from '../features/map/MapView'
+import { PreguntasPage } from '../features/preguntas/PreguntasPage'
 import { PerfilPage } from '../features/perfil/PerfilPage'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
 import { UsuariosPage } from '../features/usuarios/UsuariosPage'
@@ -134,6 +135,7 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
                 <Route path="/elementos/nuevo" element={<CrearElemento />} />
                 <Route path="/pizarra" element={<PizarraPagina />} />
                 <Route path="/bocetos" element={<BocetosPage />} />
+                <Route path="/preguntas" element={<PreguntasPage />} />
                 <Route path="/tipos-de-zona" element={<TiposZonaPage />} />
                 <Route path="/salidas" element={<SalidasPage />} />
                 <Route path="/salidas/:id" element={<SalidaPagina />} />
