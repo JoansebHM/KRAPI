@@ -16,16 +16,23 @@ import '../estudios/EstudioPresentacion.css'
 export function CarruselFotos({ fotos }: { fotos: Evidencia[] }) {
   const [fotoActual, setFotoActual] = useState(0)
   const [fotoAmpliada, setFotoAmpliada] = useState(false)
+  // Hacia dónde se pasó la última vez: la foto nueva entra desde ese lado. Sin valor, aparece sin animación.
+  const [sentido, setSentido] = useState<'siguiente' | 'anterior' | null>(null)
+  const claseDiapositiva = sentido ? `estudio-diapositiva estudio-diapositiva-${sentido}` : 'estudio-diapositiva'
   // Si se borra la última foto, se vuelve a la primera.
   const indice = fotoActual < fotos.length ? fotoActual : 0
   const foto = fotos[indice]
   const hayVarias = fotos.length > 1
 
   const siguiente = () => {
-    if (hayVarias) setFotoActual((indice + 1) % fotos.length)
+    if (!hayVarias) return
+    setSentido('siguiente')
+    setFotoActual((indice + 1) % fotos.length)
   }
   const anterior = () => {
-    if (hayVarias) setFotoActual((indice - 1 + fotos.length) % fotos.length)
+    if (!hayVarias) return
+    setSentido('anterior')
+    setFotoActual((indice - 1 + fotos.length) % fotos.length)
   }
   const deslizar = useDeslizar(siguiente, anterior)
 
@@ -53,7 +60,9 @@ export function CarruselFotos({ fotos }: { fotos: Evidencia[] }) {
       <div className="estudio-carrusel" aria-roledescription="carrusel" aria-label="Fotos">
         <div className="estudio-carrusel-imagen" {...deslizar}>
           {foto?.enlace ? (
-            <ImagenConCarga key={foto.id} src={foto.enlace} alt={foto.titulo ?? foto.archivo?.nombre ?? 'Foto'} />
+            <div key={foto.id} className={claseDiapositiva}>
+              <ImagenConCarga src={foto.enlace} alt={foto.titulo ?? foto.archivo?.nombre ?? 'Foto'} />
+            </div>
           ) : (
             <p role="status">No se pudo abrir esta foto.</p>
           )}
@@ -62,7 +71,10 @@ export function CarruselFotos({ fotos }: { fotos: Evidencia[] }) {
               type="button"
               className="estudio-carrusel-ampliar"
               aria-label="Ampliar foto"
-              onClick={() => setFotoAmpliada(true)}
+              onClick={() => {
+                setSentido(null)
+                setFotoAmpliada(true)
+              }}
             >
               <Expand size={20} aria-hidden="true" />
             </button>
@@ -101,7 +113,10 @@ export function CarruselFotos({ fotos }: { fotos: Evidencia[] }) {
         <PantallaCompleta
           titulo={foto.titulo ?? foto.archivo?.nombre ?? 'Foto'}
           detalle={`${indice + 1} de ${fotos.length}`}
-          onCerrar={() => setFotoAmpliada(false)}
+          onCerrar={() => {
+            setSentido(null)
+            setFotoAmpliada(false)
+          }}
           acciones={
             foto.archivo ? (
               <a
@@ -116,12 +131,9 @@ export function CarruselFotos({ fotos }: { fotos: Evidencia[] }) {
           }
         >
           <div className="estudio-foto-visor" {...deslizar}>
-            <ImagenConCarga
-              key={foto.id}
-              className="estudio-foto-ampliada"
-              src={foto.enlace}
-              alt={foto.titulo ?? foto.archivo?.nombre ?? 'Foto'}
-            />
+            <div key={foto.id} className={`${claseDiapositiva} estudio-diapositiva-completa`}>
+              <ImagenConCarga className="estudio-foto-ampliada" src={foto.enlace} alt={foto.titulo ?? foto.archivo?.nombre ?? 'Foto'} />
+            </div>
           </div>
           {hayVarias && (
             <>

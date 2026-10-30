@@ -72,6 +72,24 @@ test.describe('Galería de fotos', () => {
     await expect(contador).toContainText('3 de 3')
   })
 
+  test('la foto nueva entra animada desde el lado hacia el que se pasó', async ({ page, entrar }) => {
+    await entrar()
+    const contenedor = await abrirCarrusel(page)
+    const carrusel = contenedor.locator('.estudio-carrusel')
+    const diapositiva = carrusel.locator('.estudio-diapositiva')
+
+    await expect(diapositiva).not.toHaveClass(/estudio-diapositiva-(siguiente|anterior)/)
+    await carrusel.getByRole('button', { name: 'Foto siguiente' }).click()
+    await expect(diapositiva).toHaveClass(/estudio-diapositiva-siguiente/)
+    await expect(diapositiva).toHaveCSS('animation-name', 'estudio-entra-siguiente')
+    await carrusel.getByRole('button', { name: 'Foto anterior' }).click()
+    await expect(diapositiva).toHaveClass(/estudio-diapositiva-anterior/)
+
+    // Al ampliar, la foto aparece sin animación.
+    await contenedor.getByRole('button', { name: 'Ampliar foto' }).click()
+    await expect(page.locator('.pantalla-completa .estudio-diapositiva')).not.toHaveClass(/estudio-diapositiva-(siguiente|anterior)/)
+  })
+
   test('un movimiento corto o vertical no cambia de foto', async ({ page, entrar }) => {
     await entrar()
     const contenedor = await abrirCarrusel(page)
