@@ -132,6 +132,50 @@
   /* Deja pasar el desplazamiento vertical y se queda con el horizontal (deslizar entre fotos). */
   touch-action: pan-y;
   user-select: none;
+  overflow: hidden;
+}
+
+/* La foto nueva entra deslizándose desde el lado hacia el que se pasó. */
+.estudio-diapositiva {
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-height: 180px;
+  place-items: center;
+}
+
+.estudio-diapositiva-completa {
+  height: 100%;
+  min-height: 0;
+}
+
+.estudio-diapositiva-siguiente {
+  animation: estudio-entra-siguiente 0.28s cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+
+.estudio-diapositiva-anterior {
+  animation: estudio-entra-anterior 0.28s cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+
+@keyframes estudio-entra-siguiente {
+  from {
+    opacity: 0;
+    transform: translateX(28%);
+  }
+}
+
+@keyframes estudio-entra-anterior {
+  from {
+    opacity: 0;
+    transform: translateX(-28%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .estudio-diapositiva-siguiente,
+  .estudio-diapositiva-anterior {
+    animation: none;
+  }
 }
 
 .estudio-carrusel-imagen img {
@@ -471,6 +515,7 @@
 .estudio-foto-visor {
   position: absolute;
   inset: 0;
+  overflow: hidden;
   touch-action: pan-y;
   user-select: none;
 }
