@@ -37,3 +37,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0029 | [Pizarra y bocetos: dibujar sobre el mapa y guardar el pantallazo](0029-pizarra-y-bocetos.md) | Aceptada |
 | 0030 | [Textos en la pizarra: cajas de texto que se mueven y se giran](0030-textos-en-la-pizarra.md) | Aceptada |
 | 0031 | [Guías de preguntas para las entrevistas](0031-guias-de-preguntas.md) | Aceptada |
+| 0032 | [Previsualizar documentos dentro de la app](0032-previsualizar-documentos.md) | Aceptada |

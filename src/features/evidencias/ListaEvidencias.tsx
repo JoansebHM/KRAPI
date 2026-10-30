@@ -9,6 +9,7 @@ import { useBorrarEvidencia, useEvidencias, type DuenoEvidencia, type Evidencia 
 import { mostrarTamano, NOMBRE_TIPO } from './archivos'
 import { IconoTipoEvidencia } from './IconoTipoEvidencia'
 import { quitar, reintentar, useSubidas, type Subida } from './subidas'
+import { BotonVerDocumento } from './VisorDocumento'
 import './Evidencias.css'
 
 /** Evidencias de un estudio o de un elemento: las que se están subiendo y las ya guardadas, con la opción de borrarlas. */
@@ -85,6 +86,7 @@ export function ListaEvidencias({ dueno }: { dueno: DuenoEvidencia }) {
                 </span>
                 <ExternalLink className="lista-item-flecha" size={18} aria-hidden="true" />
               </a>
+              <BotonVerDocumento evidencia={evidencia} variante="icono" />
               <button
                 type="button"
                 className="evidencia-accion"

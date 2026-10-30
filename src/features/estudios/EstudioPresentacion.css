@@ -605,6 +605,13 @@
   text-decoration: none;
 }
 
+button.estudio-evidencia-video {
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .estudio-evidencia-video:hover {
   background: var(--color-surface);
 }
