@@ -1,26 +1,59 @@
 import { ChevronLeft, ChevronRight, Clipboard, Download, Ellipsis, Expand, ExternalLink } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { ImagenConCarga } from '../../components/ImagenConCarga'
 import { PantallaCompleta } from '../../components/PantallaCompleta'
 import { enlaceDescarga } from '../../lib/almacenamiento'
 import { notificar } from '../../lib/notificar'
+import { useDeslizar } from '../../lib/useDeslizar'
 import type { Evidencia } from './api'
 import { NOMBRE_TIPO } from './archivos'
 import '../estudios/EstudioPresentacion.css'
 
-/** Fotos de un estudio o de un elemento, de a una, con opción de ampliarlas, descargarlas o copiar su enlace. */
+/**
+ * Fotos de un estudio o de un elemento, de a una, con opción de ampliarlas, descargarlas o copiar su enlace.
+ * Se pasan con los botones o deslizando con el dedo, también a pantalla completa (ahí además con las flechas).
+ */
 export function CarruselFotos({ fotos }: { fotos: Evidencia[] }) {
   const [fotoActual, setFotoActual] = useState(0)
   const [fotoAmpliada, setFotoAmpliada] = useState(false)
   // Si se borra la última foto, se vuelve a la primera.
   const indice = fotoActual < fotos.length ? fotoActual : 0
   const foto = fotos[indice]
+  const hayVarias = fotos.length > 1
+
+  const siguiente = () => {
+    if (hayVarias) setFotoActual((indice + 1) % fotos.length)
+  }
+  const anterior = () => {
+    if (hayVarias) setFotoActual((indice - 1 + fotos.length) % fotos.length)
+  }
+  const deslizar = useDeslizar(siguiente, anterior)
+
+  // Descarga de antemano las vecinas para que al pasar de foto ya estén.
+  useEffect(() => {
+    if (fotos.length < 2) return
+    for (const vecina of [fotos[(indice + 1) % fotos.length], fotos[(indice - 1 + fotos.length) % fotos.length]]) {
+      if (vecina?.enlace) new Image().src = vecina.enlace
+    }
+  }, [fotos, indice])
+
+  // A pantalla completa también se pasa con las flechas del teclado.
+  useEffect(() => {
+    if (!fotoAmpliada || !hayVarias) return
+    const alPresionar = (evento: KeyboardEvent) => {
+      if (evento.key === 'ArrowRight') siguiente()
+      else if (evento.key === 'ArrowLeft') anterior()
+    }
+    window.addEventListener('keydown', alPresionar)
+    return () => window.removeEventListener('keydown', alPresionar)
+  })
 
   return (
     <>
       <div className="estudio-carrusel" aria-roledescription="carrusel" aria-label="Fotos">
-        <div className="estudio-carrusel-imagen">
+        <div className="estudio-carrusel-imagen" {...deslizar}>
           {foto?.enlace ? (
-            <img src={foto.enlace} alt={foto.titulo ?? foto.archivo?.nombre ?? 'Foto'} />
+            <ImagenConCarga key={foto.id} src={foto.enlace} alt={foto.titulo ?? foto.archivo?.nombre ?? 'Foto'} />
           ) : (
             <p role="status">No se pudo abrir esta foto.</p>
           )}
@@ -40,8 +73,8 @@ export function CarruselFotos({ fotos }: { fotos: Evidencia[] }) {
             type="button"
             className="estudio-carrusel-control"
             aria-label="Foto anterior"
-            disabled={fotos.length < 2}
-            onClick={() => setFotoActual((indice - 1 + fotos.length) % fotos.length)}
+            disabled={!hayVarias}
+            onClick={anterior}
           >
             <ChevronLeft size={22} aria-hidden="true" />
           </button>
@@ -52,8 +85,8 @@ export function CarruselFotos({ fotos }: { fotos: Evidencia[] }) {
             type="button"
             className="estudio-carrusel-control"
             aria-label="Foto siguiente"
-            disabled={fotos.length < 2}
-            onClick={() => setFotoActual((indice + 1) % fotos.length)}
+            disabled={!hayVarias}
+            onClick={siguiente}
           >
             <ChevronRight size={22} aria-hidden="true" />
           </button>
@@ -82,7 +115,24 @@ export function CarruselFotos({ fotos }: { fotos: Evidencia[] }) {
             ) : undefined
           }
         >
-          <img className="estudio-foto-ampliada" src={foto.enlace} alt={foto.titulo ?? foto.archivo?.nombre ?? 'Foto'} />
+          <div className="estudio-foto-visor" {...deslizar}>
+            <ImagenConCarga
+              key={foto.id}
+              className="estudio-foto-ampliada"
+              src={foto.enlace}
+              alt={foto.titulo ?? foto.archivo?.nombre ?? 'Foto'}
+            />
+          </div>
+          {hayVarias && (
+            <>
+              <button type="button" className="estudio-visor-flecha estudio-visor-flecha-anterior" aria-label="Foto anterior" onClick={anterior}>
+                <ChevronLeft size={26} aria-hidden="true" />
+              </button>
+              <button type="button" className="estudio-visor-flecha estudio-visor-flecha-siguiente" aria-label="Foto siguiente" onClick={siguiente}>
+                <ChevronRight size={26} aria-hidden="true" />
+              </button>
+            </>
+          )}
         </PantallaCompleta>
       )}
     </>
