@@ -132,7 +132,10 @@ export function useCrearPunto() {
 export interface DetalleLugar {
   id: string
   tipo: Enums<'tipo_ubicacion'>
+  /** El nombre para mostrar: el propio o, en un elemento sin nombre, el de su categoría. */
   nombre: string
+  /** El nombre que se escribió; NULL en un elemento sin nombre. */
+  nombrePropio: string | null
   descripcion: string | null
   direccion: string | null
   complemento: string | null
@@ -166,10 +169,17 @@ export function useLugar(id: string | undefined) {
         .maybeSingle()
       if (error) throw error
       if (!data) return null
+      // Un elemento sin nombre se muestra con el de su categoría.
+      let nombre = data.nombre
+      if (nombre === null && data.categoria_id) {
+        const { data: categoria } = await supabase.from('categorias').select('nombre').eq('id', data.categoria_id).maybeSingle()
+        nombre = categoria?.nombre ?? null
+      }
       return {
         id: data.id,
         tipo: data.tipo,
-        nombre: data.nombre,
+        nombre: nombre ?? 'Elemento',
+        nombrePropio: data.nombre,
         descripcion: data.descripcion,
         direccion: data.direccion,
         complemento: data.complemento,

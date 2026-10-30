@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { SIN_PERMISO } from '../../lib/errores'
 import { supabase } from '../../lib/supabase'
 import { compararTexto } from '../../lib/texto'
@@ -31,6 +31,16 @@ export const aplicaA = (categoria: Pick<Categoria, 'aplica_a'>, uso: Exclude<Uso
 
 export const CLAVE_CATEGORIAS = ['categorias'] as const
 
+/**
+ * Tras cambiar una categoría se recarga también el mapa y las fichas: un elemento sin nombre se muestra con el de
+ * su categoría. (Las claves van escritas porque lugares/api.ts ya importa este archivo.)
+ */
+function invalidarCategorias(queryClient: QueryClient) {
+  void queryClient.invalidateQueries({ queryKey: ['lugares'] })
+  void queryClient.invalidateQueries({ queryKey: ['lugar'] })
+  return queryClient.invalidateQueries({ queryKey: CLAVE_CATEGORIAS })
+}
+
 export function useCategorias() {
   return useQuery({
     queryKey: CLAVE_CATEGORIAS,
@@ -58,7 +68,7 @@ export function useCrearCategoria() {
       if (error) throw error
       return data
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: CLAVE_CATEGORIAS }),
+    onSuccess: () => invalidarCategorias(queryClient),
   })
 }
 
@@ -69,7 +79,7 @@ export function useActualizarCategoria() {
       const { error } = await supabase.from('categorias').update(limpiar(datos)).eq('id', id)
       if (error) throw error
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: CLAVE_CATEGORIAS }),
+    onSuccess: () => invalidarCategorias(queryClient),
   })
 }
 
@@ -95,7 +105,7 @@ export function useEliminarCategoria() {
       if (borradas.length === 0) throw SIN_PERMISO
       return { categoria, ubicacionIds: ubicaciones.map(({ id }) => id) }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: CLAVE_CATEGORIAS }),
+    onSuccess: () => invalidarCategorias(queryClient),
   })
 }
 
@@ -116,6 +126,6 @@ export function useRestaurarCategoria() {
         if (errorUbicaciones) throw errorUbicaciones
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: CLAVE_CATEGORIAS }),
+    onSuccess: () => invalidarCategorias(queryClient),
   })
 }

@@ -3,21 +3,18 @@ import { Dialog } from '../../components/Dialog'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import type { DetalleLugar } from '../lugares/api'
-import { camposDeElemento, errorDeNombre, useActualizarElemento } from './api'
+import { camposDeElemento, useActualizarElemento } from './api'
 import { CamposDelElemento } from './CamposDelElemento'
 
 /** Editar los datos de un elemento desde su ficha. La posición se cambia con "Mover". */
 export function EditarElemento({ lugar, onCerrar }: { lugar: DetalleLugar; onCerrar: () => void }) {
   const [campos, setCampos] = useState(() => camposDeElemento(lugar))
-  const [intentoGuardar, setIntentoGuardar] = useState(false)
   const actualizar = useActualizarElemento()
 
   async function guardar() {
-    setIntentoGuardar(true)
-    if (errorDeNombre(campos)) return
     try {
       await actualizar.mutateAsync({ id: lugar.id, campos })
-      notificar.exito('Cambios guardados', { descripcion: `«${campos.nombre.trim()}» quedó actualizado.` })
+      notificar.exito('Cambios guardados', { descripcion: 'El elemento quedó actualizado.' })
       onCerrar()
     } catch (error) {
       notificar.error('No se pudo guardar', { descripcion: mensajeErrorDatos(error) })
@@ -41,7 +38,7 @@ export function EditarElemento({ lugar, onCerrar }: { lugar: DetalleLugar; onCer
         </>
       }
     >
-      <CamposDelElemento campos={campos} onCambiar={setCampos} mostrarErrores={intentoGuardar} />
+      <CamposDelElemento campos={campos} onCambiar={setCampos} />
     </Dialog>
   )
 }
