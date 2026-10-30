@@ -7,6 +7,7 @@ import { useEvidencias, type Evidencia } from '../evidencias/api'
 import { mostrarTamano, NOMBRE_TIPO } from '../evidencias/archivos'
 import { AccionesEvidencia, CarruselFotos } from '../evidencias/CarruselFotos'
 import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
+import { BotonVerDocumento } from '../evidencias/VisorDocumento'
 import { useSalidas } from '../salidas/api'
 import { useNombreDeCuenta } from '../usuarios/api'
 import type { Estudio } from './api'
@@ -141,6 +142,7 @@ export function EstudioPresentacion({
                               Ver en SharePoint
                             </a>
                           )}
+                          {evidencia.tipo === 'documento' && <BotonVerDocumento evidencia={evidencia} variante="enlace" />}
                           {evidencia.tipo === 'audio' && evidencia.enlace && (
                             <AudioConVelocidad
                               enlace={evidencia.enlace}
