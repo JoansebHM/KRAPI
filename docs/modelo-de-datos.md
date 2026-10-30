@@ -67,7 +67,7 @@ Vienen cinco para empezar (Comercial, Residencial, Mixta, Parque o zona verde, I
 | --- | --- | --- |
 | `tipo` | `tipo_ubicacion` | `punto`, `zona` o `elemento`. **No cambia** después de crear el lugar (trigger `tipo_de_ubicacion_fijo()`) |
 | `geom` | `geometry(Geometry, 4326)` | POINT si es punto o elemento, POLYGON válido si es zona. **Debe quedar dentro de Manila** |
-| `nombre` | text | Obligatorio |
+| `nombre` | text | Obligatorio en puntos y zonas (no vacío). **Opcional en elementos** (`ubicaciones_nombre_segun_tipo`): sin nombre se muestra el de su categoría |
 | `descripcion`, `direccion`, `complemento` | text | Opcionales |
 | `contacto_nombre`, `contacto_telefono` | text | Opcionales; el teléfono, si se escribe, debe tener formato de teléfono |
 | `categoria_id` | uuid → `categorias` | Opcional (puntos y elementos). **ON DELETE SET NULL** |
@@ -309,3 +309,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261027120000_tipo_elemento` | Valor `elemento` en `tipo_ubicacion` (va solo: un valor nuevo de un enum no se usa en la misma transacción) |
 | `20261027120100_elementos` | Elementos ([decisión 0028](decisiones/0028-elementos.md)): `categorias.aplica_a` (enum `uso_categoria`), reglas de los elementos, `evidencias.ubicacion_id`, borrar sin evidencias, `lugares_mapa()` ordenada y `elementos_cercanos()` |
 | `20261027130000_bocetos` | `bocetos` ([decisión 0029](decisiones/0029-pizarra-y-bocetos.md)): sin permiso de editar, con autoría y bitácora; sus archivos van en el bucket `evidencias` |
+| `20261029120000_nombre_opcional_elementos` | El nombre de un elemento es opcional ([decisión 0028](decisiones/0028-elementos.md)); `lugares_mapa()` y `elementos_cercanos()` devuelven el de su categoría cuando no tiene |

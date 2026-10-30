@@ -30,3 +30,4 @@ En campo hay cosas del barrio que vale la pena ubicar y documentar con fotos, pe
 - Migraciones `20261027120000_tipo_elemento` (el valor nuevo del enum va solo: Postgres no deja usarlo en la misma transacción) y `20261027120100_elementos`. Pruebas en `supabase/tests/elementos.test.sql`.
 - Las consultas de evidencias que asumían un estudio (los filtros) ignoran las de los elementos.
 - `lugares_mapa()` ordena las zonas primero y después puntos y elementos por nombre.
+- **El nombre de un elemento es opcional** (migración `20261029120000_nombre_opcional_elementos`): ponerle «Caneca» a cada caneca de la categoría Caneca no aporta. Sin nombre se muestra el de su categoría (`lugares_mapa()` y `elementos_cercanos()` lo devuelven ya resuelto; la ficha lo busca). Los puntos y las zonas siguen necesitándolo. Se guarda `NULL`, no una copia del nombre de la categoría, para que si ésta se renombra el elemento la siga.
