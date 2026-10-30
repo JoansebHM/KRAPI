@@ -26,7 +26,30 @@ test.describe('Elementos', () => {
     return page.getByRole('dialog', { name: 'Nuevo elemento' })
   }
 
-  test('se crea con nombre y categoría, se dibuja como una gota y abre su ficha', async ({ page, entrar, supabase }) => {
+  test('el nombre es opcional: sin nombre se muestra con el de su categoría', async ({ page, entrar, supabase }) => {
+    await entrar()
+    const formulario = await abrirFormulario(page)
+    await expect(formulario.getByText('(opcional)').first()).toBeVisible()
+
+    await formulario.getByRole('button', { name: 'Caneca' }).click()
+    await formulario.getByRole('button', { name: 'Guardar elemento' }).click()
+
+    await expect(toast(page, 'Elemento guardado')).toBeVisible()
+    const [elemento] = supabase.db.ubicaciones
+    expect(elemento).toEqual(expect.objectContaining({ tipo: 'elemento', nombre: null, categoria_id: 'c-caneca' }))
+    await expect(page.getByRole('region', { name: 'Caneca' })).toBeVisible()
+
+    // Al editar, el campo queda vacío (no se llena con el nombre de la categoría) y se le puede poner uno propio.
+    await page.getByRole('button', { name: 'Editar datos' }).click()
+    const edicion = page.getByRole('dialog', { name: 'Editar elemento' })
+    await expect(edicion.getByLabel(/Nombre/)).toHaveValue('')
+    await edicion.getByLabel(/Nombre/).fill('Caneca rota')
+    await edicion.getByRole('button', { name: 'Guardar cambios' }).click()
+    await expect(page.getByRole('region', { name: 'Caneca rota' })).toBeVisible()
+    expect(supabase.db.ubicaciones[0].nombre).toBe('Caneca rota')
+  })
+
+  test('se crea con nombre (opcional) y categoría, se dibuja como una gota y abre su ficha', async ({ page, entrar, supabase }) => {
     await entrar()
     const formulario = await abrirFormulario(page)
 
@@ -36,9 +59,6 @@ test.describe('Elementos', () => {
     await expect(formulario.getByRole('button', { name: 'Café' })).toHaveCount(0)
     // Un elemento no tiene dirección ni contacto.
     await expect(formulario.getByLabel(/Dirección/)).toHaveCount(0)
-
-    await formulario.getByRole('button', { name: 'Guardar elemento' }).click()
-    await expect(formulario.getByText('Escribe el nombre del elemento.')).toBeVisible()
 
     await formulario.getByLabel('Nombre').fill('  Caneca   de la esquina ')
     await formulario.getByRole('button', { name: 'Caneca' }).click()

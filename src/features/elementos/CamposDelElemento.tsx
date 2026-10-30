@@ -1,5 +1,5 @@
 import { SelectorCategoria } from '../lugares/SelectorCategoria'
-import { errorDeNombre, type CamposElemento } from './api'
+import type { CamposElemento } from './api'
 
 const MAX_NOMBRE = 80
 const MAX_DESCRIPCION = 1000
@@ -7,36 +7,27 @@ const MAX_DESCRIPCION = 1000
 interface CamposDelElementoProps {
   campos: CamposElemento
   onCambiar: (campos: CamposElemento) => void
-  /** Los errores se muestran después del primer intento de guardar. */
-  mostrarErrores: boolean
 }
 
-/** Los datos de un elemento, para crearlo o editarlo: nombre, categoría y descripción. */
-export function CamposDelElemento({ campos, onCambiar, mostrarErrores }: CamposDelElementoProps) {
-  const error = mostrarErrores ? errorDeNombre(campos) : null
-
+/** Los datos de un elemento, para crearlo o editarlo: nombre (opcional), categoría y descripción. */
+export function CamposDelElemento({ campos, onCambiar }: CamposDelElementoProps) {
   return (
     <div className="formulario">
       <label className="field">
-        <span className="field-label">Nombre</span>
+        <span className="field-label">
+          Nombre<span className="field-opcional"> (opcional)</span>
+        </span>
         <input
           className="field-input"
           type="text"
           autoComplete="off"
           autoCapitalize="sentences"
           enterKeyHint="next"
-          placeholder="Ej.: Caneca de la esquina"
+          placeholder="Sin nombre se muestra la categoría"
           maxLength={MAX_NOMBRE}
           value={campos.nombre}
-          aria-invalid={Boolean(error)}
-          aria-describedby={error ? 'elemento-nombre-error' : undefined}
           onChange={(evento) => onCambiar({ ...campos, nombre: evento.target.value })}
         />
-        {error && (
-          <p id="elemento-nombre-error" className="field-error">
-            {error}
-          </p>
-        )}
       </label>
 
       <div className="field">

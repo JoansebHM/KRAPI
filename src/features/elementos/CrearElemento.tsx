@@ -6,7 +6,7 @@ import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { MiraCentral } from '../lugares/MiraCentral'
 import { dentroDeManila } from '../map/manila'
-import { buscarElementosCercanos, ELEMENTO_VACIO, errorDeNombre, useCrearElemento, type CamposElemento, type ElementoCercano } from './api'
+import { buscarElementosCercanos, ELEMENTO_VACIO, useCrearElemento, type CamposElemento, type ElementoCercano } from './api'
 import { CamposDelElemento } from './CamposDelElemento'
 import '../lugares/CrearPunto.css'
 
@@ -23,7 +23,6 @@ export function CrearElemento() {
   // La posición queda fija al pasar a los datos, aunque luego se mueva el mapa.
   const [posicion, setPosicion] = useState<[number, number] | null>(null)
   const [campos, setCampos] = useState<CamposElemento>(ELEMENTO_VACIO)
-  const [intentoGuardar, setIntentoGuardar] = useState(false)
   const [revisando, setRevisando] = useState(false)
   const crear = useCrearElemento()
   const ocupado = revisando || crear.isPending
@@ -36,8 +35,6 @@ export function CrearElemento() {
 
   /** Revisa los duplicados de la misma categoría y, si no hay, guarda. */
   async function revisarYGuardar() {
-    setIntentoGuardar(true)
-    if (errorDeNombre(campos)) return
     const [lng, lat] = posicion!
     setRevisando(true)
     try {
@@ -55,7 +52,7 @@ export function CrearElemento() {
     const [lng, lat] = posicion!
     try {
       const id = await crear.mutateAsync({ ...campos, lng, lat })
-      notificar.exito('Elemento guardado', { descripcion: `«${campos.nombre.trim()}» ya está en el mapa. Ahora agrégale las evidencias.` })
+      notificar.exito('Elemento guardado', { descripcion: 'Ya está en el mapa. Ahora agrégale las evidencias.' })
       navigate(`/lugares/${id}`)
     } catch (error) {
       notificar.error('No se pudo guardar el elemento', { descripcion: mensajeErrorDatos(error) })
@@ -93,7 +90,7 @@ export function CrearElemento() {
             </>
           }
         >
-          <CamposDelElemento campos={campos} onCambiar={setCampos} mostrarErrores={intentoGuardar} />
+          <CamposDelElemento campos={campos} onCambiar={setCampos} />
         </Dialog>
       )}
 

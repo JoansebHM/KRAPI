@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(14);
+select plan(18);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000ad', 'admin@usuarios.kira.invalid'),
@@ -73,6 +73,22 @@ select throws_ok(
   $$ insert into public.evidencias (estudio_id, ubicacion_id, tipo, url_externa, proveedor)
      values ('00000000-0000-0000-0000-000000000051', '00000000-0000-0000-0000-000000000e01', 'video', 'https://kratos.sharepoint.com/v', 'sharepoint') $$,
   '23514', null, 'pero no las dos cosas');
+
+-- El nombre es opcional en un elemento, no en un punto ni una zona.
+insert into public.ubicaciones (id, tipo, geom, categoria_id) values
+  ('00000000-0000-0000-0000-000000000e03', 'elemento', 'SRID=4326;POINT(-75.5750 6.2140)', '00000000-0000-0000-0000-000000000c01');
+select is(
+  (select nombre from public.ubicaciones where id = '00000000-0000-0000-0000-000000000e03'),
+  null, 'un elemento puede no tener nombre');
+select is(
+  (select nombre from public.lugares_mapa() where id = '00000000-0000-0000-0000-000000000e03'),
+  'Caneca', 'sin nombre, el mapa muestra el de su categoría');
+select throws_ok(
+  $$ insert into public.ubicaciones (tipo, geom, nombre) values ('elemento', 'SRID=4326;POINT(-75.5751 6.2141)', '   ') $$,
+  '23514', null, 'pero un nombre escrito no puede ser solo espacios');
+select throws_ok(
+  $$ insert into public.ubicaciones (tipo, geom) values ('punto', 'SRID=4326;POINT(-75.5752 6.2142)') $$,
+  '23514', null, 'un punto sí necesita nombre');
 
 -- Duplicados: solo elementos de la misma categoría muy cerca.
 select is(

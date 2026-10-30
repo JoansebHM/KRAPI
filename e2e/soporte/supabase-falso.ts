@@ -18,6 +18,7 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - lugares_mapa() devuelve los lugares no archivados, zonas primero (con su tipo)
  * - elementos: no admiten estudios (P0001), sus evidencias van con ubicacion_id, no se borran si tienen
  *   evidencias, y elementos_cercanos() devuelve los de la misma categoría a menos de N metros
+ * - el nombre es obligatorio en puntos y zonas, y opcional en elementos (se muestra el de su categoría) → 23514
  * - las categorías aplican a lugares por defecto (aplica_a)
  * - bocetos: título de 1 a 120 caracteres, trazos como FeatureCollection e imagen con medidas → 23514;
  *   no se editan (PATCH → 42501) y los borra su autor o un admin
@@ -392,7 +393,7 @@ export class SupabaseFalso {
       const { lng, lat, categoria_id = null, metros = 3 } = argumentos
       const cercanos = this.db.ubicaciones
         .filter((u) => u.tipo === 'elemento' && u.archivada_en == null && (u.categoria_id ?? null) === categoria_id)
-        .map((u) => ({ id: u.id, nombre: u.nombre, distancia_m: metrosEntre((u.geom as { coordinates: number[] }).coordinates, [lng, lat]) }))
+        .map((u) => ({ id: u.id, nombre: this.nombreParaMostrar(u), distancia_m: metrosEntre((u.geom as { coordinates: number[] }).coordinates, [lng, lat]) }))
         .filter((u) => u.distancia_m <= metros)
         .sort((a, b) => a.distancia_m - b.distancia_m)
         .slice(0, 5)
@@ -401,11 +402,11 @@ export class SupabaseFalso {
     if (funcion === 'lugares_mapa') {
       const lugares = this.db.ubicaciones
         .filter((u) => u.archivada_en == null)
-        .sort((a, b) => Number(b.tipo === 'zona') - Number(a.tipo === 'zona') || String(a.nombre).localeCompare(String(b.nombre)))
+        .sort((a, b) => Number(b.tipo === 'zona') - Number(a.tipo === 'zona') || this.nombreParaMostrar(a).localeCompare(this.nombreParaMostrar(b)))
         .map((u) => ({
           id: u.id,
           tipo: u.tipo,
-          nombre: u.nombre,
+          nombre: this.nombreParaMostrar(u),
           estado: u.estado ?? 'activa',
           categoria_id: u.categoria_id ?? null,
           tipo_zona_id: u.tipo_zona_id ?? null,
@@ -554,6 +555,7 @@ export class SupabaseFalso {
           if (tabla === 'evidencias' && !this.evidenciaValida(datos)) return this.invalido(ruta)
           if (tabla === 'asignaciones' && !String(datos.geom).includes('POLYGON')) return this.invalido(ruta)
           if (tabla === 'bocetos' && !this.bocetoValido(datos)) return this.invalido(ruta)
+          if (tabla === 'ubicaciones' && datos.tipo !== 'elemento' && !String(datos.nombre ?? '').trim()) return this.invalido(ruta)
           if (tabla === 'ubicaciones' && datos.contacto_telefono && !/^\+?[0-9 ()-]{7,20}$/.test(datos.contacto_telefono)) return this.invalido(ruta)
           const fila = {
             id: datos.id ?? crypto.randomUUID(),
@@ -666,6 +668,11 @@ export class SupabaseFalso {
       Number(datos.ancho) > 0 &&
       Number(datos.alto) > 0
     )
+  }
+
+  /** El nombre propio o, en un elemento sin nombre, el de su categoría (como lugares_mapa() en la base de datos). */
+  private nombreParaMostrar(u: Fila) {
+    return String(u.nombre ?? this.db.categorias.find((c) => c.id === u.categoria_id)?.nombre ?? 'Elemento')
   }
 
   private nombreRepetido(tabla: Tabla, nombre: string, excepto?: string) {

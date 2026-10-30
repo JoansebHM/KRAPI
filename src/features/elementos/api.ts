@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { CLAVE_CATEGORIAS } from '../categorias/api'
 import { CLAVE_LUGARES, useAlCambiarLugar, type DetalleLugar } from '../lugares/api'
 
-/** Lo que se llena en el formulario de un elemento: no tiene dirección ni contacto. */
+/** Lo que se llena en el formulario de un elemento: no tiene dirección ni contacto, y el nombre es opcional. */
 export interface CamposElemento {
   nombre: string
   categoriaId: string | null
@@ -13,15 +13,13 @@ export interface CamposElemento {
 export const ELEMENTO_VACIO: CamposElemento = { nombre: '', categoriaId: null, descripcion: '' }
 
 export function camposDeElemento(lugar: DetalleLugar): CamposElemento {
-  return { nombre: lugar.nombre, categoriaId: lugar.categoriaId, descripcion: lugar.descripcion ?? '' }
+  return { nombre: lugar.nombrePropio ?? '', categoriaId: lugar.categoriaId, descripcion: lugar.descripcion ?? '' }
 }
-
-/** Error del nombre (el único campo obligatorio), o null si está bien. */
-export const errorDeNombre = (campos: CamposElemento) => (campos.nombre.trim() ? null : 'Escribe el nombre del elemento.')
 
 function columnasDeElemento(campos: CamposElemento) {
   return {
-    nombre: campos.nombre.trim().replace(/\s+/g, ' '),
+    // Sin nombre, el elemento se muestra con el de su categoría.
+    nombre: campos.nombre.trim().replace(/\s+/g, ' ') || null,
     categoria_id: campos.categoriaId,
     descripcion: campos.descripcion.trim() || null,
   }

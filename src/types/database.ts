@@ -557,7 +557,7 @@ export type Database = {
           estado: Database["public"]["Enums"]["estado_ubicacion"]
           geom: unknown
           id: string
-          nombre: string
+          nombre: string | null
           tipo: Database["public"]["Enums"]["tipo_ubicacion"]
           tipo_zona_id: string | null
           updated_at: string
@@ -577,7 +577,7 @@ export type Database = {
           estado?: Database["public"]["Enums"]["estado_ubicacion"]
           geom: unknown
           id?: string
-          nombre: string
+          nombre?: string | null
           tipo: Database["public"]["Enums"]["tipo_ubicacion"]
           tipo_zona_id?: string | null
           updated_at?: string
@@ -597,7 +597,7 @@ export type Database = {
           estado?: Database["public"]["Enums"]["estado_ubicacion"]
           geom?: unknown
           id?: string
-          nombre?: string
+          nombre?: string | null
           tipo?: Database["public"]["Enums"]["tipo_ubicacion"]
           tipo_zona_id?: string | null
           updated_at?: string
