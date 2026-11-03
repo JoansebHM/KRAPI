@@ -137,7 +137,7 @@ export function EstudioPagina() {
         )}
       </dl>
 
-      <NotasDelEstudio notas={estudio.notas} />
+      <NotasDelEstudio estudioId={estudio.id} ubicacionId={estudio.ubicacionId} notas={estudio.notas} />
 
       <button type="button" className="btn btn-secondary estudio-editar" onClick={() => setEdicion(camposDe(estudio))}>
         Editar estudio
