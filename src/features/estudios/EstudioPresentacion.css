@@ -113,7 +113,7 @@
 }
 
 .estudio-carrusel {
-  overflow: hidden;
+  /* Sin `overflow: hidden`: recortaba el menú de la foto (los tres puntos), que se abre hacia abajo. */
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
@@ -122,6 +122,7 @@
 .estudio-carrusel-imagen {
   position: relative;
   display: grid;
+  border-radius: calc(var(--radius-md) - 1px) calc(var(--radius-md) - 1px) 0 0;
   min-height: 180px;
   max-height: 330px;
   place-items: center;
@@ -351,7 +352,9 @@
 
 .estudio-foto-acciones {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
   padding: var(--space-1) var(--space-2);
 }
 
@@ -652,4 +655,16 @@ button.estudio-evidencia-video {
 
 .estudio-evidencia-video:hover {
   background: var(--color-surface);
+}
+
+.estudio-foto-zip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  margin-left: var(--space-1);
+}
+
+.estudio-foto-acciones > :only-child {
+  margin-left: auto;
 }

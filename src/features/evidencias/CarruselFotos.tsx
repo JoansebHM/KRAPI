@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Clipboard, Download, Ellipsis, Expand, ExternalLink } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clipboard, Download, Ellipsis, Expand, ExternalLink, FolderArchive } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { ImagenConCarga } from '../../components/ImagenConCarga'
 import { PantallaCompleta } from '../../components/PantallaCompleta'
@@ -7,13 +7,15 @@ import { notificar } from '../../lib/notificar'
 import { useDeslizar } from '../../lib/useDeslizar'
 import type { Evidencia } from './api'
 import { NOMBRE_TIPO } from './archivos'
+import { useDescargaZip } from './descargaZip'
 import '../estudios/EstudioPresentacion.css'
 
 /**
  * Fotos de un estudio o de un elemento, de a una, con opción de ampliarlas, descargarlas o copiar su enlace.
  * Se pasan con los botones o deslizando con el dedo, también a pantalla completa (ahí además con las flechas).
  */
-export function CarruselFotos({ fotos }: { fotos: Evidencia[] }) {
+export function CarruselFotos({ fotos, nombreZip }: { fotos: Evidencia[]; nombreZip: string }) {
+  const zip = useDescargaZip()
   const [fotoActual, setFotoActual] = useState(0)
   const [fotoAmpliada, setFotoAmpliada] = useState(false)
   // Hacia dónde se pasó la última vez: la foto nueva entra desde ese lado. Sin valor, aparece sin animación.
@@ -105,6 +107,17 @@ export function CarruselFotos({ fotos }: { fotos: Evidencia[] }) {
         </div>
         {foto && (
           <div className="estudio-foto-acciones">
+            {hayVarias && (
+              <button
+                type="button"
+                className="btn-texto estudio-foto-zip"
+                disabled={zip.descargando}
+                onClick={() => void zip.descargar(fotos, nombreZip, false)}
+              >
+                <FolderArchive size={18} aria-hidden="true" />
+                {zip.descargando ? 'Preparando…' : `Descargar ${fotos.length} fotos (.zip)`}
+              </button>
+            )}
             <AccionesEvidencia evidencia={foto} />
           </div>
         )}

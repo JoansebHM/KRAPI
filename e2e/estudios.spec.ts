@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises'
+import { unzipSync } from 'fflate'
 import { expect, test, toast } from './soporte/fixtures'
 
 const CENTRO_MANILA = [-75.57402095, 6.21293365]
@@ -279,6 +281,38 @@ test.describe('Estudios', () => {
     await expect(presentacion.getByRole('heading', { name: 'Texto 1' })).toBeVisible()
     await expect(presentacion.getByRole('heading', { name: 'Video 1' })).toBeVisible()
     await expect(reproductor.locator('.icono-evidencia')).toHaveCount(0)
+
+    // El menú de la foto se ve completo (no lo recorta el carrusel) y su primera opción es tocable.
+    await presentacion.getByRole('button', { name: 'Acciones de «Interior»' }).click()
+    const menuFoto = presentacion.getByRole('menu', { name: 'Acciones de Interior' })
+    await expect(menuFoto).toBeVisible()
+    const item = menuFoto.getByRole('menuitem', { name: 'Descargar' })
+    expect(await item.evaluate((el) => {
+      const caja = el.getBoundingClientRect()
+      return document.elementFromPoint(caja.left + caja.width / 2, caja.top + caja.height / 2) === el || el.contains(document.elementFromPoint(caja.left + caja.width / 2, caja.top + caja.height / 2))
+    })).toBe(true)
+    await page.keyboard.press('Escape')
+
+    // Las fotos se bajan juntas en un ZIP.
+    const bajadaFotos = page.waitForEvent('download')
+    await presentacion.getByRole('button', { name: 'Descargar 2 fotos (.zip)' }).click()
+    const descargaFotos = await bajadaFotos
+    expect(descargaFotos.suggestedFilename()).toBe('Café Central - 20 oct 2026 - Fotos.zip')
+    expect(Object.keys(unzipSync(new Uint8Array(await readFile((await descargaFotos.path())!)))).sort()).toEqual(['fachada.jpg', 'interior.jpg'])
+    await expect(page.getByText('ZIP descargado')).toBeVisible()
+
+    // Y todas las evidencias del estudio, por carpetas, con los textos y enlaces en un .txt.
+    const bajadaTodo = page.waitForEvent('download')
+    await presentacion.getByRole('button', { name: 'Descargar todo (.zip)' }).click()
+    const entradas = unzipSync(new Uint8Array(await readFile((await (await bajadaTodo).path())!)))
+    expect(Object.keys(entradas).sort()).toEqual([
+      'Audios/entrevista.webm',
+      'Documentos/informe.pdf',
+      'Fotos/fachada.jpg',
+      'Fotos/interior.jpg',
+      'Textos y enlaces.txt',
+    ])
+    expect(new TextDecoder().decode(entradas['Textos y enlaces.txt'])).toContain('El local tiene una entrada lateral.')
 
     await presentacion.getByRole('button', { name: 'Acciones de «informe.pdf»' }).click()
     const menuInforme = presentacion.getByRole('menu', { name: 'Acciones de informe.pdf' })

@@ -57,6 +57,7 @@ Se usa en la calle, con una mano y con sol:
 | `.icon-btn` | Botón de solo ícono (siempre con `aria-label`) |
 | `.field-textarea` | Campo de varias líneas (descripción del lugar, notas del estudio) |
 | `CampoNotas`, `.campo-notas` | Notas del estudio en el formulario: un campo por nota con su botón de borrar (44 px) y "Agregar nota". El campo crece con el texto |
+| `.estudio-foto-zip` | Botón de texto "Descargar N fotos (.zip)" en la barra bajo el carrusel, a la izquierda del menú de la foto |
 | `NotasDelEstudio`, `.estudio-notas` | Sección desplegable "Notas" (con cuántas hay) en la presentación y la página del estudio; cada nota tiene su botón "Copiar" y al final "Agregar nota" abre un campo con Guardar/Cancelar (siempre visible, aunque aún no haya notas) |
 | `.field`, `.field-label`, `.field-input`, `.field-error`, `.field-ayuda` | Campos de formulario; el error va debajo del campo y con `aria-invalid`. `.field-ayuda` es la ayuda gris debajo del campo cuando no hay error |
 | `CampoContrasena` | Contraseña con el botón "Mostrar" / "Ocultar" (login, registro) |

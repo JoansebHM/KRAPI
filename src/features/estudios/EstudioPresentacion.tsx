@@ -1,4 +1,4 @@
-import { Pause, Play, RotateCcw, RotateCw } from 'lucide-react'
+import { FolderArchive, Pause, Play, RotateCcw, RotateCw } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { Dialog } from '../../components/Dialog'
@@ -6,6 +6,7 @@ import { ErrorCarga, ListaCargando } from '../../components/Estados'
 import { useEvidencias, type Evidencia } from '../evidencias/api'
 import { mostrarTamano, NOMBRE_TIPO } from '../evidencias/archivos'
 import { AccionesEvidencia, CarruselFotos } from '../evidencias/CarruselFotos'
+import { useDescargaZip } from '../evidencias/descargaZip'
 import { IconoTipoEvidencia } from '../evidencias/IconoTipoEvidencia'
 import { BotonVerDocumento } from '../evidencias/VisorDocumento'
 import { useSalidas } from '../salidas/api'
@@ -39,6 +40,8 @@ export function EstudioPresentacion({
     const nombre = nombreDe(evidencia.creadaPor)
     return nombre && `subida por ${nombre}`
   }
+  const zip = useDescargaZip()
+  const hayParaDescargar = (evidencias ?? []).some((evidencia) => evidencia.archivo || evidencia.texto || evidencia.urlExterna)
   const fotos = (evidencias ?? []).filter((evidencia) => evidencia.tipo === 'foto')
   const tipos = ['audio', 'documento', 'texto', 'video'] as const
 
@@ -56,6 +59,17 @@ export function EstudioPresentacion({
             <button type="button" className="btn btn-secondary btn-block" onClick={onAgregarEvidencia}>
               Agregar evidencia
             </button>
+            {hayParaDescargar && (
+              <button
+                type="button"
+                className="btn btn-secondary btn-block"
+                disabled={zip.descargando}
+                onClick={() => void zip.descargar(evidencias ?? [], `${nombreLugar} - ${mostrarFecha(estudio.fecha)} - Evidencias`, true)}
+              >
+                <FolderArchive size={18} aria-hidden="true" />
+                {zip.descargando ? 'Preparando el ZIP…' : 'Descargar todo (.zip)'}
+              </button>
+            )}
             <button type="button" className="btn-texto btn-block" onClick={onCerrar}>
               Cerrar
             </button>
@@ -111,7 +125,7 @@ export function EstudioPresentacion({
             ) : fotos.length === 0 ? (
               <p className="estudio-presentacion-vacio">Este estudio todavía no tiene fotos.</p>
             ) : (
-              <CarruselFotos fotos={fotos} />
+              <CarruselFotos fotos={fotos} nombreZip={`${nombreLugar} - ${mostrarFecha(estudio.fecha)} - Fotos`} />
             )}
           </section>
 
