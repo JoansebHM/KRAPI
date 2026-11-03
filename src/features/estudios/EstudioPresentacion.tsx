@@ -97,7 +97,7 @@ export function EstudioPresentacion({
 
           <Autoria estudio={estudio} />
 
-          <NotasDelEstudio notas={estudio.notas} />
+          <NotasDelEstudio estudioId={estudio.id} ubicacionId={estudio.ubicacionId} notas={estudio.notas} />
 
           <section className="estudio-presentacion-evidencias" aria-labelledby="estudio-fotos-titulo">
             <h3 id="estudio-fotos-titulo" className="estudio-evidencias-titulo">

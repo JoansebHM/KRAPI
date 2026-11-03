@@ -178,6 +178,26 @@ export function useGuardarEstudio() {
   })
 }
 
+/**
+ * Agrega una nota al final de las que ya tiene el estudio, sin tocar sus demás datos. Lee las notas
+ * actuales justo antes de escribir para no pisar las que otra persona haya agregado entretanto.
+ */
+export function useAgregarNota() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, nota }: { id: string; ubicacionId: string; nota: string }) => {
+      const { data, error } = await supabase.from('estudios').select('notas').eq('id', id).single()
+      if (error) throw error
+      const { error: errorActualizar } = await supabase
+        .from('estudios')
+        .update({ notas: limpiarNotas([...data.notas, nota]) })
+        .eq('id', id)
+      if (errorActualizar) throw errorActualizar
+    },
+    onSuccess: (_resultado, { ubicacionId }) => queryClient.invalidateQueries({ queryKey: claveEstudios(ubicacionId) }),
+  })
+}
+
 /** Archiva (o, con `archivar: false`, recupera) un estudio. No se borran: se conserva el histórico. */
 export function useArchivarEstudio() {
   const queryClient = useQueryClient()
