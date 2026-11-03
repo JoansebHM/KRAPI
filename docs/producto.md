@@ -120,7 +120,8 @@ Una salida se puede cancelar (las personas lo ven) y reactivar. Una zona de la s
 - Estudios: se registran al crear un punto, al encontrar un duplicado o desde la ficha ("Agregar estudio"), con participantes (vienen marcadas la cuenta propia y las del último estudio del celular). La ficha muestra el histórico; al tocar un estudio se abre su presentación con fotos y otras evidencias, y desde ahí se puede editar o agregar evidencias.
 - Evidencias de archivo: tomar fotos (comprimidas antes de subir), grabar audios en la app y subir documentos, con avance, reintento y borrado con confirmación.
 - Videos de SharePoint por enlace (se abren en otra pestaña).
-- Filtros del mapa (decisión 0026): mostrar u ocultar los elementos, categoría (de los puntos y los elementos), rango de fechas, días de la semana, rango de horas, tipo de evidencia y responsables. Un lugar se muestra si al menos uno de sus estudios cumple todos a la vez; los elementos solo los filtra la categoría. El panel ("Filtros", en el mapa) no tapa el mapa: se ve cómo cambia al ajustar algo.
+- Filtros del mapa (decisión 0026): mostrar u ocultar los elementos, categoría (de los puntos y los elementos), rango de fechas, días de la semana, rango de horas, tipo de evidencia y responsables. Un lugar se muestra si al menos uno de sus estudios cumple todos a la vez; los elementos solo los filtra la categoría. El panel ("Filtros", en el mapa) no tapa el mapa: se ve cómo cambia al ajustar algo. Ahí mismo está el interruptor "Mostrar locales del mapa" (decisión 0033): los comercios que trae el mapa base están ocultos por defecto y no cuentan como filtro.
+- Vistas del mapa (decisión 0033): un botón de capas cambia entre Calles, Topográfico y Calles simplificado, y recuerda la elección en el dispositivo.
 - Esquema completo en Supabase con seguridad (RLS) y bucket privado de evidencias.
 - Pruebas de punta a punta.
 - Documentación navegable en `/docs`.

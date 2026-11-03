@@ -16,4 +16,7 @@ Usar el estilo "dark" tal cual.
 
 ## Consecuencias
 
+> **Actualización ([decisión 0033](0033-vistas-del-mapa.md)):** los nombres de los locales del mapa base ahora se ocultan por defecto y se activan con un interruptor en Filtros. El estilo nocturno se sigue generando igual.
+
+
 Si se configura `VITE_MAP_STYLE_URL_DARK`, se usa ese estilo en lugar del generado.

@@ -31,7 +31,8 @@ Las **categorías** usan una paleta propia (`src/features/categorias/colores.ts`
 
 - El tema empieza según el sistema y se guarda en `localStorage` (`krapi-theme`). Se aplica con `data-theme` en `<html>` y también cambia `theme-color`.
 - Las claves locales con prefijo `krapi-` se conservan para no cerrar sesiones ni perder preferencias al actualizar instalaciones existentes.
-- Para el mapa oscuro se genera un **estilo nocturno de alto contraste** a partir de Liberty (`nightStyle.ts`): conserva los nombres de los locales, que en el estilo "dark" de OpenFreeMap desaparecían.
+- Para el mapa oscuro se genera un **estilo nocturno de alto contraste** a partir de Liberty (`nightStyle.ts`): conserva los nombres de los locales, que en el estilo "dark" de OpenFreeMap desaparecían. Desde la [decisión 0033](decisiones/0033-vistas-del-mapa.md) esos locales se ocultan por defecto y se muestran con el interruptor "Mostrar locales del mapa" de Filtros.
+- **Vistas del mapa:** el botón de capas (arriba a la izquierda, bajo "Filtros") cambia entre Calles, Topográfico y Calles simplificado. Cada una tiene su versión clara y oscura. En "Calles simplificado" las calles llevan borde oscuro para que se noten.
 - **Toda pantalla nueva se revisa en ambos temas.**
 
 ## Celular primero
