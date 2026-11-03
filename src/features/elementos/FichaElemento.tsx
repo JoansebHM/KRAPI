@@ -64,7 +64,7 @@ export function FichaElemento({ lugar }: { lugar: DetalleLugar }) {
 
       <AccionesDelLugar lugar={lugar} />
 
-      {fotos.length > 0 && <CarruselFotos fotos={fotos} />}
+      {fotos.length > 0 && <CarruselFotos fotos={fotos} nombreZip={`${lugar.nombre} - Fotos`} />}
 
       <ListaEvidencias dueno={dueno} />
 
