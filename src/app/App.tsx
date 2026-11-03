@@ -30,7 +30,9 @@ import { TiposZonaPage } from '../features/tiposZona/TiposZonaPage'
 import { CrearZona } from '../features/zonas/CrearZona'
 import { RedibujarZona } from '../features/zonas/RedibujarZona'
 import { MapaProvider } from '../features/map/MapaProvider'
+import { BotonVistas } from '../features/map/BotonVistas'
 import { MapView } from '../features/map/MapView'
+import { guardarVista, leerVista, vistasExtraDisponibles, type Vista } from '../features/map/vistas'
 import { PreguntasPage } from '../features/preguntas/PreguntasPage'
 import { PerfilPage } from '../features/perfil/PerfilPage'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
@@ -83,6 +85,12 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
   const [menuAbierto, setMenuAbierto] = useState(false)
   const cerrarMenu = useCallback(() => setMenuAbierto(false), [])
   const [menuFijoVisible, setMenuFijoVisible] = useState(leerMenuFijoVisible)
+  const [vista, setVista] = useState<Vista>(leerVista)
+
+  function cambiarVista(nueva: Vista) {
+    setVista(nueva)
+    guardarVista(nueva)
+  }
 
   function alternarMenuFijo() {
     setMenuFijoVisible(!menuFijoVisible)
@@ -112,7 +120,7 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
           <MapaProvider>
             <FiltrosProvider>
               {/* El mapa siempre está montado; las secciones se abren encima. */}
-              <MapView theme={theme} />
+              <MapView theme={theme} vista={vista} />
               <Routes>
                 <Route
                   path="/"
@@ -120,6 +128,7 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
                     <>
                       <BotonNuevoLugar />
                       <BotonFiltros />
+                      {vistasExtraDisponibles && <BotonVistas vista={vista} onCambiar={cambiarVista} />}
                     </>
                   }
                 />

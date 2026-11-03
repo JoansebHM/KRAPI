@@ -8,6 +8,8 @@ import type { Theme } from '../theme/useTheme'
 import { MANILA, MANILA_BOUNDS, MANILA_MAX_BOUNDS } from './manila'
 import { MapaContexto } from './mapaContexto'
 import { toNightStyle } from './nightStyle'
+import { useFiltros } from '../filtros/filtrosContexto'
+import { ajustarEstilo, estiloDeVista, type Vista } from './vistas'
 import './MapView.css'
 
 const BOUNDS_PADDING = 48
@@ -19,15 +21,19 @@ const BOUNDARY_COLORS: Record<Theme, { line: string; fill: string; fillOpacity: 
 
 interface MapViewProps {
   theme: Theme
+  vista: Vista
 }
 
-export function MapView({ theme }: MapViewProps) {
+export function MapView({ theme, vista }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
   // Se comparte con las pantallas que se abren encima (MapaProvider) y se usa para dibujar los lugares.
   const { mapa, registrar } = useContext(MapaContexto)
   const themeRef = useRef(theme)
-  const appliedThemeRef = useRef<Theme | null>(null)
+  const vistaRef = useRef(vista)
+  const { mostrarLocalesMapa: mostrarLocales } = useFiltros()
+  const localesRef = useRef(mostrarLocales)
+  const appliedRef = useRef<string | null>(null)
 
   // Crear el mapa una sola vez.
   useEffect(() => {
@@ -56,8 +62,8 @@ export function MapView({ theme }: MapViewProps) {
     // Cada vez que se carga un estilo (al inicio o al cambiar de tema) se vuelven a agregar las capas propias.
     map.on('style.load', () => addManilaLayers(map, themeRef.current))
 
-    setBaseStyle(map, themeRef.current)
-    appliedThemeRef.current = themeRef.current
+    setBaseStyle(map, themeRef.current, vistaRef.current, localesRef.current)
+    appliedRef.current = claveDeBase(themeRef.current, vistaRef.current, localesRef.current)
 
     mapRef.current = map
     registrar(map)
@@ -68,15 +74,18 @@ export function MapView({ theme }: MapViewProps) {
     }
   }, [registrar])
 
-  // Cambiar el mapa base cuando cambia el tema.
+  // Cambiar el mapa base cuando cambia el tema, la vista o si se muestran los locales.
   useEffect(() => {
     themeRef.current = theme
+    vistaRef.current = vista
+    localesRef.current = mostrarLocales
     const map = mapRef.current
     if (!map) return
-    if (appliedThemeRef.current === theme) return
-    appliedThemeRef.current = theme
-    setBaseStyle(map, theme)
-  }, [theme])
+    const clave = claveDeBase(theme, vista, mostrarLocales)
+    if (appliedRef.current === clave) return
+    appliedRef.current = clave
+    setBaseStyle(map, theme, vista, mostrarLocales)
+  }, [theme, vista, mostrarLocales])
 
   return (
     <>
@@ -87,14 +96,24 @@ export function MapView({ theme }: MapViewProps) {
   )
 }
 
+/** Identifica el mapa base que se ve. */
+function claveDeBase(theme: Theme, vista: Vista, mostrarLocales: boolean) {
+  return `${theme}|${vista}|${mostrarLocales}`
+}
+
 /** Carga el mapa base del tema. Sin estilo oscuro configurado, genera uno nocturno a partir del claro. */
-function setBaseStyle(map: MapLibreMap, theme: Theme) {
-  const { light, dark } = env.mapStyles
-  if (theme === 'dark' && !dark) {
-    map.setStyle(light, { diff: false, transformStyle: (_previous, next) => toNightStyle(next) })
+function setBaseStyle(map: MapLibreMap, theme: Theme, vista: Vista, mostrarLocales: boolean) {
+  const ajustar = ajustarEstilo(vista, theme, mostrarLocales)
+  if (vista !== 'calles') {
+    map.setStyle(estiloDeVista(vista, theme), { diff: false, transformStyle: (_previous, next) => ajustar(next) })
     return
   }
-  map.setStyle(theme === 'dark' && dark ? dark : light, { diff: false })
+  const { light, dark } = env.mapStyles
+  if (theme === 'dark' && !dark) {
+    map.setStyle(light, { diff: false, transformStyle: (_previous, next) => ajustar(toNightStyle(next)) })
+    return
+  }
+  map.setStyle(theme === 'dark' && dark ? dark : light, { diff: false, transformStyle: (_previous, next) => ajustar(next) })
 }
 
 function addManilaLayers(map: MapLibreMap, theme: Theme) {
