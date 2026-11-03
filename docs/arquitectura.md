@@ -49,7 +49,7 @@ src/
     lugares/      Lugares en el mapa (marcadores y zonas), su ficha (FichaLugar, AccionesDelLugar,
                   EditarPunto) y crear y mover puntos y elementos con la mira (MiraCentral, CrearPunto,
                   MoverPunto)
-    map/          Mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
+    map/          Mapa, vistas del mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
     theme/        Modo claro/oscuro
     tiposZona/    Tipos de zona: lista con color (TiposZonaPage)
     usuarios/     Cuentas: administración (solo admins), avatares (Avatar, SelectorAvatar) y useNombreDeCuenta
@@ -141,6 +141,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - **Crear un punto** (`CrearPunto`): una mira fija sobre el centro del mapa (se actualiza con el evento `move`), "Mi ubicación" con `navigator.geolocation` y, solo al crear un punto, "Usar mi ubicación" (`MiraCentral` con `onUsarUbicacion`: si la posición está dentro de Manila llama a `continuar` con ella, sin pasar por la mira), `buscarCercanos()` (`ubicaciones_cercanas`, 15 m) y `FormularioPunto`. La geometría se envía como texto EWKT (`SRID=4326;POINT(lng lat)`) y PostGIS la convierte. Ver [decisión 0018](decisiones/0018-lugares-en-el-mapa.md).
 - **Crear un elemento** (`CrearElemento`): la misma mira, sin aviso de 15 m. Primero se llenan los datos y, al guardar, `buscarElementosCercanos()` (`elementos_cercanos`, 3 m, misma categoría) pregunta si es el mismo. Al guardar se abre su ficha.
 - Sin `VITE_MAP_STYLE_URL_DARK`, el modo oscuro se genera con `toNightStyle` (`nightStyle.ts`) a partir de Liberty, para conservar los nombres de los locales.
+- **Vistas del mapa** (`vistas.ts`, `BotonVistas.tsx`, [decisión 0033](decisiones/0033-vistas-del-mapa.md)): `Vista` es `calles`, `topografico` o `simplificado`. Las dos últimas cargan un estilo de MapTiler (`topo-v2`, `dataviz` y sus versiones `-dark`) y solo existen si hay `VITE_MAPTILER_API_KEY`. `MapView` recarga el mapa base con `map.setStyle` cuando cambia el tema, la vista o el interruptor de locales, y `ajustarEstilo()` transforma el estilo: oculta las capas `poi` (los locales del mapa base) salvo que se pidan, y en `simplificado` agrega dos capas de calles más anchas. La vista se guarda en `krapi-vista-mapa` y el interruptor, en `krapi-locales-del-mapa`; este vive en `FiltrosProvider` pero no es un filtro de datos (no cuenta ni se limpia).
 - La navegación está limitada a 1 km alrededor de Manila (`MANILA_MAX_BOUNDS`).
 
 **Pizarra y bocetos** (ver [decisión 0029](decisiones/0029-pizarra-y-bocetos.md))
@@ -176,6 +177,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 | `VITE_SUPABASE_URL` | `.env.local` | URL del proyecto |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | `.env.local` | Clave pública (segura en el navegador) |
 | `VITE_MAP_STYLE_URL_LIGHT` / `_DARK` | `.env.local` (opcional) | Estilos del mapa; por defecto OpenFreeMap |
+| `VITE_MAPTILER_API_KEY` | `.env.local` (opcional) | Vistas Topográfico y Calles simplificado. Es visible en el navegador: restríngela por dominio en MapTiler (solo el nombre del dominio, sin `https://`). Sin ella solo hay Calles |
 | `SUPABASE_SECRET_KEY` | `.env.local` | **Solo scripts** (`usuario:admin`, `usuario:clave`), nunca con prefijo `VITE_` |
 
 `.env.e2e` (versionado y sin secretos) configura las pruebas con servicios simulados. Si falta una variable obligatoria, la app muestra cuál en lugar de fallar. El identificador del proyecto Supabase y las claves `krapi-*` de `localStorage` se mantienen por compatibilidad; no son nombres visibles de la app.

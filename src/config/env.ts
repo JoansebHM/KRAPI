@@ -6,6 +6,8 @@ export const env = {
     /** Si no se configura, el modo oscuro se genera a partir del estilo claro (ver nightStyle.ts). */
     dark: import.meta.env.VITE_MAP_STYLE_URL_DARK || undefined,
   },
+  /** Clave de MapTiler para las vistas extra del mapa (topográfico y simplificado). Si falta, solo hay la vista de calles. Restríngela por dominio en su panel. */
+  maptilerApiKey: import.meta.env.VITE_MAPTILER_API_KEY || '',
   supabase: {
     url: import.meta.env.VITE_SUPABASE_URL || '',
     /** Clave pública (publishable o anon). Es segura en el navegador porque los datos están protegidos con RLS. */

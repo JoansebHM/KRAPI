@@ -16,7 +16,7 @@ Requisitos: Node.js 20 o superior.
 
 ```bash
 npm install
-cp .env.example .env.local   # opcional: configura el estilo del mapa
+cp .env.example .env.local   # opcional: estilo del mapa y clave de MapTiler (vistas extra)
 npm run dev
 ```
 
@@ -181,7 +181,7 @@ src/
     bocetos/      # Pizarra (dibujar sobre el mapa), captura del mapa y registro de bocetos
     categorias/ # Administración de categorías
     elementos/    # Elementos (canecas, postes…): crearlos, su ficha y editarlos
-    filtros/      # Filtros del mapa (elementos, categoría, fechas, horas, evidencia, responsables)
+    filtros/      # Filtros del mapa (elementos, categoría, fechas, horas, evidencia, responsables, locales del mapa)
     preguntas/    # Guías de preguntas para las entrevistas (contenido estático)
     perfil/       # Mi perfil: nombre, avatar y contraseña
     salidas/      # Salidas, zonas asignadas, reportes y Mis asignaciones
@@ -191,7 +191,7 @@ src/
     estudios/   # Estudios de cada lugar (visitas), su histórico y la página de cada estudio
     evidencias/ # Subir fotos, audios y documentos de un estudio o de un elemento
     lugares/    # Lugares en el mapa, su ficha, crear y mover puntos
-    map/        # Mapa base y límite del barrio
+    map/        # Mapa base, vistas del mapa y límite del barrio
     theme/      # Modo claro y oscuro
   lib/          # Supabase, archivos (almacenamiento.ts), caché de datos, notificaciones y utilidades
   types/        # Tipos generados del esquema de la base de datos

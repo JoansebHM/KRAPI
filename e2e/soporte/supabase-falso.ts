@@ -198,6 +198,8 @@ export class SupabaseFalso {
   fallarSubidas = false
   /** Peticiones recibidas, por ejemplo "POST /auth/v1/logout?scope=global". */
   peticiones: string[] = []
+  /** Rutas de los estilos del mapa base que pidió la app (calles o MapTiler), en orden. */
+  estilosPedidos: string[] = []
 
   /** Agrega una cuenta (por defecto, un miembro activo) y la devuelve. */
   agregarCuenta(datos: Partial<Cuenta> & Pick<Cuenta, 'usuario'>) {
@@ -235,7 +237,13 @@ export class SupabaseFalso {
   }
 
   async instalar(contexto: BrowserContext) {
-    await contexto.route('https://mapa-falso.e2e.local/**', (ruta) => ruta.fulfill({ json: MAPA_VACIO }))
+    // Los estilos del mapa base: se anota cuál se pidió, para probar el cambio de vista.
+    const estilo = (ruta: Route) => {
+      this.estilosPedidos.push(new URL(ruta.request().url()).pathname)
+      return ruta.fulfill({ json: MAPA_VACIO })
+    }
+    await contexto.route('https://mapa-falso.e2e.local/**', estilo)
+    await contexto.route('https://api.maptiler.com/**', estilo)
     await contexto.route('https://supabase-falso.e2e.local/**', (ruta) => this.responder(ruta))
   }
 

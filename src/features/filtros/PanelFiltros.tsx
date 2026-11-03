@@ -12,7 +12,7 @@ const TIPOS_EVIDENCIA: TipoEvidencia[] = ['foto', 'audio', 'documento', 'texto',
 
 /** Los filtros del mapa, en una hoja que no tapa el mapa: se ve el resultado al ajustarlos. */
 export function PanelFiltros({ onCerrar }: { onCerrar: () => void }) {
-  const { filtros, setFiltros } = useFiltros()
+  const { filtros, setFiltros, mostrarLocalesMapa, setMostrarLocalesMapa } = useFiltros()
   const { data: categorias } = useCategorias()
   const activos = contarFiltrosActivos(filtros)
 
@@ -47,6 +47,16 @@ export function PanelFiltros({ onCerrar }: { onCerrar: () => void }) {
             </button>
           </div>
           <p className="chips-nota">Canecas, postes, árboles… Como no tienen estudios, solo los filtra la categoría.</p>
+        </div>
+
+        <div className="field">
+          <span className="field-label">Locales del mapa</span>
+          <div className="chips">
+            <button type="button" className="chip chip-sin-icono" aria-pressed={mostrarLocalesMapa} onClick={() => setMostrarLocalesMapa(!mostrarLocalesMapa)}>
+              <span>Mostrar locales del mapa</span>
+            </button>
+          </div>
+          <p className="chips-nota">Los comercios y demás sitios que trae el mapa base. Se ocultan por defecto; no son los lugares registrados en KIRA y no cuentan como filtro.</p>
         </div>
 
         <div className="field">
