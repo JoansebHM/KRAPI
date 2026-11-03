@@ -117,5 +117,5 @@ Se usa en la calle, con una mano y con sol:
 - Foco visible siempre: azul eléctrico en claro y amarillo neón en oscuro.
 - Contraste AA para todo el texto.
 - Los diálogos atrapan el foco, se cierran con Escape y devuelven el foco al cerrarse.
-- La presentación de un estudio prioriza las fotos en un carrusel; el audio usa controles propios para que la barra de avance sea manipulable con una mano y se reproduce a 1×, 2× o 3×. Las notas se leen y los enlaces o archivos se abren o descargan según su tipo.
+- La presentación de un estudio prioriza las fotos en un carrusel; el audio usa controles propios (con saltos de 5 segundos) para que la barra de avance sea manipulable con una mano y se reproduce a 1×, 2× o 3×. Las notas se leen y los enlaces o archivos se abren o descargan según su tipo.
 - Los íconos decorativos llevan `aria-hidden`.

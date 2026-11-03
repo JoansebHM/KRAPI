@@ -1,4 +1,4 @@
-import { Pause, Play } from 'lucide-react'
+import { Pause, Play, RotateCcw, RotateCw } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { Dialog } from '../../components/Dialog'
@@ -164,6 +164,9 @@ export function EstudioPresentacion({
   )
 }
 
+/** Segundos que saltan los botones de retroceder y adelantar. */
+const SALTO_AUDIO = 5
+
 function AudioConVelocidad({ enlace, titulo }: { enlace: string; titulo: string }) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [velocidad, setVelocidad] = useState(1)
@@ -200,6 +203,15 @@ function AudioConVelocidad({ enlace, titulo }: { enlace: string; titulo: string 
     setTiempoActual(nuevoTiempo)
   }
 
+  /** Mueve el audio `segundos` (negativo, hacia atrás) sin salirse de [0, duración]. */
+  function saltar(segundos: number) {
+    const audio = audioRef.current
+    if (!audio || !duracion) return
+    const nuevoTiempo = Math.min(Math.max(audio.currentTime + segundos, 0), duracion)
+    audio.currentTime = nuevoTiempo
+    setTiempoActual(nuevoTiempo)
+  }
+
   return (
     <div className="estudio-audio">
       <audio
@@ -220,28 +232,48 @@ function AudioConVelocidad({ enlace, titulo }: { enlace: string; titulo: string 
       <div className="estudio-audio-controles">
         <button
           type="button"
+          className="estudio-audio-saltar"
+          aria-label={`Retroceder ${SALTO_AUDIO} segundos`}
+          disabled={!duracion || tiempoActual <= 0}
+          onClick={() => saltar(-SALTO_AUDIO)}
+        >
+          <RotateCcw size={26} aria-hidden="true" />
+          <span aria-hidden="true">{SALTO_AUDIO}</span>
+        </button>
+        <button
+          type="button"
           className="estudio-audio-reproducir"
           aria-label={reproduciendo ? `Pausar ${titulo}` : `Reproducir ${titulo}`}
           onClick={() => void alternarReproduccion()}
         >
           {reproduciendo ? <Pause size={20} aria-hidden="true" /> : <Play size={20} aria-hidden="true" />}
         </button>
-        <div className="estudio-audio-progreso">
-          <input
-            type="range"
-            min={0}
-            max={Math.max(duracion, 1)}
-            step="any"
-            value={Math.min(tiempoActual, duracion || 0)}
-            disabled={!duracion}
-            aria-label={`Avance de ${titulo}`}
-            aria-valuetext={`${mostrarTiempo(tiempoActual)} de ${mostrarTiempo(duracion)}`}
-            onChange={(evento) => cambiarTiempo(evento.target.value)}
-          />
-          <div className="estudio-audio-tiempos" aria-live="off">
-            <span>{mostrarTiempo(tiempoActual)}</span>
-            <span>{mostrarTiempo(duracion)}</span>
-          </div>
+        <button
+          type="button"
+          className="estudio-audio-saltar"
+          aria-label={`Adelantar ${SALTO_AUDIO} segundos`}
+          disabled={!duracion || tiempoActual >= duracion}
+          onClick={() => saltar(SALTO_AUDIO)}
+        >
+          <RotateCw size={26} aria-hidden="true" />
+          <span aria-hidden="true">{SALTO_AUDIO}</span>
+        </button>
+      </div>
+      <div className="estudio-audio-progreso">
+        <input
+          type="range"
+          min={0}
+          max={Math.max(duracion, 1)}
+          step="any"
+          value={Math.min(tiempoActual, duracion || 0)}
+          disabled={!duracion}
+          aria-label={`Avance de ${titulo}`}
+          aria-valuetext={`${mostrarTiempo(tiempoActual)} de ${mostrarTiempo(duracion)}`}
+          onChange={(evento) => cambiarTiempo(evento.target.value)}
+        />
+        <div className="estudio-audio-tiempos" aria-live="off">
+          <span>{mostrarTiempo(tiempoActual)}</span>
+          <span>{mostrarTiempo(duracion)}</span>
         </div>
       </div>
       {error && <p className="estudio-audio-error" role="alert">No se pudo reproducir este audio.</p>}

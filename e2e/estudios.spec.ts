@@ -231,6 +231,28 @@ test.describe('Estudios', () => {
     await expect(audio).toHaveJSProperty('currentTime', 120)
     await expect(avance).toHaveAttribute('aria-valuetext', '2:00 de 2:00')
     await expect(reproductor).toContainText('2:00')
+    const retroceder = reproductor.getByRole('button', { name: 'Retroceder 5 segundos' })
+    const adelantar = reproductor.getByRole('button', { name: 'Adelantar 5 segundos' })
+    // Al final no se pasa de la duración: adelantar queda desactivado y retroceder resta 5 s.
+    await expect(adelantar).toBeDisabled()
+    await retroceder.click()
+    await expect(audio).toHaveJSProperty('currentTime', 115)
+    await adelantar.click()
+    await expect(audio).toHaveJSProperty('currentTime', 120)
+    // Al inicio no baja de 0: con 3 s, retroceder 5 s deja 0 y se desactiva.
+    await avance.press('Home')
+    await expect(retroceder).toBeDisabled()
+    await audio.evaluate((element) => {
+      ;(element as HTMLAudioElement).currentTime = 3
+      element.dispatchEvent(new Event('timeupdate'))
+    })
+    await expect(retroceder).toBeEnabled()
+    await retroceder.click()
+    await expect(audio).toHaveJSProperty('currentTime', 0)
+    await expect(retroceder).toBeDisabled()
+    await adelantar.click()
+    await expect(audio).toHaveJSProperty('currentTime', 5)
+    await avance.press('End')
     const velocidadAudio = presentacion.getByRole('group', { name: 'Velocidad de reproducción de Entrevista' })
     async function comprobarEtiquetaEncima() {
       await expect(velocidadAudio).toHaveCSS('flex-direction', 'column')
