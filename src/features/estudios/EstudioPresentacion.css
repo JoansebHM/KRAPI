@@ -378,7 +378,40 @@
 .estudio-audio-controles {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.estudio-audio-saltar {
+  position: relative;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.estudio-audio-saltar span {
+  position: absolute;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.estudio-audio-saltar:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.estudio-audio-saltar:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .estudio-audio-reproducir {
