@@ -40,12 +40,70 @@ test.describe('Notas del estudio', () => {
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('La nevera está llena de la marca X.')
   })
 
-  test('sin notas no aparece la sección', async ({ page, entrar, supabase }) => {
+  test('sin notas la sección sigue ahí, con 0 y el botón para agregar', async ({ page, entrar, supabase }) => {
     supabase.db.estudios[0].notas = []
     await entrar()
     const dialogo = await abrirPresentacion(page)
-    await expect(dialogo).toContainText('20 oct 2026')
-    await expect(dialogo.locator('.estudio-notas')).toHaveCount(0)
+    const notas = dialogo.locator('.estudio-notas')
+    await expect(notas.locator('summary')).toContainText('Notas0')
+    await notas.locator('summary').click()
+    await expect(notas.getByRole('button', { name: 'Agregar nota' })).toBeVisible()
+  })
+
+  test('desde la presentación se agrega una nota sin cerrarla ni tocar lo demás', async ({ page, entrar, supabase }) => {
+    await entrar()
+    const dialogo = await abrirPresentacion(page)
+    const notas = dialogo.locator('.estudio-notas')
+    await notas.locator('summary').click()
+    await notas.getByRole('button', { name: 'Agregar nota' }).click()
+
+    const campo = notas.getByLabel('Nota nueva')
+    const guardar = notas.getByRole('button', { name: 'Guardar nota' })
+    await expect(campo).toBeFocused()
+    // Una nota en blanco no se puede guardar.
+    await expect(guardar).toBeDisabled()
+    await campo.fill('   ')
+    await expect(guardar).toBeDisabled()
+    await campo.fill('  Escucho al tendero decir que cierran a las 8.  ')
+    await guardar.click()
+
+    await expect(toast(page, 'Nota agregada')).toBeVisible()
+    expect(supabase.db.estudios[0].notas).toEqual([
+      'El distribuidor pasa los martes.',
+      'La nevera está llena de la marca X.',
+      'Escucho al tendero decir que cierran a las 8.',
+    ])
+    // La presentación sigue abierta, con la sección abierta y la nota nueva al final.
+    await expect(dialogo).toBeVisible()
+    await expect(notas.locator('summary')).toContainText('Notas3')
+    await expect(notas.getByText('Escucho al tendero decir que cierran a las 8.')).toBeVisible()
+    await expect(notas.getByLabel('Nota nueva')).toHaveCount(0)
+    await expect(notas.getByRole('button', { name: 'Agregar nota' })).toBeVisible()
+  })
+
+  test('cancelar descarta lo escrito', async ({ page, entrar, supabase }) => {
+    await entrar()
+    const dialogo = await abrirPresentacion(page)
+    const notas = dialogo.locator('.estudio-notas')
+    await notas.locator('summary').click()
+    await notas.getByRole('button', { name: 'Agregar nota' }).click()
+    await notas.getByLabel('Nota nueva').fill('Borrador')
+    await notas.getByRole('button', { name: 'Cancelar' }).click()
+    await expect(notas.getByLabel('Nota nueva')).toHaveCount(0)
+    await notas.getByRole('button', { name: 'Agregar nota' }).click()
+    await expect(notas.getByLabel('Nota nueva')).toHaveValue('')
+    expect(supabase.db.estudios[0].notas).toHaveLength(2)
+  })
+
+  test('agregar una nota cabe en 320 px', async ({ page, entrar }) => {
+    await page.setViewportSize({ width: 320, height: 640 })
+    await entrar()
+    const dialogo = await abrirPresentacion(page)
+    const notas = dialogo.locator('.estudio-notas')
+    await notas.locator('summary').click()
+    await notas.getByRole('button', { name: 'Agregar nota' }).click()
+    await expect(notas.getByRole('button', { name: 'Guardar nota' })).toBeVisible()
+    await expect(dialogo).toHaveJSProperty('scrollWidth', await dialogo.evaluate((elemento) => elemento.clientWidth))
   })
 
   test('en el formulario se agregan, se editan y se borran una por una', async ({ page, entrar, supabase }) => {
