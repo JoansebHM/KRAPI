@@ -1,0 +1,23 @@
+.marca-kira {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+/* Las letras KI miden lo mismo que las mayúsculas del texto que las acompaña. */
+.marca-kira-ki {
+  align-self: baseline;
+  height: 0.72em;
+  width: auto;
+  aspect-ratio: 386 / 250;
+  margin-right: 0.08em;
+}
+
+/* El tallo de la K es blanco en el logo; en modo claro se pone del color del texto para que se vea. */
+.marca-kira-tallo {
+  fill: var(--color-text);
+}
+
+.marca-kira-resto {
+  fill: var(--color-primary);
+}

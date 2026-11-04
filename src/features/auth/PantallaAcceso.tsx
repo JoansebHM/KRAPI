@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { MarcaKira } from '../../components/MarcaKira'
 import { PoweredBy } from '../../components/PoweredBy'
 import { ThemeToggle } from '../theme/ThemeToggle'
 import type { Theme } from '../theme/useTheme'
@@ -22,7 +23,9 @@ export function PantallaAcceso({ theme, onToggleTheme, subtitulo, children }: Pa
 
       <main className="login-card">
         <header className="login-header">
-          <h1 className="login-brand">KIRA</h1>
+          <h1 className="login-brand">
+            <MarcaKira />
+          </h1>
           <PoweredBy tamano="mediano" />
           <p className="login-subtitle">{subtitulo}</p>
         </header>
