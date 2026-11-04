@@ -23,7 +23,7 @@ test.describe('Inicio de sesión', () => {
   test('con la contraseña correcta entra y la sesión se mantiene al recargar', async ({ page, entrar }) => {
     await entrar()
     await expect(toast(page, 'Sesión iniciada')).toBeVisible()
-    await expect(page.locator('.app-brand')).toHaveText('KIRA')
+    await expect(page.locator('.app-brand').getByRole('img', { name: 'KIRA' })).toBeVisible()
     await page.reload()
     await expect(page.locator('.app-header')).toBeVisible()
   })

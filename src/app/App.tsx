@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import { BotonMenu, MenuFijo, MenuNavegacion } from '../components/MenuNavegacion'
+import { MarcaKira } from '../components/MarcaKira'
 import { Notificaciones } from '../components/Notificaciones'
 import { PoweredBy } from '../components/PoweredBy'
 import { variablesFaltantes } from '../config/env'
@@ -106,7 +107,9 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
           <BotonMenu onTocar={() => setMenuAbierto(true)} />
         )}
         <span className="app-marca">
-          <span className="app-brand">KIRA</span>
+          <span className="app-brand">
+            <MarcaKira />
+          </span>
           <PoweredBy />
         </span>
         <div className="app-actions">

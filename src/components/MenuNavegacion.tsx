@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router'
 import { useAuth } from '../features/auth/useAuth'
 import { estadoDe, useSalidas, yaEmpezo } from '../features/salidas/api'
 import { useUsuarios } from '../features/usuarios/api'
+import { MarcaKira } from './MarcaKira'
 import { PoweredBy } from './PoweredBy'
 import './MenuNavegacion.css'
 
@@ -44,7 +45,9 @@ export function MenuNavegacion({ abierto, onCerrar }: MenuNavegacionProps) {
       <div className={`menu-fondo${abierto ? ' menu-fondo-visible' : ''}`} onClick={onCerrar} aria-hidden="true" />
       <nav className={`menu${abierto ? ' menu-abierto' : ''}`} aria-label="Secciones" aria-hidden={!abierto} inert={!abierto}>
         <div className="menu-marca">
-          <span className="menu-marca-nombre">KIRA</span>
+          <span className="menu-marca-nombre">
+            <MarcaKira />
+          </span>
           <PoweredBy />
         </div>
         <ListaSecciones />
