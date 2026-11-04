@@ -24,6 +24,7 @@ Las **categorías** usan una paleta propia (`src/features/categorias/colores.ts`
 ## Tipografía
 
 - **Good Times**: marca y títulos (`--font-display`). Solo se usa si está instalada en el dispositivo; si no, se ve **Poppins Black**. Para incluir el archivo web, ver el README.
+- **Marca "KIRA"**: las letras **KI** son las del logo de Kratos Innovation Team (tallo de la K en el color del texto, el resto en azul cielo) y **RA** va en texto normal. Se dibuja con el componente `MarcaKira` (barra superior, menú y acceso), en la documentación y en el favicon. En frases y notificaciones "KIRA" sigue siendo texto.
 - **Poppins**: todo el texto (`--font-sans`), cargada desde Google Fonts.
 - La barra superior muestra **KIRA** y, justo debajo, "powered by **KIT**". `KIT` es una abreviatura con `title` y `aria-label` "Kratos Innovation Team".
 
