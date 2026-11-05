@@ -14,6 +14,7 @@ interface MenuNavegacionProps {
 
 const SECCIONES = [
   { ruta: '/', texto: 'Mapa', icono: <IconoMapa /> },
+  { ruta: '/analitica', texto: 'Analítica', icono: <IconoAnalitica /> },
   { ruta: '/categorias', texto: 'Categorías', icono: <IconoEtiqueta /> },
   { ruta: '/tipos-de-zona', texto: 'Tipos de zona', icono: <IconoZona /> },
   { ruta: '/salidas', texto: 'Salidas', icono: <IconoSalidas /> },
@@ -65,7 +66,7 @@ export function MenuFijo() {
   )
 }
 
-/** Las secciones de la app: Mapa, Categorías, Tipos de zona, Salidas, Pizarra, Bocetos, Preguntas, Mis asignaciones, Usuarios (admins) y Documentación. */
+/** Las secciones de la app: Mapa, Analítica, Categorías, Tipos de zona, Salidas, Pizarra, Bocetos, Preguntas, Mis asignaciones, Usuarios (admins) y Documentación. */
 function ListaSecciones() {
   const { esAdmin, perfil } = useAuth()
   // Cuántas zonas asignadas a la cuenta faltan por reportar (de salidas de hoy o anteriores).
@@ -213,6 +214,14 @@ function IconoBocetos() {
       <rect x="3" y="4" width="18" height="16" rx="2" />
       <circle cx="9" cy="10" r="1.5" />
       <path d="m21 16-5-5-8 9" />
+    </svg>
+  )
+}
+
+function IconoAnalitica() {
+  return (
+    <svg {...icono}>
+      <path d="M4 20V10M10 20V4M16 20v-8M22 20H2" />
     </svg>
   )
 }

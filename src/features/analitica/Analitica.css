@@ -1,0 +1,286 @@
+/*
+ * Analítica: gráficos hechos con HTML y CSS, con los colores de KIRA (azul cielo para las barras, el azul de
+ * texto para los textos y el color propio de cada categoría). Todo sale de los tokens de theme.css, así que
+ * se ve bien en modo claro y oscuro.
+ */
+
+.analitica {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  /* Tono suave del azul de marca: las columnas que no son la destacada y la pista de los medidores. */
+  --analitica-azul-suave: color-mix(in srgb, var(--color-primary) 38%, var(--color-bg));
+  --analitica-pista: color-mix(in srgb, var(--color-primary) 16%, var(--color-bg));
+}
+
+/* Cifras */
+.analitica-cifras {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.analitica-cifra {
+  min-width: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.analitica-cifra-etiqueta {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+/* Cifra grande en la fuente de texto (proporcional), no en la de marca: se lee mejor. */
+.analitica-cifra-valor {
+  margin: var(--space-1) 0 0;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+
+.analitica-cifra-detalle {
+  margin: var(--space-1) 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Secciones */
+.analitica-seccion {
+  min-width: 0;
+}
+
+.analitica-titulo {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.analitica-descripcion {
+  margin: var(--space-1) 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.analitica-seccion > .analitica-titulo + *,
+.analitica-seccion > .analitica-descripcion + * {
+  margin-top: var(--space-4);
+}
+
+.analitica-subtitulo {
+  margin: var(--space-6) 0 var(--space-3);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.analitica-subtitulo-primero {
+  margin-top: var(--space-4);
+}
+
+.analitica-vacio {
+  margin: var(--space-3) 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* Barras horizontales: nombre arriba a la izquierda, barra debajo y el valor en la punta. */
+.analitica-barras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.analitica-barra {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'etiqueta valor'
+    'pista pista';
+  column-gap: var(--space-3);
+  row-gap: 6px;
+  align-items: baseline;
+}
+
+.analitica-barra-etiqueta {
+  grid-area: etiqueta;
+  min-width: 0;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.analitica-barra-valor {
+  grid-area: valor;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.analitica-barra-pista {
+  grid-area: pista;
+  display: block;
+  height: 12px;
+  border-radius: 0 6px 6px 0;
+  /* Una raya fina de fondo: la barra del 0 no desaparece sin dejar rastro. */
+  background: linear-gradient(var(--color-border), var(--color-border)) left center / 1px 100% no-repeat;
+}
+
+.analitica-barra-relleno {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  border-radius: 0 6px 6px 0;
+  background: var(--color-primary);
+}
+
+/* Medidores */
+.analitica-medidores {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.analitica-medidor-texto {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.analitica-medidor-pista {
+  height: 12px;
+  margin-top: 6px;
+  border-radius: 6px;
+  background: var(--analitica-pista);
+  overflow: hidden;
+}
+
+.analitica-medidor-relleno {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: var(--color-primary);
+}
+
+.analitica-medidor-detalle {
+  margin: 6px 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+/* Columnas */
+.analitica-lectura {
+  min-height: 1.5em;
+  margin: 0 0 var(--space-3);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.analitica-columnas-cuerpo {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.analitica-eje {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 1.75rem;
+  /* Cada marca queda a la altura de su línea. */
+  margin: -0.5em 0;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--color-text-muted);
+}
+
+.analitica-plano {
+  position: relative;
+  flex: 1;
+  height: 160px;
+  min-width: 0;
+}
+
+.analitica-lineas {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.analitica-lineas span {
+  display: block;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.analitica-columnas-lista {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+/* Toda la altura de la columna se puede tocar (más de 44 px de alto), no solo la barra. */
+.analitica-columna {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.analitica-columna:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
+.analitica-columna-relleno {
+  display: block;
+  width: 100%;
+  max-width: 24px;
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+  background: var(--analitica-azul-suave);
+}
+
+.analitica-columna-activa .analitica-columna-relleno {
+  background: var(--color-primary);
+}
+
+.analitica-columnas-etiquetas {
+  display: flex;
+  /* Alineadas con las columnas: el mismo margen del eje (ancho + separación). */
+  margin-left: calc(1.75rem + var(--space-2));
+  margin-top: var(--space-2);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.analitica-columnas-etiquetas span {
+  flex: 1;
+  text-align: center;
+}
+
+.analitica-etiqueta-activa {
+  font-weight: 700;
+  color: var(--color-text);
+}
