@@ -59,6 +59,7 @@ npx supabase stop  # apaga Supabase local
 - En el histórico de un lugar, tocar un estudio abre su presentación con el carrusel de fotos (se pasan con los botones o deslizando el dedo; también a pantalla completa) y el resto de evidencias. Los PDF y los Word (`.docx`) se pueden ver dentro de la app con el botón "Ver". Desde el modal se puede editar o abrir la página del estudio para agregar evidencia.
 - "+ Nuevo lugar" pregunta si se registra un **punto** (`/lugares/nuevo`), una **zona** (`/zonas/nueva`, se dibuja con la mira) o un **elemento** (`/elementos/nuevo`: una caneca, un poste… que no se estudia, pero recibe evidencias en su ficha). La forma de una zona se cambia en `/lugares/<id>/redibujar`, y sus tipos se administran en **Tipos de zona** (`/tipos-de-zona`).
 - **Pizarra** (`/pizarra`) deja dibujar a mano alzada y escribir textos (que se mueven y se giran) sobre el mapa, y guardarlo como boceto; **Bocetos** (`/bocetos`) es el registro, con miniatura, autor y fecha ([decisión 0029](docs/decisiones/0029-pizarra-y-bocetos.md)).
+- **Analítica** (`/analitica`) muestra cómo va el levantamiento: locales, estudios, entrevistas y evidencias, cobertura, ritmo por semana y por día, categorías y equipo, con gráficos en los colores de KIRA. No cuenta zonas ni salidas ([decisión 0034](docs/decisiones/0034-analitica.md)).
 - **Preguntas** (`/preguntas`) abre las guías de entrevista, una pestaña por tipo de actor, con las preguntas imprescindibles primero y el guion de autorización para grabar ([decisión 0031](docs/decisiones/0031-guias-de-preguntas.md)).
 - **Salidas** (`/salidas`) lista las próximas y las anteriores. En cada salida (`/salidas/<id>`) los admins dibujan zonas (`/salidas/<id>/zonas/nueva`) y las asignan, y cada quien reporta lo suyo. Su sección "Qué se registró" lista los estudios ligados a ella. **Mis asignaciones** (`/mis-asignaciones`) muestra las zonas propias, con un contador en el menú de las que faltan por reportar. "Ver en el mapa" (o tocar la zona directamente en el mapa) abre `/salidas/<id>/zonas/<zona>`.
 - Desde el menú de la cuenta, **Mi perfil** (`/perfil`) deja cambiar el nombre, el avatar y la contraseña.
@@ -178,6 +179,7 @@ src/
   config/       # Variables de entorno y configuración (sesión, mapa)
   features/     # Una carpeta por funcionalidad
     auth/       # Inicio de sesión, registro, política de sesión y menú de la cuenta
+    analitica/    # Analítica: cifras del levantamiento (calculos.ts) y sus gráficos
     bocetos/      # Pizarra (dibujar sobre el mapa), captura del mapa y registro de bocetos
     categorias/ # Administración de categorías
     elementos/    # Elementos (canecas, postes…): crearlos, su ficha y editarlos

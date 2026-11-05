@@ -39,3 +39,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0031 | [Guías de preguntas para las entrevistas](0031-guias-de-preguntas.md) | Aceptada |
 | 0032 | [Previsualizar documentos dentro de la app](0032-previsualizar-documentos.md) | Aceptada |
 | 0033 | [Vistas del mapa y locales del mapa base](0033-vistas-del-mapa.md) | Aceptada |
+| 0034 | [Analítica del levantamiento](0034-analitica.md) | Aceptada |

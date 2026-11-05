@@ -26,6 +26,8 @@ src/
   features/       Una carpeta por funcionalidad
     auth/         Login, registro, AuthProvider, política de sesión, menú de la cuenta,
                   nombre de usuario → correo interno (nombreDeUsuario.ts)
+    analitica/    Analítica (decisión 0034): AnaliticaPage, gráficos propios (Graficos.tsx), cálculo puro de
+                  las cifras (calculos.ts, calcularAnalitica) y api.ts (useAnalitica)
     bocetos/      Pizarra (PizarraPagina, TextosEnPizarra, EditarTexto, trazos.ts, useTrazosEnMapa),
                   captura del mapa y dibujo de los textos sobre la imagen (capturar.ts, dibujarTextos.ts),
                   registro de bocetos (BocetosPage, VerBoceto) y api.ts
@@ -143,6 +145,10 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Sin `VITE_MAP_STYLE_URL_DARK`, el modo oscuro se genera con `toNightStyle` (`nightStyle.ts`) a partir de Liberty, para conservar los nombres de los locales.
 - **Vistas del mapa** (`vistas.ts`, `BotonVistas.tsx`, [decisión 0033](decisiones/0033-vistas-del-mapa.md)): `Vista` es `calles`, `topografico` o `simplificado`. Las dos últimas cargan un estilo de MapTiler (`topo-v2`, `dataviz` y sus versiones `-dark`) y solo existen si hay `VITE_MAPTILER_API_KEY`. `MapView` recarga el mapa base con `map.setStyle` cuando cambia el tema, la vista o el interruptor de locales, y `ajustarEstilo()` transforma el estilo: oculta las capas `poi` (los locales del mapa base) salvo que se pidan, y en `simplificado` agrega dos capas de calles más anchas. La vista se guarda en `krapi-vista-mapa` y el interruptor, en `krapi-locales-del-mapa`; este vive en `FiltrosProvider` pero no es un filtro de datos (no cuenta ni se limpia).
 - La navegación está limitada a 1 km alrededor de Manila (`MANILA_MAX_BOUNDS`).
+
+**Analítica** (ver [decisión 0034](decisiones/0034-analitica.md))
+- `useAnalitica()` (`analitica/api.ts`) lee estudios no archivados, evidencias y participantes **por páginas de 1000 filas** (`leerTodo()`), reutiliza `useLugares()`, `useCategorias()` y `useUsuarios()`, y se lo pasa a `calcularAnalitica()` (`calculos.ts`), una función pura que recibe también la fecha de hoy. Solo cuenta estudios de puntos; las zonas y las salidas quedan fuera.
+- Los gráficos (`Graficos.tsx`: `Cifra`, `Seccion`, `BarrasHorizontales`, `Medidor`, `Columnas`) son HTML y CSS con tokens de `theme.css`, sin librería.
 
 **Pizarra y bocetos** (ver [decisión 0029](decisiones/0029-pizarra-y-bocetos.md))
 - `PizarraPagina` pone una capa transparente (`.pizarra-lienzo`, `touch-action: none`) sobre el mapa. Con **Lápiz** recibe los toques (pointer events, un solo puntero) y el mapa no se entera; con **Mano** tiene `pointer-events: none` y el mapa se mueve. Cada trazo se guarda en píxeles mientras se dibuja, se simplifica al soltar (`simplificar()`, Douglas-Peucker) y se pasa a coordenadas con `map.unproject()`.
