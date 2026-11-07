@@ -259,6 +259,32 @@ export type Database = {
           },
         ]
       }
+      contactos: {
+        Row: {
+          correo: string
+          perfil_id: string
+          updated_at: string
+        }
+        Insert: {
+          correo: string
+          perfil_id: string
+          updated_at?: string
+        }
+        Update: {
+          correo?: string
+          perfil_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contactos_perfil_id_fkey"
+            columns: ["perfil_id"]
+            isOneToOne: true
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       estudio_participantes: {
         Row: {
           estudio_id: string
@@ -706,6 +732,7 @@ export type Database = {
       }
       es_admin: { Args: never; Returns: boolean }
       es_miembro_activo: { Args: never; Returns: boolean }
+      guardar_correo: { Args: { correo: string }; Returns: undefined }
       limite_manila: { Args: never; Returns: unknown }
       locales_en_zona: {
         Args: { zona_id: string }

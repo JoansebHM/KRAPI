@@ -5,17 +5,18 @@ import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import type { Perfil } from '../auth/api'
 import { CampoContrasena } from '../auth/CampoContrasena'
+import { errorDeCorreo, normalizarCorreo } from '../auth/correo'
 import { mensajeDeError } from '../auth/mensajesError'
 import { MINIMO_CLAVE } from '../auth/nombreDeUsuario'
 import { useAuth } from '../auth/useAuth'
 import { semillaDe } from '../usuarios/api'
 import { SelectorAvatar } from '../usuarios/SelectorAvatar'
-import { useActualizarPerfil, useCambiarContrasena } from './api'
+import { useActualizarPerfil, useCambiarContrasena, useGuardarCorreo, useMiCorreo } from './api'
 import './PerfilPage.css'
 
 const MAX_NOMBRE = 80
 
-/** Mi perfil: nombre, avatar y cambiar la contraseña. */
+/** Mi perfil: nombre, avatar, correo para avisos y cambiar la contraseña. */
 export function PerfilPage() {
   const { perfil } = useAuth()
   // App solo muestra esta página con la cuenta activa, así que el perfil ya está cargado.
@@ -23,6 +24,7 @@ export function PerfilPage() {
   return (
     <Panel titulo="Mi perfil" subtitulo={`${perfil.usuario} · ${perfil.rol === 'admin' ? 'Admin' : 'Miembro'}`}>
       <DatosDelPerfil perfil={perfil} />
+      <CorreoParaAvisos perfil={perfil} />
       <CambiarContrasena />
     </Panel>
   )
@@ -83,6 +85,81 @@ function DatosDelPerfil({ perfil }: { perfil: Perfil }) {
 
       <button type="submit" className="btn btn-primary btn-block" disabled={actualizar.isPending || sinCambios}>
         {actualizar.isPending ? 'Guardando…' : 'Guardar cambios'}
+      </button>
+    </form>
+  )
+}
+
+function CorreoParaAvisos({ perfil }: { perfil: Perfil }) {
+  const consulta = useMiCorreo(perfil.id)
+  const guardado = consulta.data
+  // Mientras carga no se muestra el formulario, para no pisar el correo guardado con uno vacío.
+  if (guardado === undefined) {
+    return consulta.isError ? (
+      <section className="perfil-seccion">
+        <h2 className="perfil-seccion-titulo">Correo para avisos</h2>
+        <p className="alert alert-error" role="alert">
+          No se pudo cargar tu correo. Recarga la página.
+        </p>
+      </section>
+    ) : null
+  }
+  return <FormularioCorreo perfil={perfil} guardado={guardado} />
+}
+
+function FormularioCorreo({ perfil, guardado }: { perfil: Perfil; guardado: string }) {
+  const [correo, setCorreo] = useState(guardado)
+  const [intentoGuardar, setIntentoGuardar] = useState(false)
+  const guardar = useGuardarCorreo(perfil.id)
+
+  const error = errorDeCorreo(correo)
+  const sinCambios = normalizarCorreo(correo) === guardado
+
+  async function alEnviar(evento: FormEvent) {
+    evento.preventDefault()
+    setIntentoGuardar(true)
+    if (error) return
+    try {
+      await guardar.mutateAsync(normalizarCorreo(correo))
+      setCorreo(normalizarCorreo(correo))
+      setIntentoGuardar(false)
+      notificar.exito(normalizarCorreo(correo) ? 'Correo guardado' : 'Correo quitado')
+    } catch (errorGuardar) {
+      notificar.error('No se pudo guardar el correo', { descripcion: mensajeErrorDatos(errorGuardar) })
+    }
+  }
+
+  return (
+    <form className="perfil-seccion" onSubmit={alEnviar} noValidate aria-labelledby="perfil-correo-titulo">
+      <h2 id="perfil-correo-titulo" className="perfil-seccion-titulo">
+        Correo para avisos
+      </h2>
+      <label className="field">
+        <span className="field-label">Correo (opcional)</span>
+        <input
+          className="field-input"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          placeholder="nombre@ejemplo.com"
+          maxLength={254}
+          value={correo}
+          onChange={(evento) => setCorreo(evento.target.value)}
+          aria-invalid={intentoGuardar && error ? true : undefined}
+          aria-describedby="perfil-correo-ayuda"
+        />
+        <p id="perfil-correo-ayuda" className={intentoGuardar && error ? 'field-error' : 'field-ayuda'} aria-live="polite">
+          {(intentoGuardar && error) ||
+            (perfil.rol === 'admin'
+              ? 'Aquí recibes el aviso cuando alguien se registra y espera aprobación. No es para entrar.'
+              : 'Solo para avisos de KIRA. No es para entrar. Déjalo vacío si no quieres recibirlos.')}
+        </p>
+      </label>
+      <button type="submit" className="btn btn-secondary btn-block" disabled={guardar.isPending || sinCambios}>
+        {guardar.isPending ? 'Guardando…' : 'Guardar correo'}
       </button>
     </form>
   )
