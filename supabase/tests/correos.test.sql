@@ -4,7 +4,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(20);
+select plan(21);
 
 -- Cuentas de prueba. El trigger crea cada perfil en "pendiente".
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -47,6 +47,10 @@ select lives_ok(
 select lives_ok(
   $$ update public.perfiles set estado = 'activo' where id = '00000000-0000-0000-0000-00000000000d' $$,
   'aprobar una cuenta rechazada no falla aunque no se pueda avisar');
+
+-- La Edge Function lee contactos con la clave secreta (service_role). Con "Automatically expose new
+-- tables" desactivado necesita el permiso explícito; sin él, la función no encontraba destinatarios.
+select ok(has_table_privilege('service_role', 'public.contactos', 'select'), 'service_role lee contactos');
 
 -- Sin sesión.
 set local role anon;

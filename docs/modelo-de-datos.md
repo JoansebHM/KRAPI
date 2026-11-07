@@ -264,7 +264,7 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 ## Seguridad
 
 - **Cuentas.** El **registro está abierto** (`[auth] enable_signup = true`): cada integrante crea su cuenta desde la app y queda pendiente. La protección está en RLS, no en el registro. El primer admin se crea con `npm run usuario:admin` y las contraseñas olvidadas se restablecen con `npm run usuario:clave` (los scripts usan la clave secreta, con `select` y `update` sobre `perfiles` para `service_role`). El usuario compartido de antes (perfil "Cuenta compartida") quedó desactivado al pasar a las cuentas individuales (#81).
-- **`contactos`.** Solo su dueño lee su correo (política `select`); ni los admins lo leen desde la app. No hay permisos de escritura: se guarda con `guardar_correo()`. Lo lee la Edge Function `enviar-correo` con la clave secreta.
+- **`contactos`.** Solo su dueño lee su correo (política `select`); ni los admins lo leen desde la app. No hay permisos de escritura: se guarda con `guardar_correo()`. Lo lee la Edge Function `enviar-correo` con la clave secreta (`service_role`), que necesita su propio `grant select` porque el proyecto no expone tablas nuevas solas.
 - **`perfiles`.** Cada quien lee su propio perfil aunque esté pendiente, y un miembro activo lee todos. Un miembro activo solo puede editar su `nombre` y su `avatar_semilla` (`grant update (nombre, avatar_semilla)`). El rol y el estado solo cambian con las funciones de administración, y nadie cambia los suyos.
 - **RLS en todas las tablas, según el estado y el rol de la cuenta** ([decisión 0021](decisiones/0021-usuarios-individuales.md)). El rol `anon` no tiene ningún permiso.
 
@@ -328,3 +328,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261027130000_bocetos` | `bocetos` ([decisión 0029](decisiones/0029-pizarra-y-bocetos.md)): sin permiso de editar, con autoría y bitácora; sus archivos van en el bucket `evidencias` |
 | `20261029120000_nombre_opcional_elementos` | El nombre de un elemento es opcional ([decisión 0028](decisiones/0028-elementos.md)); `lugares_mapa()` y `elementos_cercanos()` devuelven el de su categoría cuando no tiene |
 | `20261107230101_correos` | `contactos`, `guardar_correo()`, el correo opcional en `crear_perfil()` y los triggers que avisan por correo con `pg_net` ([decisión 0035](decisiones/0035-avisos-por-correo.md)) |
+| `20261108000000_permisos_contactos_service_role` | `select` sobre `contactos` para `service_role`, que la función `enviar-correo` necesita para leer los correos |

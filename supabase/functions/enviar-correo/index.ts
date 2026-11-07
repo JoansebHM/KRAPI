@@ -120,7 +120,15 @@ Deno.serve(async (peticion) => {
   if (!EVENTOS.includes(evento) || typeof perfilId !== 'string') return responder(400, { error: 'Faltan datos.' })
 
   const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-  const { data: perfil } = await admin.from('perfiles').select('id, nombre, usuario, estado').eq('id', perfilId).maybeSingle()
+  // Un error de la base de datos nunca debe pasar por "sin destinatarios": se responde 500 para que
+  // se vea en la respuesta que guarda pg_net y en los registros de la función.
+  const fallo = (donde: string, error: { message: string }) => {
+    console.error(`No se pudo leer ${donde}: ${error.message}`)
+    return responder(500, { error: `No se pudo leer ${donde}.` })
+  }
+
+  const { data: perfil, error: errorPerfil } = await admin.from('perfiles').select('id, nombre, usuario, estado').eq('id', perfilId).maybeSingle()
+  if (errorPerfil) return fallo('la cuenta', errorPerfil)
   if (!perfil) return responder(404, { error: 'La cuenta no existe.' })
 
   // El estado debe coincidir con el evento: así repetir una petición vieja no manda avisos falsos.
@@ -130,12 +138,15 @@ Deno.serve(async (peticion) => {
   // A quién se le avisa.
   let destinatarios: string[]
   if (evento === 'registro_pendiente') {
-    const { data: admins } = await admin.from('perfiles').select('id').eq('estado', 'activo').eq('rol', 'admin')
+    const { data: admins, error: errorAdmins } = await admin.from('perfiles').select('id').eq('estado', 'activo').eq('rol', 'admin')
+    if (errorAdmins) return fallo('los admins', errorAdmins)
     const ids = (admins ?? []).map((a) => a.id)
-    const { data: contactos } = await admin.from('contactos').select('correo').in('perfil_id', ids)
+    const { data: contactos, error: errorContactos } = await admin.from('contactos').select('correo').in('perfil_id', ids)
+    if (errorContactos) return fallo('los correos', errorContactos)
     destinatarios = (contactos ?? []).map((c) => c.correo)
   } else {
-    const { data: contacto } = await admin.from('contactos').select('correo').eq('perfil_id', perfilId).maybeSingle()
+    const { data: contacto, error: errorContacto } = await admin.from('contactos').select('correo').eq('perfil_id', perfilId).maybeSingle()
+    if (errorContacto) return fallo('el correo', errorContacto)
     destinatarios = contacto ? [contacto.correo] : []
   }
 
