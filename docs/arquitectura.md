@@ -6,7 +6,7 @@
 | --- | --- |
 | **React 19 + TypeScript (estricto) + Vite** | La app. Es privada y no necesita SEO, así que no hay servidor propio (ver [decisión 0001](decisiones/0001-vite-react-typescript.md)) |
 | **MapLibre GL 6** | El mapa. Mapa base provisional: OpenFreeMap (gratis, sin clave) |
-| **Supabase** (`@supabase/supabase-js`) | Base de datos PostgreSQL + PostGIS, autenticación y archivos. Una sola Edge Function (`restablecer-clave`, Deno) para lo que exige la clave secreta ([decisión 0022](decisiones/0022-edge-function-restablecer-clave.md)) |
+| **Supabase** (`@supabase/supabase-js`) | Base de datos PostgreSQL + PostGIS, autenticación y archivos. Dos Edge Functions (Deno) para lo que exige una clave secreta: `restablecer-clave` ([decisión 0022](decisiones/0022-edge-function-restablecer-clave.md)) y `enviar-correo`, que manda los avisos con Brevo y solo la llama la base de datos ([decisión 0035](decisiones/0035-avisos-por-correo.md)) |
 | **TanStack Query** | Caché de datos: consultas, recargas y actualización después de guardar |
 | **React Router** | Una dirección por sección (`/categorias`, `/lugares/:id`), así el "atrás" del celular funciona |
 | **Sonner** | Notificaciones (toasts) |
