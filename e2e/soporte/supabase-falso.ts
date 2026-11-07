@@ -81,6 +81,11 @@ const SIN_AUTORIA: Tabla[] = ['estudio_participantes', 'asignacion_participantes
 
 /** Error de PostgreSQL como lo devuelve PostgREST. */
 const errorPg = (code: string, message: string, status = 400) => ({ status, json: { code, message, details: null, hint: null } })
+/** Igual que correo_o_nulo() de la base de datos: normalizado, o null si está vacío o no es válido. */
+const correoONulo = (texto: unknown) => {
+  const correo = String(texto ?? '').trim().toLowerCase()
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo) && correo.length <= 254 ? correo : null
+}
 const SIN_PERMISO = errorPg('42501', 'new row violates row-level security policy', 403)
 
 /** Copia de la configuración del bucket (migración bucket_evidencias). */
@@ -192,6 +197,8 @@ export class SupabaseFalso {
   }
   /** Cuentas de auth.users con su perfil. */
   cuentas: Cuenta[] = Object.values(CUENTAS).map((cuenta) => this.nuevaCuenta(cuenta))
+  /** Correos de contacto (tabla `contactos`), por id de cuenta. */
+  private correos = new Map<string, string>()
   /** Archivos del bucket `evidencias`, por ruta. */
   archivos = new Map<string, ArchivoFalso>()
   /** Si es verdadero, las subidas de archivos fallan con un error del servidor. */
@@ -213,6 +220,16 @@ export class SupabaseFalso {
     const cuenta = this.cuentas.find((c) => c.usuario === usuario)
     if (!cuenta) throw new Error(`No hay una cuenta "${usuario}" en el Supabase simulado`)
     return cuenta
+  }
+
+  /** El correo de contacto de una cuenta, o undefined si no guardó uno. */
+  correo(usuario: string) {
+    return this.correos.get(this.cuenta(usuario).id)
+  }
+
+  /** Deja un correo de contacto ya guardado, como si la persona lo hubiera puesto antes. */
+  guardarCorreo(usuario: string, correo: string) {
+    this.correos.set(this.cuenta(usuario).id, correo)
   }
 
   private nuevaCuenta(datos: Partial<Cuenta> & Pick<Cuenta, 'usuario'>): Cuenta {
@@ -306,7 +323,7 @@ export class SupabaseFalso {
   }
 
   /** Registro como lo hacen Supabase Auth y el trigger crear_perfil: la cuenta queda pendiente. */
-  private registrar(ruta: Route, { email, password, data }: { email?: string; password?: string; data?: { nombre?: string; avatar_semilla?: string } }) {
+  private registrar(ruta: Route, { email, password, data }: { email?: string; password?: string; data?: { nombre?: string; avatar_semilla?: string; correo_contacto?: string } }) {
     if (String(password ?? '').length < 10) {
       return this.errorAuth(ruta, 422, 'weak_password', 'Password should be at least 10 characters.')
     }
@@ -320,6 +337,9 @@ export class SupabaseFalso {
     const nombre = data?.nombre?.trim() || usuario
     const avatar_semilla = data?.avatar_semilla?.trim() || null
     const cuenta = this.agregarCuenta({ usuario, nombre, password, avatar_semilla, estado: 'pendiente', created_at: new Date().toISOString() })
+    // Como crear_perfil: un correo mal escrito no impide crear la cuenta, solo no se guarda.
+    const contacto = correoONulo(data?.correo_contacto)
+    if (contacto) this.correos.set(cuenta.id, contacto)
     return ruta.fulfill({ json: this.sesion(cuenta) })
   }
 
@@ -385,6 +405,16 @@ export class SupabaseFalso {
       return ruta.fulfill({ json: !this.cuentas.some((c) => c.usuario === usuario) })
     }
     if (FUNCIONES_ADMIN.includes(funcion)) return this.administrarCuenta(ruta, cuenta, funcion, argumentos)
+    if (funcion === 'guardar_correo') {
+      if (cuenta?.estado !== 'activo') return ruta.fulfill(errorPg('42501', 'Solo una cuenta activa puede guardar su correo.', 403))
+      if (!String(argumentos.correo ?? '').trim()) this.correos.delete(cuenta.id)
+      else {
+        const correo = correoONulo(argumentos.correo)
+        if (!correo) return ruta.fulfill(errorPg('22023', 'Escribe un correo válido.'))
+        this.correos.set(cuenta.id, correo)
+      }
+      return ruta.fulfill({ status: 204, body: '' })
+    }
     // Las demás corren con los permisos de quien llama: a una cuenta no activa no le devuelven nada.
     if (cuenta?.estado !== 'activo') return ruta.fulfill({ json: [] })
     if (funcion === 'ubicaciones_cercanas') {
@@ -521,6 +551,12 @@ export class SupabaseFalso {
     const peticion = ruta.request()
     const cuenta = this.quien(ruta)
     if (url.pathname === '/rest/v1/perfiles') return this.perfiles(ruta, url, cuenta)
+    if (url.pathname === '/rest/v1/contactos') {
+      // RLS: cada quien lee solo su correo; escribir es solo con guardar_correo().
+      if (peticion.method() !== 'GET') return ruta.fulfill(errorPg('42501', 'permission denied for table contactos', 403))
+      const propio = cuenta && this.correos.has(cuenta.id) ? [{ perfil_id: cuenta.id, correo: this.correos.get(cuenta.id) }] : []
+      return ruta.fulfill({ json: propio })
+    }
     const tabla = url.pathname.replace('/rest/v1/', '') as Tabla
     // RLS: una cuenta que no está activa no ve ni toca nada.
     const activa = cuenta?.estado === 'activo'
