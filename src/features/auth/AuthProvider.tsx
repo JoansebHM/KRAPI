@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { usePerfil } from './api'
 import { AuthContext, type AuthContextValue } from './AuthContext'
 import { mensajeDeError } from './mensajesError'
+import { normalizarCorreo } from './correo'
 import { correoParaEntrar } from './nombreDeUsuario'
 import {
   borrarMarcas,
@@ -114,13 +115,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const registrarse = useCallback<AuthContextValue['registrarse']>(async ({ nombre, usuario, password, avatarSemilla }) => {
+  const registrarse = useCallback<AuthContextValue['registrarse']>(async ({ nombre, usuario, password, avatarSemilla, correo }) => {
     try {
-      // El nombre y el avatar viajan en los metadatos para que el trigger crear_perfil los guarde en el perfil.
+      // El nombre, el avatar y el correo viajan en los metadatos para que el trigger crear_perfil los guarde.
       const { error } = await supabase.auth.signUp({
         email: correoParaEntrar(usuario),
         password,
-        options: { data: { nombre: nombre.trim(), avatar_semilla: avatarSemilla } },
+        options: {
+          data: {
+            nombre: nombre.trim(),
+            avatar_semilla: avatarSemilla,
+            ...(correo?.trim() ? { correo_contacto: normalizarCorreo(correo) } : {}),
+          },
+        },
       })
       if (error) return { error: mensajeDeError(error) }
       registrarInicio()

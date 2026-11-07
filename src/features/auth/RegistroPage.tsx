@@ -7,6 +7,7 @@ import { SelectorAvatar } from '../usuarios/SelectorAvatar'
 import type { Theme } from '../theme/useTheme'
 import { useUsuarioDisponible } from './api'
 import { CampoContrasena } from './CampoContrasena'
+import { errorDeCorreo } from './correo'
 import { errorDeUsuario, MINIMO_CLAVE, normalizarUsuario } from './nombreDeUsuario'
 import { PantallaAcceso } from './PantallaAcceso'
 import { useAuth } from './useAuth'
@@ -25,6 +26,7 @@ export function RegistroPage({ theme, onToggleTheme }: RegistroPageProps) {
   const { registrarse } = useAuth()
   const [nombre, setNombre] = useState('')
   const [usuario, setUsuario] = useState('')
+  const [correo, setCorreo] = useState('')
   // Arranca con un avatar al azar, que se puede cambiar aquí o después en Mi perfil.
   const [avatarSemilla, setAvatarSemilla] = useState(semillaAleatoria)
   const [password, setPassword] = useState('')
@@ -43,6 +45,7 @@ export function RegistroPage({ theme, onToggleTheme }: RegistroPageProps) {
   const errores = {
     nombre: !nombre.trim() ? 'Escribe tu nombre.' : null,
     usuario: !usuario ? 'Elige un nombre de usuario.' : (formatoUsuario ?? (ocupado ? 'Ese nombre de usuario ya existe. Elige otro.' : null)),
+    correo: errorDeCorreo(correo),
     password: password.length < MINIMO_CLAVE ? `Usa al menos ${MINIMO_CLAVE} caracteres.` : null,
     confirmacion: !confirmacion ? 'Repite la contraseña.' : confirmacion !== password ? 'Las contraseñas no coinciden.' : null,
   }
@@ -50,6 +53,7 @@ export function RegistroPage({ theme, onToggleTheme }: RegistroPageProps) {
   const visibles = {
     nombre: intentoEnviar ? errores.nombre : null,
     usuario: intentoEnviar || usuario ? errores.usuario : null,
+    correo: errores.correo,
     password: intentoEnviar ? errores.password : null,
     // La confirmación se revisa cuando ya se escribió completa.
     confirmacion: intentoEnviar || (confirmacion && confirmacion.length >= password.length) ? errores.confirmacion : null,
@@ -70,7 +74,7 @@ export function RegistroPage({ theme, onToggleTheme }: RegistroPageProps) {
     if (Object.values(errores).some(Boolean)) return
 
     setEnviando(true)
-    const resultado = await registrarse({ nombre, usuario, password, avatarSemilla })
+    const resultado = await registrarse({ nombre, usuario, password, avatarSemilla, correo })
     setEnviando(false)
     if (resultado.error) setError(resultado.error)
     else {
@@ -122,6 +126,28 @@ export function RegistroPage({ theme, onToggleTheme }: RegistroPageProps) {
           />
           <p id="registro-usuario-ayuda" className={visibles.usuario ? 'field-error' : 'field-ayuda'} aria-live="polite">
             {visibles.usuario ?? ayudaUsuario}
+          </p>
+        </label>
+
+        <label className="field">
+          <span className="field-label">Correo (opcional)</span>
+          <input
+            className="field-input"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            placeholder="nombre@ejemplo.com"
+            maxLength={254}
+            value={correo}
+            onChange={(evento) => setCorreo(evento.target.value)}
+            aria-invalid={visibles.correo ? true : undefined}
+            aria-describedby="registro-correo-ayuda"
+          />
+          <p id="registro-correo-ayuda" className={visibles.correo ? 'field-error' : 'field-ayuda'} aria-live="polite">
+            {visibles.correo ?? 'Solo para avisarte cuando aprueben tu cuenta. No es para entrar.'}
           </p>
         </label>
 
