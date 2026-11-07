@@ -425,3 +425,8 @@ enabled = true
 # función revisa que quien llama sea admin activo.
 [functions.restablecer-clave]
 verify_jwt = true
+
+# Avisos por correo con Brevo (decisión 0035). La llama la base de datos (pg_net), que no tiene
+# sesión de usuario: por eso no pide JWT y la función exige el secreto compartido `x-kira-secreto`.
+[functions.enviar-correo]
+verify_jwt = false
