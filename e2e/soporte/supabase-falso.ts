@@ -1,4 +1,5 @@
 import type { BrowserContext, Route } from '@playwright/test'
+import { RealtimeFalso } from './realtime-falso'
 
 /**
  * Supabase simulado para las pruebas: cuentas, inicio de sesión y una base de datos en memoria que
@@ -13,6 +14,7 @@ import type { BrowserContext, Route } from '@playwright/test'
  * - funciones de admin para aprobar, rechazar, desactivar, reactivar y cambiar el rol
  * - cambiar la contraseña propia (PUT /auth/v1/user): mínimo 10 caracteres y distinta de la actual
  * - Edge Function restablecer-clave: un admin pone una contraseña temporal a otra cuenta
+ * - Realtime (realtime-falso.ts): presencia del canal `presencia`, solo para cuentas activas
  * - nombres únicos (sin importar mayúsculas ni espacios) en categorías → 23505
  * - borrar una categoría deja sus ubicaciones sin categoría (ON DELETE SET NULL)
  * - lugares_mapa() devuelve los lugares no archivados, zonas primero (con su tipo)
@@ -199,6 +201,12 @@ export class SupabaseFalso {
   cuentas: Cuenta[] = Object.values(CUENTAS).map((cuenta) => this.nuevaCuenta(cuenta))
   /** Correos de contacto (tabla `contactos`), por id de cuenta. */
   private correos = new Map<string, string>()
+  /** Realtime simulado: quién tiene la app abierta (presencia). */
+  private realtime = new RealtimeFalso((token) => {
+    const id = idDelToken(token ? `Bearer ${token}` : undefined)
+    const cuenta = this.cuentas.find((c) => c.id === id)
+    return cuenta ? { id: cuenta.id, activa: cuenta.estado === 'activo' } : null
+  })
   /** Archivos del bucket `evidencias`, por ruta. */
   archivos = new Map<string, ArchivoFalso>()
   /** Si es verdadero, las subidas de archivos fallan con un error del servidor. */
@@ -220,6 +228,21 @@ export class SupabaseFalso {
     const cuenta = this.cuentas.find((c) => c.usuario === usuario)
     if (!cuenta) throw new Error(`No hay una cuenta "${usuario}" en el Supabase simulado`)
     return cuenta
+  }
+
+  /** Usuarios de las cuentas con la app abierta ahora (incluida la de la pestaña de la prueba). */
+  enLinea() {
+    return this.realtime.enLinea().map((id) => this.cuentas.find((c) => c.id === id)?.usuario ?? id)
+  }
+
+  /** Otra persona abre la app: aparece en línea. */
+  entraEnLinea(usuario: string) {
+    this.realtime.entra(this.cuenta(usuario).id)
+  }
+
+  /** Otra persona cierra la app: deja de aparecer. */
+  saleDeLinea(usuario: string) {
+    this.realtime.sale(this.cuenta(usuario).id)
   }
 
   /** El correo de contacto de una cuenta, o undefined si no guardó uno. */
@@ -262,6 +285,7 @@ export class SupabaseFalso {
     await contexto.route('https://mapa-falso.e2e.local/**', estilo)
     await contexto.route('https://api.maptiler.com/**', estilo)
     await contexto.route('https://supabase-falso.e2e.local/**', (ruta) => this.responder(ruta))
+    await this.realtime.instalar(contexto)
   }
 
   private async responder(ruta: Route) {
