@@ -119,11 +119,14 @@ function FormularioCorreo({ perfil, guardado }: { perfil: Perfil; guardado: stri
     evento.preventDefault()
     setIntentoGuardar(true)
     if (error) return
+    const enviado = correo
+    const normalizado = normalizarCorreo(enviado)
     try {
-      await guardar.mutateAsync(normalizarCorreo(correo))
-      setCorreo(normalizarCorreo(correo))
+      await guardar.mutateAsync(normalizado)
+      // Se muestra como quedó guardado, salvo que la persona ya haya seguido editando mientras tanto.
+      setCorreo((actual) => (actual === enviado ? normalizado : actual))
       setIntentoGuardar(false)
-      notificar.exito(normalizarCorreo(correo) ? 'Correo guardado' : 'Correo quitado')
+      notificar.exito(normalizado ? 'Correo guardado' : 'Correo quitado')
     } catch (errorGuardar) {
       notificar.error('No se pudo guardar el correo', { descripcion: mensajeErrorDatos(errorGuardar) })
     }

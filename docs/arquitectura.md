@@ -44,7 +44,9 @@ src/
     evidencias/   Subir, grabar, listar (ListaEvidencias) y borrar evidencias de un estudio o de un
                   elemento; cola de subidas y compresión de fotos; carrusel de fotos (CarruselFotos);
                   videos de SharePoint por enlace (AgregarVideo, sharepoint.ts)
-    perfil/       Mi perfil: nombre, avatar y cambiar la contraseña
+    perfil/       Mi perfil: nombre, avatar, correo para avisos y cambiar la contraseña
+    presencia/    Usuarios en línea (decisión 0036): PresenciaProvider (canal de Realtime), usePresencia,
+                  presencia.ts (cálculo puro) y UsuariosEnLinea (avatares en la barra y modal)
     salidas/      Salidas y zonas asignadas: SalidasPage, SalidaPagina, NuevaAsignacion (usa DibujarZona,
                   y deja reusar la forma de una asignación anterior), ReportarAsignacion, MisAsignacionesPage,
                   VerAsignacion y AsignacionesEnMapa (capas del mapa)
@@ -195,6 +197,7 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - **Cuentas:** cada prueba trae las de `CUENTAS`: `admin` (admin activo), `miembro` (Ana, miembro activo) y `pendiente` (Pepe). Todas usan la contraseña `CLAVE`. Para iniciar sesión se usa `entrar()` (como admin) o `entrar('miembro')` / `entrar('pendiente')`. Con `supabase.agregarCuenta({ usuario, estado, rol… })` se crean otras, y con `supabase.cuenta('ana')` se revisa o cambia una (por ejemplo, su `estado`).
 - **Permisos:** el simulador aplica las reglas de RLS según la cuenta del token. Una cuenta que no está activa recibe listas vacías y no puede crear. Categorías solo las borra un admin; lugares (sin estudios ni evidencias), estudios, evidencias y archivos, quien los creó (`creado_por`, o `dueno` en `supabase.archivos`) o un admin. Un borrado sin permiso no da error y borra 0 filas, igual que en Supabase. También pone `creado_por` y `actualizado_por` y responde `usuario_disponible` y las funciones de admin.
 - Si agregas tablas o funciones que la app consulta, **amplía el Supabase simulado** para que responda igual que el real.
+- **Realtime simulado** (`e2e/soporte/realtime-falso.ts`): habla el protocolo de Phoenix por websocket para la presencia. Con `supabase.entraEnLinea('ana')` y `supabase.saleDeLinea('ana')` otra persona abre o cierra la app, y `supabase.enLinea()` dice quién está anunciado. Para probar el tiempo (la app oculta más de un minuto) se usa `page.clock`.
 - El Supabase simulado también imita Storage (`supabase.archivos`): subir con las reglas del bucket, borrar y firmar enlaces. Con `supabase.fallarSubidas = true` las subidas fallan.
 - `npm run db:test` corre las **pruebas de la base de datos** (`supabase/tests/*.test.sql`, pgTAP) sobre Supabase local en Docker (`npm run db:local`). Cubren lo que el simulador no puede probar: RLS, triggers y funciones. Para actuar como una cuenta se usa `set local role authenticated` y `set local request.jwt.claims = '{"sub": "<id>"}'`. Cada archivo corre dentro de una transacción que se deshace al final.
 - Chromium corre con micrófono y cámara simulados (`playwright.config.ts`), así se prueba la grabación de audio.
