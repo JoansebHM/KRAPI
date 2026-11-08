@@ -48,6 +48,8 @@ test.describe('Mi perfil', () => {
     await guardar.click()
     // El aviso anterior tiene el mismo texto, así que se revisa lo guardado.
     await expect.poll(() => supabase.correo('admin')).toBe('otro@kratos.co')
+    // Hasta que termina de guardar, el botón sigue activo: se espera a que vuelva a estar al día.
+    await expect(guardar).toBeDisabled()
 
     await correo.fill('')
     await guardar.click()
