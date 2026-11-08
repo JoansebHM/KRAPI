@@ -43,7 +43,7 @@ async function enviar(para: string, mensaje: Mensaje): Promise<boolean> {
       sender: { name: Deno.env.get('BREVO_REMITENTE_NOMBRE') ?? 'KIRA', email: Deno.env.get('BREVO_REMITENTE_CORREO')! },
       to: [{ email: para }],
       subject: mensaje.asunto,
-      htmlContent: aHtml(mensaje.correo),
+      htmlContent: aHtml(mensaje.correo, Deno.env.get('KIRA_URL')),
       textContent: aTexto(mensaje.correo),
     }),
   })

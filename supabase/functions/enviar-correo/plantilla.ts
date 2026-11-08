@@ -3,9 +3,13 @@
  *
  * Los correos se leen en clientes muy distintos (Gmail, Outlook, el del celular), que no entienden
  * CSS moderno ni cargan fuentes ni imágenes sin permiso. Por eso: tablas, estilos en línea, fuentes
- * del sistema y la marca escrita con texto, sin imágenes. Los colores son los de
- * `src/styles/theme.css`; el texto pequeño usa azul eléctrico, porque el azul cielo no alcanza
- * contraste AA sobre blanco (solo se usa en la franja y en el logo, que son texto grande).
+ * del sistema. Los colores son los de `src/styles/theme.css`; el texto pequeño usa azul eléctrico,
+ * porque el azul cielo no alcanza contraste AA sobre blanco.
+ *
+ * La cabecera repite la marca de la app: las letras KI del logo de Kratos Innovation Team (una
+ * imagen, `public/correo/marca-ki.png`, que se sirve desde la app con `KIRA_URL`), "RA" en texto y
+ * "powered by KIT" debajo. Si no hay `KIRA_URL` o el cliente bloquea las imágenes, "KI" sale como
+ * texto en azul cielo, que se parece bastante.
  */
 
 /** Lo que cambia entre un correo y otro. */
@@ -44,7 +48,15 @@ const TONOS = {
 export const escapar = (texto: string) =>
   texto.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
 
-export function aHtml(correo: Correo): string {
+/** Las letras KI del logo. Con la imagen si se sabe dónde está la app; si no, en texto azul. */
+function marcaKi(urlApp: string | undefined) {
+  if (!urlApp) return `<span style="color:${AZUL_CIELO}">KI</span>`
+  const enlace = `${urlApp.replace(/\/$/, '')}/correo/marca-ki.png`
+  // 386 x 250 es la proporción del logo; 22 px de alto son las mayúsculas de un texto de 30 px.
+  return `<img src="${escapar(enlace)}" alt="KI" width="34" height="22" style="display:inline-block;vertical-align:baseline;width:34px;height:22px;margin-right:3px;border:0;font:800 22px/1 ${FUENTE};color:${AZUL_CIELO}">`
+}
+
+export function aHtml(correo: Correo, urlApp?: string): string {
   const tono = TONOS[correo.tono]
 
   const parrafos = correo.parrafos
@@ -85,8 +97,10 @@ export function aHtml(correo: Correo): string {
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${FONDO}">
     <tr><td align="center" style="padding:24px 12px">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden">
-        <tr><td style="background:${AZUL_CIELO};padding:22px 28px">
-          <span style="font:800 26px/1 ${FUENTE};letter-spacing:0.08em;color:#ffffff">KIRA</span>
+        <tr><td style="height:6px;line-height:6px;font-size:0;background:${AZUL_CIELO}">&nbsp;</td></tr>
+        <tr><td style="padding:22px 28px 16px;border-bottom:1px solid ${BORDE}">
+          <div style="font:800 30px/1 ${FUENTE};color:${TEXTO}">${marcaKi(urlApp)}RA</div>
+          <div style="margin-top:6px;font:400 11px/1 ${FUENTE};color:${TEXTO_SUAVE}">powered by <strong style="font-weight:700;color:${TEXTO}">KIT</strong></div>
         </td></tr>
         <tr><td style="padding:28px 28px 20px">
           <span style="display:inline-block;margin:0 0 14px;padding:4px 12px;border-radius:999px;background:${tono.fondo};font:600 12px/1.4 ${FUENTE};color:${tono.texto}">${escapar(correo.etiqueta)}</span>
@@ -95,7 +109,7 @@ export function aHtml(correo: Correo): string {
         </td></tr>
         <tr><td style="padding:16px 28px 22px;border-top:1px solid ${BORDE}">
           <p style="margin:0 0 6px;font:400 12px/1.5 ${FUENTE};color:${TEXTO_SUAVE}">${escapar(correo.motivo)}</p>
-          <p style="margin:0;font:600 12px/1.5 ${FUENTE};color:${TEXTO_SUAVE}">KIRA · Kratos Innovation Lab</p>
+          <p style="margin:0;font:600 12px/1.5 ${FUENTE};color:${TEXTO_SUAVE}">KIRA - Kratos Innovation Team</p>
         </td></tr>
       </table>
     </td></tr>
@@ -113,7 +127,7 @@ export function aTexto(correo: Correo): string {
     correo.accion ? `${correo.accion.texto}: ${correo.accion.enlace}` : undefined,
     '--',
     correo.motivo,
-    'KIRA · Kratos Innovation Lab',
+    'KIRA - Kratos Innovation Team',
   ]
     .filter(Boolean)
     .join('\n\n')

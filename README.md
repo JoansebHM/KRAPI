@@ -107,11 +107,11 @@ KIRA avisa por correo, con [Brevo](https://www.brevo.com) (plan gratuito, 300 al
 Es configuración de despliegue y se hace una vez, desde tu computador (con `npx supabase login` hecho):
 
 1. **Brevo.** Verifica el remitente en *Senders, Domains & Dedicated IPs → Senders* y crea una clave en *SMTP & API → API Keys* (sin restricción de IP, porque las Edge Functions no tienen IP fija).
-2. **Secretos de la función.** `CORREOS_SECRETO` es un valor largo al azar que inventas (por ejemplo, `openssl rand -hex 32`). `KIRA_URL`, la dirección de la app, es opcional: pone el botón de los correos.
+2. **Secretos de la función.** `CORREOS_SECRETO` es un valor largo al azar que inventas (por ejemplo, `openssl rand -hex 32`). `KIRA_URL`, la dirección de la app, es opcional: pone el botón y el logo de los correos (el logo es `public/correo/marca-ki.png`, que sirve la propia app; sin `KIRA_URL` la cabecera muestra "KI" como texto azul).
 
    ```bash
    npx supabase secrets set BREVO_API_KEY=… BREVO_REMITENTE_CORREO=remitente@ejemplo.com \
-     BREVO_REMITENTE_NOMBRE="KIRA · Kratos" CORREOS_SECRETO=… KIRA_URL=https://… \
+     BREVO_REMITENTE_NOMBRE="KIRA - Kratos" CORREOS_SECRETO=… KIRA_URL=https://… \
      --project-ref ggrwybqiqffoxuoojopp
    ```
 
