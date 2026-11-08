@@ -30,6 +30,25 @@ export function useUsuarios({ habilitado = true } = {}) {
   })
 }
 
+export const CLAVE_ULTIMOS_ACCESOS = ['ultimos-accesos'] as const
+
+/**
+ * Cuándo inició sesión por última vez cada cuenta (id → momento, o null si nunca), decisión 0037.
+ * Solo responde a un admin activo: la base de datos lo exige. Es un dato de apoyo, así que si falla
+ * la página de Usuarios sigue funcionando sin él.
+ */
+export function useUltimosAccesos({ habilitado = true } = {}) {
+  return useQuery({
+    queryKey: CLAVE_ULTIMOS_ACCESOS,
+    enabled: habilitado,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('ultimos_accesos')
+      if (error) throw error
+      return new Map(data.map((fila) => [fila.usuario_id, fila.ultimo_acceso as string | null]))
+    },
+  })
+}
+
 /** Los registros anteriores a las cuentas individuales no tienen autor. */
 export const CUENTA_COMPARTIDA = 'Cuenta compartida'
 

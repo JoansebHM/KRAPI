@@ -236,6 +236,7 @@ Estas funciones son `security definer` (corren con permisos de dueño) y tienen 
 | `desactivar_usuario(usuario_id)` | Admin | `activo` → `desactivado`, y borra sus sesiones (`auth.sessions`) para que no pueda renovar el token |
 | `reactivar_usuario(usuario_id)` | Admin | `desactivado` → `activo` |
 | `cambiar_rol(usuario_id, rol)` | Admin | Nombra o quita admins entre las cuentas activas |
+| `ultimos_accesos()` | Admin | Cuándo inició sesión por última vez cada cuenta (`usuario_id`, `ultimo_acceso`; NULL si nunca). Lee `auth.users.last_sign_in_at`. Falla con `42501` si quien llama no es admin activo ([decisión 0037](decisiones/0037-ultimo-ingreso.md)) |
 | `guardar_correo(correo)` | Cuenta activa | Guarda o cambia **su** correo para avisos; vacío lo quita. Falla si no tiene formato de correo (`22023`) |
 | `cerrar_sesiones(usuario_id)` | Solo `service_role` (Edge Function `restablecer-clave`) | Borra las sesiones de la cuenta después de ponerle una contraseña temporal |
 
@@ -264,6 +265,7 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 ## Seguridad
 
 - **Cuentas.** El **registro está abierto** (`[auth] enable_signup = true`): cada integrante crea su cuenta desde la app y queda pendiente. La protección está en RLS, no en el registro. El primer admin se crea con `npm run usuario:admin` y las contraseñas olvidadas se restablecen con `npm run usuario:clave` (los scripts usan la clave secreta, con `select` y `update` sobre `perfiles` para `service_role`). El usuario compartido de antes (perfil "Cuenta compartida") quedó desactivado al pasar a las cuentas individuales (#81).
+- **Último ingreso.** Solo un admin activo lo ve, con `ultimos_accesos()`: no está en `perfiles` (que leen todas las cuentas activas) y nadie lee `auth.users` desde la app ([decisión 0037](decisiones/0037-ultimo-ingreso.md)).
 - **Presencia (`realtime.messages`).** El canal privado `presencia` solo lo usan las cuentas activas: dos políticas (`select` e `insert`) que exigen `es_miembro_activo()`, el tópico `presencia` y la extensión `presence` ([decisión 0036](decisiones/0036-usuarios-en-linea.md)). No guarda datos en tablas.
 - **`contactos`.** Solo su dueño lee su correo (política `select`); ni los admins lo leen desde la app. No hay permisos de escritura: se guarda con `guardar_correo()`. Lo lee la Edge Function `enviar-correo` con la clave secreta (`service_role`), que necesita su propio `grant select` porque el proyecto no expone tablas nuevas solas.
 - **`perfiles`.** Cada quien lee su propio perfil aunque esté pendiente, y un miembro activo lee todos. Un miembro activo solo puede editar su `nombre` y su `avatar_semilla` (`grant update (nombre, avatar_semilla)`). El rol y el estado solo cambian con las funciones de administración, y nadie cambia los suyos.
@@ -332,3 +334,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261108000000_permisos_contactos_service_role` | `select` sobre `contactos` para `service_role`, que la función `enviar-correo` necesita para leer los correos |
 | `20261108120000_aviso_registro_recibido` | `avisar_registro_nuevo()` también avisa a quien se registró (`registro_recibido`) |
 | `20261108130000_presencia` | Políticas de `realtime.messages` para el canal privado `presencia`: solo cuentas activas ([decisión 0036](decisiones/0036-usuarios-en-linea.md)) |
+| `20261108140000_ultimo_ingreso` | `ultimos_accesos()`: el último ingreso de cada cuenta, solo para admins ([decisión 0037](decisiones/0037-ultimo-ingreso.md)) |
