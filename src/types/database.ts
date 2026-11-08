@@ -837,6 +837,13 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      ultimos_accesos: {
+        Args: never
+        Returns: {
+          ultimo_acceso: string
+          usuario_id: string
+        }[]
+      }
       usuario_disponible: { Args: { usuario: string }; Returns: boolean }
       validar_cambio_de_cuenta: {
         Args: { usuario_id: string }

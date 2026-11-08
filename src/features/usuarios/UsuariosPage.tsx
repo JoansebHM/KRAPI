@@ -17,11 +17,13 @@ import {
   useCambiarRol,
   useRestablecerClave,
   semillaDe,
+  useUltimosAccesos,
   useUsuarios,
   type CambioDeEstado,
   type Rol,
   type Usuario,
 } from './api'
+import { fechaYHora, textoDeIngreso } from './ultimoIngreso'
 import './UsuariosPage.css'
 
 type Pestana = 'pendientes' | 'activos' | 'otros'
@@ -132,6 +134,8 @@ const CLASE_BOTON = { primario: 'btn btn-primary btn-block', secundario: 'btn bt
 export function UsuariosPage() {
   const { perfil } = useAuth()
   const { data: usuarios, isPending, isError, refetch } = useUsuarios()
+  // Cuándo ingresó cada cuenta: solo un admin lo puede pedir, y esta página ya es solo de admins.
+  const { data: ingresos } = useUltimosAccesos()
   const cambiarEstado = useCambiarEstado()
   const cambiarRol = useCambiarRol()
   const [pestanaElegida, setPestanaElegida] = useState<Pestana | null>(null)
@@ -254,6 +258,9 @@ export function UsuariosPage() {
                             .filter(Boolean)
                             .join(' · ')}
                         </span>
+                        {ingresos?.has(usuario.id) && (
+                          <span className="lista-item-detalle">{textoDeIngreso(ingresos.get(usuario.id))}</span>
+                        )}
                       </span>
                       <FlechaLista />
                     </button>
@@ -322,6 +329,12 @@ export function UsuariosPage() {
               <dt>Se registró</dt>
               <dd>{mostrarFecha(abierto.created_at.slice(0, 10))}</dd>
             </div>
+            {ingresos?.has(abierto.id) && (
+              <div>
+                <dt>Último ingreso</dt>
+                <dd>{ingresos.get(abierto.id) ? fechaYHora(ingresos.get(abierto.id)!) : 'Nunca ha ingresado'}</dd>
+              </div>
+            )}
             {abierto.aprobado_en && (
               <div>
                 <dt>Aprobada</dt>
