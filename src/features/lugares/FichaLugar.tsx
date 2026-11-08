@@ -15,6 +15,7 @@ import { areaM2, esquinasDe, mostrarArea } from '../zonas/geometria'
 import { LocalesEnZona } from '../zonas/LocalesEnZona'
 import '../tiposZona/TiposZonaPage.css'
 import { AccionesDelLugar } from './AccionesDelLugar'
+import { ExportarLugar } from './ExportarLugar'
 import { useLugar, useLugares } from './api'
 import { enlacesTelefono } from './telefono'
 import './FichaLugar.css'
@@ -181,6 +182,7 @@ export function FichaLugar() {
       </dl>
 
       <AccionesDelLugar lugar={lugar} />
+      <ExportarLugar lugar={lugar} clasificacion={(esZona ? tipoZona?.nombre : categoria?.nombre) ?? null} />
 
       {esZona && !archivado && <LocalesEnZona zonaId={lugar.id} />}
       {esZona && <ComentariosZona zonaId={lugar.id} />}
