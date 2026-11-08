@@ -1,0 +1,102 @@
+/* Botón de la barra superior: los avatares se montan unos sobre otros, como en un documento compartido. */
+.en-linea {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-1);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.en-linea:hover {
+  background: var(--color-surface);
+}
+
+.en-linea:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* El borde del color del fondo separa un avatar del siguiente. */
+.en-linea-avatar,
+.en-linea-mas {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 2px solid var(--color-bg);
+  border-radius: 50%;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.en-linea-avatar + .en-linea-avatar,
+.en-linea-avatar + .en-linea-mas {
+  margin-left: -10px;
+}
+
+.en-linea-mas {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* Modal. */
+.en-linea-resumen {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.en-linea-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.en-linea-fila {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+}
+
+.en-linea-quien {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.en-linea-nombre {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.en-linea-usuario {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.en-linea-tu {
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  background: var(--color-info-bg);
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+}

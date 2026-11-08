@@ -37,6 +37,8 @@ import { MapView } from '../features/map/MapView'
 import { guardarVista, leerVista, vistasExtraDisponibles, type Vista } from '../features/map/vistas'
 import { PreguntasPage } from '../features/preguntas/PreguntasPage'
 import { PerfilPage } from '../features/perfil/PerfilPage'
+import { PresenciaProvider } from '../features/presencia/PresenciaProvider'
+import { UsuariosEnLinea } from '../features/presencia/UsuariosEnLinea'
 import { ThemeToggle } from '../features/theme/ThemeToggle'
 import { UsuariosPage } from '../features/usuarios/UsuariosPage'
 import { useTheme, type Theme } from '../features/theme/useTheme'
@@ -78,7 +80,11 @@ function Contenido({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () =
   // Pendiente, rechazada, desactivada o sin poder revisarla: no se muestra el mapa.
   if (perfil?.estado !== 'activo') return <CuentaNoActiva theme={theme} onToggleTheme={onToggleTheme} />
 
-  return <AppConSesion theme={theme} onToggleTheme={onToggleTheme} />
+  return (
+    <PresenciaProvider>
+      <AppConSesion theme={theme} onToggleTheme={onToggleTheme} />
+    </PresenciaProvider>
+  )
 }
 
 function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void }) {
@@ -114,6 +120,7 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
           <PoweredBy />
         </span>
         <div className="app-actions">
+          <UsuariosEnLinea />
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
           <UserMenu />
         </div>
