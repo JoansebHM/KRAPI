@@ -4,7 +4,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(21);
+select plan(26);
 
 -- Cuentas de prueba. El trigger crea cada perfil en "pendiente".
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -51,6 +51,42 @@ select lives_ok(
 -- La Edge Function lee contactos con la clave secreta (service_role). Con "Automatically expose new
 -- tables" desactivado necesita el permiso explícito; sin él, la función no encontraba destinatarios.
 select ok(has_table_privilege('service_role', 'public.contactos', 'select'), 'service_role lee contactos');
+
+
+-- Los triggers encolan la llamada a la Edge Function cuando Vault está configurado (los secretos
+-- y todo lo demás se deshacen con el rollback final).
+select vault.create_secret('http://localhost/enviar-correo', 'correos_url');
+select vault.create_secret('secreto-de-prueba', 'correos_secreto');
+create temp table avisos_previos as select id from net.http_request_queue;
+
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000e1', 'nueva@usuarios.kira.invalid', '{"nombre": "Nueva", "correo_contacto": "nueva@correo.com"}');
+select results_eq(
+  $$ select convert_from(body, 'utf8')::jsonb ->> 'evento' from net.http_request_queue
+      where id not in (select id from avisos_previos) order by id $$,
+  $$ values ('registro_pendiente'), ('registro_recibido') $$,
+  'un registro nuevo avisa a los admins y confirma a la persona');
+select is(
+  (select count(*)::int from net.http_request_queue
+    where id not in (select id from avisos_previos)
+      and convert_from(body, 'utf8')::jsonb ->> 'perfil_id' = '00000000-0000-0000-0000-0000000000e1'),
+  2, 'los avisos son de la cuenta que se registró');
+select is(
+  (select headers ->> 'x-kira-secreto' from net.http_request_queue where id not in (select id from avisos_previos) limit 1),
+  'secreto-de-prueba', 'la llamada lleva el secreto compartido');
+
+delete from avisos_previos; insert into avisos_previos select id from net.http_request_queue;
+update public.perfiles set estado = 'activo' where id = '00000000-0000-0000-0000-0000000000e1';
+select results_eq(
+  $$ select convert_from(body, 'utf8')::jsonb ->> 'evento' from net.http_request_queue where id not in (select id from avisos_previos) $$,
+  $$ values ('cuenta_aprobada') $$, 'aprobar una cuenta avisa que fue aprobada');
+
+delete from avisos_previos; insert into avisos_previos select id from net.http_request_queue;
+update public.perfiles set estado = 'desactivado' where id = '00000000-0000-0000-0000-0000000000e1';
+update public.perfiles set estado = 'activo' where id = '00000000-0000-0000-0000-0000000000e1';
+select is(
+  (select count(*)::int from net.http_request_queue where id not in (select id from avisos_previos)),
+  0, 'desactivar y reactivar una cuenta no manda ningún aviso');
 
 -- Sin sesión.
 set local role anon;
