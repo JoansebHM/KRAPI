@@ -5,7 +5,7 @@ import type { Evidencia } from './api'
 import { NOMBRE_TIPO, type TipoEvidencia } from './archivos'
 
 /** Carpeta de cada tipo dentro del ZIP con todas las evidencias. */
-const CARPETA: Record<TipoEvidencia, string> = {
+export const CARPETA: Record<TipoEvidencia, string> = {
   foto: 'Fotos',
   audio: 'Audios',
   documento: 'Documentos',
@@ -14,11 +14,11 @@ const CARPETA: Record<TipoEvidencia, string> = {
 }
 
 /** Un nombre de archivo sin los caracteres que Windows, macOS o Linux no aceptan. */
-const nombreLimpio = (nombre: string) =>
+export const nombreLimpio = (nombre: string) =>
   [...nombre].map((letra) => (letra.charCodeAt(0) < 32 || '\\/:*?"<>|'.includes(letra) ? '-' : letra)).join('').trim() || 'archivo'
 
 /** Si el nombre ya se usó, le agrega " (2)", " (3)"… antes de la extensión. */
-function nombreUnico(nombre: string, usados: Set<string>) {
+export function nombreUnico(nombre: string, usados: Set<string>) {
   let candidato = nombre
   const punto = nombre.lastIndexOf('.')
   const base = punto > 0 ? nombre.slice(0, punto) : nombre
@@ -29,7 +29,7 @@ function nombreUnico(nombre: string, usados: Set<string>) {
 }
 
 /** Textos y enlaces (que no son archivos) en un solo `.txt` para incluirlos en el ZIP. */
-function textosYEnlaces(evidencias: Evidencia[]) {
+export function textosYEnlaces(evidencias: Evidencia[]) {
   const partes = evidencias.flatMap((evidencia) => {
     const contenido = evidencia.urlExterna ?? evidencia.texto
     if (!contenido || evidencia.archivo) return []
@@ -75,7 +75,7 @@ export async function armarZip(evidencias: Evidencia[], { carpetas }: { carpetas
   return { zip: zipSync(archivos, { level: 0 }), fallidas }
 }
 
-function guardarComo(zip: Uint8Array, nombre: string) {
+export function guardarComo(zip: Uint8Array, nombre: string) {
   const url = URL.createObjectURL(new Blob([zip as BlobPart], { type: 'application/zip' }))
   const enlace = document.createElement('a')
   enlace.href = url

@@ -45,36 +45,43 @@ export async function alCambiarEvidencias(queryClient: QueryClient, dueno: Dueno
 /** Los enlaces temporales duran una hora: se renuevan antes de que expiren. */
 const VIGENCIA_ENLACES_MS = 50 * 60 * 1000
 
+/**
+ * Lee las evidencias de un estudio o de un elemento, de la más reciente a la más antigua, con un enlace
+ * temporal para abrir cada archivo. Está fuera del hook para poder pedirlas de varios estudios a la vez
+ * (la exportación de un lugar).
+ */
+export async function leerEvidencias(dueno: DuenoEvidencia): Promise<Evidencia[]> {
+  const { data, error } = await supabase
+    .from('evidencias')
+    .select('id, tipo, titulo, texto, url_externa, archivo_path, archivo_nombre, archivo_mime, archivo_bytes, created_at, creado_por')
+    .match(columnaDe(dueno))
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  const rutas = data.map((fila) => fila.archivo_path).filter((ruta) => ruta !== null)
+  const enlaces = await enlacesTemporales(rutas)
+  return data.map((fila) => ({
+    id: fila.id,
+    dueno,
+    tipo: fila.tipo,
+    titulo: fila.titulo,
+    texto: fila.texto,
+    urlExterna: fila.url_externa,
+    archivo: fila.archivo_path
+      ? { ruta: fila.archivo_path, nombre: fila.archivo_nombre ?? '', mime: fila.archivo_mime ?? '', bytes: fila.archivo_bytes ?? 0 }
+      : null,
+    enlace: fila.archivo_path ? (enlaces.get(fila.archivo_path) ?? null) : null,
+    creadaEn: fila.created_at,
+    creadaPor: fila.creado_por,
+  }))
+}
+
 /** Evidencias de un estudio o de un elemento, de la más reciente a la más antigua, con un enlace para abrir cada archivo. */
 export function useEvidencias(dueno: DuenoEvidencia) {
   return useQuery({
     queryKey: claveEvidencias(dueno),
     staleTime: VIGENCIA_ENLACES_MS,
     refetchInterval: VIGENCIA_ENLACES_MS,
-    queryFn: async (): Promise<Evidencia[]> => {
-      const { data, error } = await supabase
-        .from('evidencias')
-        .select('id, tipo, titulo, texto, url_externa, archivo_path, archivo_nombre, archivo_mime, archivo_bytes, created_at, creado_por')
-        .match(columnaDe(dueno))
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      const rutas = data.map((fila) => fila.archivo_path).filter((ruta) => ruta !== null)
-      const enlaces = await enlacesTemporales(rutas)
-      return data.map((fila) => ({
-        id: fila.id,
-        dueno,
-        tipo: fila.tipo,
-        titulo: fila.titulo,
-        texto: fila.texto,
-        urlExterna: fila.url_externa,
-        archivo: fila.archivo_path
-          ? { ruta: fila.archivo_path, nombre: fila.archivo_nombre ?? '', mime: fila.archivo_mime ?? '', bytes: fila.archivo_bytes ?? 0 }
-          : null,
-        enlace: fila.archivo_path ? (enlaces.get(fila.archivo_path) ?? null) : null,
-        creadaEn: fila.created_at,
-        creadaPor: fila.creado_por,
-      }))
-    },
+    queryFn: () => leerEvidencias(dueno),
   })
 }
 
