@@ -42,3 +42,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0034 | [Analítica del levantamiento](0034-analitica.md) | Aceptada |
 | 0035 | [Avisos por correo con Brevo](0035-avisos-por-correo.md) | Aceptada |
 | 0036 | [Usuarios en línea con presencia de Realtime](0036-usuarios-en-linea.md) | Aceptada |
+| 0037 | [Último ingreso de cada cuenta, solo para admins](0037-ultimo-ingreso.md) | Aceptada |

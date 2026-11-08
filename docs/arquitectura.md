@@ -56,7 +56,8 @@ src/
     map/          Mapa, vistas del mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
     theme/        Modo claro/oscuro
     tiposZona/    Tipos de zona: lista con color (TiposZonaPage)
-    usuarios/     Cuentas: administración (solo admins), avatares (Avatar, SelectorAvatar) y useNombreDeCuenta
+    usuarios/     Cuentas: administración (solo admins) con el último ingreso de cada una (ultimoIngreso.ts),
+                  avatares (Avatar, SelectorAvatar) y useNombreDeCuenta
     zonas/        Zonas: DibujarZona (mira + vista previa), CrearZona (también desde una zona asignada,
                   ?asignacion=), RedibujarZona, ficha (LocalesEnZona, ComentariosZona, EditarZona) y
                   geometria.ts (área, lados cruzados, EWKT)
