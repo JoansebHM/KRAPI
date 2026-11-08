@@ -86,7 +86,7 @@ npm run db:link        # enlaza con el proyecto; pide la contraseña de la base 
 npm run db:push        # aplica las migraciones que falten
 npm run db:config      # aplica supabase/config.toml (por ejemplo, el registro de cuentas)
 npm run db:types       # genera src/types/database.ts a partir del esquema
-npm run db:funciones   # despliega las Edge Functions (restablecer-clave)
+npm run db:funciones   # despliega las Edge Functions (restablecer-clave, enviar-correo)
 ```
 
 La contraseña de la base de datos y las claves del proyecto **nunca** se suben al repositorio.
@@ -96,13 +96,39 @@ La contraseña de la base de datos y las claves del proyecto **nunca** se suben 
 Cada integrante crea su cuenta desde la app y un admin la aprueba en **Usuarios**. Para lo que no se puede hacer desde la app hay dos scripts. Necesitan `VITE_SUPABASE_URL` y `SUPABASE_SECRET_KEY` en `.env.local` (ver `.env.example`) y piden las contraseñas sin mostrarlas en pantalla.
 
 - `npm run usuario:admin` crea una cuenta de admin activa o, si el nombre de usuario ya existe, la nombra admin y la activa. Sirve para el **primer admin**, que no tiene quién lo apruebe.
-- `npm run usuario:clave` pone una contraseña nueva a una cuenta. Como las cuentas no tienen correo, así se ayuda a quien olvidó la suya. Desde la app, un admin hace lo mismo en **Usuarios** → la cuenta → "Poner contraseña temporal" (Edge Function `restablecer-clave`, [decisión 0022](docs/decisiones/0022-edge-function-restablecer-clave.md)).
+- `npm run usuario:clave` pone una contraseña nueva a una cuenta. Como no hay recuperación de contraseña por correo, así se ayuda a quien olvidó la suya. Desde la app, un admin hace lo mismo en **Usuarios** → la cuenta → "Poner contraseña temporal" (Edge Function `restablecer-clave`, [decisión 0022](docs/decisiones/0022-edge-function-restablecer-clave.md)).
 
 Los dos aceptan el nombre de usuario como argumento (`npm run usuario:clave -- ana.gomez`) o lo preguntan.
 
+### Avisos por correo
+
+KIRA avisa por correo, con [Brevo](https://www.brevo.com) (plan gratuito, 300 al día), de estas cosas ([decisión 0035](docs/decisiones/0035-avisos-por-correo.md)): a los **admins**, cuando alguien se registra y espera aprobación, y a **quien se registró**, cuando su solicitud llega y cuando su cuenta se aprueba o se rechaza. El diseño de los correos está en `supabase/functions/enviar-correo/plantilla.ts` y sus textos, en `mensajes.ts`. El correo es opcional: se pone en el registro y se cambia en Mi perfil. Los admins solo reciben el aviso si pusieron el suyo.
+
+Es configuración de despliegue y se hace una vez, desde tu computador (con `npx supabase login` hecho):
+
+1. **Brevo.** Verifica el remitente en *Senders, Domains & Dedicated IPs → Senders* y crea una clave en *SMTP & API → API Keys* (sin restricción de IP, porque las Edge Functions no tienen IP fija).
+2. **Secretos de la función.** `CORREOS_SECRETO` es un valor largo al azar que inventas (por ejemplo, `openssl rand -hex 32`). `KIRA_URL`, la dirección de la app, es opcional: pone el botón y el logo de los correos (el logo es `public/correo/marca-ki.png`, que sirve la propia app; sin `KIRA_URL` la cabecera muestra "KI" como texto azul).
+
+   ```bash
+   npx supabase secrets set BREVO_API_KEY=… BREVO_REMITENTE_CORREO=remitente@ejemplo.com \
+     BREVO_REMITENTE_NOMBRE="KIRA - Kratos" CORREOS_SECRETO=… KIRA_URL=https://… \
+     --project-ref ggrwybqiqffoxuoojopp
+   ```
+
+3. **Vault**, en el editor SQL de Supabase, con el **mismo** valor de `CORREOS_SECRETO`. Es lo que usa la base de datos para llamar a la función. Si falta, no se manda ningún aviso (y nada se rompe):
+
+   ```sql
+   select vault.create_secret('https://ggrwybqiqffoxuoojopp.supabase.co/functions/v1/enviar-correo', 'correos_url');
+   select vault.create_secret('…el mismo valor de CORREOS_SECRETO…', 'correos_secreto');
+   ```
+
+4. `npm run db:push` y `npm run db:funciones`.
+
+La app no lee ninguna de estas claves: no las pongas en `.env.local` con prefijo `VITE_`, porque quedarían visibles en el navegador. Para cambiar el secreto compartido hay que actualizarlo en los dos lugares (`supabase secrets set` y `vault.update_secret`). Si cambias el remitente, basta actualizar `BREVO_REMITENTE_CORREO`. Para ver por qué un correo no llegó, mira los registros de la función `enviar-correo` en el panel de Supabase.
+
 ### Sesión en la app
 
-- Cada integrante crea su cuenta en "Crear una cuenta" (nombre, nombre de usuario y contraseña, sin correo) y entra con su nombre de usuario cuando un admin la apruebe. En `.env.local` deben estar `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`.
+- Cada integrante crea su cuenta en "Crear una cuenta" (nombre, nombre de usuario y contraseña, y un correo opcional para los avisos) y entra con su nombre de usuario cuando un admin la apruebe. En `.env.local` deben estar `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`.
 - El token de Supabase se renueva solo mientras la app esté abierta.
 - La sesión se cierra tras **2 horas sin usar la app** (con un aviso un minuto antes) y, en todo caso, a los **7 días**. Los tiempos están en `src/config/session.ts`.
 - Desde el menú de la cuenta se puede cerrar la sesión propia en **todos los dispositivos**: úsalo si perdiste un celular o alguien más conoce tu contraseña. En los demás dispositivos tarda hasta una hora en aplicarse. Para sacar a alguien del equipo, un admin desactiva su cuenta.
@@ -127,6 +153,7 @@ Los dos aceptan el nombre de usuario como argumento (`npm run usuario:clave -- a
 | Tabla | Qué guarda |
 | --- | --- |
 | `perfiles` | Una fila por cuenta: nombre, nombre de usuario, rol (miembro o admin), estado (pendiente, activo, rechazado o desactivado) y la semilla de su avatar dibujado |
+| `contactos` | El correo opcional de cada cuenta, para los avisos. Solo lo lee su dueño |
 | `categorias` | Tipos de lugar (comercio, café...) o de elemento (caneca, poste...) con un color y un ícono para el mapa, y si se usan en lugares, elementos o ambos |
 | `tipos_zona` | De qué es una zona (comercial, residencial...) con un color para el mapa |
 | `ubicaciones` | Lugares dentro de Manila: puntos (locales, con estado activa/cerrada), zonas (áreas, con su tipo) y elementos (canecas, postes…: sin estudios) |
@@ -206,7 +233,7 @@ supabase/
   config.toml   # Configuración del proyecto de Supabase
   migrations/   # Esquema de la base de datos, en orden
   tests/        # Pruebas de la base de datos (pgTAP)
-  functions/    # Edge Functions (restablecer-clave)
+  functions/    # Edge Functions (restablecer-clave, enviar-correo)
 ```
 
 ## Cómo contribuir

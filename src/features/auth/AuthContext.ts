@@ -30,6 +30,8 @@ export interface DatosRegistro {
   usuario: string
   password: string
   avatarSemilla: string
+  /** Correo para los avisos. Opcional: vacío si la persona no quiso ponerlo. */
+  correo?: string
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

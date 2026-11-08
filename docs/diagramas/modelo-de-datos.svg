@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 776 1000" width="776" height="1000" role="img" aria-labelledby="modelo-de-datos-title modelo-de-datos-desc">
+<svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 776 1144" width="776" height="1144" role="img" aria-labelledby="modelo-de-datos-title modelo-de-datos-desc">
   <title id="modelo-de-datos-title">Modelo de datos de KIRA</title>
-  <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional (los puntos y los elementos) o un tipo de zona (las zonas) y acumula estudios; las zonas tienen comentarios; cada estudio tiene participantes, que son cuentas del equipo (perfiles), y evidencias; un elemento no tiene estudios y sus evidencias cuelgan de él directamente; los archivos de las evidencias se guardan en el bucket privado; los bocetos (dibujos sobre el mapa, que no se editan) guardan su imagen en el mismo bucket. Aparte, cada salida tiene sus zonas de asignación, y cada zona se asigna a cuentas que reportan su hora de fin y su porcentaje; un estudio puede ligarse, opcionalmente, a la salida en la que se hizo, y una zona asignada puede ligarse a la zona del mapa que registra, para no duplicarla si otra salida vuelve a cubrir el mismo cuadrante.</desc>
+  <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional (los puntos y los elementos) o un tipo de zona (las zonas) y acumula estudios; las zonas tienen comentarios; cada estudio tiene participantes, que son cuentas del equipo (perfiles), y evidencias; un elemento no tiene estudios y sus evidencias cuelgan de él directamente; los archivos de las evidencias se guardan en el bucket privado; los bocetos (dibujos sobre el mapa, que no se editan) guardan su imagen en el mismo bucket. Aparte, cada salida tiene sus zonas de asignación, y cada zona se asigna a cuentas que reportan su hora de fin y su porcentaje; un estudio puede ligarse, opcionalmente, a la salida en la que se hizo, y una zona asignada puede ligarse a la zona del mapa que registra, para no duplicarla si otra salida vuelve a cubrir el mismo cuadrante; cada cuenta puede guardar un correo opcional para los avisos (contactos), que solo lee su dueño.</desc>
   <defs>
     <style>
       /* Perfil "kratos" de diagram-design: tokens de src/styles/theme.css. Sigue el sistema y, dentro de /docs, el tema elegido. */
@@ -292,6 +292,26 @@
   <rect class="mascara" x="500" y="544" width="60" height="12" rx="2" />
   <text class="mono soft" x="530" y="553" font-size="8" text-anchor="middle" letter-spacing="0.06em">OPCIONAL</text>
 
+  <!-- Avisos por correo (decisión 0035): el correo es opcional y vive aparte de perfiles -->
+  <line class="regla" x1="40" y1="948" x2="736" y2="948" />
+  <text class="mono muted" x="40" y="964" font-size="8" letter-spacing="0.18em">AVISOS · CORREO OPCIONAL</text>
+  <!-- contactos -->
+  <rect class="mascara" x="40" y="976" width="220" height="96" rx="6" />
+  <rect class="nodo" x="40" y="976" width="220" height="96" rx="6" />
+  <path class="cabecera" d="M46 976.6 H254 A5.4 5.4 0 0 1 259.4 982 V1016 H40.6 V982 A5.4 5.4 0 0 1 46 976.6 Z" />
+  <line class="separador" x1="40" y1="1016" x2="260" y2="1016" />
+  <text class="mono muted" x="56" y="992" font-size="8" letter-spacing="0.14em">TABLA · AVISOS</text>
+  <text x="56" y="1008" font-size="14" font-weight="600">contactos</text>
+  <g class="mono" font-size="10">
+    <text x="56" y="1036"># → perfil_id</text><text class="muted" x="244" y="1036" text-anchor="end">perfiles</text>
+    <text x="56" y="1056">correo</text><text class="muted" x="244" y="1056" text-anchor="end">text · minúsculas</text>
+  </g>
+  <text class="muted" x="308" y="1010" font-size="9">Un correo por cuenta, que solo lee su dueño.</text>
+  <text class="muted" x="308" y="1028" font-size="9">Se escribe con guardar_correo().</text>
+  <text class="muted" x="308" y="1046" font-size="9">Los triggers llaman a la Edge Function</text>
+  <text class="muted" x="308" y="1060" font-size="9">enviar-correo, que envía con Brevo.</text>
+
+  <g transform="translate(0 144)">
   <!-- Leyenda -->
   <line class="regla" x1="40" y1="948" x2="736" y2="948" />
   <text class="mono muted" x="40" y="972" font-size="8" letter-spacing="0.18em">LEYENDA</text>
@@ -300,4 +320,5 @@
   <rect class="union" x="356" y="962" width="16" height="12" rx="2" />
   <text class="muted" x="380" y="972" font-size="9">Tabla de unión</text>
   <text class="mono muted" x="736" y="972" font-size="9" text-anchor="end"># clave primaria · → clave foránea</text>
+  </g>
 </svg>

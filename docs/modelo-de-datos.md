@@ -6,11 +6,11 @@ Para el *porqué* de cada decisión, ver [`decisiones/`](decisiones/).
 
 ## Diagrama
 
-![Modelo de datos: categorías, tipos de zona, ubicaciones, estudios, participantes (cuentas), evidencias, comentarios de zona y el bucket](diagramas/modelo-de-datos.svg)
+![Modelo de datos: categorías, tipos de zona, ubicaciones, estudios, participantes (cuentas), evidencias, comentarios de zona, contactos y el bucket](diagramas/modelo-de-datos.svg)
 
 ## Tablas
 
-Todas tienen `id uuid` (generado), `created_at` y `updated_at`; el trigger `set_updated_at()` mantiene `updated_at` al día. Las excepciones son `estudio_participantes` y `asignacion_participantes`, que son tablas de unión.
+Todas tienen `id uuid` (generado), `created_at` y `updated_at`; el trigger `set_updated_at()` mantiene `updated_at` al día. Las excepciones son `estudio_participantes` y `asignacion_participantes`, que son tablas de unión, y `contactos`, cuya clave es `perfil_id` y que no tiene `created_at`.
 
 ### Autoría
 
@@ -39,9 +39,24 @@ Una fila por cada cuenta de `auth.users` ([decisión 0021](decisiones/0021-usuar
 | `avatar_semilla` | text | Semilla del avatar dibujado (1–64 caracteres). NULL = se usa el `id`. Se elige al registrarse y se cambia en Mi perfil |
 | `aprobado_por`, `aprobado_en` | uuid → `auth.users`, timestamptz | Quién aprobó la cuenta y cuándo |
 
-- **Sin correos.** Supabase Auth exige un correo, así que la app entra con `<usuario>@usuarios.kira.invalid`. Nadie lo ve y nunca recibe nada.
-- **El perfil lo crea la base de datos.** El trigger `crear_perfil_al_registrarse` (sobre `auth.users`) crea el perfil en `pendiente`. Toma el nombre de usuario del correo interno y el nombre y el avatar de los metadatos del registro (`nombre`, `avatar_semilla`). Rechaza las cuentas con un correo que no sea interno.
+- **Sin correo real para entrar.** Supabase Auth exige un correo, así que la app entra con `<usuario>@usuarios.kira.invalid`. Nadie lo ve y nunca recibe nada. El correo real, opcional, para los avisos está en [`contactos`](#contactos-correo-opcional-para-avisos).
+- **El perfil lo crea la base de datos.** El trigger `crear_perfil_al_registrarse` (sobre `auth.users`) crea el perfil en `pendiente`. Toma el nombre de usuario del correo interno y el nombre y el avatar de los metadatos del registro (`nombre`, `avatar_semilla`); si viene un `correo_contacto` válido, también lo guarda en `contactos`. Rechaza las cuentas con un correo que no sea interno.
 - **El correo interno no cambia** (trigger `impedir_cambio_correo`), porque el nombre de usuario no cambia.
+
+### `contactos`: correo opcional para avisos
+
+Un correo por cuenta, para los avisos de KIRA ([decisión 0035](decisiones/0035-avisos-por-correo.md)). No sirve para entrar. Vive aparte de `perfiles` porque cualquier cuenta activa lee todos los perfiles y este correo solo lo lee su dueño.
+
+| Columna | Tipo | Reglas |
+| --- | --- | --- |
+| `perfil_id` | uuid → `perfiles` | Clave primaria (un correo por cuenta). ON DELETE CASCADE |
+| `correo` | text | Obligatorio, en minúsculas y sin espacios, de hasta 254 caracteres y con formato `algo@dominio.ext`. **No se verifica** |
+| `updated_at` | timestamptz | Lo mantiene `set_updated_at()` |
+
+- **Solo se escribe con `guardar_correo(correo)`**; un texto vacío lo quita. La app no tiene permiso de `insert`, `update` ni `delete` sobre la tabla.
+- **El registro lo guarda por su cuenta**: `crear_perfil()` toma `correo_contacto` de los metadatos. Un correo mal escrito no impide crear la cuenta, solo no se guarda.
+- **Avisos:** un trigger sobre `perfiles` llama a `avisar_por_correo()` cuando hay un registro nuevo (`registro_pendiente`, a los admins activos con correo, y `registro_recibido`, a la persona) o cuando una cuenta pasa a `activo` desde `pendiente` o `rechazado` (`cuenta_aprobada`) o a `rechazado` desde `pendiente` (`cuenta_rechazada`). Esa función pide a la Edge Function `enviar-correo` el envío, con `pg_net` y sin esperar. Lee la dirección y el secreto de Vault (`correos_url`, `correos_secreto`) y, si faltan o algo falla, no hace nada.
+- **Tope:** si en una hora se crean más de 10 perfiles, deja de avisar de los registros nuevos (a los admins y a la persona).
 
 ### `categorias`: tipos de local y de elemento
 
@@ -221,6 +236,7 @@ Estas funciones son `security definer` (corren con permisos de dueño) y tienen 
 | `desactivar_usuario(usuario_id)` | Admin | `activo` → `desactivado`, y borra sus sesiones (`auth.sessions`) para que no pueda renovar el token |
 | `reactivar_usuario(usuario_id)` | Admin | `desactivado` → `activo` |
 | `cambiar_rol(usuario_id, rol)` | Admin | Nombra o quita admins entre las cuentas activas |
+| `guardar_correo(correo)` | Cuenta activa | Guarda o cambia **su** correo para avisos; vacío lo quita. Falla si no tiene formato de correo (`22023`) |
 | `cerrar_sesiones(usuario_id)` | Solo `service_role` (Edge Function `restablecer-clave`) | Borra las sesiones de la cuenta después de ponerle una contraseña temporal |
 
 Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es admin (`42501`), si intenta cambiarse a sí mismo (`42501`) o si el cambio de estado no aplica (`22023`). Como nadie se cambia a sí mismo y quien llama es un admin activo, **nunca se queda el sistema sin admins**.
@@ -248,6 +264,7 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 ## Seguridad
 
 - **Cuentas.** El **registro está abierto** (`[auth] enable_signup = true`): cada integrante crea su cuenta desde la app y queda pendiente. La protección está en RLS, no en el registro. El primer admin se crea con `npm run usuario:admin` y las contraseñas olvidadas se restablecen con `npm run usuario:clave` (los scripts usan la clave secreta, con `select` y `update` sobre `perfiles` para `service_role`). El usuario compartido de antes (perfil "Cuenta compartida") quedó desactivado al pasar a las cuentas individuales (#81).
+- **`contactos`.** Solo su dueño lee su correo (política `select`); ni los admins lo leen desde la app. No hay permisos de escritura: se guarda con `guardar_correo()`. Lo lee la Edge Function `enviar-correo` con la clave secreta (`service_role`), que necesita su propio `grant select` porque el proyecto no expone tablas nuevas solas.
 - **`perfiles`.** Cada quien lee su propio perfil aunque esté pendiente, y un miembro activo lee todos. Un miembro activo solo puede editar su `nombre` y su `avatar_semilla` (`grant update (nombre, avatar_semilla)`). El rol y el estado solo cambian con las funciones de administración, y nadie cambia los suyos.
 - **RLS en todas las tablas, según el estado y el rol de la cuenta** ([decisión 0021](decisiones/0021-usuarios-individuales.md)). El rol `anon` no tiene ningún permiso.
 
@@ -310,3 +327,6 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261027120100_elementos` | Elementos ([decisión 0028](decisiones/0028-elementos.md)): `categorias.aplica_a` (enum `uso_categoria`), reglas de los elementos, `evidencias.ubicacion_id`, borrar sin evidencias, `lugares_mapa()` ordenada y `elementos_cercanos()` |
 | `20261027130000_bocetos` | `bocetos` ([decisión 0029](decisiones/0029-pizarra-y-bocetos.md)): sin permiso de editar, con autoría y bitácora; sus archivos van en el bucket `evidencias` |
 | `20261029120000_nombre_opcional_elementos` | El nombre de un elemento es opcional ([decisión 0028](decisiones/0028-elementos.md)); `lugares_mapa()` y `elementos_cercanos()` devuelven el de su categoría cuando no tiene |
+| `20261107230101_correos` | `contactos`, `guardar_correo()`, el correo opcional en `crear_perfil()` y los triggers que avisan por correo con `pg_net` ([decisión 0035](decisiones/0035-avisos-por-correo.md)) |
+| `20261108000000_permisos_contactos_service_role` | `select` sobre `contactos` para `service_role`, que la función `enviar-correo` necesita para leer los correos |
+| `20261108120000_aviso_registro_recibido` | `avisar_registro_nuevo()` también avisa a quien se registró (`registro_recibido`) |

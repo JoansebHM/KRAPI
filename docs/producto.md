@@ -11,7 +11,7 @@ El foco está en los **locales fijos** (tiendas, cafés, restaurantes…): no en
 ## Quién la usa
 
 - **Integrantes de Kratos.** Es un grupo pequeño, con **una cuenta por integrante** ([decisión 0021](decisiones/0021-usuarios-individuales.md)):
-  - Cada quien se registra con **nombre, nombre de usuario y contraseña**, sin correo. La cuenta queda **pendiente** hasta que un admin la apruebe.
+  - Cada quien se registra con **nombre, nombre de usuario y contraseña**, y si quiere un **correo opcional** para los avisos (no sirve para entrar). La cuenta queda **pendiente** hasta que un admin la apruebe.
   - **Miembros:** ven, crean y editan lugares, estudios, evidencias y catálogos. Solo borran las evidencias y los lugares sin estudios que ellos mismos crearon.
   - **Admins:** además aprueban, rechazan, desactivan y reactivan cuentas y nombran a otros admins desde **Usuarios** (menú ☰, con un contador de las cuentas por aprobar), y borran cualquier cosa que se pueda borrar. Si alguien olvida su contraseña, un admin le pone una temporal desde Usuarios.
   - Cada registro guarda quién lo creó y quién lo editó por última vez, y una bitácora guarda cada acción. Lo registrado antes de las cuentas individuales aparece como "Cuenta compartida".
@@ -49,7 +49,7 @@ Reglas de negocio:
 
 ## Cómo se usa en campo
 
-1. La persona entra con su **nombre de usuario** y su contraseña. Si no tiene cuenta, la crea en "Crear una cuenta" (nombre, nombre de usuario y contraseña, sin correo) y espera a que un admin la apruebe: mientras tanto ve una pantalla de espera y entra al mapa sola apenas la aprueban. La sesión dura hasta 7 días y se cierra tras 2 horas sin uso.
+1. La persona entra con su **nombre de usuario** y su contraseña. Si no tiene cuenta, la crea en "Crear una cuenta" (nombre, nombre de usuario, contraseña y, si quiere, un correo para los avisos) y espera a que un admin la apruebe: mientras tanto ve una pantalla de espera y entra al mapa sola apenas la aprueban. Si puso su correo, también le llega un aviso al registrarse ("recibimos tu solicitud") y otro cuando su cuenta se aprueba o se rechaza; el correo se puede poner, cambiar o quitar en Mi perfil. Los admins que tengan correo reciben un aviso cuando alguien se registra y espera aprobación. La sesión dura hasta 7 días y se cierra tras 2 horas sin uso.
 2. En el mapa toca **"+ Nuevo lugar"** y elige **Punto** (un local), **Zona** (un área) o **Elemento** (algo que no se estudia, como una caneca).
 3. **Ubica el punto** moviendo el mapa bajo una **mira fija en el centro**, con "Mi ubicación" (que lleva el mapa hasta donde se está) o, solo al crear un punto, con **"Usar mi ubicación"**: el navegador pide permiso para ubicarte y, si estás dentro de Manila, el punto queda ahí y se sigue con los datos. Si estás fuera, avisa y no lo crea.
    - Si el punto queda fuera de Manila, no deja continuar.
@@ -105,7 +105,7 @@ Una salida se puede cancelar (las personas lo ven) y reactivar. Una zona de la s
 
 **Hecho:**
 - Mapa con el límite de Manila, navegación limitada a 1 km alrededor y modo claro/oscuro.
-- Cuentas individuales: registro con nombre de usuario (sin correo), aprobación de un admin, roles (miembro y admin), Mi perfil, administración de usuarios y política de sesión.
+- Cuentas individuales: registro con nombre de usuario (el correo es opcional, para avisos), aprobación de un admin, roles (miembro y admin), Mi perfil, administración de usuarios y política de sesión.
 - Permisos en la base de datos según el estado y el rol de cada cuenta, autoría de cada registro y bitácora.
 - Notificaciones.
 - Administración de categorías (color e ícono). Cada cuenta tiene su avatar dibujado.

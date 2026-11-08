@@ -28,6 +28,51 @@ test.describe('Mi perfil', () => {
     await expect(page.getByRole('menu')).toContainText('Admin del equipo')
   })
 
+  test('guarda, cambia y quita el correo para avisos', async ({ page, entrar, supabase }) => {
+    await entrar('admin')
+    await page.goto('/perfil')
+    const correo = page.getByLabel('Correo (opcional)')
+    const guardar = page.getByRole('button', { name: 'Guardar correo' })
+    await expect(correo).toHaveValue('')
+    await expect(guardar).toBeDisabled()
+    // Un admin ve para qué le sirve.
+    await expect(page.getByText('Aquí recibes el aviso cuando alguien se registra y espera aprobación.')).toBeVisible()
+
+    await correo.fill('  Admin@Kratos.CO ')
+    await guardar.click()
+    await expect(toast(page, 'Correo guardado')).toBeVisible()
+    expect(supabase.correo('admin')).toBe('admin@kratos.co')
+    await expect(correo).toHaveValue('admin@kratos.co')
+
+    await correo.fill('otro@kratos.co')
+    await guardar.click()
+    // El aviso anterior tiene el mismo texto, así que se revisa lo guardado.
+    await expect.poll(() => supabase.correo('admin')).toBe('otro@kratos.co')
+
+    await correo.fill('')
+    await guardar.click()
+    await expect(toast(page, 'Correo quitado')).toBeVisible()
+    expect(supabase.correo('admin')).toBeUndefined()
+  })
+
+  test('muestra el correo que ya estaba guardado y un miembro ve otro texto de ayuda', async ({ page, entrar, supabase }) => {
+    supabase.guardarCorreo('ana', 'ana@kratos.co')
+    await entrar('miembro')
+    await page.goto('/perfil')
+    await expect(page.getByLabel('Correo (opcional)')).toHaveValue('ana@kratos.co')
+    await expect(page.getByText('Solo para avisos de KIRA. No es para entrar.')).toBeVisible()
+  })
+
+  test('no guarda un correo mal escrito', async ({ page, entrar, supabase }) => {
+    await entrar('miembro')
+    await page.goto('/perfil')
+    await page.getByLabel('Correo (opcional)').fill('sin-arroba')
+    await page.getByRole('button', { name: 'Guardar correo' }).click()
+    await expect(page.getByText('Escribe un correo válido, como nombre@ejemplo.com.')).toBeVisible()
+    expect(supabase.correo('ana')).toBeUndefined()
+    expect(supabase.peticiones).not.toContain('POST /rest/v1/rpc/guardar_correo')
+  })
+
   test('cambia la contraseña pidiéndola dos veces', async ({ page, entrar, supabase }) => {
     await entrar('admin')
     await page.goto('/perfil')

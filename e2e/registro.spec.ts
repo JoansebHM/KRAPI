@@ -10,9 +10,10 @@ async function abrirRegistro(page: Page) {
   await expect(page).toHaveURL(/\/registro$/)
 }
 
-async function llenar(page: Page, datos: { nombre?: string; usuario?: string; password?: string; confirmacion?: string }) {
+async function llenar(page: Page, datos: { nombre?: string; usuario?: string; correo?: string; password?: string; confirmacion?: string }) {
   if (datos.nombre !== undefined) await page.getByLabel('Nombre', { exact: true }).fill(datos.nombre)
   if (datos.usuario !== undefined) await usuario(page).fill(datos.usuario)
+  if (datos.correo !== undefined) await page.getByLabel('Correo (opcional)').fill(datos.correo)
   if (datos.password !== undefined) await page.getByLabel('Contraseña', { exact: true }).fill(datos.password)
   if (datos.confirmacion !== undefined) await page.getByLabel('Repite la contraseña', { exact: true }).fill(datos.confirmacion)
 }
@@ -43,6 +44,34 @@ test.describe('Registro', () => {
     await expect(page.getByText('María López · maria.lopez')).toBeVisible()
     expect(supabase.cuenta('maria.lopez')).toMatchObject({ nombre: 'María López', estado: 'pendiente', rol: 'miembro' })
     expect(supabase.peticiones).toContain('POST /auth/v1/signup')
+  })
+
+  test('el correo es opcional: sin él se crea la cuenta y no se guarda ninguno', async ({ page, supabase }) => {
+    await abrirRegistro(page)
+    await expect(page.getByText('Solo para avisarte cuando aprueben tu cuenta. No es para entrar.')).toBeVisible()
+    await llenar(page, { nombre: 'Sin Correo', usuario: 'sin.correo', password: 'una-clave-larga', confirmacion: 'una-clave-larga' })
+    await page.getByRole('button', { name: 'Crear cuenta' }).click()
+    await expect(page.getByRole('heading', { name: 'Tu cuenta está esperando aprobación' })).toBeVisible()
+    expect(supabase.correo('sin.correo')).toBeUndefined()
+  })
+
+  test('con correo: lo guarda en minúsculas para avisarle cuando decidan su cuenta', async ({ page, supabase }) => {
+    await abrirRegistro(page)
+    await llenar(page, { nombre: 'Con Correo', usuario: 'con.correo', correo: '  Con.Correo@Ejemplo.COM ', password: 'una-clave-larga', confirmacion: 'una-clave-larga' })
+    await page.getByRole('button', { name: 'Crear cuenta' }).click()
+    await expect(page.getByRole('heading', { name: 'Tu cuenta está esperando aprobación' })).toBeVisible()
+    expect(supabase.correo('con.correo')).toBe('con.correo@ejemplo.com')
+  })
+
+  test('un correo mal escrito se avisa y no deja enviar', async ({ page, supabase }) => {
+    await abrirRegistro(page)
+    await llenar(page, { nombre: 'Mal Correo', usuario: 'mal.correo', correo: 'esto-no-es-un-correo', password: 'una-clave-larga', confirmacion: 'una-clave-larga' })
+    await expect(page.getByText('Escribe un correo válido, como nombre@ejemplo.com.')).toBeVisible()
+    await page.getByRole('button', { name: 'Crear cuenta' }).click()
+    expect(supabase.peticiones.filter((p) => p.includes('/signup'))).toEqual([])
+    await llenar(page, { correo: '' })
+    await page.getByRole('button', { name: 'Crear cuenta' }).click()
+    await expect(page.getByRole('heading', { name: 'Tu cuenta está esperando aprobación' })).toBeVisible()
   })
 
   test('valida los campos antes de enviar', async ({ page, supabase }) => {
