@@ -51,8 +51,9 @@ src/
                   y deja reusar la forma de una asignación anterior), ReportarAsignacion, MisAsignacionesPage,
                   VerAsignacion y AsignacionesEnMapa (capas del mapa)
     lugares/      Lugares en el mapa (marcadores y zonas), su ficha (FichaLugar, AccionesDelLugar,
-                  EditarPunto) y crear y mover puntos y elementos con la mira (MiraCentral, CrearPunto,
-                  MoverPunto)
+                  EditarPunto), crear y mover puntos y elementos con la mira (MiraCentral, CrearPunto,
+                  MoverPunto) y exportar un lugar en un ZIP (decisión 0038): ExportarLugar (botón y avance)
+                  y planDeExportacion.ts (carpetas, nombres y resúmenes, funciones puras)
     map/          Mapa, vistas del mapa, contexto del mapa, polígono de Manila, estilo nocturno, worker de MapLibre
     theme/        Modo claro/oscuro
     tiposZona/    Tipos de zona: lista con color (TiposZonaPage)
