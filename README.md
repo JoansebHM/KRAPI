@@ -102,7 +102,7 @@ Los dos aceptan el nombre de usuario como argumento (`npm run usuario:clave -- a
 
 ### Avisos por correo
 
-KIRA avisa por correo, con [Brevo](https://www.brevo.com) (plan gratuito, 300 al día), de dos cosas ([decisión 0035](docs/decisiones/0035-avisos-por-correo.md)): a los **admins**, cuando alguien se registra y espera aprobación, y a **quien se registró**, cuando su cuenta se aprueba o se rechaza. El correo es opcional: se pone en el registro y se cambia en Mi perfil. Los admins solo reciben el aviso si pusieron el suyo.
+KIRA avisa por correo, con [Brevo](https://www.brevo.com) (plan gratuito, 300 al día), de estas cosas ([decisión 0035](docs/decisiones/0035-avisos-por-correo.md)): a los **admins**, cuando alguien se registra y espera aprobación, y a **quien se registró**, cuando su solicitud llega y cuando su cuenta se aprueba o se rechaza. El diseño de los correos está en `supabase/functions/enviar-correo/plantilla.ts` y sus textos, en `mensajes.ts`. El correo es opcional: se pone en el registro y se cambia en Mi perfil. Los admins solo reciben el aviso si pusieron el suyo.
 
 Es configuración de despliegue y se hace una vez, desde tu computador (con `npx supabase login` hecho):
 

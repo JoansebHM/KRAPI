@@ -55,8 +55,8 @@ Un correo por cuenta, para los avisos de KIRA ([decisión 0035](decisiones/0035-
 
 - **Solo se escribe con `guardar_correo(correo)`**; un texto vacío lo quita. La app no tiene permiso de `insert`, `update` ni `delete` sobre la tabla.
 - **El registro lo guarda por su cuenta**: `crear_perfil()` toma `correo_contacto` de los metadatos. Un correo mal escrito no impide crear la cuenta, solo no se guarda.
-- **Avisos:** un trigger sobre `perfiles` llama a `avisar_por_correo()` cuando hay un registro nuevo (`registro_pendiente`, a los admins activos con correo) o cuando una cuenta pasa a `activo` desde `pendiente` o `rechazado` (`cuenta_aprobada`) o a `rechazado` desde `pendiente` (`cuenta_rechazada`). Esa función pide a la Edge Function `enviar-correo` el envío, con `pg_net` y sin esperar. Lee la dirección y el secreto de Vault (`correos_url`, `correos_secreto`) y, si faltan o algo falla, no hace nada.
-- **Tope:** si en una hora se crean más de 10 perfiles, deja de avisar de los registros nuevos.
+- **Avisos:** un trigger sobre `perfiles` llama a `avisar_por_correo()` cuando hay un registro nuevo (`registro_pendiente`, a los admins activos con correo, y `registro_recibido`, a la persona) o cuando una cuenta pasa a `activo` desde `pendiente` o `rechazado` (`cuenta_aprobada`) o a `rechazado` desde `pendiente` (`cuenta_rechazada`). Esa función pide a la Edge Function `enviar-correo` el envío, con `pg_net` y sin esperar. Lee la dirección y el secreto de Vault (`correos_url`, `correos_secreto`) y, si faltan o algo falla, no hace nada.
+- **Tope:** si en una hora se crean más de 10 perfiles, deja de avisar de los registros nuevos (a los admins y a la persona).
 
 ### `categorias`: tipos de local y de elemento
 
@@ -329,3 +329,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261029120000_nombre_opcional_elementos` | El nombre de un elemento es opcional ([decisión 0028](decisiones/0028-elementos.md)); `lugares_mapa()` y `elementos_cercanos()` devuelven el de su categoría cuando no tiene |
 | `20261107230101_correos` | `contactos`, `guardar_correo()`, el correo opcional en `crear_perfil()` y los triggers que avisan por correo con `pg_net` ([decisión 0035](decisiones/0035-avisos-por-correo.md)) |
 | `20261108000000_permisos_contactos_service_role` | `select` sobre `contactos` para `service_role`, que la función `enviar-correo` necesita para leer los correos |
+| `20261108120000_aviso_registro_recibido` | `avisar_registro_nuevo()` también avisa a quien se registró (`registro_recibido`) |

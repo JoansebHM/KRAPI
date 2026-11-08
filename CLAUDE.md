@@ -70,7 +70,7 @@ Los comandos `db:*` (salvo `db:local` y `db:test`, que usan Supabase en Docker) 
 Hecho:
 - Mapa con el límite de Manila, navegación limitada a 1 km y modo claro/oscuro con mapa nocturno.
 - Cuentas individuales sin correo para entrar (decisión 0021): registro con nombre de usuario, aprobación de un admin, pantalla de espera, sesión de 2 h de inactividad y 7 días máximo, y cierre en todos los dispositivos.
-- Avisos por correo con Brevo (decisión 0035): correo opcional en el registro y en Mi perfil (sin verificar, tabla `contactos`); se avisa a los admins con correo cuando alguien se registra y a quien se registró cuando aprueban o rechazan su cuenta. Falta configurar los secretos y Vault en el proyecto (ver README, "Avisos por correo").
+- Avisos por correo con Brevo (decisión 0035): correo opcional en el registro y en Mi perfil (sin verificar, tabla `contactos`); se avisa a los admins con correo cuando alguien se registra y a quien se registró cuando su solicitud llega y cuando aprueban o rechazan su cuenta (plantilla HTML con los colores de KIRA en la Edge Function). Falta configurar los secretos y Vault en el proyecto (ver README, "Avisos por correo").
 - Usuarios (`/usuarios`, solo admins): aprobar, rechazar, desactivar, reactivar, roles y contraseña temporal (Edge Function `restablecer-clave`, decisión 0022). Mi perfil (`/perfil`): nombre, avatar y contraseña.
 - Permisos en RLS según el estado y el rol, autoría (`creado_por`…) y bitácora de cada acción. Se muestra quién registró cada estudio y evidencia.
 - Notificaciones, menú lateral y paneles.
