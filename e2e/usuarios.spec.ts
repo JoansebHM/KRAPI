@@ -177,3 +177,80 @@ test.describe('Usuarios: contraseña temporal', () => {
     await expect(ficha(page, 'Admin Kratos').getByRole('button', { name: 'Poner contraseña temporal' })).toHaveCount(0)
   })
 })
+
+test.describe('Usuarios: último ingreso (solo admins)', () => {
+  const haceMs = (ms: number) => new Date(Date.now() - ms).toISOString()
+  const HORA = 60 * 60 * 1000
+
+  test('la lista dice cuándo ingresó cada cuenta y la ficha, la fecha y la hora', async ({ page, supabase, entrar }) => {
+    supabase.cuenta('ana').ultimo_acceso = haceMs(3 * HORA)
+    await entrar('admin')
+    await page.goto('/usuarios')
+    await pestana(page, 'Activos').click()
+
+    // Ana ingresó hace 3 horas; el admin acaba de ingresar; Pepe (pendiente) nunca lo hizo.
+    await expect(fila(page, 'Ana Gómez')).toContainText('ingresó hace 3 h')
+    await expect(fila(page, 'Admin Kratos')).toContainText('ingresó hace un momento')
+    await pestana(page, 'Pendientes').click()
+    await expect(fila(page, 'Pepe Pérez')).toContainText('nunca ha ingresado')
+
+    await pestana(page, 'Activos').click()
+    await fila(page, 'Ana Gómez').click()
+    const datos = ficha(page, 'Ana Gómez')
+    await expect(datos.getByText('Último ingreso')).toBeVisible()
+    await expect(datos).toContainText(/\d{1,2} [a-z]{3} \d{4} · \d{1,2}:\d{2} [ap]\. m\./)
+    await datos.getByRole('button', { name: 'Cerrar', exact: true }).click()
+
+    await pestana(page, 'Pendientes').click()
+    await fila(page, 'Pepe Pérez').click()
+    await expect(ficha(page, 'Pepe Pérez')).toContainText('Nunca ha ingresado')
+  })
+
+  test('pasada una semana muestra la fecha, y entre 1 y 6 días, "hace N días"', async ({ page, supabase, entrar }) => {
+    supabase.agregarCuenta({ usuario: 'bruno', nombre: 'Bruno Díaz', ultimo_acceso: haceMs(2 * 24 * HORA) })
+    supabase.agregarCuenta({ usuario: 'carla', nombre: 'Carla Ruiz', ultimo_acceso: haceMs(30 * 24 * HORA) })
+    await entrar('admin')
+    await page.goto('/usuarios')
+    await pestana(page, 'Activos').click()
+    await expect(fila(page, 'Bruno Díaz')).toContainText('ingresó hace 2 días')
+    await expect(fila(page, 'Carla Ruiz')).toContainText(/ingresó \d{1,2} [a-z]{3} \d{4}/)
+  })
+
+  test('si no se puede cargar el dato, Usuarios sigue funcionando sin él', async ({ page, supabase, entrar }) => {
+    await page.route('**/rest/v1/rpc/ultimos_accesos', (ruta) => ruta.fulfill({ status: 500, json: { message: 'falla' } }))
+    await entrar('admin')
+    await page.goto('/usuarios')
+    await pestana(page, 'Activos').click()
+    await expect(fila(page, 'Ana Gómez')).toBeVisible()
+    await expect(fila(page, 'Ana Gómez')).not.toContainText('ingres')
+    void supabase
+  })
+
+  test('un miembro nunca pide ese dato: la base de datos se lo negaría', async ({ page, supabase, entrar }) => {
+    await entrar('miembro')
+    await page.goto('/usuarios')
+    await expect(page).toHaveURL(/\/$/)
+    expect(supabase.peticiones.some((p) => p.includes('ultimos_accesos'))).toBe(false)
+    // Y si lo pidiera por su cuenta, el simulador (igual que la base de datos) lo rechaza.
+    const respuesta = await page.evaluate(async () => {
+      const sesion = JSON.parse(localStorage.getItem('krapi-auth') ?? '{}')
+      const r = await fetch('https://supabase-falso.e2e.local/rest/v1/rpc/ultimos_accesos', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${sesion.access_token}`, 'Content-Type': 'application/json' },
+        body: '{}',
+      })
+      return { status: r.status, codigo: (await r.json()).code }
+    })
+    expect(respuesta).toEqual({ status: 403, codigo: '42501' })
+  })
+
+  test('cabe en 320 px', async ({ page, supabase, entrar }) => {
+    supabase.cuenta('ana').ultimo_acceso = haceMs(5 * HORA)
+    await page.setViewportSize({ width: 320, height: 640 })
+    await entrar('admin')
+    await page.goto('/usuarios')
+    await pestana(page, 'Activos').click()
+    await expect(fila(page, 'Ana Gómez')).toContainText('ingresó hace 5 h')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  })
+})

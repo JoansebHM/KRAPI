@@ -14,6 +14,7 @@ import { RealtimeFalso } from './realtime-falso'
  * - funciones de admin para aprobar, rechazar, desactivar, reactivar y cambiar el rol
  * - cambiar la contraseña propia (PUT /auth/v1/user): mínimo 10 caracteres y distinta de la actual
  * - Edge Function restablecer-clave: un admin pone una contraseña temporal a otra cuenta
+ * - ultimos_accesos(): solo un admin activo ve cuándo ingresó cada cuenta (`ultimo_acceso`, que no es parte del perfil)
  * - Realtime (realtime-falso.ts): presencia del canal `presencia`, solo para cuentas activas
  * - nombres únicos (sin importar mayúsculas ni espacios) en categorías → 23505
  * - borrar una categoría deja sus ubicaciones sin categoría (ON DELETE SET NULL)
@@ -60,6 +61,8 @@ export interface Cuenta {
   aprobado_por: string | null
   aprobado_en: string | null
   created_at: string
+  /** auth.users.last_sign_in_at: solo lo ven los admins (ultimos_accesos()); no es parte del perfil. */
+  ultimo_acceso: string | null
 }
 
 /** Cuentas con las que arranca cada prueba. */
@@ -179,7 +182,8 @@ const usuarioAuth = (cuenta: Cuenta) => ({
   created_at: cuenta.created_at,
 })
 
-const perfilDe = ({ password: _password, ...perfil }: Cuenta) => perfil
+// El perfil no lleva la contraseña ni el último ingreso, que viven en auth.users.
+const perfilDe = ({ password: _password, ultimo_acceso: _ultimoAcceso, ...perfil }: Cuenta) => perfil
 
 const FUNCIONES_ADMIN = ['aprobar_usuario', 'rechazar_usuario', 'desactivar_usuario', 'reactivar_usuario', 'cambiar_rol']
 
@@ -266,6 +270,7 @@ export class SupabaseFalso {
       aprobado_por: null,
       aprobado_en: null,
       created_at: '2026-10-23T00:00:00Z',
+      ultimo_acceso: null,
       ...datos,
     }
   }
@@ -327,6 +332,8 @@ export class SupabaseFalso {
           ? this.cuentas.find((c) => `r-${c.id}` === cuerpo.refresh_token)
           : this.cuentas.find((c) => correoDe(c.usuario) === String(cuerpo.email).toLowerCase() && c.password === cuerpo.password)
       if (!cuenta) return this.errorAuth(ruta, 400, 'invalid_credentials', 'Invalid login credentials')
+      // Como last_sign_in_at: cambia al iniciar sesión, no al renovar el token.
+      if (url.searchParams.get('grant_type') !== 'refresh_token') cuenta.ultimo_acceso = new Date().toISOString()
       return ruta.fulfill({ json: this.sesion(cuenta) })
     }
     if (url.pathname === '/auth/v1/signup') return this.registrar(ruta, cuerpo)
@@ -360,7 +367,8 @@ export class SupabaseFalso {
     }
     const nombre = data?.nombre?.trim() || usuario
     const avatar_semilla = data?.avatar_semilla?.trim() || null
-    const cuenta = this.agregarCuenta({ usuario, nombre, password, avatar_semilla, estado: 'pendiente', created_at: new Date().toISOString() })
+    const ahora = new Date().toISOString()
+    const cuenta = this.agregarCuenta({ usuario, nombre, password, avatar_semilla, estado: 'pendiente', created_at: ahora, ultimo_acceso: ahora })
     // Como crear_perfil: un correo mal escrito no impide crear la cuenta, solo no se guarda.
     const contacto = correoONulo(data?.correo_contacto)
     if (contacto) this.correos.set(cuenta.id, contacto)
@@ -429,6 +437,10 @@ export class SupabaseFalso {
       return ruta.fulfill({ json: !this.cuentas.some((c) => c.usuario === usuario) })
     }
     if (FUNCIONES_ADMIN.includes(funcion)) return this.administrarCuenta(ruta, cuenta, funcion, argumentos)
+    if (funcion === 'ultimos_accesos') {
+      if (cuenta?.estado !== 'activo' || cuenta.rol !== 'admin') return ruta.fulfill(errorPg('42501', 'Solo un admin puede ver los últimos ingresos.', 403))
+      return ruta.fulfill({ json: this.cuentas.map((c) => ({ usuario_id: c.id, ultimo_acceso: c.ultimo_acceso })) })
+    }
     if (funcion === 'guardar_correo') {
       if (cuenta?.estado !== 'activo') return ruta.fulfill(errorPg('42501', 'Solo una cuenta activa puede guardar su correo.', 403))
       if (!String(argumentos.correo ?? '').trim()) this.correos.delete(cuenta.id)
