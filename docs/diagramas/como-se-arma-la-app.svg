@@ -70,7 +70,7 @@
   <rect class="mascara" x="496" y="112" width="200" height="48" rx="6" />
   <rect class="hoja" x="496" y="112" width="200" height="48" rx="6" />
   <text x="508" y="133" font-size="12" font-weight="600">barra</text>
-  <text class="mono muted" x="508" y="149" font-size="9">menú · tema · cuenta</text>
+  <text class="mono muted" x="508" y="149" font-size="9">menú · en línea · tema · cuenta</text>
   <rect class="mascara" x="496" y="180" width="200" height="48" rx="6" />
   <rect class="foco" x="496" y="180" width="200" height="48" rx="6" />
   <rect class="etiqueta-foco" x="656" y="188" width="28" height="12" rx="2" />

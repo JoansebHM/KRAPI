@@ -41,3 +41,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0033 | [Vistas del mapa y locales del mapa base](0033-vistas-del-mapa.md) | Aceptada |
 | 0034 | [Analítica del levantamiento](0034-analitica.md) | Aceptada |
 | 0035 | [Avisos por correo con Brevo](0035-avisos-por-correo.md) | Aceptada |
+| 0036 | [Usuarios en línea con presencia de Realtime](0036-usuarios-en-linea.md) | Aceptada |
