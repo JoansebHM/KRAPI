@@ -44,3 +44,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0036 | [Usuarios en línea con presencia de Realtime](0036-usuarios-en-linea.md) | Aceptada |
 | 0037 | [Último ingreso de cada cuenta, solo para admins](0037-ultimo-ingreso.md) | Aceptada |
 | 0038 | [Exportar un lugar completo en un ZIP](0038-exportar-lugar.md) | Aceptada |
+| 0039 | [Cronograma: el calendario en fragmentos con su checklist](0039-cronograma.md) | Aceptada |

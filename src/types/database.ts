@@ -285,6 +285,93 @@ export type Database = {
           },
         ]
       }
+      cronograma_fragmentos: {
+        Row: {
+          actualizado_por: string | null
+          creado_por: string | null
+          created_at: string
+          fecha_fin: string
+          fecha_inicio: string
+          id: string
+          titulo: string | null
+          updated_at: string
+        }
+        Insert: {
+          actualizado_por?: string | null
+          creado_por?: string | null
+          created_at?: string
+          fecha_fin: string
+          fecha_inicio: string
+          id?: string
+          titulo?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actualizado_por?: string | null
+          creado_por?: string | null
+          created_at?: string
+          fecha_fin?: string
+          fecha_inicio?: string
+          id?: string
+          titulo?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cronograma_tareas: {
+        Row: {
+          actualizado_por: string | null
+          creado_por: string | null
+          created_at: string
+          fragmento_id: string
+          hecha_en: string | null
+          hecha_por: string | null
+          id: string
+          responsable_id: string | null
+          texto: string
+          updated_at: string
+        }
+        Insert: {
+          actualizado_por?: string | null
+          creado_por?: string | null
+          created_at?: string
+          fragmento_id: string
+          hecha_en?: string | null
+          hecha_por?: string | null
+          id?: string
+          responsable_id?: string | null
+          texto: string
+          updated_at?: string
+        }
+        Update: {
+          actualizado_por?: string | null
+          creado_por?: string | null
+          created_at?: string
+          fragmento_id?: string
+          hecha_en?: string | null
+          hecha_por?: string | null
+          id?: string
+          responsable_id?: string | null
+          texto?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cronograma_tareas_fragmento_id_fkey"
+            columns: ["fragmento_id"]
+            isOneToOne: false
+            referencedRelation: "cronograma_fragmentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cronograma_tareas_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       estudio_participantes: {
         Row: {
           estudio_id: string
@@ -671,6 +758,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      avisar_por_correo: {
+        Args: { evento: string; perfil_id: string }
+        Returns: undefined
+      }
       cambiar_rol: {
         Args: {
           rol: Database["public"]["Enums"]["rol_usuario"]
@@ -696,6 +787,7 @@ export type Database = {
         }
       }
       cerrar_sesiones: { Args: { usuario_id: string }; Returns: undefined }
+      correo_o_nulo: { Args: { texto: string }; Returns: string }
       desactivar_usuario: {
         Args: { usuario_id: string }
         Returns: {
@@ -825,7 +917,7 @@ export type Database = {
           estado: Database["public"]["Enums"]["estado_ubicacion"]
           geom: unknown
           id: string
-          nombre: string
+          nombre: string | null
           tipo: Database["public"]["Enums"]["tipo_ubicacion"]
           tipo_zona_id: string | null
           updated_at: string
