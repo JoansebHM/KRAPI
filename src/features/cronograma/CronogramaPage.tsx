@@ -6,6 +6,7 @@ import { plural } from '../../lib/texto'
 import { useCronograma, type Fragmento } from './api'
 import { FormularioFragmento } from './FormularioFragmento'
 import { FragmentoTarjeta } from './FragmentoTarjeta'
+import { ResumenCronograma } from './ResumenCronograma'
 import { agruparFragmentos } from './textos'
 import './Cronograma.css'
 
@@ -43,6 +44,7 @@ export function CronogramaPage() {
           }
         />
       )}
+      {fragmentos && fragmentos.length > 0 && <ResumenCronograma fragmentos={fragmentos} />}
       <Grupo titulo="En curso" fragmentos={grupos.enCurso} abiertos />
       <Grupo titulo="Próximos" fragmentos={grupos.proximos} abiertos />
       <Grupo titulo="Anteriores" fragmentos={grupos.anteriores} />

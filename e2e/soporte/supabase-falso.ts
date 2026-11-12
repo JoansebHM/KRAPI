@@ -25,9 +25,9 @@ import { RealtimeFalso } from './realtime-falso'
  * - las categorías aplican a lugares por defecto (aplica_a)
  * - bocetos: título de 1 a 120 caracteres, trazos como FeatureCollection e imagen con medidas → 23514;
  *   no se editan (PATCH → 42501) y los borra su autor o un admin
- * - cronograma: todas las cuentas activas crean, editan y borran fragmentos y tareas; las fechas de un fragmento
+ * - cronograma: todas las cuentas activas crean, editan y borran fragmentos, tareas y los responsables de cada tarea (varios, opcionales); las fechas de un fragmento
  *   (fin >= inicio), el título (hasta 120) y el texto de una tarea (1 a 300) se validan → 23514; borrar un
- *   fragmento borra sus tareas; hecha_por lo pone la base de datos al marcar una tarea como hecha
+ *   fragmento borra sus tareas y borrar una tarea, sus responsables; hecha_por lo pone la base de datos al marcar una tarea como hecha
  * - locales_en_zona() devuelve los puntos dentro de una zona, con su último estudio
  * - tipos de zona: los borra un admin y sus zonas quedan sin tipo; comentarios: los borra su autor o un admin
  * - ubicaciones_cercanas() devuelve hasta 5 puntos no archivados a menos de N metros
@@ -80,12 +80,12 @@ export type ComoQuien = keyof typeof CUENTAS
 type Fila = Record<string, unknown> & { id?: string }
 type Tabla =
   | 'categorias' | 'tipos_zona' | 'ubicaciones' | 'estudios' | 'estudio_participantes' | 'evidencias' | 'comentarios_zona'
-  | 'salidas' | 'asignaciones' | 'asignacion_participantes' | 'bocetos' | 'cronograma_fragmentos' | 'cronograma_tareas'
+  | 'salidas' | 'asignaciones' | 'asignacion_participantes' | 'bocetos' | 'cronograma_fragmentos' | 'cronograma_tareas' | 'cronograma_tarea_responsables'
 
 /** Tablas que solo los admins escriben (salidas y zonas asignadas). */
 const SOLO_ADMINS: Tabla[] = ['salidas', 'asignaciones']
 /** Tablas sin autoría ni fechas (las de unión). */
-const SIN_AUTORIA: Tabla[] = ['estudio_participantes', 'asignacion_participantes']
+const SIN_AUTORIA: Tabla[] = ['estudio_participantes', 'asignacion_participantes', 'cronograma_tarea_responsables']
 
 /** Error de PostgreSQL como lo devuelve PostgREST. */
 const errorPg = (code: string, message: string, status = 400) => ({ status, json: { code, message, details: null, hint: null } })
@@ -205,6 +205,7 @@ export class SupabaseFalso {
     bocetos: [],
     cronograma_fragmentos: [],
     cronograma_tareas: [],
+    cronograma_tarea_responsables: [],
   }
   /** Cuentas de auth.users con su perfil. */
   cuentas: Cuenta[] = Object.values(CUENTAS).map((cuenta) => this.nuevaCuenta(cuenta))
@@ -699,7 +700,13 @@ export class SupabaseFalso {
           }
           // on delete cascade: un fragmento se lleva a sus tareas.
           if (tabla === 'cronograma_fragmentos') {
+            const tareaIds = this.db.cronograma_tareas.filter((t) => t.fragmento_id === fila.id).map((t) => t.id)
             this.db.cronograma_tareas = this.db.cronograma_tareas.filter((t) => t.fragmento_id !== fila.id)
+            this.db.cronograma_tarea_responsables = this.db.cronograma_tarea_responsables.filter((r) => !tareaIds.includes(r.tarea_id as string))
+          }
+          // on delete cascade: una tarea se lleva a sus responsables.
+          if (tabla === 'cronograma_tareas') {
+            this.db.cronograma_tarea_responsables = this.db.cronograma_tarea_responsables.filter((r) => r.tarea_id !== fila.id)
           }
           // on delete cascade: una zona asignada se lleva a sus participantes.
           if (tabla === 'asignaciones') {
@@ -774,6 +781,7 @@ export class SupabaseFalso {
       const fin = String(datos.fecha_fin ?? actual?.fecha_fin ?? '')
       return Boolean(inicio && fin && fin >= inicio)
     }
+    if (tabla !== 'cronograma_tareas') return true
     if ('texto' in datos || !actual) {
       const texto = String(datos.texto ?? '').trim()
       if (texto.length < 1 || texto.length > 300) return false

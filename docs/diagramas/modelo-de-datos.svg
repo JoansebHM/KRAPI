@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 776 1344" width="776" height="1344" role="img" aria-labelledby="modelo-de-datos-title modelo-de-datos-desc">
+<svg xmlns="http://www.w3.org/2000/svg" class="dg" viewBox="0 0 776 1460" width="776" height="1460" role="img" aria-labelledby="modelo-de-datos-title modelo-de-datos-desc">
   <title id="modelo-de-datos-title">Modelo de datos de KIRA</title>
-  <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional (los puntos y los elementos) o un tipo de zona (las zonas) y acumula estudios; las zonas tienen comentarios; cada estudio tiene participantes, que son cuentas del equipo (perfiles), y evidencias; un elemento no tiene estudios y sus evidencias cuelgan de él directamente; los archivos de las evidencias se guardan en el bucket privado; los bocetos (dibujos sobre el mapa, que no se editan) guardan su imagen en el mismo bucket. Aparte, cada salida tiene sus zonas de asignación, y cada zona se asigna a cuentas que reportan su hora de fin y su porcentaje; un estudio puede ligarse, opcionalmente, a la salida en la que se hizo, y una zona asignada puede ligarse a la zona del mapa que registra, para no duplicarla si otra salida vuelve a cubrir el mismo cuadrante; cada cuenta puede guardar un correo opcional para los avisos (contactos), que solo lee su dueño. Por último, el cronograma parte el calendario en fragmentos de fechas libres, cada uno con su checklist de tareas, y cada tarea puede tener una cuenta responsable (opcional).</desc>
+  <desc id="modelo-de-datos-desc">Cada lugar (ubicación) tiene una categoría opcional (los puntos y los elementos) o un tipo de zona (las zonas) y acumula estudios; las zonas tienen comentarios; cada estudio tiene participantes, que son cuentas del equipo (perfiles), y evidencias; un elemento no tiene estudios y sus evidencias cuelgan de él directamente; los archivos de las evidencias se guardan en el bucket privado; los bocetos (dibujos sobre el mapa, que no se editan) guardan su imagen en el mismo bucket. Aparte, cada salida tiene sus zonas de asignación, y cada zona se asigna a cuentas que reportan su hora de fin y su porcentaje; un estudio puede ligarse, opcionalmente, a la salida en la que se hizo, y una zona asignada puede ligarse a la zona del mapa que registra, para no duplicarla si otra salida vuelve a cubrir el mismo cuadrante; cada cuenta puede guardar un correo opcional para los avisos (contactos), que solo lee su dueño. Por último, el cronograma parte el calendario en fragmentos de fechas libres, cada uno con su checklist de tareas, y cada tarea puede tener varias cuentas responsables (opcional).</desc>
   <defs>
     <style>
       /* Perfil "kratos" de diagram-design: tokens de src/styles/theme.css. Sigue el sistema y, dentro de /docs, el tema elegido. */
@@ -332,8 +332,8 @@
     <text x="56" y="1240">fecha_fin</text><text class="muted" x="244" y="1240" text-anchor="end">date · ≥ inicio</text>
   </g>
   <!-- cronograma_tareas -->
-  <rect class="mascara" x="308" y="1120" width="276" height="156" rx="6" />
-  <rect class="nodo" x="308" y="1120" width="276" height="156" rx="6" />
+  <rect class="mascara" x="308" y="1120" width="276" height="136" rx="6" />
+  <rect class="nodo" x="308" y="1120" width="276" height="136" rx="6" />
   <path class="cabecera" d="M314 1120.6 H578 A5.4 5.4 0 0 1 583.4 1126 V1160 H308.6 V1126 A5.4 5.4 0 0 1 314 1120.6 Z" />
   <line class="separador" x1="308" y1="1160" x2="584" y2="1160" />
   <text class="mono muted" x="324" y="1136" font-size="8" letter-spacing="0.14em">TABLA · CHECKLIST</text>
@@ -342,16 +342,32 @@
     <text x="324" y="1180"># id</text><text class="muted" x="568" y="1180" text-anchor="end">uuid</text>
     <text x="324" y="1200">→ fragmento_id</text><text class="muted" x="568" y="1200" text-anchor="end">cronograma_fragmentos</text>
     <text x="324" y="1220">texto</text><text class="muted" x="568" y="1220" text-anchor="end">text</text>
-    <text x="324" y="1240">→ responsable_id</text><text class="muted" x="568" y="1240" text-anchor="end">perfiles · null</text>
-    <text x="324" y="1260">hecha_en</text><text class="muted" x="568" y="1260" text-anchor="end">timestamptz · null</text>
+    <text x="324" y="1240">hecha_en</text><text class="muted" x="568" y="1240" text-anchor="end">timestamptz · null</text>
   </g>
+  <!-- cronograma_tarea_responsables → cronograma_tareas: varios responsables por tarea, opcionales -->
+  <line class="linea" x1="446" y1="1288" x2="446" y2="1256" marker-end="url(#modelo-de-datos-flecha)" />
+  <text class="mono muted" x="460" y="1282" font-size="10" font-weight="600">N</text>
+  <text class="mono muted" x="460" y="1270" font-size="10" font-weight="600">1</text>
+  <!-- cronograma_tarea_responsables -->
+  <rect class="mascara" x="308" y="1288" width="276" height="96" rx="6" />
+  <rect class="union" x="308" y="1288" width="276" height="96" rx="6" />
+  <line class="separador" x1="308" y1="1328" x2="584" y2="1328" />
+  <text class="mono muted" x="324" y="1304" font-size="8" letter-spacing="0.14em">UNIÓN · RESPONSABLES</text>
+  <text x="324" y="1320" font-size="14" font-weight="600">cronograma_tarea_responsables</text>
+  <g class="mono" font-size="10">
+    <text x="324" y="1348">→ tarea_id</text><text class="muted" x="568" y="1348" text-anchor="end">cronograma_tareas</text>
+    <text x="324" y="1368">→ usuario_id</text><text class="muted" x="568" y="1368" text-anchor="end">perfiles</text>
+  </g>
+  <text class="muted" x="612" y="1308" font-size="9">Una tarea puede tener</text>
+  <text class="muted" x="612" y="1322" font-size="9">varias cuentas</text>
+  <text class="muted" x="612" y="1336" font-size="9">responsables, o ninguna.</text>
   <text class="muted" x="612" y="1140" font-size="9">Fechas libres: pueden</text>
   <text class="muted" x="612" y="1154" font-size="9">solaparse. Cada uno</text>
   <text class="muted" x="612" y="1168" font-size="9">tiene su checklist y</text>
   <text class="muted" x="612" y="1182" font-size="9">todas las cuentas</text>
   <text class="muted" x="612" y="1196" font-size="9">activas lo editan.</text>
 
-  <g transform="translate(0 344)">
+  <g transform="translate(0 460)">
   <!-- Leyenda -->
   <line class="regla" x1="40" y1="948" x2="736" y2="948" />
   <text class="mono muted" x="40" y="972" font-size="8" letter-spacing="0.18em">LEYENDA</text>

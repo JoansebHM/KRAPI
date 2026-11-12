@@ -318,6 +318,36 @@ export type Database = {
         }
         Relationships: []
       }
+      cronograma_tarea_responsables: {
+        Row: {
+          tarea_id: string
+          usuario_id: string
+        }
+        Insert: {
+          tarea_id: string
+          usuario_id: string
+        }
+        Update: {
+          tarea_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cronograma_tarea_responsables_tarea_id_fkey"
+            columns: ["tarea_id"]
+            isOneToOne: false
+            referencedRelation: "cronograma_tareas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cronograma_tarea_responsables_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cronograma_tareas: {
         Row: {
           actualizado_por: string | null
@@ -327,7 +357,6 @@ export type Database = {
           hecha_en: string | null
           hecha_por: string | null
           id: string
-          responsable_id: string | null
           texto: string
           updated_at: string
         }
@@ -339,7 +368,6 @@ export type Database = {
           hecha_en?: string | null
           hecha_por?: string | null
           id?: string
-          responsable_id?: string | null
           texto: string
           updated_at?: string
         }
@@ -351,7 +379,6 @@ export type Database = {
           hecha_en?: string | null
           hecha_por?: string | null
           id?: string
-          responsable_id?: string | null
           texto?: string
           updated_at?: string
         }
@@ -361,13 +388,6 @@ export type Database = {
             columns: ["fragmento_id"]
             isOneToOne: false
             referencedRelation: "cronograma_fragmentos"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cronograma_tareas_responsable_id_fkey"
-            columns: ["responsable_id"]
-            isOneToOne: false
-            referencedRelation: "perfiles"
             referencedColumns: ["id"]
           },
         ]

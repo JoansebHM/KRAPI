@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(15);
+select plan(20);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000ad', 'admin@usuarios.kira.invalid'),
@@ -24,8 +24,8 @@ values ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000
 
 select is((select creado_por from public.cronograma_fragmentos where id = '00000000-0000-0000-0000-0000000000f1'),
   '00000000-0000-0000-0000-0000000000a1'::uuid, 'el fragmento lleva a su autora');
-select is((select responsable_id from public.cronograma_tareas where id = '00000000-0000-0000-0000-0000000000e1'),
-  null, 'el responsable es opcional');
+select is((select count(*)::int from public.cronograma_tarea_responsables where tarea_id = '00000000-0000-0000-0000-0000000000e1'),
+  0, 'los responsables son opcionales');
 
 -- Reglas de los datos.
 select throws_ok(
@@ -61,6 +61,19 @@ update public.cronograma_tareas set hecha_en = now() where id = '00000000-0000-0
 select is((select hecha_por from public.cronograma_tareas where id = '00000000-0000-0000-0000-0000000000e1'),
   '00000000-0000-0000-0000-0000000000b2'::uuid, 'otra cuenta activa la marca como hecha');
 
+-- Una tarea puede tener varios responsables, pero cada cuenta una sola vez.
+select lives_ok(
+  $$ insert into public.cronograma_tarea_responsables (tarea_id, usuario_id)
+     values ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000a1'),
+            ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000b2') $$,
+  'una tarea tiene varios responsables');
+select is((select count(*)::int from public.cronograma_tarea_responsables where tarea_id = '00000000-0000-0000-0000-0000000000e1'),
+  2, 'los dos responsables quedan guardados');
+select throws_ok(
+  $$ insert into public.cronograma_tarea_responsables (tarea_id, usuario_id)
+     values ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000a1') $$,
+  '23505', null, 'una cuenta no se repite en la misma tarea');
+
 -- Una cuenta pendiente no ve nada.
 set local request.jwt.claims = '{"sub": "00000000-0000-0000-0000-0000000000c3", "role": "authenticated"}';
 select is((select count(*)::int from public.cronograma_fragmentos), 0, 'una cuenta pendiente no ve los fragmentos');
@@ -70,20 +83,24 @@ set local request.jwt.claims = '{"sub": "00000000-0000-0000-0000-0000000000ad", 
 select ok(
   exists (select 1 from public.bitacora where tabla = 'cronograma_tareas' and accion = 'crear'),
   'crear una tarea queda en la bitácora');
+select ok(
+  exists (select 1 from public.bitacora
+           where tabla = 'cronograma_tarea_responsables' and registro_id = '00000000-0000-0000-0000-0000000000e1' and accion = 'crear'),
+  'poner un responsable queda en la bitácora con el id de la tarea');
 
--- Borrar un fragmento se lleva sus tareas; si se borra la cuenta responsable, la tarea queda sin responsable.
+-- Si se borra una cuenta responsable, deja de figurar en la tarea; las demás se quedan.
 reset role;
-update public.cronograma_tareas set responsable_id = (select id from public.perfiles where usuario = 'beto')
- where id = '00000000-0000-0000-0000-0000000000e1';
 delete from auth.users where id = '00000000-0000-0000-0000-0000000000b2';
-select is((select responsable_id from public.cronograma_tareas where id = '00000000-0000-0000-0000-0000000000e1'),
-  null, 'al borrar la cuenta responsable, la tarea queda sin responsable');
+select is((select count(*)::int from public.cronograma_tarea_responsables where tarea_id = '00000000-0000-0000-0000-0000000000e1'),
+  1, 'al borrar una cuenta responsable, la tarea conserva a las demás');
 
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "00000000-0000-0000-0000-0000000000a1", "role": "authenticated"}';
 delete from public.cronograma_fragmentos where id = '00000000-0000-0000-0000-0000000000f1';
 select is((select count(*)::int from public.cronograma_tareas where fragmento_id = '00000000-0000-0000-0000-0000000000f1'), 0,
   'borrar un fragmento borra sus tareas');
+select is((select count(*)::int from public.cronograma_tarea_responsables), 0,
+  'y se lleva también a los responsables de esas tareas');
 
 select * from finish();
 rollback;

@@ -60,7 +60,7 @@ npx supabase stop  # apaga Supabase local
 - "+ Nuevo lugar" pregunta si se registra un **punto** (`/lugares/nuevo`), una **zona** (`/zonas/nueva`, se dibuja con la mira) o un **elemento** (`/elementos/nuevo`: una caneca, un poste… que no se estudia, pero recibe evidencias en su ficha). La forma de una zona se cambia en `/lugares/<id>/redibujar`, y sus tipos se administran en **Tipos de zona** (`/tipos-de-zona`).
 - **Pizarra** (`/pizarra`) deja dibujar a mano alzada y escribir textos (que se mueven y se giran) sobre el mapa, y guardarlo como boceto; **Bocetos** (`/bocetos`) es el registro, con miniatura, autor y fecha ([decisión 0029](docs/decisiones/0029-pizarra-y-bocetos.md)).
 - **Analítica** (`/analitica`) muestra cómo va el levantamiento: locales, estudios, entrevistas y evidencias, cobertura, ritmo por semana y por día, categorías y equipo, con gráficos en los colores de KIRA. No cuenta zonas ni salidas ([decisión 0034](docs/decisiones/0034-analitica.md)).
-- **Cronograma** (`/cronograma`) parte el calendario en fragmentos de fechas libres, cada uno con su checklist de tareas (con responsable opcional). Todas las cuentas activas lo editan ([decisión 0039](docs/decisiones/0039-cronograma.md)).
+- **Cronograma** (`/cronograma`) parte el calendario en fragmentos de fechas libres, cada uno con su checklist de tareas (con responsables opcionales) y un resumen arriba con el avance y los tiempos de entrega. Todas las cuentas activas lo editan ([decisión 0039](docs/decisiones/0039-cronograma.md)).
 - **Preguntas** (`/preguntas`) abre las guías de entrevista, una pestaña por tipo de actor, con las preguntas imprescindibles primero y el guion de autorización para grabar ([decisión 0031](docs/decisiones/0031-guias-de-preguntas.md)).
 - **Salidas** (`/salidas`) lista las próximas y las anteriores. En cada salida (`/salidas/<id>`) los admins dibujan zonas (`/salidas/<id>/zonas/nueva`) y las asignan, y cada quien reporta lo suyo. Su sección "Qué se registró" lista los estudios ligados a ella. **Mis asignaciones** (`/mis-asignaciones`) muestra las zonas propias, con un contador en el menú de las que faltan por reportar. "Ver en el mapa" (o tocar la zona directamente en el mapa) abre `/salidas/<id>/zonas/<zona>`.
 - Desde el menú de la cuenta, **Mi perfil** (`/perfil`) deja cambiar el nombre, el avatar y la contraseña.
@@ -167,7 +167,8 @@ La app no lee ninguna de estas claves: no las pongas en `.env.local` con prefijo
 | `evidencias` | Archivos, textos o enlaces de video de cada estudio (o de cada elemento, que no tiene estudios) |
 | `bocetos` | Dibujos hechos sobre el mapa en la pizarra: título, descripción, trazos (GeoJSON) y la imagen guardada (no se editan) |
 | `cronograma_fragmentos` | Tramos del calendario con fechas libres y un título opcional |
-| `cronograma_tareas` | El checklist de cada fragmento: texto, responsable opcional y quién la marcó como hecha |
+| `cronograma_tareas` | El checklist de cada fragmento: texto y quién la marcó como hecha |
+| `cronograma_tarea_responsables` | Qué cuentas se encargan de cada tarea (varias, opcionales) |
 | `bitacora` | Cada acción sobre los datos, con quién la hizo (solo la leen los admins) |
 
 **Cómo se usa:** un lugar se crea una sola vez y acumula su histórico. Cada vez que alguien vuelve a ese lugar, se le **agrega un estudio nuevo**. Los estudios de zonas y de puntos tienen la misma estructura. La ficha de una zona muestra los locales que caen dentro (calculado por la geometría con `locales_en_zona`), y al crear un punto se avisa si hay otro a menos de 15 m (`ubicaciones_cercanas`) para no duplicarlo.

@@ -32,7 +32,9 @@ src/
                   captura del mapa y dibujo de los textos sobre la imagen (capturar.ts, dibujarTextos.ts),
                   registro de bocetos (BocetosPage, VerBoceto) y api.ts
     cronograma/   Cronograma (decisión 0039): CronogramaPage, FragmentoTarjeta (checklist y casillas),
-                  FormularioFragmento, FormularioTarea, textos.ts (rango, avance y grupos) y api.ts
+                  FormularioFragmento, FormularioTarea (responsables con SelectorParticipantes),
+                  ResumenCronograma (cifras y gráfica de arriba), resumen.ts (cálculo puro,
+                  resumirCronograma), textos.ts (rango, avance y grupos) y api.ts
     preguntas/    Guías de entrevista (decisión 0031): contenido estático (guias.ts), orden de las
                   preguntas (ordenar.ts), PreguntasPage (diálogo y pestañas), ListaPreguntas,
                   PreguntaDesplegable, EjercicioTarjetas y VistaAutorizacion
@@ -157,7 +159,9 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 - Los gráficos (`Graficos.tsx`: `Cifra`, `Seccion`, `BarrasHorizontales`, `Medidor`, `Columnas`) son HTML y CSS con tokens de `theme.css`, sin librería.
 
 **Cronograma** (ver [decisión 0039](decisiones/0039-cronograma.md))
-- `useCronograma()` (`cronograma/api.ts`) trae los fragmentos y las tareas en dos consultas y los junta en el cliente; `agruparFragmentos()` (`textos.ts`, pura) los separa en en curso, próximos y anteriores según la fecha de hoy.
+- `useCronograma()` (`cronograma/api.ts`) trae los fragmentos, las tareas y sus responsables (`cronograma_tarea_responsables`) en tres consultas y los junta en el cliente; `agruparFragmentos()` (`textos.ts`, pura) los separa en en curso, próximos y anteriores según la fecha de hoy.
+- `useGuardarTarea()` guarda el texto y solo toca los responsables que cambiaron (`anteriores` frente a `responsableIds`), como `useGuardarAsignacion()`.
+- `ResumenCronograma` reutiliza `Cifra` y `Seccion` de Analítica (`analitica/Graficos.tsx`) y su CSS; la gráfica de fragmentos es propia (`.cronograma-grafica-*`). `resumirCronograma(fragmentos, hoy)` es pura: calcula el avance, las vencidas, las hechas a tiempo (compara `fechaLocal(hecha_en)` con la fecha de fin), la entrega en curso y el estado de cada fragmento.
 - `useMarcarTarea()` devuelve una función que actualiza el caché de TanStack Query en el mismo toque y, si el servidor falla, lo restaura. Además, `FilaTarea` guarda el valor tocado en un estado local (`pendiente`, válido mientras el valor guardado siga igual): el caché avisa a los componentes un instante después y, sin ese estado, React devuelve la casilla controlada a su valor anterior y parpadea.
 
 **Pizarra y bocetos** (ver [decisión 0029](decisiones/0029-pizarra-y-bocetos.md))

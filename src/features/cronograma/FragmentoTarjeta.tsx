@@ -3,7 +3,8 @@ import { useState, type FormEvent } from 'react'
 import { Dialog } from '../../components/Dialog'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
-import { useNombreDeCuenta } from '../usuarios/api'
+import { Avatar } from '../usuarios/Avatar'
+import { semillaDe, useNombreDeCuenta, useUsuarios } from '../usuarios/api'
 import { useBorrarFragmento, useGuardarTarea, useMarcarTarea, type Fragmento, type Tarea } from './api'
 import { FormularioFragmento } from './FormularioFragmento'
 import { FormularioTarea } from './FormularioTarea'
@@ -105,6 +106,8 @@ export function FragmentoTarjeta({ fragmento, abierto }: FragmentoTarjetaProps) 
 function FilaTarea({ tarea }: { tarea: Tarea }) {
   const marcar = useMarcarTarea()
   const nombreDe = useNombreDeCuenta()
+  const { data: cuentas } = useUsuarios()
+  const responsables = tarea.responsableIds.map((id) => cuentas?.find((cuenta) => cuenta.id === id)).filter((cuenta) => cuenta !== undefined)
   const [editando, setEditando] = useState(false)
 
   // La casilla se actualiza en el mismo toque (si espera al caché de consultas, que avisa un instante
@@ -126,7 +129,18 @@ function FilaTarea({ tarea }: { tarea: Tarea }) {
         <input type="checkbox" className="cronograma-casilla" checked={hecha} onChange={(evento) => alMarcar(evento.target.checked)} />
         <span className="cronograma-tarea-textos">
           <span className={`cronograma-tarea-texto${hecha ? ' cronograma-tarea-hecha' : ''}`}>{tarea.texto}</span>
-          {tarea.responsableId && <span className="lista-item-detalle">Responsable: {nombreDe(tarea.responsableId) ?? '…'}</span>}
+          {tarea.responsableIds.length > 0 && (
+            <span className="cronograma-responsables">
+              <span className="cronograma-avatares">
+                {responsables.map((cuenta) => (
+                  <Avatar key={cuenta.id} semilla={semillaDe(cuenta)} tamano={22} />
+                ))}
+              </span>
+              <span className="lista-item-detalle">
+                {tarea.responsableIds.length === 1 ? 'Responsable' : 'Responsables'}: {tarea.responsableIds.map((id) => nombreDe(id) ?? '…').join(', ')}
+              </span>
+            </span>
+          )}
         </span>
       </label>
       <button type="button" className="icon-btn" aria-label={`Editar la tarea «${tarea.texto}»`} title="Editar" onClick={() => setEditando(true)}>
@@ -146,7 +160,7 @@ function FormularioNuevaTarea({ fragmentoId }: { fragmentoId: string }) {
     evento.preventDefault()
     if (!texto.trim()) return
     try {
-      await guardar.mutateAsync({ fragmentoId, texto, responsableId: null })
+      await guardar.mutateAsync({ fragmentoId, texto, responsableIds: [] })
       setTexto('')
     } catch (error) {
       notificar.error('No se pudo agregar la tarea', { descripcion: mensajeErrorDatos(error) })
