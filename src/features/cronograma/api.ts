@@ -7,9 +7,11 @@ export interface Tarea {
   id: string
   fragmentoId: string
   texto: string
-  /** Cuenta encargada (opcional). */
-  responsableId: string | null
+  /** Cuentas encargadas (opcional: puede no haber ninguna). */
+  responsableIds: string[]
   hecha: boolean
+  /** Cuándo se marcó como hecha (momento ISO), o null si está pendiente. */
+  hechaEn: string | null
   /** Quién la marcó como hecha. */
   hechaPor: string | null
 }
@@ -36,12 +38,17 @@ export function useCronograma() {
   return useQuery({
     queryKey: CLAVE_CRONOGRAMA,
     queryFn: async (): Promise<Fragmento[]> => {
-      const [fragmentos, tareas] = await Promise.all([
+      const [fragmentos, tareas, responsables] = await Promise.all([
         supabase.from('cronograma_fragmentos').select('id, titulo, fecha_inicio, fecha_fin').order('fecha_inicio', { ascending: true }),
-        supabase.from('cronograma_tareas').select('id, fragmento_id, texto, responsable_id, hecha_en, hecha_por').order('created_at', { ascending: true }),
+        supabase.from('cronograma_tareas').select('id, fragmento_id, texto, hecha_en, hecha_por').order('created_at', { ascending: true }),
+        supabase.from('cronograma_tarea_responsables').select('tarea_id, usuario_id'),
       ])
       if (fragmentos.error) throw fragmentos.error
       if (tareas.error) throw tareas.error
+      if (responsables.error) throw responsables.error
+
+      const responsablesDe = new Map<string, string[]>()
+      for (const fila of responsables.data) responsablesDe.set(fila.tarea_id, [...(responsablesDe.get(fila.tarea_id) ?? []), fila.usuario_id])
 
       const porFragmento = new Map<string, Tarea[]>()
       for (const fila of tareas.data) {
@@ -50,8 +57,9 @@ export function useCronograma() {
           id: fila.id,
           fragmentoId: fila.fragmento_id,
           texto: fila.texto,
-          responsableId: fila.responsable_id,
+          responsableIds: responsablesDe.get(fila.id) ?? [],
           hecha: fila.hecha_en !== null,
+          hechaEn: fila.hecha_en,
           hechaPor: fila.hecha_por,
         })
         porFragmento.set(fila.fragmento_id, lista)
@@ -111,22 +119,43 @@ export function useBorrarFragmento() {
 
 export interface DatosTarea {
   texto: string
-  responsableId: string | null
+  responsableIds: string[]
 }
 
-/** Agregar una tarea a un fragmento, o editar su texto y su responsable. */
+/**
+ * Agregar una tarea a un fragmento, o editar su texto y sus responsables. Al editar solo se tocan los
+ * responsables que cambiaron (como los participantes de un estudio).
+ */
 export function useGuardarTarea() {
   const onSuccess = useAlCambiar()
   return useMutation({
-    mutationFn: async ({ id, fragmentoId, texto, responsableId }: DatosTarea & { id?: string; fragmentoId: string }) => {
-      const fila = { texto: texto.trim().replace(/\s+/g, ' '), responsable_id: responsableId }
-      if (id) {
-        const { error } = await supabase.from('cronograma_tareas').update(fila).eq('id', id)
+    mutationFn: async ({
+      id,
+      fragmentoId,
+      texto,
+      responsableIds,
+      anteriores = [],
+    }: DatosTarea & { id?: string; fragmentoId: string; anteriores?: string[] }) => {
+      const textoLimpio = texto.trim().replace(/\s+/g, ' ')
+      let tareaId = id
+      if (tareaId) {
+        const { error } = await supabase.from('cronograma_tareas').update({ texto: textoLimpio }).eq('id', tareaId)
         if (error) throw error
-        return
+      } else {
+        const { data, error } = await supabase.from('cronograma_tareas').insert({ texto: textoLimpio, fragmento_id: fragmentoId }).select('id').single()
+        if (error) throw error
+        tareaId = data.id
       }
-      const { error } = await supabase.from('cronograma_tareas').insert({ ...fila, fragmento_id: fragmentoId })
-      if (error) throw error
+      const quitar = anteriores.filter((usuarioId) => !responsableIds.includes(usuarioId))
+      const agregar = responsableIds.filter((usuarioId) => !anteriores.includes(usuarioId))
+      if (quitar.length > 0) {
+        const { error } = await supabase.from('cronograma_tarea_responsables').delete().eq('tarea_id', tareaId).in('usuario_id', quitar)
+        if (error) throw error
+      }
+      if (agregar.length > 0) {
+        const { error } = await supabase.from('cronograma_tarea_responsables').insert(agregar.map((usuarioId) => ({ tarea_id: tareaId, usuario_id: usuarioId })))
+        if (error) throw error
+      }
     },
     onSuccess,
   })
@@ -156,7 +185,10 @@ export function useMarcarTarea() {
   return (id: string, hecha: boolean, alFallar: (error: unknown) => void) => {
     const anterior = queryClient.getQueryData<Fragmento[]>(CLAVE_CRONOGRAMA)
     queryClient.setQueryData<Fragmento[]>(CLAVE_CRONOGRAMA, (fragmentos) =>
-      fragmentos?.map((fragmento) => ({ ...fragmento, tareas: fragmento.tareas.map((tarea) => (tarea.id === id ? { ...tarea, hecha } : tarea)) })),
+      fragmentos?.map((fragmento) => ({
+        ...fragmento,
+        tareas: fragmento.tareas.map((tarea) => (tarea.id === id ? { ...tarea, hecha, hechaEn: hecha ? (tarea.hechaEn ?? new Date().toISOString()) : null } : tarea)),
+      })),
     )
     mutacion.mutate(
       { id, hecha },
