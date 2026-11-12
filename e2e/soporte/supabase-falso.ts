@@ -25,6 +25,9 @@ import { RealtimeFalso } from './realtime-falso'
  * - las categorías aplican a lugares por defecto (aplica_a)
  * - bocetos: título de 1 a 120 caracteres, trazos como FeatureCollection e imagen con medidas → 23514;
  *   no se editan (PATCH → 42501) y los borra su autor o un admin
+ * - cronograma: todas las cuentas activas crean, editan y borran fragmentos y tareas; las fechas de un fragmento
+ *   (fin >= inicio), el título (hasta 120) y el texto de una tarea (1 a 300) se validan → 23514; borrar un
+ *   fragmento borra sus tareas; hecha_por lo pone la base de datos al marcar una tarea como hecha
  * - locales_en_zona() devuelve los puntos dentro de una zona, con su último estudio
  * - tipos de zona: los borra un admin y sus zonas quedan sin tipo; comentarios: los borra su autor o un admin
  * - ubicaciones_cercanas() devuelve hasta 5 puntos no archivados a menos de N metros
@@ -77,7 +80,7 @@ export type ComoQuien = keyof typeof CUENTAS
 type Fila = Record<string, unknown> & { id?: string }
 type Tabla =
   | 'categorias' | 'tipos_zona' | 'ubicaciones' | 'estudios' | 'estudio_participantes' | 'evidencias' | 'comentarios_zona'
-  | 'salidas' | 'asignaciones' | 'asignacion_participantes' | 'bocetos'
+  | 'salidas' | 'asignaciones' | 'asignacion_participantes' | 'bocetos' | 'cronograma_fragmentos' | 'cronograma_tareas'
 
 /** Tablas que solo los admins escriben (salidas y zonas asignadas). */
 const SOLO_ADMINS: Tabla[] = ['salidas', 'asignaciones']
@@ -200,6 +203,8 @@ export class SupabaseFalso {
     asignaciones: [],
     asignacion_participantes: [],
     bocetos: [],
+    cronograma_fragmentos: [],
+    cronograma_tareas: [],
   }
   /** Cuentas de auth.users con su perfil. */
   cuentas: Cuenta[] = Object.values(CUENTAS).map((cuenta) => this.nuevaCuenta(cuenta))
@@ -571,6 +576,8 @@ export class SupabaseFalso {
 
   /** Reglas de borrado de RLS. */
   private puedeBorrar(tabla: Tabla, fila: Fila, cuenta: Cuenta) {
+    // El cronograma es de todo el equipo: cualquier cuenta activa borra.
+    if (tabla.startsWith('cronograma_')) return true
     if (cuenta.rol === 'admin') return tabla !== 'ubicaciones' || !this.tieneHistorico(fila)
     if (tabla === 'categorias' || tabla === 'tipos_zona' || SOLO_ADMINS.includes(tabla) || tabla === 'asignacion_participantes') return false
     if (tabla === 'estudio_participantes') return true
@@ -635,6 +642,7 @@ export class SupabaseFalso {
           if (tabla === 'evidencias' && !this.evidenciaValida(datos)) return this.invalido(ruta)
           if (tabla === 'asignaciones' && !String(datos.geom).includes('POLYGON')) return this.invalido(ruta)
           if (tabla === 'bocetos' && !this.bocetoValido(datos)) return this.invalido(ruta)
+          if (tabla.startsWith('cronograma_') && !this.cronogramaValido(tabla, datos)) return this.invalido(ruta)
           if (tabla === 'ubicaciones' && datos.tipo !== 'elemento' && !String(datos.nombre ?? '').trim()) return this.invalido(ruta)
           if (tabla === 'ubicaciones' && datos.contacto_telefono && !/^\+?[0-9 ()-]{7,20}$/.test(datos.contacto_telefono)) return this.invalido(ruta)
           const fila = {
@@ -660,6 +668,7 @@ export class SupabaseFalso {
         // Un boceto no se edita: la tabla no tiene permiso de update.
         if (tabla === 'bocetos') return ruta.fulfill(errorPg('42501', 'permission denied for table bocetos', 403))
         if (SOLO_ADMINS.includes(tabla) && cuenta?.rol !== 'admin') return this.cambiadas(ruta, [], select)
+        if (tabla.startsWith('cronograma_') && !this.cronogramaValido(tabla, cambios, filas.filter(coincide)[0])) return this.invalido(ruta)
         if (tabla === 'asignacion_participantes' && cambios.porcentaje != null && ![0, 25, 50, 75, 100].includes(cambios.porcentaje)) return this.invalido(ruta)
         if (tabla === 'estudios' && cambios.hora_inicio && !(String(cambios.hora_fin) > String(cambios.hora_inicio))) return this.invalido(ruta)
         if (tabla === 'estudios' && !notasValidas(cambios.notas)) return this.invalido(ruta)
@@ -671,6 +680,8 @@ export class SupabaseFalso {
             fila,
             cambios,
             tabla === 'ubicaciones' && 'geom' in cambios ? { geom: geometria(cambios.geom) } : {},
+            // La base de datos pone quién marcó la tarea como hecha, y lo limpia al desmarcarla.
+            tabla === 'cronograma_tareas' && 'hecha_en' in cambios ? { hecha_por: cambios.hecha_en ? (fila.hecha_por ?? cuenta?.id) : null, hecha_en: cambios.hecha_en ? (fila.hecha_en ?? cambios.hecha_en) : null } : {},
             SIN_AUTORIA.includes(tabla) ? {} : { creado_por: fila.creado_por, actualizado_por: cuenta?.id, updated_at: new Date().toISOString() },
           )
         }
@@ -685,6 +696,10 @@ export class SupabaseFalso {
           }
           if (tabla === 'tipos_zona') {
             for (const ubicacion of this.db.ubicaciones) if (ubicacion.tipo_zona_id === fila.id) ubicacion.tipo_zona_id = null
+          }
+          // on delete cascade: un fragmento se lleva a sus tareas.
+          if (tabla === 'cronograma_fragmentos') {
+            this.db.cronograma_tareas = this.db.cronograma_tareas.filter((t) => t.fragmento_id !== fila.id)
           }
           // on delete cascade: una zona asignada se lleva a sus participantes.
           if (tabla === 'asignaciones') {
@@ -748,6 +763,22 @@ export class SupabaseFalso {
       Number(datos.ancho) > 0 &&
       Number(datos.alto) > 0
     )
+  }
+
+  /** Reglas del cronograma: fechas del fragmento, título y texto de las tareas. En un cambio, `actual` es la fila que se edita. */
+  private cronogramaValido(tabla: Tabla, datos: Fila, actual?: Fila) {
+    if (tabla === 'cronograma_fragmentos') {
+      const titulo = datos.titulo
+      if (titulo != null && (String(titulo).trim().length < 1 || String(titulo).length > 120)) return false
+      const inicio = String(datos.fecha_inicio ?? actual?.fecha_inicio ?? '')
+      const fin = String(datos.fecha_fin ?? actual?.fecha_fin ?? '')
+      return Boolean(inicio && fin && fin >= inicio)
+    }
+    if ('texto' in datos || !actual) {
+      const texto = String(datos.texto ?? '').trim()
+      if (texto.length < 1 || texto.length > 300) return false
+    }
+    return true
   }
 
   /** El nombre propio o, en un elemento sin nombre, el de su categoría (como lugares_mapa() en la base de datos). */
