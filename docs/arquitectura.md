@@ -31,6 +31,8 @@ src/
     bocetos/      Pizarra (PizarraPagina, TextosEnPizarra, EditarTexto, trazos.ts, useTrazosEnMapa),
                   captura del mapa y dibujo de los textos sobre la imagen (capturar.ts, dibujarTextos.ts),
                   registro de bocetos (BocetosPage, VerBoceto) y api.ts
+    cronograma/   Cronograma (decisión 0039): CronogramaPage, FragmentoTarjeta (checklist y casillas),
+                  FormularioFragmento, FormularioTarea, textos.ts (rango, avance y grupos) y api.ts
     preguntas/    Guías de entrevista (decisión 0031): contenido estático (guias.ts), orden de las
                   preguntas (ordenar.ts), PreguntasPage (diálogo y pestañas), ListaPreguntas,
                   PreguntaDesplegable, EjercicioTarjetas y VistaAutorizacion
@@ -153,6 +155,10 @@ Dentro de `AppConSesion`, `MapaProvider` envuelve a `MapView` y `Routes`, para q
 **Analítica** (ver [decisión 0034](decisiones/0034-analitica.md))
 - `useAnalitica()` (`analitica/api.ts`) lee estudios no archivados, evidencias y participantes **por páginas de 1000 filas** (`leerTodo()`), reutiliza `useLugares()`, `useCategorias()` y `useUsuarios()`, y se lo pasa a `calcularAnalitica()` (`calculos.ts`), una función pura que recibe también la fecha de hoy. Solo cuenta estudios de puntos; las zonas y las salidas quedan fuera.
 - Los gráficos (`Graficos.tsx`: `Cifra`, `Seccion`, `BarrasHorizontales`, `Medidor`, `Columnas`) son HTML y CSS con tokens de `theme.css`, sin librería.
+
+**Cronograma** (ver [decisión 0039](decisiones/0039-cronograma.md))
+- `useCronograma()` (`cronograma/api.ts`) trae los fragmentos y las tareas en dos consultas y los junta en el cliente; `agruparFragmentos()` (`textos.ts`, pura) los separa en en curso, próximos y anteriores según la fecha de hoy.
+- `useMarcarTarea()` devuelve una función que actualiza el caché de TanStack Query en el mismo toque y, si el servidor falla, lo restaura. Además, `FilaTarea` guarda el valor tocado en un estado local (`pendiente`, válido mientras el valor guardado siga igual): el caché avisa a los componentes un instante después y, sin ese estado, React devuelve la casilla controlada a su valor anterior y parpadea.
 
 **Pizarra y bocetos** (ver [decisión 0029](decisiones/0029-pizarra-y-bocetos.md))
 - `PizarraPagina` pone una capa transparente (`.pizarra-lienzo`, `touch-action: none`) sobre el mapa. Con **Lápiz** recibe los toques (pointer events, un solo puntero) y el mapa no se entera; con **Mano** tiene `pointer-events: none` y el mapa se mueve. Cada trazo se guarda en píxeles mientras se dibuja, se simplifica al soltar (`simplificar()`, Douglas-Peucker) y se pasa a coordenadas con `map.unproject()`.
