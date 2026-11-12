@@ -17,6 +17,7 @@ import { AnaliticaPage } from '../features/analitica/AnaliticaPage'
 import { BocetosPage } from '../features/bocetos/BocetosPage'
 import { PizarraPagina } from '../features/bocetos/PizarraPagina'
 import { CategoriasPage } from '../features/categorias/CategoriasPage'
+import { CronogramaPage } from '../features/cronograma/CronogramaPage'
 import { CrearElemento } from '../features/elementos/CrearElemento'
 import { BotonNuevoLugar } from '../features/lugares/BotonNuevoLugar'
 import { CrearPunto } from '../features/lugares/CrearPunto'
@@ -156,6 +157,7 @@ function AppConSesion({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: (
                 <Route path="/pizarra" element={<PizarraPagina />} />
                 <Route path="/bocetos" element={<BocetosPage />} />
                 <Route path="/analitica" element={<AnaliticaPage />} />
+                <Route path="/cronograma" element={<CronogramaPage />} />
                 <Route path="/preguntas" element={<PreguntasPage />} />
                 <Route path="/tipos-de-zona" element={<TiposZonaPage />} />
                 <Route path="/salidas" element={<SalidasPage />} />

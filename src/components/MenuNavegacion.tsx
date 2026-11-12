@@ -18,6 +18,7 @@ const SECCIONES = [
   { ruta: '/categorias', texto: 'Categorías', icono: <IconoEtiqueta /> },
   { ruta: '/tipos-de-zona', texto: 'Tipos de zona', icono: <IconoZona /> },
   { ruta: '/salidas', texto: 'Salidas', icono: <IconoSalidas /> },
+  { ruta: '/cronograma', texto: 'Cronograma', icono: <IconoCronograma /> },
   { ruta: '/pizarra', texto: 'Pizarra', icono: <IconoPizarra /> },
   { ruta: '/bocetos', texto: 'Bocetos', icono: <IconoBocetos /> },
   { ruta: '/preguntas', texto: 'Preguntas', icono: <IconoPreguntas /> },
@@ -66,7 +67,7 @@ export function MenuFijo() {
   )
 }
 
-/** Las secciones de la app: Mapa, Analítica, Categorías, Tipos de zona, Salidas, Pizarra, Bocetos, Preguntas, Mis asignaciones, Usuarios (admins) y Documentación. */
+/** Las secciones de la app: Mapa, Analítica, Categorías, Tipos de zona, Salidas, Cronograma, Pizarra, Bocetos, Preguntas, Mis asignaciones, Usuarios (admins) y Documentación. */
 function ListaSecciones() {
   const { esAdmin, perfil } = useAuth()
   // Cuántas zonas asignadas a la cuenta faltan por reportar (de salidas de hoy o anteriores).
@@ -195,6 +196,16 @@ function IconoSalidas() {
     <svg {...icono}>
       <path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5V4l-6 2.5L9 4Z" />
       <path d="M9 4v13M15 6.5v13" />
+    </svg>
+  )
+}
+
+function IconoCronograma() {
+  return (
+    <svg {...icono}>
+      <rect x="3" y="4.5" width="18" height="16" rx="2" />
+      <path d="M8 2.5v4M16 2.5v4M3 9.5h18" />
+      <path d="m9 15 2 2 4-4" />
     </svg>
   )
 }

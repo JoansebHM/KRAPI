@@ -1,0 +1,153 @@
+.cronograma-grupo + .cronograma-grupo {
+  margin-top: var(--space-6);
+}
+
+.cronograma-grupo-titulo {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: 1.0625rem;
+}
+
+.cronograma-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cronograma-fragmento {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.cronograma-resumen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-3);
+  cursor: pointer;
+}
+
+.cronograma-resumen:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+.cronograma-textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cronograma-titulo {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.cronograma-etiqueta {
+  margin-left: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-highlight);
+  color: var(--color-on-highlight);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cronograma-barra {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.cronograma-barra-relleno {
+  display: block;
+  height: 100%;
+  background: var(--color-accent);
+}
+
+.cronograma-cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+.cronograma-tareas {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cronograma-tarea {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+.cronograma-tarea-principal {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: 48px;
+  cursor: pointer;
+}
+
+.cronograma-casilla {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--color-accent);
+}
+
+.cronograma-tarea-textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cronograma-tarea-texto {
+  overflow-wrap: anywhere;
+}
+
+.cronograma-tarea-hecha {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.cronograma-nueva {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.cronograma-nueva .field-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.cronograma-editar {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.cronograma-fechas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
