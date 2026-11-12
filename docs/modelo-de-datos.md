@@ -6,7 +6,7 @@ Para el *porqué* de cada decisión, ver [`decisiones/`](decisiones/).
 
 ## Diagrama
 
-![Modelo de datos: categorías, tipos de zona, ubicaciones, estudios, participantes (cuentas), evidencias, comentarios de zona, contactos, cronograma y el bucket](diagramas/modelo-de-datos.svg)
+![Modelo de datos: categorías, tipos de zona, ubicaciones, estudios, participantes (cuentas), evidencias, comentarios de zona, contactos, cronograma (con los responsables de cada tarea) y el bucket](diagramas/modelo-de-datos.svg)
 
 ## Tablas
 
@@ -154,11 +154,14 @@ El cronograma del equipo ([decisión 0039](decisiones/0039-cronograma.md)): frag
 | **`cronograma_tareas`** | | |
 | `fragmento_id` | uuid → `cronograma_fragmentos` | ON DELETE CASCADE: al borrar el fragmento se borran sus tareas |
 | `texto` | text | De 1 a 300 caracteres |
-| `responsable_id` | uuid → `perfiles` | Opcional. ON DELETE SET NULL |
 | `hecha_en` | timestamptz | Si tiene fecha, la tarea está hecha. NULL = pendiente |
 | `hecha_por` | uuid → `auth.users` | Quién la marcó. Lo pone el trigger `poner_quien_hizo_tarea()` con `auth.uid()` (no se puede marcar a nombre de otra cuenta) y lo limpia al desmarcarla. ON DELETE SET NULL |
 
-Todas las cuentas activas leen, crean, editan y borran ambas tablas. Es planeación, no histórico de campo, así que se borra de verdad.
+### `cronograma_tarea_responsables`: quiénes se encargan de cada tarea
+
+Las cuentas responsables de una tarea, como los participantes de un estudio ([decisión 0039](decisiones/0039-cronograma.md)). `(tarea_id, usuario_id)` es la clave primaria; `tarea_id` → `cronograma_tareas` y `usuario_id` → `perfiles`, ambas con **ON DELETE CASCADE**. Una tarea puede no tener ninguna, y una cuenta no se repite en la misma tarea. La app solo ofrece cuentas activas (más las que ya estaban puestas). La bitácora la registra con el id de la tarea.
+
+Todas las cuentas activas leen, crean, editan y borran estas tablas. Es planeación, no histórico de campo, así que se borra de verdad.
 
 ### `salidas`: salidas de campo
 
@@ -222,7 +225,7 @@ Las columnas de autoría solo dicen quién creó y quién editó por última vez
 | `cambios` | jsonb | Al crear, los campos del registro. Al editar, archivar o recuperar, solo los que cambiaron: `{"nombre": {"antes": "…", "despues": "…"}}` |
 | `registro_borrado` | jsonb | Al borrar, una copia completa del registro |
 
-- La llena el trigger `registrar_bitacora()` en `categorias`, `tipos_zona`, `ubicaciones`, `estudios`, `estudio_participantes`, `evidencias`, `comentarios_zona`, `bocetos`, `salidas`, `asignaciones`, `asignacion_participantes`, `cronograma_fragmentos` y `cronograma_tareas`, y en los cambios de `rol` y `estado` de `perfiles`. Cancelar o reactivar una salida queda como `archivar` o `recuperar`.
+- La llena el trigger `registrar_bitacora()` en `categorias`, `tipos_zona`, `ubicaciones`, `estudios`, `estudio_participantes`, `evidencias`, `comentarios_zona`, `bocetos`, `salidas`, `asignaciones`, `asignacion_participantes`, `cronograma_fragmentos`, `cronograma_tareas` y `cronograma_tarea_responsables`, y en los cambios de `rol` y `estado` de `perfiles`. Cancelar o reactivar una salida queda como `archivar` o `recuperar`.
 - No registra las columnas que mantiene la base de datos (`created_at`, `updated_at`, `creado_por`, `actualizado_por`, `archivada_por`, `archivado_por`, y `forma`, que se calcula). Si solo cambió una de ellas, no se agrega nada.
 - **Solo se agregan filas:** nadie la edita, la borra ni la vacía, ni siquiera con la clave secreta (trigger `impedir_cambios_bitacora()`). Solo los admins la leen.
 - Índices por `registro_id` (con la fecha) y por `ocurrio_en`. La vista de la bitácora en la app queda para una issue posterior.
@@ -298,7 +301,7 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
   | `evidencias` | Cuenta activa | Quien la subió o un admin |
   | `comentarios_zona` | Cuenta activa (editar: su autor o un admin) | Quien lo escribió o un admin |
   | `bocetos` | Leer y crear: cuenta activa. **No se edita** | Quien lo hizo o un admin |
-  | `cronograma_fragmentos`, `cronograma_tareas` | Cuenta activa (leer, crear, editar y marcar) | Cuenta activa |
+  | `cronograma_fragmentos`, `cronograma_tareas`, `cronograma_tarea_responsables` | Cuenta activa (leer, crear, editar y marcar) | Cuenta activa |
   | `salidas`, `asignaciones` | Leer: cuenta activa. Crear y editar: solo admin | Solo admin (las salidas se cancelan, no se borran) |
   | `asignacion_participantes` | Leer: cuenta activa. Asignar: solo admin. Reportar (`hora_fin`, `porcentaje`, `reportado_en`): la persona asignada o un admin | Solo admin |
   | Bucket `evidencias` | Cuenta activa | Quien subió el archivo (`owner_id`, lo llena Storage) o un admin |
@@ -355,3 +358,4 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261108130000_presencia` | Políticas de `realtime.messages` para el canal privado `presencia`: solo cuentas activas ([decisión 0036](decisiones/0036-usuarios-en-linea.md)) |
 | `20261108140000_ultimo_ingreso` | `ultimos_accesos()`: el último ingreso de cada cuenta, solo para admins ([decisión 0037](decisiones/0037-ultimo-ingreso.md)) |
 | `20261112120000_cronograma` | `cronograma_fragmentos` y `cronograma_tareas` ([decisión 0039](decisiones/0039-cronograma.md)): fechas libres, responsable opcional, `hecha_por` puesto por el trigger `poner_quien_hizo_tarea()`, con autoría y bitácora |
+| `20261112180000_cronograma_responsables` | `cronograma_tarea_responsables` ([decisión 0039](decisiones/0039-cronograma.md)): varios responsables por tarea. Pasa los de `cronograma_tareas.responsable_id` a la tabla nueva, borra esa columna y enseña a `registrar_bitacora()` a registrar con el id de la tarea |
