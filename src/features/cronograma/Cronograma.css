@@ -151,3 +151,116 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
 }
+
+/* Resumen de arriba: usa las cifras de Analítica; aquí solo la gráfica de fragmentos. */
+.cronograma-resumen-general {
+  margin-bottom: var(--space-6);
+}
+
+.cronograma-responsables {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.cronograma-avatares {
+  display: inline-flex;
+}
+
+.cronograma-avatares .avatar + .avatar {
+  margin-left: -6px;
+}
+
+.cronograma-grafica {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cronograma-grafica-fila {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cronograma-grafica-fila > p {
+  margin: 0;
+}
+
+.cronograma-grafica-titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.cronograma-grafica-titulo > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* El estado va siempre con texto: el color solo lo refuerza. */
+.cronograma-estado {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.cronograma-estado-atrasado,
+.cronograma-estado-vencido {
+  color: var(--color-danger);
+}
+
+.cronograma-estado-completo,
+.cronograma-estado-al-dia {
+  color: var(--color-accent);
+}
+
+.cronograma-grafica-barra {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.8125rem;
+}
+
+.cronograma-grafica-etiqueta {
+  color: var(--color-text-muted);
+}
+
+.cronograma-grafica-valor {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.cronograma-grafica-pista {
+  display: block;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--analitica-pista, var(--color-surface));
+  overflow: hidden;
+}
+
+.cronograma-grafica-relleno {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  border-radius: 5px;
+}
+
+.cronograma-grafica-tareas {
+  background: var(--color-primary);
+}
+
+.cronograma-grafica-tiempo {
+  background: var(--color-text-muted);
+}
