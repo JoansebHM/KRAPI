@@ -10,6 +10,7 @@ El equipo sale a campo con seis guías de entrevista semiestructurada (documento
 
 - **Sección "Preguntas"** en el menú (`/preguntas`): un diálogo encima del mapa, con una pestaña por guía (Centro de distribución, JAC, Instituciones, Tenderos, Residentes, Visitantes). La pestaña activa va en la URL (`?guia=`), así el botón atrás del celular funciona; la última se recuerda en `localStorage` (`krapi-preguntas-guia`).
 - **Las ★ primero.** Cada guía muestra primero las preguntas imprescindibles (la versión de 40 minutos) y luego las complementarias. Cada pregunta es un desplegable: cerrada se lee de corrido; abierta muestra por qué se hace (el propósito de su bloque), qué evidencia se busca, las repreguntas, el registro técnico, el ejercicio y las lentes. Al final, el cierre de la entrevista.
+- **Guías cortas de campo (issue #173).** Se sumaron dos pestañas al final: *Gerente de distribución* y *Visita BUSI* (11 preguntas y 6 ★ cada una). No traen "qué buscamos" ni lente, así que esas secciones no se muestran (`evidencia` y `lentes` son opcionales); la visita a la BUSI indica a quién va cada pregunta (`paraQuien`) y la nota de las ★ cambia (`notaImprescindibles`). Sus reglas de campo salen en "Para este actor" de la autorización y el debrief de después de la visita, en el cierre. Se dejaron fuera los roles del equipo y la lista de observación.
 - **Módulos.** Instituciones (Policía, Hospital o clínica, Centro comercial) y Visitantes (Turistas, Población flotante, Consumidores) tienen un tronco común más un solo módulo, que se elige con chips y se recuerda.
 - **Autorización para grabar como botón fijo, no como séptima pestaña.** El guion cambia según el actor, así que el botón siempre abre el de la pestaña activa. Es una **vista interna del mismo diálogo** (`?vista=autorizacion`), no un segundo diálogo encima (regla de `docs/arquitectura.md`); entrar a ella agrega una entrada al historial para que atrás vuelva a las preguntas. El nombre de quien entrevista sale de la cuenta y reemplaza la línea `______`.
 - **El contenido es estático y va en el código** (`src/features/preguntas/guias.ts`). **No hay tabla ni migración**: las guías cambian poco y por PR, y no hay nada que guardar por usuario.
@@ -24,5 +25,5 @@ El equipo sale a campo con seis guías de entrevista semiestructurada (documento
 
 ## Consecuencias
 
-- Cambiar una pregunta o un guion es editar `guias.ts` y abrir un PR. `e2e/preguntas.spec.ts` verifica los conteos (129 preguntas, 81 ★) para proteger la transcripción.
+- Cambiar una pregunta o un guion es editar `guias.ts` y abrir un PR. `e2e/preguntas.spec.ts` verifica los conteos (151 preguntas, 93 ★) para proteger la transcripción.
 - Algunos textos conservan referencias a secciones de los documentos originales (por ejemplo, "descrito en la sección 9"), porque se transcribieron tal cual.

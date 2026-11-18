@@ -18,6 +18,9 @@ test.describe('Guías de preguntas', () => {
     expect(conteo('jac')).toEqual([21, 13])
     expect(conteo('tenderos')).toEqual([19, 12])
     expect(conteo('residentes')).toEqual([19, 12])
+    // Guías cortas de campo: 11 preguntas cada una, 6 ★.
+    expect(conteo('gerente-distribucion')).toEqual([11, 6])
+    expect(conteo('visita-busi')).toEqual([11, 6])
     // Tronco + un módulo: Instituciones 11 (7★) + 5 (3★); Visitantes 12 (8★) + 3 (2★).
     for (const modulo of ['policia', 'hospital', 'centro-comercial']) expect(conteo('instituciones', modulo)).toEqual([16, 10])
     for (const modulo of ['turistas', 'flotante', 'consumidores']) expect(conteo('visitantes', modulo)).toEqual([15, 10])
@@ -26,16 +29,16 @@ test.describe('Guías de preguntas', () => {
       const preguntas = [...guia.bloques, ...(guia.modulos?.opciones.map((o) => o.bloque) ?? [])].flatMap((b) => b.preguntas)
       return [preguntas.length, preguntas.filter((p) => p.imprescindible).length]
     }
-    expect(GUIAS.map(total).reduce(([a, b], [x, y]) => [a + x, b + y], [0, 0])).toEqual([129, 81])
+    expect(GUIAS.map(total).reduce(([a, b], [x, y]) => [a + x, b + y], [0, 0])).toEqual([151, 93])
   })
 
-  test('el menú abre el diálogo con 6 pestañas y Centro de distribución seleccionada', async ({ page, entrar }) => {
+  test('el menú abre el diálogo con 8 pestañas y Centro de distribución seleccionada', async ({ page, entrar }) => {
     await entrar()
     await page.getByRole('button', { name: 'Abrir menú' }).click()
     await page.getByRole('navigation', { name: 'Secciones' }).getByRole('link', { name: 'Preguntas' }).click()
     await expect(page).toHaveURL(/\/preguntas$/)
     await expect(dialogo(page)).toBeVisible()
-    await expect(dialogo(page).getByRole('tab')).toHaveCount(6)
+    await expect(dialogo(page).getByRole('tab')).toHaveCount(8)
     await expect(dialogo(page).getByRole('tab', { name: 'Centro de distribución' })).toHaveAttribute('aria-selected', 'true')
   })
 
@@ -102,6 +105,40 @@ test.describe('Guías de preguntas', () => {
     await d.getByRole('button', { name: 'Hostales y alojamientos' }).click()
     await expect(d.locator('.tarjeta')).toHaveCount(4)
     await expect(d.locator('.tarjeta').first()).toContainText('Beneficio para el huésped')
+  })
+
+  test('Gerente de distribución: las ★ van primero, con la nota de 20 minutos y sin evidencia ni lente', async ({ page, entrar }) => {
+    await entrar()
+    await page.goto('/preguntas?guia=gerente-distribucion')
+    const d = dialogo(page)
+    await expect(d.getByText('Si hay poco tiempo, solo las preguntas ★')).toBeVisible()
+    await expect(d.getByRole('heading', { name: 'Imprescindibles · 6' })).toBeVisible()
+    await expect(d.getByText('Con solo estas se hace la versión de unos 20 minutos.')).toBeVisible()
+    await expect(d.getByRole('heading', { name: 'Complementarias · 5' })).toBeVisible()
+    await expect(d.locator('.pregunta-boton').first()).toContainText('GB2')
+    await pregunta(page, 'GB2').click()
+    const panel = d.locator('.pregunta', { has: page.locator('.pregunta-boton', { hasText: 'GB2' }) })
+    await expect(panel).toContainText('GB · Rol y prioridades')
+    await expect(panel.getByText('Qué buscamos obtener')).toHaveCount(0)
+    await expect(panel.getByText('Lente')).toHaveCount(0)
+    // Las reglas de campo salen en la autorización.
+    await d.getByRole('button', { name: 'Autorización para grabar' }).click()
+    await expect(d.getByRole('heading', { name: 'Presentación y autorización · Gerente de distribución' })).toBeVisible()
+    await expect(d.locator('.autorizacion-notas li')).toHaveCount(5)
+    await expect(d.locator('.autorizacion-notas')).toContainText('No pedir ventas, márgenes, precios')
+  })
+
+  test('Visita BUSI: cada pregunta dice a quién va y el cierre trae el debrief', async ({ page, entrar }) => {
+    await entrar()
+    await page.goto('/preguntas?guia=visita-busi')
+    const d = dialogo(page)
+    await expect(d.getByRole('heading', { name: 'Imprescindibles · 6' })).toBeVisible()
+    await pregunta(page, 'VC6').click()
+    const panel = d.locator('.pregunta', { has: page.locator('.pregunta-boton', { hasText: 'VC6' }) })
+    await expect(panel.getByText('A quién se le pregunta')).toBeVisible()
+    await expect(panel).toContainText('Conductor o auxiliar')
+    await d.getByRole('button', { name: 'Cierre de la entrevista' }).click()
+    await expect(d).toContainText('debrief del equipo de 15 minutos')
   })
 
   test('la autorización pone el nombre de la cuenta y se vuelve con atrás o con el botón', async ({ page, entrar }) => {

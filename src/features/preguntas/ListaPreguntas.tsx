@@ -20,7 +20,7 @@ export function ListaPreguntas({ guia, moduloId }: { guia: Guia; moduloId: strin
   return (
     <div className="preguntas-lista">
       <h3 className="preguntas-grupo">Imprescindibles · {imprescindibles.length}</h3>
-      <p className="preguntas-grupo-nota">Con solo estas se hace la versión de 40 minutos.</p>
+      <p className="preguntas-grupo-nota">{guia.notaImprescindibles ?? 'Con solo estas se hace la versión de 40 minutos.'}</p>
       <ul className="lista-preguntas">
         {imprescindibles.map(({ pregunta, bloque, esDeModulo }) => (
           <PreguntaDesplegable
