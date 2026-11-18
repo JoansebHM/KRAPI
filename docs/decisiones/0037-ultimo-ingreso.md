@@ -10,6 +10,7 @@ Los admins querían saber cuándo ingresó por última vez cada cuenta, para ver
 
 - **Una función `ultimos_accesos()`** (`security definer`, con `search_path` fijo) que lee `auth.users.last_sign_in_at` y devuelve `(usuario_id, ultimo_acceso)` de cada cuenta. Dentro revisa `es_admin()` y, si quien llama no es un admin activo, falla con `42501`. Se le quita el permiso de ejecución a `public` y `anon`: solo `authenticated` puede llamarla, y la propia función filtra.
 - **En Usuarios** (página que ya es solo de admins), la lista dice debajo de cada cuenta "ingresó hace 3 h", "ingresó hace 2 días" (pasada una semana, la fecha) o "nunca ha ingresado". La ficha de la cuenta muestra la fecha y la hora completas.
+- **La lista va ordenada por último ingreso**, de la cuenta que ingresó más recientemente a la más antigua; las que nunca ingresaron (o si el dato no carga) quedan al final, por nombre. Vale para cada pestaña (Pendientes, Activos, Otros).
 - **El dato es de apoyo**: si no se puede cargar, la página de Usuarios sigue funcionando sin él.
 
 ## Descartado

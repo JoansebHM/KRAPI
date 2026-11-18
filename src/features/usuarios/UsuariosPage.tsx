@@ -23,7 +23,7 @@ import {
   type Rol,
   type Usuario,
 } from './api'
-import { fechaYHora, textoDeIngreso } from './ultimoIngreso'
+import { fechaYHora, ordenarPorIngreso, textoDeIngreso } from './ultimoIngreso'
 import './UsuariosPage.css'
 
 type Pestana = 'pendientes' | 'activos' | 'otros'
@@ -154,10 +154,12 @@ export function UsuariosPage() {
   const filtrados = useMemo(() => {
     const termino = normalizar(busqueda)
     const incluye = PESTANAS.find(({ id }) => id === pestana)!.incluye
-    return (usuarios ?? []).filter(
+    const coinciden = (usuarios ?? []).filter(
       (usuario) => incluye(usuario) && (normalizar(usuario.nombre).includes(termino) || usuario.usuario.includes(termino)),
     )
-  }, [usuarios, pestana, busqueda])
+    // Quien ingresó más recientemente primero (decisión 0037).
+    return ordenarPorIngreso(coinciden, ingresos)
+  }, [usuarios, pestana, busqueda, ingresos])
 
   async function ejecutar(usuario: Usuario, accion: Accion) {
     const { exito } = describir(accion)
