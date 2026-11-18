@@ -1,6 +1,7 @@
 /**
  * Guías de preguntas para las entrevistas de campo. El contenido es estático y está versionado aquí
- * (decisión 0031): se transcribe de las seis guías de entrevista semiestructurada y se deja fuera
+ * (decisión 0031): se transcribe de las seis guías de entrevista semiestructurada y de dos guías cortas de campo
+ * (gerente de distribución y visita a la BUSI), y se deja fuera
  * el material de preparación y análisis.
  */
 
@@ -23,9 +24,12 @@ export interface Pregunta {
   texto: string
   /** Repreguntas. */
   profundizacion?: string
-  /** Evidencia esperada. */
-  evidencia: string
-  lentes: Lente[]
+  /** Evidencia esperada. Las guías cortas no la traen. */
+  evidencia?: string
+  /** Las guías cortas no las traen. */
+  lentes?: Lente[]
+  /** A quién se le hace (por ejemplo, «Jefe o coordinador»), cuando la guía reparte las preguntas por rol. */
+  paraQuien?: string
   ejercicio?: Ejercicio
 }
 
@@ -42,7 +46,15 @@ export interface Bloque {
   preguntas: Pregunta[]
 }
 
-export type IdGuia = 'centro-distribucion' | 'jac' | 'instituciones' | 'tenderos' | 'residentes' | 'visitantes'
+export type IdGuia =
+  | 'centro-distribucion'
+  | 'jac'
+  | 'instituciones'
+  | 'tenderos'
+  | 'residentes'
+  | 'visitantes'
+  | 'gerente-distribucion'
+  | 'visita-busi'
 
 export interface OpcionDeModulo {
   id: string
@@ -57,6 +69,8 @@ export interface Guia {
   titulo: string
   aQuien: string
   aviso?: string
+  /** Reemplaza «Con solo estas se hace la versión de 40 minutos» en las guías cortas. */
+  notaImprescindibles?: string
   autorizacion: { guion: string[]; notas: string[] }
   cierre: string[]
   /** Tronco común: se hace siempre. */
@@ -64,7 +78,7 @@ export interface Guia {
   modulos?: { etiqueta: 'Institución' | 'Perfil'; nota: string; opciones: OpcionDeModulo[] }
 }
 
-/** Elementos obligatorios del consentimiento, iguales para las seis guías. */
+/** Elementos obligatorios del consentimiento, iguales para todas las guías. */
 export const ELEMENTOS_CONSENTIMIENTO: string[] = [
   'Presentación como estudiantes de la Universidad EAFIT, con mención explícita del proyecto con Postobón. La transparencia sobre el aliado es condición del consentimiento informado; lo que se evita es presentarse como representante, vendedor o auditor de la empresa.',
   'Propósito del estudio en una frase y duración estimada (40 a 60 minutos).',
@@ -961,6 +975,171 @@ const GUIA_VISITANTES: Guia = {
   },
 }
 
-export const GUIAS: Guia[] = [GUIA_CENTRO, GUIA_JAC, GUIA_INSTITUCIONES, GUIA_TENDEROS, GUIA_RESIDENTES, GUIA_VISITANTES]
+// Guías cortas de campo (gerente de distribución y visita a la BUSI): preguntas sin «evidencia» ni «lente».
+// `estrella` = imprescindible (★, la prioridad si hay poco tiempo); `normal` = complementaria.
+function corta(imprescindible: boolean, codigo: string, texto: string, paraQuien?: string): Pregunta {
+  return { codigo, imprescindible, texto, paraQuien }
+}
+const estrella = (codigo: string, texto: string, paraQuien?: string) => corta(true, codigo, texto, paraQuien)
+const normal = (codigo: string, texto: string, paraQuien?: string) => corta(false, codigo, texto, paraQuien)
+
+/** Reglas de campo, iguales en las dos guías cortas. Salen en «Para este actor» de la autorización. */
+const REGLAS_DE_CAMPO: string[] = [
+  'Abrir siempre igual: somos de EAFIT, esto no evalúa a nadie, la participación es voluntaria y solo grabamos con permiso.',
+  'No pedir ventas, márgenes, precios, tarifas, facturas ni datos de clientes. Si hablan de cantidades, basta un orden de magnitud.',
+  'Preguntar por la última vez que pasó algo («¿cuándo fue la última vez que…?»), no por opiniones generales.',
+  'Repreguntar con «¿por qué?», «¿me da un ejemplo?», «¿y entonces qué hizo?». Dejar silencios.',
+  'No registrar nombres en las notas: citar por cargo o función.',
+]
+
+const CIERRE_CORTAS = [
+  CIERRE_PREGUNTA,
+  'Después de la visita: debrief del equipo de 15 minutos el mismo día (3 hallazgos, 1 sorpresa, 1 duda). Las notas se pasan en limpio antes de 24 horas y se suben a la carpeta del proyecto.',
+]
+
+const GUIA_GERENTE: Guia = {
+  id: 'gerente-distribucion',
+  numero: '07',
+  pestana: 'Gerente de distribución',
+  titulo: 'Entrevista con el gerente de distribución (A. F. Tamayo)',
+  aQuien: 'Gerente de distribución Medellín (A. F. Tamayo). Conversación semiestructurada de 40 a 45 minutos, basada en la guía 07.',
+  aviso: 'Si hay poco tiempo, solo las preguntas ★ (unos 20 minutos).',
+  notaImprescindibles: 'Con solo estas se hace la versión de unos 20 minutos.',
+  autorizacion: {
+    guion: [
+      'Buenos días/tardes. Mi nombre es ______ y hago parte del equipo de estudiantes de la Universidad EAFIT que trabaja con Postobón en el Proyecto Kratos 2026. Buscamos impacto en ventas y en profundidad de distribución en Manila; la circularidad es una palanca, no el objetivo.',
+      'Esta conversación no evalúa a nadie y dura entre 40 y 45 minutos. No le vamos a pedir ventas, márgenes, precios ni datos de clientes; cuando hablemos de cantidades, un orden de magnitud es suficiente. Su participación es voluntaria y puede no responder cualquier pregunta o terminar cuando quiera.',
+      '¿Está de acuerdo en participar? ¿Nos autoriza a grabar el audio?',
+    ],
+    notas: REGLAS_DE_CAMPO,
+  },
+  cierre: CIERRE_CORTAS,
+  bloques: [
+    {
+      codigo: 'GA',
+      titulo: 'Apertura',
+      minutos: 2,
+      proposito: 'Entender cómo se piensa y se gestiona la distribución en la zona, qué la hace exigente y bajo qué condiciones le sirve a Postobón probar alternativas.',
+      preguntas: [
+        normal('GA1', 'Presentación del proyecto en un minuto: buscamos impacto en ventas y en profundidad de distribución en Manila; la circularidad es una palanca, no el objetivo. ¿Podemos grabar?'),
+      ],
+    },
+    {
+      codigo: 'GB',
+      titulo: 'Rol y prioridades',
+      proposito: 'Entender cómo se piensa y se gestiona la distribución en la zona, qué la hace exigente y bajo qué condiciones le sirve a Postobón probar alternativas.',
+      preguntas: [
+        estrella('GB2', '¿Cómo está organizada la distribución en Medellín (áreas, BUSI, operación logística) y cuáles son sus prioridades para los próximos 6 a 12 meses?'),
+        normal('GB3', '¿Qué hace distinto atender El Poblado, y en particular Manila, frente a otras zonas de la ciudad?'),
+      ],
+    },
+    {
+      codigo: 'GC',
+      titulo: 'Modelo de atención e indicadores',
+      proposito: 'Entender cómo se piensa y se gestiona la distribución en la zona, qué la hace exigente y bajo qué condiciones le sirve a Postobón probar alternativas.',
+      preguntas: [
+        normal('GC4', '¿Cómo se atiende hoy un barrio como Manila (preventa, entrega, frecuencias, tipos de cliente)? ¿Qué cambió con la transformación comercial y turística del barrio?'),
+        estrella('GC5', '¿Con qué indicadores gestiona la distribución? Si hiciéramos algo en Manila, ¿qué tendría que moverse para que usted diga que funcionó?'),
+      ],
+    },
+    {
+      codigo: 'GD',
+      titulo: 'Operación en zonas densas y envases',
+      proposito: 'Entender cómo se piensa y se gestiona la distribución en la zona, qué la hace exigente y bajo qué condiciones le sirve a Postobón probar alternativas.',
+      preguntas: [
+        estrella('GD6', '¿Qué es lo más difícil de entregar en zonas densas como esta? ¿Qué alternativas se han probado o considerado?'),
+        normal('GD7', '¿Qué lugar tiene el envase retornable en la zona? ¿En qué punto se complica el retorno de envases y canastillas?'),
+        normal('GD8', '¿Con qué actores del barrio, distintos de los clientes, se relaciona la operación? ¿Qué habría que cuidar en una iniciativa visible?'),
+      ],
+    },
+    {
+      codigo: 'GE',
+      titulo: 'Piloto y siguientes pasos',
+      proposito: 'Entender cómo se piensa y se gestiona la distribución en la zona, qué la hace exigente y bajo qué condiciones le sirve a Postobón probar alternativas.',
+      preguntas: [
+        estrella('GE9', '¿Qué condiciones tendría que cumplir una prueba piloto para que usted la apoye? ¿Hay experiencias anteriores que debamos conocer?'),
+        estrella('GE10', '¿Podemos hacer el taller con el equipo de distribución (10 a 16 personas, 2 horas)? ¿Quiénes, cuándo y dónde? ¿Pueden dos estudiantes acompañar una ruta en Manila?'),
+        estrella('GE11', 'Cierre: si pudiera mejorar una sola cosa de la distribución en El Poblado, ¿cuál sería?'),
+      ],
+    },
+  ],
+}
+
+const GUIA_VISITA_BUSI: Guia = {
+  id: 'visita-busi',
+  numero: '01',
+  pestana: 'Visita BUSI',
+  titulo: 'Visita a la BUSI que atiende Manila',
+  aQuien:
+    'Jefe o coordinador de la BUSI; supervisor o preventista del sector Manila; conductor o auxiliar de la ruta de Manila. Conversaciones cortas (15 a 25 minutos por persona, fuera de los picos de cargue y despacho), basadas en la guía 01.',
+  aviso: 'Cada pregunta dice a quién va: todos, jefe o coordinador, supervisor o preventista, conductor o auxiliar. Si hay poco tiempo, solo las ★.',
+  notaImprescindibles: 'Con solo estas se hace la versión corta de la visita.',
+  autorizacion: {
+    guion: [
+      'Buenos días/tardes. Mi nombre es ______ y hago parte del equipo de estudiantes de la Universidad EAFIT que trabaja con Postobón en el Proyecto Kratos 2026. Queremos ver cómo se atiende hoy Manila, qué dificulta la entrega y qué pasa con envases y canastillas, contado por quienes lo hacen.',
+      'Esta conversación no evalúa a nadie y dura entre 15 y 25 minutos. No le vamos a pedir ventas, precios ni datos de clientes; cuando hablemos de cantidades, un orden de magnitud es suficiente. Su participación es voluntaria y puede no responder cualquier pregunta o terminar cuando quiera.',
+      '¿Está de acuerdo en participar? ¿Nos autoriza a grabar el audio?',
+    ],
+    notas: REGLAS_DE_CAMPO,
+  },
+  cierre: CIERRE_CORTAS,
+  bloques: [
+    {
+      codigo: 'VA',
+      titulo: 'Para abrir',
+      proposito: 'Ver cómo se atiende hoy Manila, qué dificulta la entrega y qué pasa con envases y canastillas, contado por quienes lo hacen.',
+      preguntas: [estrella('VA1', 'Cuénteme su último día de trabajo con Manila, de principio a fin.', 'Todos')],
+    },
+    {
+      codigo: 'VB',
+      titulo: 'Atención del sector',
+      proposito: 'Ver cómo se atiende hoy Manila, qué dificulta la entrega y qué pasa con envases y canastillas, contado por quienes lo hacen.',
+      preguntas: [
+        normal('VB2', '¿Cómo se reparte la atención de Manila entre la BUSI, la operación logística y el equipo comercial?', 'Jefe o coordinador'),
+        estrella('VB3', '¿Cuántos puntos de venta se atienden, más o menos, y de qué tipo (tiendas, restaurantes, bares, cafés)? ¿Cómo ha cambiado el barrio?', 'Jefe o coordinador · Supervisor o preventista'),
+        normal('VB4', '¿Qué distingue a un punto bien atendido de uno mal atendido? ¿Qué piden los tenderos que hoy no se les resuelve?', 'Supervisor o preventista'),
+      ],
+    },
+    {
+      codigo: 'VC',
+      titulo: 'Ruta y entrega',
+      proposito: 'Ver cómo se atiende hoy Manila, qué dificulta la entrega y qué pasa con envases y canastillas, contado por quienes lo hacen.',
+      preguntas: [
+        estrella('VC5', '¿Cada cuánto se visita y cada cuánto se entrega? ¿En qué franjas horarias?', 'Supervisor o preventista · Conductor o auxiliar'),
+        estrella('VC6', '¿Cómo es una entrega típica en Manila: dónde parquea, cuánto camina, qué se complica? ¿Cuándo fue la última vez que una entrega salió mal y por qué?', 'Conductor o auxiliar'),
+      ],
+    },
+    {
+      codigo: 'VD',
+      titulo: 'Envases y canastillas',
+      proposito: 'Ver cómo se atiende hoy Manila, qué dificulta la entrega y qué pasa con envases y canastillas, contado por quienes lo hacen.',
+      preguntas: [
+        estrella('VD7', '¿Qué presentaciones circulan en el sector? ¿Qué envases y canastillas vuelven, cuáles se quedan en el punto y cómo regresa el vehículo?', 'Supervisor o preventista · Conductor o auxiliar'),
+        normal('VD8', '¿Se ha intentado antes algo de retorno o recolección en el barrio? ¿Qué pasó?', 'Todos'),
+      ],
+    },
+    {
+      codigo: 'VE',
+      titulo: 'Barrio y cierre',
+      proposito: 'Ver cómo se atiende hoy Manila, qué dificulta la entrega y qué pasa con envases y canastillas, contado por quienes lo hacen.',
+      preguntas: [
+        normal('VE9', 'Además de los clientes, ¿con quién se relacionan en el barrio (JAC, vecinos, porteros, tránsito)? ¿Qué lugar del barrio ayudaría a la operación?', 'Todos'),
+        normal('VE10', '¿Qué hace más o menos exigente atender Manila? ¿Cómo se notaría una mejora?', 'Jefe o coordinador'),
+        estrella('VE11', 'Si pudiera cambiar una sola cosa de la operación en el barrio, ¿cuál sería?', 'Todos'),
+      ],
+    },
+  ],
+}
+
+export const GUIAS: Guia[] = [
+  GUIA_CENTRO,
+  GUIA_JAC,
+  GUIA_INSTITUCIONES,
+  GUIA_TENDEROS,
+  GUIA_RESIDENTES,
+  GUIA_VISITANTES,
+  GUIA_GERENTE,
+  GUIA_VISITA_BUSI,
+]
 
 export const ID_GUIA_INICIAL: IdGuia = GUIAS[0].id

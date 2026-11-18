@@ -50,9 +50,16 @@ export function PreguntaDesplegable({ pregunta, bloque, esDeModulo, abierta, onA
           </p>
         ))}
       </Seccion>
-      <Seccion titulo="Qué buscamos obtener">
-        <p>{pregunta.evidencia}</p>
-      </Seccion>
+      {pregunta.paraQuien && (
+        <Seccion titulo="A quién se le pregunta">
+          <p>{pregunta.paraQuien}</p>
+        </Seccion>
+      )}
+      {pregunta.evidencia && (
+        <Seccion titulo="Qué buscamos obtener">
+          <p>{pregunta.evidencia}</p>
+        </Seccion>
+      )}
       {pregunta.profundizacion && (
         <Seccion titulo="Repreguntas">
           <p>{pregunta.profundizacion}</p>
@@ -72,15 +79,17 @@ export function PreguntaDesplegable({ pregunta, bloque, esDeModulo, abierta, onA
           <EjercicioTarjetas ejercicio={pregunta.ejercicio} />
         </Seccion>
       )}
-      <Seccion titulo="Lente">
-        <ul className="pregunta-lentes">
-          {pregunta.lentes.map((lente) => (
-            <li key={lente} className="pregunta-lente">
-              {lente}
-            </li>
-          ))}
-        </ul>
-      </Seccion>
+      {pregunta.lentes && pregunta.lentes.length > 0 && (
+        <Seccion titulo="Lente">
+          <ul className="pregunta-lentes">
+            {pregunta.lentes.map((lente) => (
+              <li key={lente} className="pregunta-lente">
+                {lente}
+              </li>
+            ))}
+          </ul>
+        </Seccion>
+      )}
     </Desplegable>
   )
 }
