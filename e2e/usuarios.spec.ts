@@ -216,6 +216,18 @@ test.describe('Usuarios: último ingreso (solo admins)', () => {
     await expect(fila(page, 'Carla Ruiz')).toContainText(/ingresó \d{1,2} [a-z]{3} \d{4}/)
   })
 
+  test('la lista va del ingreso más reciente al más antiguo, y quien nunca ingresó al final', async ({ page, supabase, entrar }) => {
+    supabase.cuenta('ana').ultimo_acceso = haceMs(3 * HORA)
+    supabase.agregarCuenta({ usuario: 'bruno', nombre: 'Bruno Díaz', ultimo_acceso: haceMs(2 * 24 * HORA) })
+    supabase.agregarCuenta({ usuario: 'carla', nombre: 'Carla Ruiz', ultimo_acceso: haceMs(30 * 24 * HORA) })
+    supabase.agregarCuenta({ usuario: 'dario', nombre: 'Darío Mesa' })
+    await entrar('admin')
+    await page.goto('/usuarios')
+    await pestana(page, 'Activos').click()
+    // Admin (ahora) → Ana (3 h) → Bruno (2 días) → Carla (30 días) → Darío (nunca).
+    await expect(page.locator('.lista-item-titulo')).toContainText(['Admin Kratos', 'Ana Gómez', 'Bruno Díaz', 'Carla Ruiz', 'Darío Mesa'])
+  })
+
   test('si no se puede cargar el dato, Usuarios sigue funcionando sin él', async ({ page, supabase, entrar }) => {
     await page.route('**/rest/v1/rpc/ultimos_accesos', (ruta) => ruta.fulfill({ status: 500, json: { message: 'falla' } }))
     await entrar('admin')

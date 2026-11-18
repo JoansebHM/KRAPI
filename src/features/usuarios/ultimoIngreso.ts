@@ -28,6 +28,19 @@ export function fechaYHora(momento: string): string {
   return `${mostrarFechaDe(momento)} · ${formatoHora.format(new Date(momento))}`
 }
 
+/**
+ * Ordena las cuentas por último ingreso, de la más reciente a la más antigua. Las que nunca han
+ * ingresado (o cuyo dato no se pudo cargar) van al final, en el orden en que llegaron (por nombre).
+ */
+export function ordenarPorIngreso<T extends { id: string }>(cuentas: T[], ingresos: Map<string, string | null> | undefined): T[] {
+  const instante = (cuenta: T) => {
+    const momento = ingresos?.get(cuenta.id)
+    return momento ? new Date(momento).getTime() : -Infinity
+  }
+  // `sort` es estable: a igual ingreso se conserva el orden por nombre.
+  return [...cuentas].sort((a, b) => instante(b) - instante(a))
+}
+
 /** Para la lista: "ingresó hace 3 h" o "nunca ha ingresado". */
 export function textoDeIngreso(momento: string | null | undefined): string {
   return momento ? `ingresó ${haceCuanto(momento)}` : 'nunca ha ingresado'
