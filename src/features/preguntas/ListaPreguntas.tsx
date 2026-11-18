@@ -8,6 +8,7 @@ export function ListaPreguntas({ guia, moduloId }: { guia: Guia; moduloId: strin
   const { imprescindibles, complementarias } = ordenarPreguntas(guia, moduloId)
   const [abiertas, setAbiertas] = useState<Set<string>>(new Set())
   const cierreId = useId()
+  const observacionId = useId()
 
   function alternar(codigo: string) {
     setAbiertas((previas) => {
@@ -47,6 +48,21 @@ export function ListaPreguntas({ guia, moduloId }: { guia: Guia; moduloId: strin
         ))}
       </ul>
       <ul className="lista-preguntas preguntas-cierre">
+        {guia.observacion && (
+          <Desplegable
+            panelId={observacionId}
+            abierta={abiertas.has('observacion')}
+            onAlternar={() => alternar('observacion')}
+            encabezado={<span className="pregunta-texto">{guia.observacion.titulo}</span>}
+          >
+            <p className="pregunta-lectura">{guia.observacion.nota}</p>
+            <ul>
+              {guia.observacion.elementos.map((elemento) => (
+                <li key={elemento}>{elemento}</li>
+              ))}
+            </ul>
+          </Desplegable>
+        )}
         <Desplegable
           panelId={cierreId}
           abierta={abiertas.has('cierre')}

@@ -139,6 +139,12 @@ test.describe('Guías de preguntas', () => {
     await expect(panel).toContainText('Conductor o auxiliar')
     await d.getByRole('button', { name: 'Cierre de la entrevista' }).click()
     await expect(d).toContainText('debrief del equipo de 15 minutos')
+    // La lista de observación de E5 va antes del cierre y solo la trae esta guía.
+    await d.getByRole('button', { name: 'Lista de observación (E5)' }).click()
+    await expect(d.locator('.pregunta-panel li')).toHaveCount(6)
+    await expect(d).toContainText('Una cosa que nadie mencionó pero que se ve.')
+    await page.goto('/preguntas?guia=gerente-distribucion')
+    await expect(d.getByRole('button', { name: 'Lista de observación (E5)' })).toHaveCount(0)
   })
 
   test('la autorización pone el nombre de la cuenta y se vuelve con atrás o con el botón', async ({ page, entrar }) => {

@@ -71,6 +71,8 @@ export interface Guia {
   aviso?: string
   /** Reemplaza «Con solo estas se hace la versión de 40 minutos» en las guías cortas. */
   notaImprescindibles?: string
+  /** Lo que se observa durante la visita, aparte de las preguntas (se muestra antes del cierre). */
+  observacion?: { titulo: string; nota: string; elementos: string[] }
   autorizacion: { guion: string[]; notas: string[] }
   cierre: string[]
   /** Tronco común: se hace siempre. */
@@ -1074,6 +1076,18 @@ const GUIA_VISITA_BUSI: Guia = {
     'Jefe o coordinador de la BUSI; supervisor o preventista del sector Manila; conductor o auxiliar de la ruta de Manila. Conversaciones cortas (15 a 25 minutos por persona, fuera de los picos de cargue y despacho), basadas en la guía 01.',
   aviso: 'Cada pregunta dice a quién va: todos, jefe o coordinador, supervisor o preventista, conductor o auxiliar. Si hay poco tiempo, solo las ★.',
   notaImprescindibles: 'Con solo estas se hace la versión corta de la visita.',
+  observacion: {
+    titulo: 'Lista de observación (E5)',
+    nota: 'La lleva E5, el observador, mientras las duplas conversan: recorre el patio y el cargue. Toma fotos solo con permiso, del vehículo y de la carga, sin personas.',
+    elementos: [
+      'Vehículo tipo de la ruta de Manila: tamaño y cómo se carga y descarga.',
+      'Unidades de carga: canastillas, estibas y cuántas caben, en orden de magnitud.',
+      'Qué vuelve en el viaje de regreso: envases, canastillas, producto devuelto o el vehículo vacío.',
+      'Dónde se acumulan envases y canastillas en la BUSI y qué los demora.',
+      'Herramientas en uso: celular, papel, sistema, rutero.',
+      'Una cosa que nadie mencionó pero que se ve.',
+    ],
+  },
   autorizacion: {
     guion: [
       'Buenos días/tardes. Mi nombre es ______ y hago parte del equipo de estudiantes de la Universidad EAFIT que trabaja con Postobón en el Proyecto Kratos 2026. Queremos ver cómo se atiende hoy Manila, qué dificulta la entrega y qué pasa con envases y canastillas, contado por quienes lo hacen.',
