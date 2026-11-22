@@ -5,7 +5,6 @@ import { FlechaLista } from '../../components/FlechaLista'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { MiraCentral } from '../lugares/MiraCentral'
-import { dentroDeManila } from '../map/manila'
 import { buscarElementosCercanos, ELEMENTO_VACIO, useCrearElemento, type CamposElemento, type ElementoCercano } from './api'
 import { CamposDelElemento } from './CamposDelElemento'
 import '../lugares/CrearPunto.css'
@@ -28,7 +27,7 @@ export function CrearElemento() {
   const ocupado = revisando || crear.isPending
 
   function continuar(centro: [number, number] | null) {
-    if (!centro || !dentroDeManila(centro[0], centro[1])) return
+    if (!centro) return
     setPosicion(centro)
     setPaso({ tipo: 'formulario' })
   }
@@ -61,7 +60,7 @@ export function CrearElemento() {
 
   return (
     <div className="crear-punto">
-      <MiraCentral mensaje="Mueve el mapa hasta que la mira quede sobre el elemento.">
+      <MiraCentral mensaje="Mueve el mapa hasta que la mira quede sobre el elemento." limitarAManila={false}>
         {({ centro, dentro }) => (
           <div className="crear-barra">
             <Link to="/" className="btn btn-secondary">

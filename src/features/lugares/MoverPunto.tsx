@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router'
 import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
-import { dentroDeManila } from '../map/manila'
 import { useMapa } from '../map/mapaContexto'
 import { useLugares, useMoverPunto, type Elemento, type Punto } from './api'
 import { MiraCentral } from './MiraCentral'
@@ -31,7 +30,7 @@ export function MoverPunto() {
   if (!punto) return null
 
   async function guardar(centro: [number, number] | null) {
-    if (!centro || !dentroDeManila(centro[0], centro[1])) return
+    if (!centro) return
     try {
       await mover.mutateAsync({ id: punto!.id, lng: centro[0], lat: centro[1] })
       notificar.exito(punto!.tipo === 'elemento' ? 'Elemento movido' : 'Punto movido', { descripcion: `«${punto!.nombre}» quedó en su nueva posición.` })
@@ -43,7 +42,7 @@ export function MoverPunto() {
 
   return (
     <div className="crear-punto">
-      <MiraCentral mensaje={`Mueve el mapa hasta la nueva posición de «${punto.nombre}».`}>
+      <MiraCentral mensaje={`Mueve el mapa hasta la nueva posición de «${punto.nombre}».`} limitarAManila={false}>
         {({ centro, dentro }) => (
           <div className="crear-barra">
             <Link to={`/lugares/${punto.id}`} className="btn btn-secondary">
