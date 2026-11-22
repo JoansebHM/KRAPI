@@ -157,7 +157,7 @@ La app no lee ninguna de estas claves: no las pongas en `.env.local` con prefijo
 | `contactos` | El correo opcional de cada cuenta, para los avisos. Solo lo lee su dueño |
 | `categorias` | Tipos de lugar (comercio, café...) o de elemento (caneca, poste...) con un color y un ícono para el mapa, y si se usan en lugares, elementos o ambos |
 | `tipos_zona` | De qué es una zona (comercial, residencial...) con un color para el mapa |
-| `ubicaciones` | Lugares dentro de Manila: puntos (locales, con estado activa/cerrada), zonas (áreas, con su tipo) y elementos (canecas, postes…: sin estudios) |
+| `ubicaciones` | Lugares de Manila y sus alrededores (las zonas, siempre dentro del barrio): puntos (locales, con estado activa/cerrada), zonas (áreas, con su tipo) y elementos (canecas, postes…: sin estudios) |
 | `comentarios_zona` | Comentarios del equipo sobre cada zona, con su autor |
 | `salidas` | Salidas de campo (solo admins): nombre, fecha, hora de inicio y si se canceló |
 | `asignaciones` | Zonas que se reparten en cada salida (no son zonas del mapa, aunque pueden quedar ligadas a una) |
@@ -175,7 +175,7 @@ La app no lee ninguna de estas claves: no las pongas en `.env.local` con prefijo
 
 Reglas principales:
 
-- Ninguna ubicación puede quedar fuera del barrio.
+- Solo las zonas deben quedar dentro del barrio; los puntos y elementos pueden quedar en sus alrededores (decisión 0040).
 - Lugares y estudios **se archivan, no se borran** (`archivada_en` / `archivado_en`), para no perder el histórico. Solo se borra de verdad un lugar sin estudios (o un elemento sin evidencias) creado por error, o una evidencia equivocada.
 - Al borrar una categoría, sus ubicaciones quedan sin categoría.
 

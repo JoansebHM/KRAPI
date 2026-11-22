@@ -81,7 +81,7 @@ Vienen cinco para empezar (Comercial, Residencial, Mixta, Parque o zona verde, I
 | Columna | Tipo | Reglas |
 | --- | --- | --- |
 | `tipo` | `tipo_ubicacion` | `punto`, `zona` o `elemento`. **No cambia** después de crear el lugar (trigger `tipo_de_ubicacion_fijo()`) |
-| `geom` | `geometry(Geometry, 4326)` | POINT si es punto o elemento, POLYGON válido si es zona. **Debe quedar dentro de Manila** |
+| `geom` | `geometry(Geometry, 4326)` | POINT si es punto o elemento, POLYGON válido si es zona. **Solo las zonas deben quedar dentro de Manila**: los puntos y elementos pueden quedar fuera ([decisión 0040](decisiones/0040-puntos-fuera-de-manila.md)) |
 | `nombre` | text | Obligatorio en puntos y zonas (no vacío). **Opcional en elementos** (`ubicaciones_nombre_segun_tipo`): sin nombre se muestra el de su categoría |
 | `descripcion`, `direccion`, `complemento` | text | Opcionales |
 | `contacto_nombre`, `contacto_telefono` | text | Opcionales; el teléfono, si se escribe, debe tener formato de teléfono |
@@ -234,7 +234,7 @@ Las columnas de autoría solo dicen quién creó y quién editó por última vez
 
 | Función | Qué devuelve | Uso |
 | --- | --- | --- |
-| `limite_manila()` | El polígono del barrio (SRID 4326). **Copia** de `src/features/map/manila.ts` | Regla `ubicaciones_dentro_de_manila` |
+| `limite_manila()` | El polígono del barrio (SRID 4326). **Copia** de `src/features/map/manila.ts` | Regla `ubicaciones_dentro_de_manila` (solo zonas) |
 | `lugares_mapa()` | Lugares no archivados (`id`, `tipo`, `nombre`, `estado`, `categoria_id`, `tipo_zona_id`) con su forma en GeoJSON (`geojson`); zonas primero y luego puntos y elementos por nombre | Dibujar los lugares en el mapa. PostgREST devuelve `geom` en binario (WKB), que el mapa no entiende |
 | `ubicaciones_en_zona(zona_id)` | Puntos no archivados dentro de la zona | (Reemplazada en la app por `locales_en_zona`) |
 | `locales_en_zona(zona_id)` | Puntos no archivados dentro de la zona o sobre su borde (`id`, `nombre`, `categoria_id`, `estado`) con la fecha de su último estudio (`ultimo_estudio`) | Ficha de la zona |
@@ -358,4 +358,5 @@ Todas las de admin devuelven el perfil actualizado y fallan si quien llama no es
 | `20261108130000_presencia` | Políticas de `realtime.messages` para el canal privado `presencia`: solo cuentas activas ([decisión 0036](decisiones/0036-usuarios-en-linea.md)) |
 | `20261108140000_ultimo_ingreso` | `ultimos_accesos()`: el último ingreso de cada cuenta, solo para admins ([decisión 0037](decisiones/0037-ultimo-ingreso.md)) |
 | `20261112120000_cronograma` | `cronograma_fragmentos` y `cronograma_tareas` ([decisión 0039](decisiones/0039-cronograma.md)): fechas libres, responsable opcional, `hecha_por` puesto por el trigger `poner_quien_hizo_tarea()`, con autoría y bitácora |
+| `20261122120000_puntos_fuera_de_manila` | `ubicaciones_dentro_de_manila` solo exige estar dentro del polígono a las zonas ([decisión 0040](decisiones/0040-puntos-fuera-de-manila.md)) |
 | `20261112180000_cronograma_responsables` | `cronograma_tarea_responsables` ([decisión 0039](decisiones/0039-cronograma.md)): varios responsables por tarea. Pasa los de `cronograma_tareas.responsable_id` a la tabla nueva, borra esa columna y enseña a `registrar_bitacora()` a registrar con el id de la tarea |

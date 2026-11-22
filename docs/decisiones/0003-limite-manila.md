@@ -1,6 +1,6 @@
 # 0003 · Todo dentro de Manila; navegación hasta 1 km alrededor
 
-**Estado:** aceptada · 2026-10
+**Estado:** aceptada · 2026-10 · modificada por la [decisión 0040](0040-puntos-fuera-de-manila.md): los puntos y elementos ya pueden quedar fuera del polígono; las zonas no
 
 ## Contexto
 
