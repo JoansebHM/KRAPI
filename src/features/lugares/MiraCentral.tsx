@@ -10,8 +10,13 @@ export interface PosicionMira {
 }
 
 interface MiraCentralProps {
-  /** Qué hacer, mientras la mira está dentro de Manila. */
+  /** Qué hacer, mientras la mira esté en un lugar donde se puede registrar. */
   mensaje: string
+  /**
+   * Si es true (por defecto), solo se puede registrar dentro de Manila: la mira se pone roja afuera.
+   * Los puntos y elementos lo desactivan (decisión 0040); las zonas lo mantienen.
+   */
+  limitarAManila?: boolean
   /**
    * Si se pasa, aparece el botón "Usar mi ubicación": pide la ubicación al navegador y, si está dentro
    * de Manila, deja el punto ahí y llama a esta función con ella. Solo crear un punto lo usa.
@@ -23,9 +28,9 @@ interface MiraCentralProps {
 
 /**
  * Mira fija en el centro del mapa: se mueve el mapa por debajo para elegir una posición. Avisa si
- * queda fuera de Manila y trae el botón "Mi ubicación". La usan crear y mover un punto.
+ * queda fuera de Manila (cuando está limitada a Manila) y trae el botón "Mi ubicación". La usan crear y mover un punto.
  */
-export function MiraCentral({ mensaje, onUsarUbicacion, children }: MiraCentralProps) {
+export function MiraCentral({ mensaje, limitarAManila = true, onUsarUbicacion, children }: MiraCentralProps) {
   const mapa = useMapa()
   const [centro, setCentro] = useState<[number, number] | null>(() => mapa?.getCenter().toArray() ?? null)
   const [localizando, setLocalizando] = useState(false)
@@ -40,7 +45,8 @@ export function MiraCentral({ mensaje, onUsarUbicacion, children }: MiraCentralP
     }
   }, [mapa])
 
-  const dentro = centro ? dentroDeManila(centro[0], centro[1]) : false
+  const sePuedeAqui = (lng: number, lat: number) => !limitarAManila || dentroDeManila(lng, lat)
+  const dentro = centro ? sePuedeAqui(centro[0], centro[1]) : false
 
   /** Pide la ubicación al navegador (que pregunta si se permite) y lleva el mapa hasta ella. */
   function irAMiUbicacion(usarla = false) {
@@ -53,11 +59,11 @@ export function MiraCentral({ mensaje, onUsarUbicacion, children }: MiraCentralP
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         setLocalizando(false)
-        if (!dentroDeManila(coords.longitude, coords.latitude)) {
+        if (limitarAManila && !dentroDeManila(coords.longitude, coords.latitude)) {
           notificar.aviso('Estás fuera de Manila', { descripcion: 'Mueve el mapa hasta el lugar que quieres registrar.' })
         }
         mapa.flyTo({ center: [coords.longitude, coords.latitude], zoom: Math.max(mapa.getZoom(), 18) })
-        if (usarla && dentroDeManila(coords.longitude, coords.latitude)) onUsarUbicacion?.([coords.longitude, coords.latitude])
+        if (usarla && sePuedeAqui(coords.longitude, coords.latitude)) onUsarUbicacion?.([coords.longitude, coords.latitude])
       },
       () => {
         setLocalizando(false)

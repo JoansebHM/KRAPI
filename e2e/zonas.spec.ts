@@ -46,6 +46,16 @@ test.describe('Zonas', () => {
     await expect(page.getByRole('status')).toHaveText('Mueve el mapa y agrega la primera esquina.')
   })
 
+  test('fuera de Manila la mira se pone roja y no deja agregar esquinas', async ({ page, entrar }) => {
+    await entrar()
+    await page.goto('/zonas/nueva')
+    // Arrastra el mapa para que la mira quede al sur del barrio.
+    await moverMapa(page, 0, -300)
+    await expect(page.getByText('No se puede registrar fuera de Manila.')).toBeVisible()
+    await expect(page.locator('.crear-mira')).toHaveClass(/crear-mira-fuera/)
+    await expect(page.getByRole('button', { name: 'Agregar esquina' })).toBeDisabled()
+  })
+
   test('se dibuja con la mira, se llenan sus datos y queda con su tipo', async ({ page, entrar, supabase }) => {
     await entrar()
     await page.goto('/zonas/nueva')

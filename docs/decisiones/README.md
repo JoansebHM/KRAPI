@@ -8,7 +8,7 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | --- | --- | --- |
 | 0001 | [Vite + React + TypeScript, sin servidor propio](0001-vite-react-typescript.md) | Aceptada |
 | 0002 | [MapLibre GL y mapa base provisional OpenFreeMap](0002-maplibre-y-mapa-base.md) | Aceptada |
-| 0003 | [Todo dentro de Manila; navegación hasta 1 km alrededor](0003-limite-manila.md) | Aceptada |
+| 0003 | [Todo dentro de Manila; navegación hasta 1 km alrededor](0003-limite-manila.md) | Modificada por la 0040 |
 | 0004 | [Modo oscuro con estilo nocturno derivado de Liberty](0004-modo-oscuro-nocturno.md) | Aceptada |
 | 0005 | [Identidad Kratos Innovation Lab](0005-identidad-kratos.md) | Reemplazada |
 | 0006 | [Supabase con la CLI como infraestructura como código](0006-supabase-iac.md) | Aceptada |
@@ -45,3 +45,4 @@ Para cambiar una decisión, no se edita el registro viejo: se crea uno nuevo que
 | 0037 | [Último ingreso de cada cuenta, solo para admins](0037-ultimo-ingreso.md) | Aceptada |
 | 0038 | [Exportar un lugar completo en un ZIP](0038-exportar-lugar.md) | Aceptada |
 | 0039 | [Cronograma: el calendario en fragmentos con su checklist](0039-cronograma.md) | Aceptada |
+| 0040 | [Puntos y elementos pueden quedar fuera de Manila](0040-puntos-fuera-de-manila.md) | Aceptada |

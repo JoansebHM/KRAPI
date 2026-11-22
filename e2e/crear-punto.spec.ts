@@ -64,7 +64,7 @@ test.describe('Crear un punto', () => {
     await expect(page.getByRole('region', { name: 'Tienda Don Pepe' })).toBeVisible()
   })
 
-  test('fuera de Manila la mira se pone roja y no deja continuar', async ({ page, entrar }) => {
+  test('fuera de Manila la mira sigue azul y deja continuar', async ({ page, entrar }) => {
     await entrar()
     await page.getByRole('button', { name: 'Nuevo lugar' }).click()
     await page.getByRole('link', { name: /Punto/ }).click()
@@ -78,22 +78,22 @@ test.describe('Crear un punto', () => {
     await page.mouse.move(x, y - 300, { steps: 10 })
     await page.mouse.up()
 
-    await expect(page.getByText('No se puede registrar fuera de Manila.')).toBeVisible()
-    await expect(page.locator('.crear-mira')).toHaveClass(/crear-mira-fuera/)
-    await expect(page.getByRole('button', { name: 'Continuar' })).toBeDisabled()
+    await expect(page.getByText('Mueve el mapa hasta que la mira quede sobre el local.')).toBeVisible()
+    await expect(page.locator('.crear-mira')).not.toHaveClass(/crear-mira-fuera/)
+    await expect(page.getByRole('button', { name: 'Continuar' })).toBeEnabled()
   })
 
   test.describe('con "Mi ubicación" fuera del barrio', () => {
     test.use({ geolocation: { longitude: -75.574, latitude: 6.2195 }, permissions: ['geolocation'] })
 
-    test('avisa y lleva la mira a donde se está', async ({ page, entrar }) => {
+    test('lleva la mira a donde se está, sin avisos de límite', async ({ page, entrar }) => {
       await entrar()
       await page.getByRole('button', { name: 'Nuevo lugar' }).click()
       await page.getByRole('link', { name: /Punto/ }).click()
       await page.getByRole('button', { name: 'Mi ubicación', exact: true }).click()
 
-      await expect(toast(page, 'Estás fuera de Manila')).toBeVisible()
-      await expect(page.getByText('No se puede registrar fuera de Manila.')).toBeVisible()
+      await expect(toast(page, 'Estás fuera de Manila')).toBeHidden()
+      await expect(page.getByRole('button', { name: 'Continuar' })).toBeEnabled()
     })
   })
 
@@ -122,17 +122,25 @@ test.describe('Crear un punto', () => {
   })
 
   test.describe('con "Usar mi ubicación" fuera del barrio', () => {
-    test.use({ geolocation: { longitude: -75.574, latitude: 6.2195 }, permissions: ['geolocation'] })
+    const AFUERA = { longitude: -75.574, latitude: 6.2195 }
+    test.use({ geolocation: AFUERA, permissions: ['geolocation'] })
 
-    test('avisa y no crea el punto', async ({ page, entrar }) => {
+    test('crea el punto igual, donde está la persona', async ({ page, entrar, supabase }) => {
       await entrar()
       await page.getByRole('button', { name: 'Nuevo lugar' }).click()
       await page.getByRole('link', { name: /Punto/ }).click()
       await page.getByRole('button', { name: 'Usar mi ubicación' }).click()
 
-      await expect(toast(page, 'Estás fuera de Manila')).toBeVisible()
-      await expect(page.getByRole('dialog', { name: 'Nuevo lugar' })).toBeHidden()
-      await expect(page.getByRole('button', { name: 'Continuar' })).toBeDisabled()
+      const formulario = page.getByRole('dialog', { name: 'Nuevo lugar' })
+      await expect(formulario).toBeVisible()
+      await formulario.getByPlaceholder('Ej.: Tienda Don Pepe').fill('Tienda aledaña')
+      await formulario.getByRole('button', { name: 'Café' }).click()
+      await formulario.getByRole('button', { name: 'Solo guardar el lugar' }).click()
+      await expect(toast(page, 'Lugar guardado')).toBeVisible()
+
+      const [lng, lat] = (supabase.db.ubicaciones[0].geom as { coordinates: number[] }).coordinates
+      expect(lng).toBeCloseTo(AFUERA.longitude, 6)
+      expect(lat).toBeCloseTo(AFUERA.latitude, 6)
     })
   })
 

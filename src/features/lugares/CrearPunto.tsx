@@ -6,7 +6,6 @@ import { mensajeErrorDatos } from '../../lib/errores'
 import { notificar } from '../../lib/notificar'
 import { useCamposEstudioNuevo, useGuardarEstudio, type CamposEstudio } from '../estudios/api'
 import { FormularioEstudio } from '../estudios/FormularioEstudio'
-import { dentroDeManila } from '../map/manila'
 import { buscarCercanos, PUNTO_VACIO, useCrearPunto, type CamposPunto, type LugarCercano } from './api'
 import { FormularioPunto } from './FormularioPunto'
 import { MiraCentral } from './MiraCentral'
@@ -37,7 +36,7 @@ export function CrearPunto() {
   const [revisando, setRevisando] = useState(false)
 
   async function continuar(centro: [number, number] | null) {
-    if (!centro || !dentroDeManila(centro[0], centro[1])) return
+    if (!centro) return
     const [lng, lat] = centro
     setRevisando(true)
     try {
@@ -105,7 +104,7 @@ export function CrearPunto() {
 
   return (
     <div className="crear-punto">
-      <MiraCentral mensaje="Mueve el mapa hasta que la mira quede sobre el local." onUsarUbicacion={(ubicacion) => void continuar(ubicacion)}>
+      <MiraCentral mensaje="Mueve el mapa hasta que la mira quede sobre el local." limitarAManila={false} onUsarUbicacion={(ubicacion) => void continuar(ubicacion)}>
         {({ centro, dentro }) => (
           <div className="crear-barra">
             <Link to="/" className="btn btn-secondary">
